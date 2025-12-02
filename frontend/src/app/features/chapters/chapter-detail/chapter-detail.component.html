@@ -29,11 +29,8 @@
                 </ng-template>
 
                 <div class="mb-6">
-                    <h3 class="font-semibold mb-2">Falas (Preview)</h3>
-                    <div class="bg-gray-50 p-4 rounded border border-gray-200 text-center text-gray-500">
-                        <p>Nenhuma fala cadastrada.</p>
-                        <p class="text-sm mt-2">O módulo de falas será implementado na Fase 5.</p>
-                    </div>
+                    <h3 class="font-semibold mb-2">Falas</h3>
+                    <app-speech-list [bookId]="chapter.bookId" [chapterId]="chapter.id"></app-speech-list>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
@@ -57,9 +54,9 @@
                 </ng-template>
 
                 <div class="space-y-3">
-                    <button pButton label="Gerar Narração" icon="pi pi-volume-up" class="w-full"
-                        [style.background-color]="'var(--color-accent)'" (click)="generateNarration()"
-                        [disabled]="!chapter.speeches || chapter.speeches.length === 0"></button>
+                    <app-narration-control [chapterId]="chapter.id"
+                        [hasSpeeches]="!!chapter.speeches && chapter.speeches.length > 0">
+                    </app-narration-control>
 
                     <div class="text-xs text-gray-500 mt-2">
                         <p><i class="pi pi-info-circle mr-1"></i> Adicione falas para gerar a narração.</p>

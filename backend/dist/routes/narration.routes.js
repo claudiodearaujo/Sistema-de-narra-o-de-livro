@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.narrationRoutes = void 0;
+const express_1 = require("express");
+const narration_controller_1 = require("../controllers/narration.controller");
+const router = (0, express_1.Router)();
+router.post('/chapters/:chapterId/narration/start', narration_controller_1.narrationController.startNarration);
+router.get('/chapters/:chapterId/narration/status', narration_controller_1.narrationController.getNarrationStatus);
+router.post('/chapters/:chapterId/narration/cancel', narration_controller_1.narrationController.cancelNarration);
+exports.narrationRoutes = router;

@@ -1,0 +1,50 @@
+<div class="p-fluid">
+    <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="field mb-4">
+            <label for="characterId"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Personagem</label>
+            <p-select id="characterId" [options]="characters" formControlName="characterId" optionLabel="name"
+                optionValue="id" placeholder="Selecione um personagem" [filter]="true" filterBy="name"
+                [showClear]="true" appendTo="body">
+                <ng-template pTemplate="selectedItem" let-selectedOption>
+                    <div class="flex align-items-center gap-2" *ngIf="selectedOption">
+                        <div
+                            class="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-xs">
+                            {{ selectedOption.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <div>{{ selectedOption.name }}</div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="item" let-character>
+                    <div class="flex align-items-center gap-2">
+                        <div
+                            class="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-xs">
+                            {{ character.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <div>{{ character.name }}</div>
+                    </div>
+                </ng-template>
+            </p-select>
+            <small *ngIf="form.get('characterId')?.invalid && form.get('characterId')?.touched"
+                class="p-error block mt-1">
+                Personagem é obrigatório.
+            </small>
+        </div>
+
+        <div class="field mb-6">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Texto / SSML</label>
+            <app-ssml-editor [content]="form.get('ssmlText')?.value || form.get('text')?.value"
+                (contentChange)="onSsmlChange($event)">
+            </app-ssml-editor>
+            <small *ngIf="form.get('text')?.invalid && form.get('text')?.touched" class="p-error block mt-1">
+                Texto é obrigatório.
+            </small>
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <button pButton type="button" label="Cancelar" class="p-button-text" (click)="cancel()"></button>
+            <button pButton type="submit" label="Salvar" [disabled]="form.invalid || loading || validating"
+                [loading]="loading"></button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,24 @@
+
+> frontend@0.0.0 build
+> ng build
+
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain-FVIH7I2I.js[39m   [2m | [22m[2mmain[22m         [2m | [22m  [36m1.19 MB[39m[2m | [22m              [36m208.02 kB[39m
+[32mchunk-KYSE47HW.js[39m  [2m | [22m[2m-[22m            [2m | [22m[36m173.23 kB[39m[2m | [22m               [36m50.19 kB[39m
+[32mstyles-KAFL2ZBJ.css[39m[2m | [22m[2mstyles[22m       [2m | [22m [36m19.55 kB[39m[2m | [22m                [36m4.44 kB[39m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m  [1m[91m1.38 MB[39m[22m[2m | [22m              [1m262.66 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-HBZLMDJN.js[39m  [2m | [22m[2mbrowser[22m      [2m | [22m [36m64.21 kB[39m[2m | [22m               [36m17.20 kB[39m
+
+Application bundle generation failed. [8.077 seconds] - 2025-12-02T16:34:49.704Z
+
+Ôû▓ [WARNING] bundle initial exceeded maximum budget. Budget 500.00 kB was not met by 880.82 kB with a total of 1.38 MB.
+
+
+X [ERROR] bundle initial exceeded maximum budget. Budget 1.00 MB was not met by 380.82 kB with a total of 1.38 MB.
+
+

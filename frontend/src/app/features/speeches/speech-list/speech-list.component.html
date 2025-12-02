@@ -1,0 +1,49 @@
+<div class="p-4">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white">Falas do Capítulo</h3>
+        <div class="flex gap-2">
+            <button pButton label="Importar em Massa" icon="pi pi-upload" (click)="openBulkImport()"
+                class="p-button-secondary p-button-outlined"></button>
+            <button pButton label="Nova Fala" icon="pi pi-plus" (click)="openNew()" class="p-button-success"></button>
+        </div>
+    </div>
+
+    <p-orderList [value]="speeches" [listStyle]="{'max-height':'30rem'}" header="Falas" filterBy="text"
+        filterPlaceholder="Filtrar por texto" [dragdrop]="true" (onReorder)="onReorder()">
+        <ng-template let-speech pTemplate="item">
+            <div class="flex align-items-center p-2 w-full flex-wrap gap-2">
+                <div class="flex-shrink-0" *ngIf="speech.character">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-sm"
+                        pTooltip="{{speech.character.name}}">
+                        {{ speech.character.name.charAt(0).toUpperCase() }}
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-start">
+                        <span class="font-medium text-sm text-gray-500 dark:text-gray-400 mb-1 block">{{
+                            speech.character?.name }}</span>
+                        <div class="flex gap-1">
+                            <button pButton icon="pi pi-pencil"
+                                class="p-button-text p-button-rounded p-button-sm text-blue-500"
+                                (click)="editSpeech(speech)"></button>
+                            <button pButton icon="pi pi-trash"
+                                class="p-button-text p-button-rounded p-button-sm text-red-500"
+                                (click)="deleteSpeech(speech)"></button>
+                        </div>
+                    </div>
+                    <p class="text-gray-900 dark:text-gray-100 text-base break-words"
+                        [innerHTML]="speech.ssmlText ? (speech.ssmlText | slice:0:150) + (speech.ssmlText.length > 150 ? '...' : '') : speech.text">
+                    </p>
+                    <span *ngIf="speech.ssmlText" class="text-xs text-purple-500 font-mono mt-1 block">SSML</span>
+                </div>
+            </div>
+        </ng-template>
+    </p-orderList>
+
+    <div *ngIf="speeches.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+        <p>Nenhuma fala cadastrada. Adicione uma nova fala ou importe em massa.</p>
+    </div>
+</div>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-toast></p-toast>

@@ -1,0 +1,23 @@
+<div class="ssml-editor border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden">
+    <div
+        class="toolbar bg-gray-100 dark:bg-gray-800 p-2 flex gap-2 border-b border-gray-300 dark:border-gray-700 overflow-x-auto">
+        <button pButton type="button" icon="pi pi-pause" class="p-button-text p-button-sm" pTooltip="Pausa (500ms)"
+            (click)="insertTag('break', 'time=\'500ms\'')"></button>
+        <button pButton type="button" label="Strong" class="p-button-text p-button-sm" pTooltip="Ênfase Forte"
+            (click)="insertTag('emphasis', 'level=\'strong\'')"></button>
+        <button pButton type="button" label="Slow" class="p-button-text p-button-sm" pTooltip="Fala Lenta"
+            (click)="insertTag('prosody', 'rate=\'slow\'')"></button>
+        <button pButton type="button" label="Fast" class="p-button-text p-button-sm" pTooltip="Fala Rápida"
+            (click)="insertTag('prosody', 'rate=\'fast\'')"></button>
+        <button pButton type="button" label="Pitch +" class="p-button-text p-button-sm" pTooltip="Tom Agudo"
+            (click)="insertTag('prosody', 'pitch=\'+2st\'')"></button>
+        <button pButton type="button" label="Pitch -" class="p-button-text p-button-sm" pTooltip="Tom Grave"
+            (click)="insertTag('prosody', 'pitch=\'-2st\'')"></button>
+        <button pButton type="button" label="Say-As" class="p-button-text p-button-sm"
+            pTooltip="Interpretar como Cardinal" (click)="insertTag('say-as', 'interpret-as=\'cardinal\'')"></button>
+    </div>
+    <textarea #textarea pTextarea [ngModel]="content" (ngModelChange)="onContentChange($event)" rows="5"
+        class="w-full border-none focus:ring-0 p-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-mono text-sm resize-y"
+        placeholder="Digite o texto ou SSML aqui...">
+    </textarea>
+</div>

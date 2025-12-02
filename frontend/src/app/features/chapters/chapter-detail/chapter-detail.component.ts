@@ -8,6 +8,8 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ChapterService } from '../../../services/chapter.service';
 import { Chapter, ChapterStatus } from '../../../models/chapter.model';
+import { SpeechListComponent } from '../../speeches/speech-list/speech-list.component';
+import { NarrationControlComponent } from '../narration-control/narration-control.component';
 
 @Component({
     selector: 'app-chapter-detail',
@@ -17,7 +19,9 @@ import { Chapter, ChapterStatus } from '../../../models/chapter.model';
         CardModule,
         ButtonModule,
         TagModule,
-        ToastModule
+        ToastModule,
+        SpeechListComponent,
+        NarrationControlComponent
     ],
     providers: [MessageService],
     templateUrl: './chapter-detail.component.html',
@@ -100,12 +104,5 @@ export class ChapterDetailComponent implements OnInit {
         }
     }
 
-    generateNarration() {
-        // To be implemented in later phases
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Em breve',
-            detail: 'Geração de narração será implementada na Fase 7'
-        });
-    }
+
 }
