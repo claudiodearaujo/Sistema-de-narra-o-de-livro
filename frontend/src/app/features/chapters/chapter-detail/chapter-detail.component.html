@@ -64,17 +64,16 @@
                 </div>
             </p-card>
 
-            <!-- Player Placeholder -->
-            <p-card class="mt-4" *ngIf="chapter.narration">
-                <ng-template pTemplate="header">
-                    <div class="p-4 border-b">
-                        <h3 class="text-lg font-semibold">Player</h3>
-                    </div>
-                </ng-template>
-                <div class="text-center py-4">
-                    <p>Player será implementado na Fase 7</p>
-                </div>
-            </p-card>
+            <!-- Audio Processing & Player -->
+            <div class="mt-4 space-y-4">
+                <app-audio-player *ngIf="chapter.narration?.outputUrl" [audioUrl]="chapter.narration?.outputUrl">
+                </app-audio-player>
+
+                <app-export-options *ngIf="!chapter.narration?.outputUrl" [chapterId]="chapter.id"
+                    [canProcess]="chapter.status === 'completed' || (!!chapter.speeches && chapter.speeches.length > 0)"
+                    (onProcessComplete)="loadChapter()">
+                </app-export-options>
+            </div>
         </div>
     </div>
 

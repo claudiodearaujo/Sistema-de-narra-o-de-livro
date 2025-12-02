@@ -10,6 +10,8 @@ import { ChapterService } from '../../../services/chapter.service';
 import { Chapter, ChapterStatus } from '../../../models/chapter.model';
 import { SpeechListComponent } from '../../speeches/speech-list/speech-list.component';
 import { NarrationControlComponent } from '../narration-control/narration-control.component';
+import { AudioPlayerComponent } from '../audio-player/audio-player.component';
+import { ExportOptionsComponent } from '../export-options/export-options.component';
 
 @Component({
     selector: 'app-chapter-detail',
@@ -21,7 +23,9 @@ import { NarrationControlComponent } from '../narration-control/narration-contro
         TagModule,
         ToastModule,
         SpeechListComponent,
-        NarrationControlComponent
+        NarrationControlComponent,
+        AudioPlayerComponent,
+        ExportOptionsComponent
     ],
     providers: [MessageService],
     templateUrl: './chapter-detail.component.html',
