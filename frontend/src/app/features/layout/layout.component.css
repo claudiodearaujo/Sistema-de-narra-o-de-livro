@@ -1,0 +1,26 @@
+.layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.layout-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.layout-main {
+    flex: 1;
+    padding: 2rem;
+}
+
+.layout-footer {
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .layout-main {
+        padding: 1rem;
+    }
+}
