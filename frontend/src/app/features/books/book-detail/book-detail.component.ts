@@ -8,6 +8,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { BookService } from '../../../services/book.service';
 import { Book, BookStats } from '../../../models/book.model';
+import { ChapterListComponent } from '../../chapters/chapter-list/chapter-list.component';
 
 @Component({
     selector: 'app-book-detail',
@@ -17,7 +18,8 @@ import { Book, BookStats } from '../../../models/book.model';
         CardModule,
         ButtonModule,
         TagModule,
-        ToastModule
+        ToastModule,
+        ChapterListComponent
     ],
     providers: [MessageService],
     templateUrl: './book-detail.component.html',

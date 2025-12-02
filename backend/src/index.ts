@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import booksRoutes from './routes/books.routes';
+import chaptersRoutes from './routes/chapters.routes';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/books', booksRoutes);
+app.use('/api', chaptersRoutes);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

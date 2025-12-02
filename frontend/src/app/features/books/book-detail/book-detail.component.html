@@ -106,15 +106,18 @@
                 </ng-template>
 
                 <div class="space-y-2">
-                    <button pButton label="Ver Capítulos" icon="pi pi-list" class="w-full" severity="secondary"
-                        [disabled]="true"></button>
                     <button pButton label="Ver Personagens" icon="pi pi-users" class="w-full" severity="secondary"
                         [disabled]="true"></button>
                     <small class="text-gray-500 block mt-2">
-                        * Disponível nas próximas fases
+                        * Personagens na próxima fase
                     </small>
                 </div>
             </p-card>
+        </div>
+
+        <!-- Chapters List (Full Width below) -->
+        <div class="lg:col-span-3">
+            <app-chapter-list [bookId]="book.id"></app-chapter-list>
         </div>
     </div>
 

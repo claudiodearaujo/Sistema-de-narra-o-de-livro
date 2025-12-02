@@ -1,0 +1,85 @@
+<div class="container mx-auto p-6">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold mb-2" style="color: var(--color-agua);">Detalhes do Capítulo</h1>
+            <p class="text-gray-600" *ngIf="chapter">
+                Livro > Capítulo {{ chapter.orderIndex }}
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <button pButton label="Voltar para o Livro" icon="pi pi-arrow-left" (click)="backToBook()"
+                severity="secondary"></button>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="text-center py-8">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+    </div>
+
+    <div *ngIf="!loading && chapter" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2">
+            <p-card>
+                <ng-template pTemplate="header">
+                    <div class="p-4 border-b flex justify-between items-center">
+                        <h2 class="text-2xl font-bold" style="color: var(--color-metal);">{{ chapter.title }}</h2>
+                        <p-tag [value]="getStatusLabel(chapter.status)"
+                            [severity]="getStatusSeverity(chapter.status)"></p-tag>
+                    </div>
+                </ng-template>
+
+                <div class="mb-6">
+                    <h3 class="font-semibold mb-2">Falas (Preview)</h3>
+                    <div class="bg-gray-50 p-4 rounded border border-gray-200 text-center text-gray-500">
+                        <p>Nenhuma fala cadastrada.</p>
+                        <p class="text-sm mt-2">O módulo de falas será implementado na Fase 5.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                    <div>
+                        <strong>Criado em:</strong> {{ chapter.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                    </div>
+                    <div>
+                        <strong>Atualizado em:</strong> {{ chapter.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+                    </div>
+                </div>
+            </p-card>
+        </div>
+
+        <!-- Actions Sidebar -->
+        <div class="lg:col-span-1">
+            <p-card>
+                <ng-template pTemplate="header">
+                    <div class="p-4 border-b">
+                        <h3 class="text-lg font-semibold">Ações</h3>
+                    </div>
+                </ng-template>
+
+                <div class="space-y-3">
+                    <button pButton label="Gerar Narração" icon="pi pi-volume-up" class="w-full"
+                        [style.background-color]="'var(--color-accent)'" (click)="generateNarration()"
+                        [disabled]="!chapter.speeches || chapter.speeches.length === 0"></button>
+
+                    <div class="text-xs text-gray-500 mt-2">
+                        <p><i class="pi pi-info-circle mr-1"></i> Adicione falas para gerar a narração.</p>
+                    </div>
+                </div>
+            </p-card>
+
+            <!-- Player Placeholder -->
+            <p-card class="mt-4" *ngIf="chapter.narration">
+                <ng-template pTemplate="header">
+                    <div class="p-4 border-b">
+                        <h3 class="text-lg font-semibold">Player</h3>
+                    </div>
+                </ng-template>
+                <div class="text-center py-4">
+                    <p>Player será implementado na Fase 7</p>
+                </div>
+            </p-card>
+        </div>
+    </div>
+
+    <p-toast></p-toast>
+</div>

@@ -1,0 +1,12 @@
+/* ChapterList Component Styles */
+:host ::ng-deep .p-orderlist-list {
+    padding: 0;
+}
+
+:host ::ng-deep .p-orderlist-item {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+:host ::ng-deep .p-orderlist-item:last-child {
+    border-bottom: none;
+}
