@@ -1,0 +1,77 @@
+<div class="container mx-auto p-6">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold mb-2" style="color: var(--color-agua);">Livros</h1>
+        <p class="text-gray-600">Gerencie seus livros para narração</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="titleFilter" class="block text-sm font-medium mb-2">Título</label>
+                <input pInputText id="titleFilter" [(ngModel)]="titleFilter" placeholder="Filtrar por título"
+                    class="w-full" (keyup.enter)="applyFilters()" />
+            </div>
+            <div>
+                <label for="authorFilter" class="block text-sm font-medium mb-2">Autor</label>
+                <input pInputText id="authorFilter" [(ngModel)]="authorFilter" placeholder="Filtrar por autor"
+                    class="w-full" (keyup.enter)="applyFilters()" />
+            </div>
+            <div class="flex items-end gap-2">
+                <button pButton label="Filtrar" icon="pi pi-search" (click)="applyFilters()" class="flex-1"
+                    [style.background-color]="'var(--color-agua)'"></button>
+                <button pButton label="Limpar" icon="pi pi-times" (click)="clearFilters()" class="flex-1"
+                    severity="secondary"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Lista de Livros</h2>
+            <button pButton label="Novo Livro" icon="pi pi-plus" (click)="createBook()"
+                [style.background-color]="'var(--color-fogo)'"></button>
+        </div>
+
+        <p-table [value]="books" [lazy]="true" [paginator]="true" [rows]="limit" [totalRecords]="totalRecords"
+            [loading]="loading" (onLazyLoad)="onPageChange($event)" [rowsPerPageOptions]="[5, 10, 20, 50]"
+            styleClass="p-datatable-striped">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Criado em</th>
+                    <th style="width: 200px;">Ações</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-book>
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text"
+                                (click)="viewBook(book.id)" pTooltip="Visualizar" tooltipPosition="top"></button>
+                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                                (click)="editBook(book.id)" pTooltip="Editar" tooltipPosition="top"></button>
+                            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                                (click)="deleteBook(book.id)" pTooltip="Excluir" tooltipPosition="top"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4" class="text-center py-8 text-gray-500">
+                        Nenhum livro encontrado
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <p-confirmDialog></p-confirmDialog>
+    <p-toast></p-toast>
+</div>

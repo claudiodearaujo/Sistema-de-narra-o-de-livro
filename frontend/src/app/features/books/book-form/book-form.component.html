@@ -1,0 +1,82 @@
+<div class="container mx-auto p-6 max-w-4xl">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold mb-2" style="color: var(--color-agua);">
+            {{ isEditMode ? 'Editar Livro' : 'Novo Livro' }}
+        </h1>
+        <p class="text-gray-600">
+            {{ isEditMode ? 'Atualize as informações do livro' : 'Cadastre um novo livro para narração' }}
+        </p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+            <!-- Title -->
+            <div class="mb-4">
+                <label for="title" class="block text-sm font-medium mb-2">
+                    Título <span class="text-red-500">*</span>
+                </label>
+                <input pInputText id="title" formControlName="title" placeholder="Digite o título do livro"
+                    class="w-full" [class.ng-invalid]="title?.invalid && title?.touched" />
+                <small *ngIf="title?.invalid && title?.touched" class="text-red-500">
+                    <span *ngIf="title?.errors?.['required']">Título é obrigatório</span>
+                    <span *ngIf="title?.errors?.['minlength']">Título deve ter no mínimo 3 caracteres</span>
+                </small>
+            </div>
+
+            <!-- Author -->
+            <div class="mb-4">
+                <label for="author" class="block text-sm font-medium mb-2">
+                    Autor <span class="text-red-500">*</span>
+                </label>
+                <input pInputText id="author" formControlName="author" placeholder="Digite o nome do autor"
+                    class="w-full" [class.ng-invalid]="author?.invalid && author?.touched" />
+                <small *ngIf="author?.invalid && author?.touched" class="text-red-500">
+                    Autor é obrigatório
+                </small>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+                <label for="description" class="block text-sm font-medium mb-2">
+                    Descrição
+                </label>
+                <p-editor formControlName="description" [style]="{'height':'200px'}">
+                    <ng-template pTemplate="header">
+                        <span class="ql-formats">
+                            <button type="button" class="ql-bold" aria-label="Bold"></button>
+                            <button type="button" class="ql-italic" aria-label="Italic"></button>
+                            <button type="button" class="ql-underline" aria-label="Underline"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button type="button" class="ql-list" value="ordered" aria-label="Ordered List"></button>
+                            <button type="button" class="ql-list" value="bullet" aria-label="Bullet List"></button>
+                        </span>
+                    </ng-template>
+                </p-editor>
+            </div>
+
+            <!-- Cover URL -->
+            <div class="mb-6">
+                <label for="coverUrl" class="block text-sm font-medium mb-2">
+                    URL da Capa
+                </label>
+                <input pInputText id="coverUrl" formControlName="coverUrl" placeholder="https://exemplo.com/capa.jpg"
+                    class="w-full" />
+                <small class="text-gray-500">
+                    Cole a URL de uma imagem para a capa do livro
+                </small>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 justify-end">
+                <button pButton type="button" label="Cancelar" icon="pi pi-times" (click)="cancel()"
+                    severity="secondary" [disabled]="submitting"></button>
+                <button pButton type="submit" [label]="isEditMode ? 'Atualizar' : 'Criar'" icon="pi pi-check"
+                    [loading]="submitting" [disabled]="bookForm.invalid || submitting"
+                    [style.background-color]="'var(--color-madeira)'"></button>
+            </div>
+        </form>
+    </div>
+
+    <p-toast></p-toast>
+</div>

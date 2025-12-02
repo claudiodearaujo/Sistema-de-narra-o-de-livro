@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  id          String    @id @default(uuid())
+  title       String
+  author      String
+  description String?
+  coverUrl    String?   @map("cover_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  chapters    Chapter[]
+  characters  Character[]
+
+  @@map("books")
+}
+
+model Chapter {
+  id         String      @id @default(uuid())
+  bookId     String      @map("book_id")
+  title      String
+  orderIndex Int         @map("order_index")
+  status     String      @default("draft") // draft, in_progress, completed
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  book       Book        @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  speeches   Speech[]
+  narration  Narration?
+
+  @@map("chapters")
+}
+
+model Character {
+  id              String   @id @default(uuid())
+  bookId          String   @map("book_id")
+  name            String
+  voiceId         String   @map("voice_id")
+  voiceDescription String? @map("voice_description")
+  previewAudioUrl String?  @map("preview_audio_url")
+  book            Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  speeches        Speech[]
+
+  @@map("characters")
+}
+
+model Speech {
+  id          String   @id @default(uuid())
+  chapterId   String   @map("chapter_id")
+  characterId String   @map("character_id")
+  text        String
+  ssmlText    String?  @map("ssml_text")
+  orderIndex  Int      @map("order_index")
+  audioUrl    String?  @map("audio_url")
+  chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@map("speeches")
+}
+
+model Narration {
+  id          String   @id @default(uuid())
+  chapterId   String   @unique @map("chapter_id")
+  status      String   // pending, processing, completed, failed
+  outputUrl   String?  @map("output_url")
+  driveFileId String?  @map("drive_file_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@map("narrations")
+}

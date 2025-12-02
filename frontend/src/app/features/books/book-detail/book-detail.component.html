@@ -1,0 +1,122 @@
+<div class="container mx-auto p-6">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold mb-2" style="color: var(--color-agua);">Detalhes do Livro</h1>
+            <p class="text-gray-600">Informações completas do livro</p>
+        </div>
+        <div class="flex gap-2">
+            <button pButton label="Voltar" icon="pi pi-arrow-left" (click)="backToList()" severity="secondary"></button>
+            <button pButton label="Editar" icon="pi pi-pencil" (click)="editBook()"
+                [style.background-color]="'var(--color-agua)'"></button>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="text-center py-8">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+    </div>
+
+    <div *ngIf="!loading && book" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2">
+            <p-card>
+                <ng-template pTemplate="header">
+                    <div *ngIf="book.coverUrl" class="w-full h-64 overflow-hidden">
+                        <img [src]="book.coverUrl" [alt]="book.title" class="w-full h-full object-cover" />
+                    </div>
+                    <div *ngIf="!book.coverUrl" class="w-full h-64 bg-gray-200 flex items-center justify-center">
+                        <i class="pi pi-book text-6xl text-gray-400"></i>
+                    </div>
+                </ng-template>
+
+                <h2 class="text-2xl font-bold mb-2" style="color: var(--color-metal);">{{ book.title }}</h2>
+                <p class="text-lg mb-4" style="color: var(--color-terra);">
+                    <i class="pi pi-user mr-2"></i>{{ book.author }}
+                </p>
+
+                <div class="mb-4">
+                    <h3 class="font-semibold mb-2">Descrição</h3>
+                    <div *ngIf="book.description" [innerHTML]="book.description" class="prose max-w-none"></div>
+                    <p *ngIf="!book.description" class="text-gray-500 italic">
+                        Sem descrição
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                    <div>
+                        <strong>Criado em:</strong> {{ book.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                    </div>
+                    <div>
+                        <strong>Atualizado em:</strong> {{ book.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+                    </div>
+                </div>
+            </p-card>
+        </div>
+
+        <!-- Stats Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Statistics Card -->
+            <p-card class="mb-4">
+                <ng-template pTemplate="header">
+                    <div class="p-4 border-b">
+                        <h3 class="text-lg font-semibold">Estatísticas</h3>
+                    </div>
+                </ng-template>
+
+                <div *ngIf="stats" class="space-y-4">
+                    <div class="flex items-center justify-between p-3 rounded"
+                        style="background-color: rgba(30, 58, 95, 0.1);">
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-book" style="color: var(--color-agua);"></i>
+                            <span class="font-medium">Capítulos</span>
+                        </div>
+                        <p-tag [value]="stats.totalChapters.toString()" severity="info"></p-tag>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded"
+                        style="background-color: rgba(124, 58, 237, 0.1);">
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-users" style="color: var(--color-accent);"></i>
+                            <span class="font-medium">Personagens</span>
+                        </div>
+                        <p-tag [value]="stats.totalCharacters.toString()"
+                            [style]="{'background-color': 'var(--color-accent)'}"></p-tag>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded"
+                        style="background-color: rgba(45, 90, 39, 0.1);">
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-comment" style="color: var(--color-madeira);"></i>
+                            <span class="font-medium">Falas</span>
+                        </div>
+                        <p-tag [value]="stats.totalSpeeches.toString()" severity="success"></p-tag>
+                    </div>
+                </div>
+
+                <div *ngIf="!stats" class="text-center py-4">
+                    <i class="pi pi-spin pi-spinner"></i>
+                </div>
+            </p-card>
+
+            <!-- Quick Actions Card -->
+            <p-card>
+                <ng-template pTemplate="header">
+                    <div class="p-4 border-b">
+                        <h3 class="text-lg font-semibold">Ações Rápidas</h3>
+                    </div>
+                </ng-template>
+
+                <div class="space-y-2">
+                    <button pButton label="Ver Capítulos" icon="pi pi-list" class="w-full" severity="secondary"
+                        [disabled]="true"></button>
+                    <button pButton label="Ver Personagens" icon="pi pi-users" class="w-full" severity="secondary"
+                        [disabled]="true"></button>
+                    <small class="text-gray-500 block mt-2">
+                        * Disponível nas próximas fases
+                    </small>
+                </div>
+            </p-card>
+        </div>
+    </div>
+
+    <p-toast></p-toast>
+</div>
