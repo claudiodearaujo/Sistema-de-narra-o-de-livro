@@ -3,6 +3,10 @@ import { Job } from 'bullmq';
 
 export class NarrationService {
     async startNarration(chapterId: string) {
+        if (!narrationQueue) {
+            throw new Error('Redis não está habilitado. Funcionalidade de fila não disponível.');
+        }
+
         // Check if job already exists
         const existingJobs = await narrationQueue.getJobs(['active', 'waiting', 'delayed']);
         const existingJob = existingJobs.find(job => job.data.chapterId === chapterId);
@@ -16,6 +20,10 @@ export class NarrationService {
     }
 
     async getNarrationStatus(chapterId: string) {
+        if (!narrationQueue) {
+            return { status: 'redis_disabled', message: 'Redis não está habilitado' };
+        }
+
         const jobs = await narrationQueue.getJobs(['active', 'waiting', 'delayed', 'completed', 'failed']);
         // Filter jobs for this chapter and get the latest one
         const chapterJobs = jobs.filter(job => job.data.chapterId === chapterId);
@@ -38,6 +46,10 @@ export class NarrationService {
     }
 
     async cancelNarration(chapterId: string) {
+        if (!narrationQueue) {
+            throw new Error('Redis não está habilitado. Funcionalidade de fila não disponível.');
+        }
+
         const jobs = await narrationQueue.getJobs(['active', 'waiting', 'delayed']);
         const job = jobs.find(j => j.data.chapterId === chapterId);
 
