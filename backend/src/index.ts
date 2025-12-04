@@ -9,6 +9,7 @@ import voicesRoutes from './routes/voices.routes';
 import speechesRoutes from './routes/speeches.routes';
 import { narrationRoutes } from './routes/narration.routes';
 import { audioRoutes } from './routes/audio.routes';
+import customVoicesRoutes from './routes/custom-voices.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.use('/api', voicesRoutes);
 app.use('/api', speechesRoutes);
 app.use('/api', narrationRoutes);
 app.use('/api', audioRoutes);
+app.use('/api', customVoicesRoutes);
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

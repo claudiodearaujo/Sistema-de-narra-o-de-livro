@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
+import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { BookService } from '../../../services/book.service';
 import { Book, BookStats } from '../../../models/book.model';
@@ -18,7 +18,7 @@ import { ChapterListComponent } from '../../chapters/chapter-list/chapter-list.c
         CardModule,
         ButtonModule,
         TagModule,
-        ToastModule,
+        Toast,
         ChapterListComponent
     ],
     providers: [MessageService],

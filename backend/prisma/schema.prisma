@@ -74,3 +74,18 @@ model Narration {
 
   @@map("narrations")
 }
+
+model CustomVoice {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  gender      String   // MALE, FEMALE, NEUTRAL
+  languageCode String  @map("language_code")
+  description String?
+  provider    String   @default("custom")
+  voiceId     String   @map("voice_id") // ID usado para referenciar a voz no TTS
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("custom_voices")
+}

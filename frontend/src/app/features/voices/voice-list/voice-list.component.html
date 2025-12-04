@@ -1,10 +1,18 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
 <div class="container mx-auto p-6">
     <p-card>
         <ng-template pTemplate="header">
             <div class="flex justify-between items-center p-4">
                 <h2 class="text-2xl font-bold text-gray-800">Vozes Disponíveis</h2>
-                <p-button icon="pi pi-refresh" label="Atualizar" (onClick)="loadVoices()" [loading]="loading">
-                </p-button>
+                <div class="flex gap-2">
+                    <p-button icon="pi pi-plus" label="Nova Voz" routerLink="/voices/new">
+                    </p-button>
+                    <p-button icon="pi pi-refresh" label="Atualizar" severity="secondary" (onClick)="loadVoices()"
+                        [loading]="loading">
+                    </p-button>
+                </div>
             </div>
         </ng-template>
 
@@ -28,6 +36,7 @@
                     </th>
                     <th>Descrição</th>
                     <th>Provider</th>
+                    <th style="width: 150px">Ações</th>
                 </tr>
             </ng-template>
 
@@ -52,12 +61,25 @@
                     <td>
                         <p-tag [value]="voice.provider" severity="secondary"></p-tag>
                     </td>
+                    <td>
+                        <div class="flex gap-2" *ngIf="voice.provider === 'custom'">
+                            <p-button icon="pi pi-pencil" severity="info" size="small" [text]="true" [rounded]="true"
+                                (onClick)="editVoice(voice)" pTooltip="Editar" tooltipPosition="top">
+                            </p-button>
+                            <p-button icon="pi pi-trash" severity="danger" size="small" [text]="true" [rounded]="true"
+                                (onClick)="confirmDelete(voice)" pTooltip="Excluir" tooltipPosition="top">
+                            </p-button>
+                        </div>
+                        <span *ngIf="voice.provider !== 'custom'" class="text-gray-400 text-sm">
+                            -
+                        </span>
+                    </td>
                 </tr>
             </ng-template>
 
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="5" class="text-center py-8">
+                    <td colspan="6" class="text-center py-8">
                         <div class="flex flex-col items-center gap-3">
                             <i class="pi pi-info-circle text-4xl text-gray-400"></i>
                             <p class="text-gray-600">Nenhuma voz disponível</p>
