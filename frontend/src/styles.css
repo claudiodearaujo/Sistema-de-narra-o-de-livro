@@ -12,3 +12,7 @@
   --color-metal: #334155;
   --color-accent: #7C3AED;
 }
+
+body {
+  background-image: url('/src/assets/background.png');
+}
