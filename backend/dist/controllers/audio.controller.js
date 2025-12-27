@@ -5,6 +5,11 @@ const audio_queue_1 = require("../queues/audio.queue");
 class AudioController {
     async processAudio(req, res) {
         try {
+            if (!audio_queue_1.audioQueue) {
+                return res.status(503).json({
+                    error: 'Redis não está habilitado. Funcionalidade de fila não disponível.'
+                });
+            }
             const { chapterId } = req.params;
             const job = await audio_queue_1.audioQueue.add(audio_queue_1.AUDIO_JOB_NAME, { chapterId });
             res.json({ message: 'Audio processing started', jobId: job.id });
@@ -15,6 +20,12 @@ class AudioController {
     }
     async getStatus(req, res) {
         try {
+            if (!audio_queue_1.audioQueue) {
+                return res.json({
+                    status: 'redis_disabled',
+                    message: 'Redis não está habilitado'
+                });
+            }
             const { chapterId } = req.params;
             const jobs = await audio_queue_1.audioQueue.getJobs(['active', 'waiting', 'delayed', 'completed', 'failed']);
             const chapterJobs = jobs.filter(job => job.data.chapterId === chapterId);

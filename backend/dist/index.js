@@ -14,6 +14,7 @@ const voices_routes_1 = __importDefault(require("./routes/voices.routes"));
 const speeches_routes_1 = __importDefault(require("./routes/speeches.routes"));
 const narration_routes_1 = require("./routes/narration.routes");
 const audio_routes_1 = require("./routes/audio.routes");
+const custom_voices_routes_1 = __importDefault(require("./routes/custom-voices.routes"));
 const websocket_server_1 = require("./websocket/websocket.server");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -32,6 +33,7 @@ app.use('/api', voices_routes_1.default);
 app.use('/api', speeches_routes_1.default);
 app.use('/api', narration_routes_1.narrationRoutes);
 app.use('/api', audio_routes_1.audioRoutes);
+app.use('/api', custom_voices_routes_1.default);
 // Initialize WebSocket
 (0, websocket_server_1.initializeWebSocket)(httpServer);
 httpServer.listen(port, () => {

@@ -1,9 +1,0 @@
-<div
-    class="flex items-center gap-2 p-2 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-    <input pInputText type="text" [(ngModel)]="text" placeholder="Digite para testar a voz..."
-        class="flex-1 p-2 text-sm" />
-
-    <button pButton [icon]="isLoading ? 'pi pi-spin pi-spinner' : (isPlaying ? 'pi pi-stop' : 'pi pi-play')"
-        [disabled]="isLoading || !voiceId" (click)="play()" class="p-button-rounded p-button-text"
-        [ngClass]="{'text-green-600': isPlaying, 'text-primary': !isPlaying}"></button>
-</div>

@@ -4,6 +4,9 @@ exports.narrationService = exports.NarrationService = void 0;
 const narration_queue_1 = require("../queues/narration.queue");
 class NarrationService {
     async startNarration(chapterId) {
+        if (!narration_queue_1.narrationQueue) {
+            throw new Error('Redis não está habilitado. Funcionalidade de fila não disponível.');
+        }
         // Check if job already exists
         const existingJobs = await narration_queue_1.narrationQueue.getJobs(['active', 'waiting', 'delayed']);
         const existingJob = existingJobs.find(job => job.data.chapterId === chapterId);
@@ -14,6 +17,9 @@ class NarrationService {
         return { message: 'Narration started', jobId: job.id };
     }
     async getNarrationStatus(chapterId) {
+        if (!narration_queue_1.narrationQueue) {
+            return { status: 'redis_disabled', message: 'Redis não está habilitado' };
+        }
         const jobs = await narration_queue_1.narrationQueue.getJobs(['active', 'waiting', 'delayed', 'completed', 'failed']);
         // Filter jobs for this chapter and get the latest one
         const chapterJobs = jobs.filter(job => job.data.chapterId === chapterId);
@@ -32,6 +38,9 @@ class NarrationService {
         };
     }
     async cancelNarration(chapterId) {
+        if (!narration_queue_1.narrationQueue) {
+            throw new Error('Redis não está habilitado. Funcionalidade de fila não disponível.');
+        }
         const jobs = await narration_queue_1.narrationQueue.getJobs(['active', 'waiting', 'delayed']);
         const job = jobs.find(j => j.data.chapterId === chapterId);
         if (job) {
