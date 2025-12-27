@@ -21,6 +21,7 @@ router.get('/books/:bookId/characters', charactersController.getByBookId);
 router.post('/books/:bookId/characters', charactersController.create);
 
 // Character-specific routes
+router.get('/characters', charactersController.getAll);
 router.get('/characters/:id', charactersController.getById);
 router.put('/characters/:id', charactersController.update);
 router.delete('/characters/:id', charactersController.delete);

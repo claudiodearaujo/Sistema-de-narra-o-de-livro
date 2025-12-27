@@ -19,10 +19,45 @@ export interface UpdateCharacterDto {
 
 export class CharactersService {
     async getByBookId(bookId: string) {
-        return await prisma.character.findMany({
+        const characters = await prisma.character.findMany({
             where: { bookId },
             orderBy: { name: 'asc' },
         });
+
+        // Buscar informações das vozes para cada personagem
+        const charactersWithVoice = await Promise.all(
+            characters.map(async (character) => {
+                const voice = await prisma.customVoice.findUnique({
+                    where: { id: character.voiceId },
+                });
+                return {
+                    ...character,
+                    voice: voice || undefined,
+                };
+            })
+        );
+
+        return charactersWithVoice;
+    }
+
+    async getAll() {
+        const characters = await prisma.character.findMany({
+            orderBy: { name: 'asc' },
+        });
+
+        const charactersWithVoice = await Promise.all(
+            characters.map(async (character) => {
+                const voice = await prisma.customVoice.findUnique({
+                    where: { id: character.voiceId },
+                });
+                return {
+                    ...character,
+                    voice: voice || undefined,
+                };
+            })
+        );
+
+        return charactersWithVoice;
     }
 
     async getById(id: string) {
