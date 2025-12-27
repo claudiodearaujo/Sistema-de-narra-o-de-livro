@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
+import path from 'path';
 import booksRoutes from './routes/books.routes';
 import chaptersRoutes from './routes/chapters.routes';
 import charactersRoutes from './routes/characters.routes';
@@ -24,6 +25,9 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.get('/', (req, res) => {
     res.send('Sistema de Narração de Livros API');

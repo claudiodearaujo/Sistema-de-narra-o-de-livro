@@ -1,7 +1,45 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GeminiTTSProvider = void 0;
 const generative_ai_1 = require("@google/generative-ai");
+const googleTTS = __importStar(require("google-tts-api"));
+const axios_1 = __importDefault(require("axios"));
 const tts_config_1 = require("../tts.config");
 class GeminiTTSProvider {
     constructor() {
@@ -19,32 +57,72 @@ class GeminiTTSProvider {
         this.model = this.genAI.getGenerativeModel({ model: modelName });
     }
     async generateAudio(options) {
-        // NOTE: As of now, the standard Generative AI SDK for Node.js might not expose a direct "text-to-speech" endpoint 
-        // that returns an audio buffer in the same way as specialized TTS APIs.
-        // However, for the purpose of this project and based on the prompt requirements, 
-        // we will simulate the integration or use the generateContent method if it supports audio output in the future.
-        // 
-        // CURRENT IMPLEMENTATION: Mocking the audio generation because the specific Gemini 2.5 Pro TTS endpoint 
-        // details are not fully available in the standard public SDK documentation at this moment for direct audio buffer return.
-        // In a real scenario, this would call the specific Google Cloud TTS API or the new Gemini Multimodal endpoints.
-        console.log(`Generating audio with Gemini for voice: ${options.voice.voiceId}`);
-        // Mocking a base64 audio response for demonstration
-        const mockBase64 = "UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="; // Empty WAV
-        const buffer = Buffer.from(mockBase64, 'base64');
-        return {
-            buffer: buffer,
-            format: 'wav',
-            duration: 1 // Mock duration
-        };
+        console.log(`Generating audio with Google TTS API for voice: ${options.voice.voiceId}`);
+        try {
+            // Remove SSML tags if present, as the simple API doesn't support it
+            let textToSpeak = options.text;
+            if (options.useSSML) {
+                // Strip SSML tags for simple text
+                textToSpeak = options.text
+                    .replace(/<[^>]*>/g, '') // Remove all HTML/SSML tags
+                    .replace(/\s+/g, ' ') // Normalize whitespace
+                    .trim();
+            }
+            // Map voice to language code
+            const languageCode = this.getLanguageFromVoice(options.voice.voiceId);
+            // Get the TTS URL from google-tts-api
+            const audioUrls = googleTTS.getAllAudioUrls(textToSpeak, {
+                lang: languageCode,
+                slow: false,
+                host: 'https://translate.google.com',
+                splitPunct: ',.?!'
+            });
+            // Download all audio chunks and concatenate
+            const audioBuffers = [];
+            for (const audioUrl of audioUrls) {
+                const response = await axios_1.default.get(audioUrl.url, {
+                    responseType: 'arraybuffer',
+                    timeout: 30000
+                });
+                audioBuffers.push(Buffer.from(response.data));
+            }
+            // Concatenate all buffers
+            const finalBuffer = Buffer.concat(audioBuffers);
+            console.log(`Audio generated successfully. Buffer size: ${finalBuffer.length} bytes`);
+            return {
+                buffer: finalBuffer,
+                format: 'mp3',
+                duration: undefined
+            };
+        }
+        catch (error) {
+            console.error('Error generating audio with Google TTS API:', error);
+            throw new Error(`Failed to generate audio: ${error.message}`);
+        }
+    }
+    getLanguageFromVoice(voiceId) {
+        // Extract language code from voice ID
+        if (voiceId.startsWith('pt-BR'))
+            return 'pt-BR';
+        if (voiceId.startsWith('en-US'))
+            return 'en-US';
+        if (voiceId.startsWith('es-ES'))
+            return 'es-ES';
+        // Default to Portuguese Brazil
+        return 'pt-BR';
     }
     async getAvailableVoices() {
-        // Mocking available voices for Gemini
+        // Google Cloud TTS voices for Brazilian Portuguese
         return [
-            { id: 'Puck', name: 'Puck', languageCode: 'en-US', gender: 'MALE', provider: 'gemini', description: 'Deep, resonant' },
-            { id: 'Charon', name: 'Charon', languageCode: 'en-US', gender: 'MALE', provider: 'gemini', description: 'Gravelly, dark' },
-            { id: 'Kore', name: 'Kore', languageCode: 'en-US', gender: 'FEMALE', provider: 'gemini', description: 'Soft, ethereal' },
-            { id: 'Fenrir', name: 'Fenrir', languageCode: 'en-US', gender: 'MALE', provider: 'gemini', description: 'Aggressive, growling' },
-            { id: 'Aoede', name: 'Aoede', languageCode: 'en-US', gender: 'FEMALE', provider: 'gemini', description: 'Melodic, high-pitched' }
+            { id: 'pt-BR-Standard-A', name: 'Feminina Padrão A', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'google-tts', description: 'Voz feminina natural' },
+            { id: 'pt-BR-Standard-B', name: 'Masculina Padrão B', languageCode: 'pt-BR', gender: 'MALE', provider: 'google-tts', description: 'Voz masculina natural' },
+            { id: 'pt-BR-Standard-C', name: 'Feminina Padrão C', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'google-tts', description: 'Voz feminina suave' },
+            { id: 'pt-BR-Wavenet-A', name: 'Feminina Neural A', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'google-tts', description: 'Voz feminina de alta qualidade' },
+            { id: 'pt-BR-Wavenet-B', name: 'Masculina Neural B', languageCode: 'pt-BR', gender: 'MALE', provider: 'google-tts', description: 'Voz masculina de alta qualidade' },
+            { id: 'pt-BR-Wavenet-C', name: 'Feminina Neural C', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'google-tts', description: 'Voz feminina expressiva' },
+            { id: 'pt-BR-Neural2-A', name: 'Feminina Neural2 A', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'google-tts', description: 'Última geração feminina' },
+            { id: 'pt-BR-Neural2-B', name: 'Masculina Neural2 B', languageCode: 'pt-BR', gender: 'MALE', provider: 'google-tts', description: 'Última geração masculina' },
+            { id: 'pt-BR-Neural2-C', name: 'Feminina Neural2 C', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'google-tts', description: 'Última geração feminina suave' }
         ];
     }
     async previewVoice(voiceId, sampleText) {

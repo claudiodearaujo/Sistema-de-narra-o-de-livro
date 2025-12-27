@@ -3,3 +3,6 @@ node_modules
 .env
 
 /src/generated/prisma
+# Uploads folder (audio files) - keep directory structure
+uploads/**
+!uploads/**/.gitkeep
