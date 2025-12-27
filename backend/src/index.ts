@@ -11,6 +11,10 @@ import { narrationRoutes } from './routes/narration.routes';
 import { audioRoutes } from './routes/audio.routes';
 import customVoicesRoutes from './routes/custom-voices.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
+// Initialize Redis queues (if enabled)
+import './queues/narration.queue';
+import './queues/narration.processor';
+import './queues/audio.queue';
 
 dotenv.config();
 

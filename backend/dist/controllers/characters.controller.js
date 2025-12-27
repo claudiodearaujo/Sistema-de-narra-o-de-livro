@@ -6,10 +6,25 @@ class CharactersController {
     async getByBookId(req, res) {
         try {
             const { bookId } = req.params;
+            console.log(`[Backend] Fetching characters for bookId: ${bookId}`);
             const characters = await characters_service_1.charactersService.getByBookId(bookId);
+            console.log(`[Backend] Found ${characters.length} characters`);
             res.json(characters);
         }
         catch (error) {
+            console.error('[Backend] Error fetching characters:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+    async getAll(req, res) {
+        try {
+            console.log('[Backend] Fetching all characters');
+            const characters = await characters_service_1.charactersService.getAll();
+            console.log(`[Backend] Found ${characters.length} characters`);
+            res.json(characters);
+        }
+        catch (error) {
+            console.error('[Backend] Error fetching all characters:', error);
             res.status(500).json({ error: error.message });
         }
     }

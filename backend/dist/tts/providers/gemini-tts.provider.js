@@ -56,8 +56,17 @@ class GeminiTTSProvider {
     async validateSSML(ssml) {
         // Basic validation logic (can be expanded)
         const errors = [];
-        if (!ssml.startsWith('<speak>'))
-            errors.push('Missing <speak> tag');
+        // Auto-wrap with <speak> tag if not present
+        let validatedSsml = ssml.trim();
+        if (!validatedSsml.startsWith('<speak>')) {
+            validatedSsml = `<speak>${validatedSsml}</speak>`;
+        }
+        // Check if closing tag is present
+        if (!validatedSsml.endsWith('</speak>')) {
+            errors.push('Missing closing </speak> tag');
+        }
+        // Additional basic validation can be added here
+        // For example: check for balanced tags, valid SSML elements, etc.
         return {
             valid: errors.length === 0,
             errors

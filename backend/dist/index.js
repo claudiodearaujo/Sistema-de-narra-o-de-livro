@@ -16,6 +16,10 @@ const narration_routes_1 = require("./routes/narration.routes");
 const audio_routes_1 = require("./routes/audio.routes");
 const custom_voices_routes_1 = __importDefault(require("./routes/custom-voices.routes"));
 const websocket_server_1 = require("./websocket/websocket.server");
+// Initialize Redis queues (if enabled)
+require("./queues/narration.queue");
+require("./queues/narration.processor");
+require("./queues/audio.queue");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);

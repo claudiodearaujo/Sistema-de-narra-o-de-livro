@@ -8,14 +8,22 @@ import { io } from '../websocket/websocket.server';
 dotenv.config();
 
 const prisma = new PrismaClient();
+const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 
-const connection = new IORedis({
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    maxRetriesPerRequest: null
-});
+let narrationWorker: Worker | null = null;
 
-export const narrationWorker = new Worker('narration', async (job: Job) => {
+if (REDIS_ENABLED) {
+    const redisConnection = new IORedis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        maxRetriesPerRequest: null
+    });
+
+    redisConnection.on('error', (err) => {
+        console.error('Redis connection error (worker):', err.message);
+    });
+
+    narrationWorker = new Worker('narration', async (job: Job) => {
     const { chapterId } = job.data;
     console.log(`Processing narration for chapter ${chapterId}`);
 
@@ -115,4 +123,17 @@ export const narrationWorker = new Worker('narration', async (job: Job) => {
         throw error;
     }
 
-}, { connection });
+}, { connection: redisConnection });
+
+    narrationWorker.on('ready', () => {
+        console.log('✅ Narration worker connected to Redis');
+    });
+
+    narrationWorker.on('failed', (job, err) => {
+        console.error(`Narration job ${job?.id} failed:`, err);
+    });
+} else {
+    console.log('ℹ️  Redis desabilitado - narration worker inativo');
+}
+
+export { narrationWorker };

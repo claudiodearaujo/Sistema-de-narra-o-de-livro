@@ -19,6 +19,14 @@ class BooksService {
                 skip,
                 take: limit,
                 orderBy: { createdAt: 'desc' },
+                include: {
+                    chapters: {
+                        select: {
+                            id: true,
+                            status: true
+                        }
+                    }
+                }
             }),
             prisma.book.count({ where }),
         ]);

@@ -1,0 +1,20 @@
+# Dockerfile - Redis with Custom Configuration
+# For more control over Redis setup
+
+FROM redis:7-alpine
+
+# Copy custom Redis configuration
+COPY redis.conf /usr/local/etc/redis/redis.conf
+
+# Create data directory
+RUN mkdir -p /data && chown redis:redis /data
+
+# Expose Redis port
+EXPOSE 6379
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
+  CMD redis-cli ping
+
+# Run Redis with custom configuration
+CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]

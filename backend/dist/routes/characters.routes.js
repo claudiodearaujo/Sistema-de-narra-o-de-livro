@@ -18,6 +18,7 @@ const router = (0, express_1.Router)();
 router.get('/books/:bookId/characters', characters_controller_1.charactersController.getByBookId);
 router.post('/books/:bookId/characters', characters_controller_1.charactersController.create);
 // Character-specific routes
+router.get('/characters', characters_controller_1.charactersController.getAll);
 router.get('/characters/:id', characters_controller_1.charactersController.getById);
 router.put('/characters/:id', characters_controller_1.charactersController.update);
 router.delete('/characters/:id', characters_controller_1.charactersController.delete);

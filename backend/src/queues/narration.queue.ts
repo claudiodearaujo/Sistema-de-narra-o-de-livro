@@ -16,27 +16,34 @@ if (REDIS_ENABLED) {
             host: process.env.REDIS_HOST || 'localhost',
             port: parseInt(process.env.REDIS_PORT || '6379'),
             maxRetriesPerRequest: null,
-            lazyConnect: true, // Não conecta automaticamente
             retryStrategy: (times) => {
                 if (times > 3) {
                     console.warn('⚠️  Redis não disponível. Funcionalidades de fila desabilitadas.');
-                    return null; // Para de tentar reconectar
+                    return null;
                 }
                 return Math.min(times * 100, 3000);
             }
         });
 
+        connection.on('ready', () => {
+            console.log('✅ Redis connected (Narration Queue)');
+        });
+
         connection.on('error', (err) => {
-            console.warn('⚠️  Redis error:', err.message);
+            console.warn('⚠️  Redis error (Narration):', err.message);
+        });
+
+        connection.on('close', () => {
+            console.warn('⚠️  Redis connection closed (Narration)');
         });
 
         narrationQueue = new Queue('narration', { connection });
-        console.log('✅ Redis queue initialized');
+        console.log('✅ Narration Queue initialized');
     } catch (error) {
-        console.warn('⚠️  Redis não disponível. Funcionalidades de fila desabilitadas.');
+        console.warn('⚠️  Failed to initialize Narration Queue:', error);
     }
 } else {
-    console.log('ℹ️  Redis desabilitado via configuração');
+    console.log('ℹ️  Redis desabilitado - Narration Queue não inicializada');
 }
 
 export { narrationQueue };
