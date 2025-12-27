@@ -46,7 +46,13 @@ export class SpeechesService {
             throw new Error('Text is required');
         }
 
+        // Auto-wrap SSML with <speak> tag if not present
         if (data.ssmlText) {
+            const trimmedSsml = data.ssmlText.trim();
+            if (!trimmedSsml.startsWith('<speak>')) {
+                data.ssmlText = `<speak>${trimmedSsml}</speak>`;
+            }
+            
             const validation = await ttsService.validateSSML(data.ssmlText);
             if (!validation.valid) {
                 throw new Error(`Invalid SSML: ${validation.errors?.join(', ')}`);
@@ -80,7 +86,13 @@ export class SpeechesService {
             throw new Error('Speech not found');
         }
 
+        // Auto-wrap SSML with <speak> tag if not present
         if (data.ssmlText) {
+            const trimmedSsml = data.ssmlText.trim();
+            if (!trimmedSsml.startsWith('<speak>')) {
+                data.ssmlText = `<speak>${trimmedSsml}</speak>`;
+            }
+            
             const validation = await ttsService.validateSSML(data.ssmlText);
             if (!validation.valid) {
                 throw new Error(`Invalid SSML: ${validation.errors?.join(', ')}`);
