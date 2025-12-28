@@ -43,8 +43,12 @@ model Character {
   voiceId         String   @map("voice_id")
   voiceDescription String? @map("voice_description")
   previewAudioUrl String?  @map("preview_audio_url")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
   book            Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   speeches        Speech[]
+  
+  // Ficha completa - relações One-to-One
   identity        CharacterIdentity?
   physique        CharacterPhysique?
   face            CharacterFace?
@@ -55,99 +59,131 @@ model Character {
   @@map("characters")
 }
 
+// ========== FICHA COMPLETA DO PERSONAGEM ==========
+
 model CharacterIdentity {
-  id              String      @id @default(uuid())
-  characterId     String      @unique @map("character_id")
-  gender          String?     // Gênero
-  age             Int?        // Idade
-  nationality     String?     // Nacionalidade
-  character       Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid())
+  characterId   String    @unique @map("character_id")
+  gender        String?   // Masculino, Feminino, Outro
+  age           Int?
+  nationality   String?
+  occupation    String?
+  birthDate     String?   @map("birth_date")
+  birthPlace    String?   @map("birth_place")
+  personality   String?   // Descrição da personalidade
+  background    String?   // História de fundo
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@map("character_identities")
 }
 
 model CharacterPhysique {
-  id              String      @id @default(uuid())
-  characterId     String      @unique @map("character_id")
-  height          String?     // Altura (ex: "1,70 m")
-  bodyType        String?     @map("body_type") // Tipo de corpo
-  waist           String?     // Cintura
-  posture         String?     // Postura
-  character       Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid())
+  characterId   String    @unique @map("character_id")
+  height        String?   // Ex: "1,70 m"
+  weight        String?   // Ex: "60 kg"
+  bodyType      String?   @map("body_type") // Magra, Atlética, Robusta, etc
+  waist         String?   // Fina, Média, Larga
+  posture       String?   // Erguida, Curvada, Relaxada
+  skinTone      String?   @map("skin_tone") // Tom de pele
+  skinTexture   String?   @map("skin_texture") // Textura da pele
+  scars         String?   // Cicatrizes
+  tattoos       String?   // Tatuagens
+  birthmarks    String?   // Marcas de nascença
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@map("character_physiques")
 }
 
 model CharacterFace {
-  id              String      @id @default(uuid())
-  characterId     String      @unique @map("character_id")
-  faceShape       String?     @map("face_shape") // Formato do rosto
-  forehead        String?     // Testa
-  cheeks          String?     // Maçãs do rosto
-  chin            String?     // Queixo
-  nose            String?     // Nariz
-  lips            String?     // Lábios
-  expression      String?     // Expressão
-  skinTone        String?     @map("skin_tone") // Tom de pele
-  character       Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid())
+  characterId   String    @unique @map("character_id")
+  faceShape     String?   @map("face_shape") // Oval, Redondo, Quadrado, etc
+  forehead      String?   // Alta, Baixa, Lisa
+  cheekbones    String?   // Salientes, Suaves
+  chin          String?   // Afinado, Quadrado, Proeminente
+  jaw           String?   // Mandíbula
+  nose          String?   // Pequeno, Grande, Reto, Aquilino
+  lips          String?   // Finos, Cheios, Simétricos
+  expression    String?   // Expressão habitual
+  beard         String?   // Para personagens masculinos
+  mustache      String?   // Bigode
+  wrinkles      String?   // Rugas
+  dimples       String?   // Covinhas
+  freckles      String?   // Sardas
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@map("character_faces")
 }
 
 model CharacterEyes {
-  id              String      @id @default(uuid())
-  characterId     String      @unique @map("character_id")
-  size            String?     // Tamanho
-  shape           String?     // Formato
-  color           String?     // Cor
-  eyelashes       String?     // Cílios
-  makeup          String?     // Maquiagem
-  eyebrows        String?     // Sobrancelhas
-  character       Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  id              String    @id @default(uuid())
+  characterId     String    @unique @map("character_id")
+  eyeSize         String?   @map("eye_size") // Grandes, Pequenos, Médios
+  eyeShape        String?   @map("eye_shape") // Amendoados, Redondos, Caídos
+  eyeColor        String?   @map("eye_color") // Verde, Azul, Castanho, etc
+  eyeSpacing      String?   @map("eye_spacing") // Afastados, Próximos
+  eyelashes       String?   // Longos, Curtos, Grossos
+  eyebrowShape    String?   @map("eyebrow_shape") // Arqueadas, Retas, Grossas
+  eyebrowColor    String?   @map("eyebrow_color")
+  eyebrowThickness String?  @map("eyebrow_thickness") // Finas, Médias, Grossas
+  glasses         String?   // Tipo de óculos se usar
+  makeup          String?   // Delineador, Sombra, etc
+  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@map("character_eyes")
 }
 
 model CharacterHair {
-  id              String      @id @default(uuid())
-  characterId     String      @unique @map("character_id")
-  cut             String?     // Corte
-  length          String?     // Comprimento
-  parting         String?     // Divisão/Riscado
-  texture         String?     // Textura
-  color           String?     // Cor
-  finishing       String?     // Finalização
-  character       Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid())
+  characterId   String    @unique @map("character_id")
+  haircut       String?   // Tipo de corte
+  hairLength    String?   @map("hair_length") // Curto, Médio, Longo
+  hairColor     String?   @map("hair_color") // Cor natural ou tingido
+  hairTexture   String?   @map("hair_texture") // Liso, Ondulado, Cacheado, Crespo
+  hairVolume    String?   @map("hair_volume") // Volumoso, Ralo
+  hairStyle     String?   @map("hair_style") // Estilo do penteado
+  hairPart      String?   @map("hair_part") // Risco: central, lateral
+  hairShine     String?   @map("hair_shine") // Brilho
+  dyedColor     String?   @map("dyed_color") // Se tingido, qual cor
+  highlights    String?   // Mechas
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@map("character_hairs")
 }
 
 model CharacterWardrobe {
-  id              String      @id @default(uuid())
-  characterId     String      @unique @map("character_id")
-  // Vestimenta
-  dressBrand      String?     @map("dress_brand") // Marca
-  dressModel      String?     @map("dress_model") // Modelo
-  dressColor      String?     @map("dress_color") // Cor
-  dressFabric     String?     @map("dress_fabric") // Tecido
-  dressFit        String?     @map("dress_fit") // Caimento
-  dressLength     String?     @map("dress_length") // Comprimento
-  dressNeckline   String?     @map("dress_neckline") // Decote
-  dressDetails    String?     @map("dress_details") // Detalhes
-  // Calçado
-  shoeBrand       String?     @map("shoe_brand") // Marca
-  shoeModel       String?     @map("shoe_model") // Modelo
-  shoeColor       String?     @map("shoe_color") // Cor
-  shoeHeel        String?     @map("shoe_heel") // Salto
-  shoeToe         String?     @map("shoe_toe") // Bico
-  shoeStyle       String?     @map("shoe_style") // Estilo
+  id              String    @id @default(uuid())
+  characterId     String    @unique @map("character_id")
+  // Vestimenta principal
+  clothingStyle   String?   @map("clothing_style") // Estilo geral: casual, formal, etc
+  topwear         String?   // Parte de cima
+  topwearColor    String?   @map("topwear_color")
+  topwearBrand    String?   @map("topwear_brand")
+  bottomwear      String?   // Parte de baixo
+  bottomwearColor String?   @map("bottomwear_color")
+  bottomwearBrand String?   @map("bottomwear_brand")
+  dress           String?   // Vestido (se aplicável)
+  dressColor      String?   @map("dress_color")
+  dressBrand      String?   @map("dress_brand")
+  // Calçados
+  footwear        String?   // Tipo de calçado
+  footwearColor   String?   @map("footwear_color")
+  footwearBrand   String?   @map("footwear_brand")
+  heelHeight      String?   @map("heel_height") // Altura do salto
   // Acessórios
-  earrings        String?     // Brincos
-  ring            String?     // Anel
-  necklace        String?     // Colar
-  bracelet        String?     // Pulseira
-  nails           String?     // Unhas
-  character       Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  earrings        String?   // Brincos
+  necklace        String?   // Colares
+  rings           String?   // Anéis
+  bracelets       String?   // Pulseiras
+  watch           String?   // Relógio
+  bag             String?   // Bolsa
+  hat             String?   // Chapéu/Boné
+  scarf           String?   // Cachecol/Lenço
+  // Detalhes
+  nails           String?   // Unhas
+  perfume         String?   // Perfume
+  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@map("character_wardrobes")
 }
