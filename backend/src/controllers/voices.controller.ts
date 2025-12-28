@@ -1,51 +1,47 @@
 import { Request, Response } from 'express';
 import { ttsService } from '../tts/tts.service';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 export class VoicesController {
+    /**
+     * Lista todas as 30 vozes fixas do Gemini TTS
+     */
     async listVoices(req: Request, res: Response) {
         try {
-            // Buscar vozes do Gemini
-            const geminiVoices = await ttsService.getAvailableVoices();
-
-            // Buscar vozes customizadas do banco
-            const customVoices = await prisma.customVoice.findMany({
-                where: { isActive: true },
-                orderBy: { name: 'asc' }
-            });
-
-            // Converter vozes customizadas para o formato padrão
-            const formattedCustomVoices = customVoices.map(v => ({
-                id: v.voiceId,
-                name: v.name,
-                languageCode: v.languageCode,
-                gender: v.gender,
-                provider: v.provider,
-                description: v.description || undefined
-            }));
-
-            // Mesclar as duas listas
-            const allVoices = [...geminiVoices, ...formattedCustomVoices];
-
-            res.json(allVoices);
+            const voices = await ttsService.getAvailableVoices();
+            res.json(voices);
         } catch (error: any) {
+            console.error('Erro ao listar vozes:', error);
             res.status(500).json({ error: error.message });
         }
     }
 
+    /**
+     * Gera preview de áudio para uma voz específica
+     */
     async previewVoice(req: Request, res: Response) {
         try {
             const { voiceId, text } = req.body;
-            if (!voiceId || !text) {
-                return res.status(400).json({ error: 'Voice ID and text are required' });
+            
+            if (!voiceId) {
+                return res.status(400).json({ error: 'ID da voz é obrigatório' });
             }
-            const result = await ttsService.previewVoice(voiceId, text);
-            // Convert buffer to base64 for frontend
+
+            const sampleText = text || `Olá! Esta é uma prévia da voz ${voiceId}. Como você está hoje?`;
+            
+            console.log(`🎤 Gerando preview para voz: ${voiceId}`);
+            
+            const result = await ttsService.previewVoice(voiceId, sampleText);
+            
+            // Converter buffer para base64 para o frontend
             const audioBase64 = result.buffer.toString('base64');
-            res.json({ audioBase64 });
+            
+            res.json({ 
+                audioBase64,
+                format: result.format,
+                voiceId
+            });
         } catch (error: any) {
+            console.error('Erro ao gerar preview:', error);
             res.status(500).json({ error: error.message });
         }
     }

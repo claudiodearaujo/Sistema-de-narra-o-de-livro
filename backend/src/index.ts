@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import { createServer } from 'http';
 import booksRoutes from './routes/books.routes';
 import chaptersRoutes from './routes/chapters.routes';
@@ -25,8 +26,11 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Servir arquivos estáticos (áudios gerados)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 app.get('/', (req, res) => {
-    res.send('Sistema de Narração de Livros API');
+    res.send('Sistema de Narração de Livros API - Gemini TTS');
 });
 
 // Routes
@@ -43,5 +47,6 @@ app.use('/api', customVoicesRoutes);
 initializeWebSocket(httpServer);
 
 httpServer.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`🚀 Servidor rodando na porta ${port}`);
+    console.log(`📁 Arquivos de áudio em: ${path.join(__dirname, '../uploads')}`);
 });

@@ -12,6 +12,36 @@ A API Gemini TTS é ideal para nosso caso de uso de **audiolivros** por oferecer
 
 ---
 
+## 🔑 CONFIGURAÇÃO DA API KEY (IMPORTANTE!)
+
+### Passo a Passo para Obter a Chave API:
+
+1. **Acesse o Google AI Studio:**
+   - Vá para: https://aistudio.google.com/apikey
+   - Faça login com sua conta Google
+
+2. **Crie uma API Key:**
+   - Clique em "Create API Key"
+   - Selecione ou crie um projeto do Google Cloud
+   - Copie a chave gerada
+
+3. **Configure no Sistema:**
+   - Abra o arquivo `backend/.env`
+   - Adicione: `GEMINI_API_KEY=sua_chave_aqui`
+
+4. **Habilite a API (se necessário):**
+   - Se receber erro de permissão, acesse: https://console.cloud.google.com/apis/library
+   - Busque por "Generative Language API"
+   - Clique em "Enable" (Ativar)
+
+### Arquivo .env Exemplo:
+```env
+GEMINI_API_KEY="AIzaSy..."
+GEMINI_TTS_MODEL="gemini-2.5-flash-preview-tts"
+```
+
+---
+
 ## 🎤 Vozes Disponíveis (30 Vozes Predefinidas)
 
 As vozes são fixas e devem ser usadas pelo campo `voice_name`. Todas suportam português:
