@@ -3,74 +3,127 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GeminiTTSProvider = void 0;
 const generative_ai_1 = require("@google/generative-ai");
 const tts_config_1 = require("../tts.config");
+/**
+ * 30 Vozes Fixas do Gemini TTS
+ * Documentação: https://ai.google.dev/gemini-api/docs/speech-generation?hl=pt-br#voices
+ */
+const GEMINI_VOICES = [
+    { id: 'Zephyr', name: 'Zephyr', languageCode: 'pt-BR', gender: 'NEUTRAL', provider: 'gemini', description: 'Bright - Brilhante, alegre' },
+    { id: 'Puck', name: 'Puck', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Upbeat - Animado, jovem' },
+    { id: 'Charon', name: 'Charon', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Informative - Informativo, narrador' },
+    { id: 'Kore', name: 'Kore', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Firm - Firme, séria' },
+    { id: 'Fenrir', name: 'Fenrir', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Excitable - Excitável, energético' },
+    { id: 'Leda', name: 'Leda', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Youthful - Juvenil' },
+    { id: 'Orus', name: 'Orus', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Firm - Firme, autoritário' },
+    { id: 'Aoede', name: 'Aoede', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Breezy - Leve, descontraída' },
+    { id: 'Callirrhoe', name: 'Callirrhoe', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Easy-going - Tranquila, calma' },
+    { id: 'Autonoe', name: 'Autonoe', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Bright - Brilhante, otimista' },
+    { id: 'Enceladus', name: 'Enceladus', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Breathy - Sussurrado, misterioso' },
+    { id: 'Iapetus', name: 'Iapetus', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Clear - Claro, nítido' },
+    { id: 'Umbriel', name: 'Umbriel', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Easy-going - Tranquilo, relaxado' },
+    { id: 'Algieba', name: 'Algieba', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Smooth - Suave, gentil' },
+    { id: 'Despina', name: 'Despina', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Smooth - Suave, elegante' },
+    { id: 'Erinome', name: 'Erinome', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Clear - Limpo, neutro' },
+    { id: 'Algenib', name: 'Algenib', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Gravelly - Rouco, profundo' },
+    { id: 'Rasalgethi', name: 'Rasalgethi', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Informative - Informativo' },
+    { id: 'Laomedeia', name: 'Laomedeia', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Upbeat - Animada, alegre' },
+    { id: 'Achernar', name: 'Achernar', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Soft - Suave, delicada' },
+    { id: 'Alnilam', name: 'Alnilam', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Firm - Firme, assertivo' },
+    { id: 'Schedar', name: 'Schedar', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Even - Equilibrado, narrador ideal' },
+    { id: 'Gacrux', name: 'Gacrux', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Mature - Adulto, experiente' },
+    { id: 'Pulcherrima', name: 'Pulcherrima', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Forward - Direta, assertiva' },
+    { id: 'Achird', name: 'Achird', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Friendly - Amigável, simpático' },
+    { id: 'Zubenelgenubi', name: 'Zubenelgenubi', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Casual - Informal, descontraído' },
+    { id: 'Vindemiatrix', name: 'Vindemiatrix', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Gentle - Gentil, carinhosa' },
+    { id: 'Sadachbia', name: 'Sadachbia', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Lively - Animado, vivaz' },
+    { id: 'Sadaltager', name: 'Sadaltager', languageCode: 'pt-BR', gender: 'MALE', provider: 'gemini', description: 'Knowledgeable - Sábio, conhecedor' },
+    { id: 'Sulafat', name: 'Sulafat', languageCode: 'pt-BR', gender: 'FEMALE', provider: 'gemini', description: 'Warm - Quente, acolhedora' }
+];
 class GeminiTTSProvider {
     constructor() {
         this.name = 'gemini';
-        this.supportedFormats = ['mp3'];
+        this.supportedFormats = ['wav'];
         const apiKey = tts_config_1.ttsConfig.providers.gemini?.apiKey;
         if (!apiKey) {
-            throw new Error('Gemini API Key not configured');
+            throw new Error('GEMINI_API_KEY não configurada. Configure no arquivo .env');
         }
         this.genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
     }
     async initialize() {
-        // Initialize model or validate connection
-        const modelName = tts_config_1.ttsConfig.providers.gemini?.model || 'gemini-2.0-flash-exp';
-        this.model = this.genAI.getGenerativeModel({ model: modelName });
+        console.log('✅ Gemini TTS Provider inicializado');
+        console.log(`   Modelo: ${tts_config_1.ttsConfig.providers.gemini?.model}`);
+        console.log(`   Vozes disponíveis: ${GEMINI_VOICES.length}`);
     }
     async generateAudio(options) {
-        // NOTE: As of now, the standard Generative AI SDK for Node.js might not expose a direct "text-to-speech" endpoint 
-        // that returns an audio buffer in the same way as specialized TTS APIs.
-        // However, for the purpose of this project and based on the prompt requirements, 
-        // we will simulate the integration or use the generateContent method if it supports audio output in the future.
-        // 
-        // CURRENT IMPLEMENTATION: Mocking the audio generation because the specific Gemini 2.5 Pro TTS endpoint 
-        // details are not fully available in the standard public SDK documentation at this moment for direct audio buffer return.
-        // In a real scenario, this would call the specific Google Cloud TTS API or the new Gemini Multimodal endpoints.
-        console.log(`Generating audio with Gemini for voice: ${options.voice.voiceId}`);
-        // Mocking a base64 audio response for demonstration
-        const mockBase64 = "UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="; // Empty WAV
-        const buffer = Buffer.from(mockBase64, 'base64');
-        return {
-            buffer: buffer,
-            format: 'wav',
-            duration: 1 // Mock duration
-        };
+        const voiceName = options.voice.voiceId || tts_config_1.ttsConfig.defaultVoice;
+        const modelName = tts_config_1.ttsConfig.providers.gemini?.model || 'gemini-2.5-flash-preview-tts';
+        console.log(`🎤 Gerando áudio com Gemini TTS`);
+        console.log(`   Voz: ${voiceName}`);
+        console.log(`   Texto: ${options.text.substring(0, 50)}...`);
+        try {
+            // Usar a API do Gemini para TTS
+            // NOTA: A API de TTS do Gemini requer o SDK @google/genai (diferente do @google/generative-ai)
+            // Por enquanto, usamos uma abordagem via REST API direta
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${tts_config_1.ttsConfig.providers.gemini.apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{
+                            parts: [{ text: options.text }]
+                        }],
+                    generationConfig: {
+                        responseModalities: ['AUDIO'],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: {
+                                    voiceName: voiceName
+                                }
+                            }
+                        }
+                    }
+                })
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Erro da API Gemini:', errorData);
+                throw new Error(`Erro na API Gemini: ${errorData.error?.message || response.statusText}`);
+            }
+            const data = await response.json();
+            // Extrair o áudio da resposta
+            const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+            if (!audioData) {
+                console.error('Resposta sem áudio:', JSON.stringify(data, null, 2));
+                throw new Error('Nenhum dado de áudio na resposta');
+            }
+            const buffer = Buffer.from(audioData, 'base64');
+            console.log(`✅ Áudio gerado: ${buffer.length} bytes`);
+            return {
+                buffer: buffer,
+                format: 'wav',
+                sampleRate: 24000
+            };
+        }
+        catch (error) {
+            console.error('❌ Erro ao gerar áudio:', error);
+            throw new Error(`Falha na geração de áudio: ${error.message}`);
+        }
     }
     async getAvailableVoices() {
-        // Mocking available voices for Gemini
-        return [
-            { id: 'Puck', name: 'Puck', languageCode: 'en-US', gender: 'MALE', provider: 'gemini', description: 'Deep, resonant' },
-            { id: 'Charon', name: 'Charon', languageCode: 'en-US', gender: 'MALE', provider: 'gemini', description: 'Gravelly, dark' },
-            { id: 'Kore', name: 'Kore', languageCode: 'en-US', gender: 'FEMALE', provider: 'gemini', description: 'Soft, ethereal' },
-            { id: 'Fenrir', name: 'Fenrir', languageCode: 'en-US', gender: 'MALE', provider: 'gemini', description: 'Aggressive, growling' },
-            { id: 'Aoede', name: 'Aoede', languageCode: 'en-US', gender: 'FEMALE', provider: 'gemini', description: 'Melodic, high-pitched' }
-        ];
+        return GEMINI_VOICES;
     }
     async previewVoice(voiceId, sampleText) {
+        const text = sampleText || `Olá! Esta é uma prévia da voz ${voiceId}. Como você está hoje?`;
         return this.generateAudio({
-            text: sampleText || `This is a preview of the voice ${voiceId}`,
+            text,
             voice: { voiceId }
         });
     }
     async validateSSML(ssml) {
-        // Basic validation logic (can be expanded)
-        const errors = [];
-        // Auto-wrap with <speak> tag if not present
-        let validatedSsml = ssml.trim();
-        if (!validatedSsml.startsWith('<speak>')) {
-            validatedSsml = `<speak>${validatedSsml}</speak>`;
-        }
-        // Check if closing tag is present
-        if (!validatedSsml.endsWith('</speak>')) {
-            errors.push('Missing closing </speak> tag');
-        }
-        // Additional basic validation can be added here
-        // For example: check for balanced tags, valid SSML elements, etc.
-        return {
-            valid: errors.length === 0,
-            errors
-        };
+        // Gemini TTS não usa SSML tradicional
+        // Controle de estilo é feito via linguagem natural no prompt
+        return { valid: true };
     }
 }
 exports.GeminiTTSProvider = GeminiTTSProvider;

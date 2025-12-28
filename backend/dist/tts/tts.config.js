@@ -7,14 +7,15 @@ exports.ttsConfig = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 exports.ttsConfig = {
-    defaultProvider: process.env.TTS_DEFAULT_PROVIDER || 'gemini',
+    defaultProvider: 'gemini',
     providers: {
         gemini: {
             apiKey: process.env.GEMINI_API_KEY || '',
-            model: process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp' // Updated to a valid model for TTS if available, or standard
+            model: process.env.GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts'
         }
     },
-    defaultOutputFormat: 'mp3',
+    defaultOutputFormat: 'wav',
     maxRetries: 3,
-    cacheVoicesTTL: 24 * 60 * 60 * 1000 // 24 hours
+    cacheVoicesTTL: 24 * 60 * 60 * 1000, // 24 hours
+    defaultVoice: 'Schedar' // Voz padrão equilibrada para narração
 };

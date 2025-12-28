@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = __importDefault(require("path"));
 const http_1 = require("http");
 const books_routes_1 = __importDefault(require("./routes/books.routes"));
 const chapters_routes_1 = __importDefault(require("./routes/chapters.routes"));
@@ -26,8 +27,10 @@ const httpServer = (0, http_1.createServer)(app);
 const port = process.env.PORT || 3000;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+// Servir arquivos estáticos (áudios gerados)
+app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
 app.get('/', (req, res) => {
-    res.send('Sistema de Narração de Livros API');
+    res.send('Sistema de Narração de Livros API - Gemini TTS');
 });
 // Routes
 app.use('/api/books', books_routes_1.default);
@@ -41,5 +44,6 @@ app.use('/api', custom_voices_routes_1.default);
 // Initialize WebSocket
 (0, websocket_server_1.initializeWebSocket)(httpServer);
 httpServer.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`🚀 Servidor rodando na porta ${port}`);
+    console.log(`📁 Arquivos de áudio em: ${path_1.default.join(__dirname, '../uploads')}`);
 });
