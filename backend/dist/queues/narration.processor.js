@@ -10,8 +10,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const client_1 = require("@prisma/client");
 const tts_service_1 = require("../tts/tts.service");
 const websocket_server_1 = require("../websocket/websocket.server");
-const promises_1 = __importDefault(require("fs/promises"));
-const path_1 = __importDefault(require("path"));
 dotenv_1.default.config();
 const prisma = new client_1.PrismaClient();
 const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
@@ -71,14 +69,10 @@ if (REDIS_ENABLED) {
                         voice: { voiceId },
                         useSSML
                     });
-                    // Save audio file to uploads directory
-                    const uploadsDir = path_1.default.join(process.cwd(), 'uploads', 'speeches');
-                    await promises_1.default.mkdir(uploadsDir, { recursive: true });
-                    const fileName = `speech_${speech.id}_${Date.now()}.mp3`;
-                    const filePath = path_1.default.join(uploadsDir, fileName);
-                    await promises_1.default.writeFile(filePath, audioResult.buffer);
-                    // Generate URL for frontend access
-                    const audioUrl = `/uploads/speeches/${fileName}`;
+                    // Mock saving audio URL (in real app, upload to storage)
+                    // For now, we'll just simulate a URL or store base64 if small enough (not recommended for prod)
+                    // Here we just mark it as done with a placeholder URL
+                    const audioUrl = `mock_audio_${speech.id}.mp3`;
                     // Update speech
                     await prisma.speech.update({
                         where: { id: speech.id },

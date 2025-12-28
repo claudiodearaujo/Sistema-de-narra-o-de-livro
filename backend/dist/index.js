@@ -7,7 +7,6 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const http_1 = require("http");
-const path_1 = __importDefault(require("path"));
 const books_routes_1 = __importDefault(require("./routes/books.routes"));
 const chapters_routes_1 = __importDefault(require("./routes/chapters.routes"));
 const characters_routes_1 = __importDefault(require("./routes/characters.routes"));
@@ -27,8 +26,6 @@ const httpServer = (0, http_1.createServer)(app);
 const port = process.env.PORT || 3000;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
-// Serve static files from uploads directory
-app.use('/uploads', express_1.default.static(path_1.default.join(process.cwd(), 'uploads')));
 app.get('/', (req, res) => {
     res.send('Sistema de Narração de Livros API');
 });
