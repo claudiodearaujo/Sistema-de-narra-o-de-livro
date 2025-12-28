@@ -6,3 +6,5 @@ node_modules
 # Uploads folder (audio files) - keep directory structure
 uploads/**
 !uploads/**/.gitkeep
+dist
+dist/**
