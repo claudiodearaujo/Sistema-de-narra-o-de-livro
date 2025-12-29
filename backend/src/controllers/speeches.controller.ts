@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { speechesService } from '../services/speeches.service';
 import { ttsService } from '../tts/tts.service';
+import { speechAssistService } from '../services/speech-assist.service';
 
 export class SpeechesController {
     async getByChapterId(req: Request, res: Response) {
@@ -105,6 +106,43 @@ export class SpeechesController {
             res.json(result);
         } catch (error: any) {
             res.status(500).json({ error: error.message });
+        }
+    }
+
+    async spellCheck(req: Request, res: Response) {
+        try {
+            const { text, language } = req.body;
+            const result = await speechAssistService.spellCheck(text, language);
+            res.json(result);
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    async suggestImprovements(req: Request, res: Response) {
+        try {
+            const result = await speechAssistService.suggestImprovements(req.body);
+            res.json(result);
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    async enrichWithCharacter(req: Request, res: Response) {
+        try {
+            const result = await speechAssistService.enrichWithCharacterDetails(req.body);
+            res.json(result);
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    async generateEmotionImage(req: Request, res: Response) {
+        try {
+            const result = await speechAssistService.generateEmotionImage(req.body);
+            res.json(result);
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
         }
     }
 }

@@ -17,4 +17,10 @@ router.delete('/speeches/:id', speechesController.delete);
 // SSML validation
 router.post('/ssml/validate', speechesController.validateSSML);
 
+// AI assist tools
+router.post('/speeches/tools/spell-check', speechesController.spellCheck);
+router.post('/speeches/tools/suggestions', speechesController.suggestImprovements);
+router.post('/speeches/tools/character-context', speechesController.enrichWithCharacter);
+router.post('/speeches/tools/emotion-image', speechesController.generateEmotionImage);
+
 export default router;

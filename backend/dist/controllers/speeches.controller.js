@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.speechesController = exports.SpeechesController = void 0;
 const speeches_service_1 = require("../services/speeches.service");
 const tts_service_1 = require("../tts/tts.service");
+const speech_assist_service_1 = require("../services/speech-assist.service");
 class SpeechesController {
     async getByChapterId(req, res) {
         try {
@@ -108,6 +109,43 @@ class SpeechesController {
         }
         catch (error) {
             res.status(500).json({ error: error.message });
+        }
+    }
+    async spellCheck(req, res) {
+        try {
+            const { text, language } = req.body;
+            const result = await speech_assist_service_1.speechAssistService.spellCheck(text, language);
+            res.json(result);
+        }
+        catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+    async suggestImprovements(req, res) {
+        try {
+            const result = await speech_assist_service_1.speechAssistService.suggestImprovements(req.body);
+            res.json(result);
+        }
+        catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+    async enrichWithCharacter(req, res) {
+        try {
+            const result = await speech_assist_service_1.speechAssistService.enrichWithCharacterDetails(req.body);
+            res.json(result);
+        }
+        catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+    async generateEmotionImage(req, res) {
+        try {
+            const result = await speech_assist_service_1.speechAssistService.generateEmotionImage(req.body);
+            res.json(result);
+        }
+        catch (error) {
+            res.status(400).json({ error: error.message });
         }
     }
 }

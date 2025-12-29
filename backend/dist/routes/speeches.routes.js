@@ -14,4 +14,9 @@ router.put('/speeches/:id', speeches_controller_1.speechesController.update);
 router.delete('/speeches/:id', speeches_controller_1.speechesController.delete);
 // SSML validation
 router.post('/ssml/validate', speeches_controller_1.speechesController.validateSSML);
+// AI assist tools
+router.post('/speeches/tools/spell-check', speeches_controller_1.speechesController.spellCheck);
+router.post('/speeches/tools/suggestions', speeches_controller_1.speechesController.suggestImprovements);
+router.post('/speeches/tools/character-context', speeches_controller_1.speechesController.enrichWithCharacter);
+router.post('/speeches/tools/emotion-image', speeches_controller_1.speechesController.generateEmotionImage);
 exports.default = router;
