@@ -25,7 +25,7 @@ class VoicesController {
             if (!voiceId) {
                 return res.status(400).json({ error: 'ID da voz é obrigatório' });
             }
-            const sampleText =  `Olá! Esta é uma prévia da voz ${text}. Como você está hoje?`;
+            const sampleText = text || `Olá! Esta é uma prévia da voz ${voiceId}. Como você está hoje?`;
             console.log(`🎤 Gerando preview para voz: ${voiceId}`);
             const result = await tts_service_1.ttsService.previewVoice(voiceId, sampleText);
             // Converter buffer para base64 para o frontend
