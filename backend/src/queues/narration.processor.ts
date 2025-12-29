@@ -2,7 +2,7 @@ import { Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
-import { ttsService } from '../tts/tts.service';
+import { aiService } from '../ai';
 import { io } from '../websocket/websocket.server';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -123,12 +123,12 @@ if (REDIS_ENABLED) {
                 
                 console.log(`🎤 Gerando áudio para fala ${i + 1}/${speeches.length} com voz ${voiceId}`);
 
-                // Gerar áudio com Gemini TTS
+                // Gerar áudio com o AI Service
                 const textToSpeak = speech.ssmlText || speech.text;
 
-                const audioResult = await ttsService.generateAudio({
+                const audioResult = await aiService.generateAudio({
                     text: textToSpeak,
-                    voice: { voiceId }
+                    voiceName: voiceId
                 });
 
                 // Salvar arquivo de áudio

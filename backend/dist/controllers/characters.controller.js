@@ -35,7 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.charactersController = exports.CharactersController = void 0;
 const characters_service_1 = require("../services/characters.service");
-const tts_service_1 = require("../tts/tts.service");
+const ai_1 = require("../ai");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 class CharactersController {
@@ -164,7 +164,7 @@ class CharactersController {
             // Gerar novo áudio
             const previewText = `Olá! Esta é uma prévia da voz do personagem ${character.name}. Como você está hoje?`;
             console.log(`🎤 Gerando preview para personagem ${character.name} com voz ${character.voiceId}`);
-            const result = await tts_service_1.ttsService.previewVoice(character.voiceId, previewText);
+            const result = await ai_1.aiService.previewVoice({ voiceName: character.voiceId, sampleText: previewText });
             // Criar diretório de previews se não existir
             const previewsDir = path.join(__dirname, '../../uploads/previews');
             if (!fs.existsSync(previewsDir)) {

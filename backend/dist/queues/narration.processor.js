@@ -41,7 +41,7 @@ const bullmq_1 = require("bullmq");
 const ioredis_1 = __importDefault(require("ioredis"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const client_1 = require("@prisma/client");
-const tts_service_1 = require("../tts/tts.service");
+const ai_1 = require("../ai");
 const websocket_server_1 = require("../websocket/websocket.server");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
@@ -137,11 +137,11 @@ if (REDIS_ENABLED) {
                     // Determinar a voz (usa Schedar como padrão)
                     const voiceId = speech.character?.voiceId || 'Schedar';
                     console.log(`🎤 Gerando áudio para fala ${i + 1}/${speeches.length} com voz ${voiceId}`);
-                    // Gerar áudio com Gemini TTS
+                    // Gerar áudio com o AI Service
                     const textToSpeak = speech.ssmlText || speech.text;
-                    const audioResult = await tts_service_1.ttsService.generateAudio({
+                    const audioResult = await ai_1.aiService.generateAudio({
                         text: textToSpeak,
-                        voice: { voiceId }
+                        voiceName: voiceId
                     });
                     // Salvar arquivo de áudio
                     const audioUrl = saveAudioFile(audioResult.buffer, speech.id);

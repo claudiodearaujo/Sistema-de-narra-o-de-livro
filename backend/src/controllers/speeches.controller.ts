@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { speechesService } from '../services/speeches.service';
-import { ttsService } from '../tts/tts.service';
-import { speechAssistService } from '../services/speech-assist.service';
+import { aiService } from '../ai';
 
 export class SpeechesController {
     async getByChapterId(req: Request, res: Response) {
@@ -102,7 +101,7 @@ export class SpeechesController {
             if (!ssmlText) {
                 return res.status(400).json({ error: 'ssmlText is required' });
             }
-            const result = await ttsService.validateSSML(ssmlText);
+            const result = await aiService.validateSSML(ssmlText);
             res.json(result);
         } catch (error: any) {
             res.status(500).json({ error: error.message });
@@ -112,7 +111,7 @@ export class SpeechesController {
     async spellCheck(req: Request, res: Response) {
         try {
             const { text, language } = req.body;
-            const result = await speechAssistService.spellCheck(text, language);
+            const result = await aiService.spellCheck({ text, language });
             res.json(result);
         } catch (error: any) {
             const errorMessage = error.message || '';
@@ -126,7 +125,7 @@ export class SpeechesController {
 
     async suggestImprovements(req: Request, res: Response) {
         try {
-            const result = await speechAssistService.suggestImprovements(req.body);
+            const result = await aiService.suggestImprovements(req.body);
             res.json(result);
         } catch (error: any) {
             const errorMessage = error.message || '';
@@ -140,7 +139,7 @@ export class SpeechesController {
 
     async enrichWithCharacter(req: Request, res: Response) {
         try {
-            const result = await speechAssistService.enrichWithCharacterDetails(req.body);
+            const result = await aiService.enrichWithCharacterDetails(req.body);
             res.json(result);
         } catch (error: any) {
             const errorMessage = error.message || '';
@@ -154,7 +153,7 @@ export class SpeechesController {
 
     async generateEmotionImage(req: Request, res: Response) {
         try {
-            const result = await speechAssistService.generateEmotionImage(req.body);
+            const result = await aiService.generateEmotionImage(req.body);
             res.json(result);
         } catch (error: any) {
             const errorMessage = error.message || '';

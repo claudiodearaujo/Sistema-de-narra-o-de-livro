@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.speechesService = exports.SpeechesService = void 0;
 const client_1 = require("@prisma/client");
-const tts_service_1 = require("../tts/tts.service");
+const ai_1 = require("../ai");
 const prisma = new client_1.PrismaClient();
 class SpeechesService {
     async getByChapterId(chapterId) {
@@ -33,7 +33,7 @@ class SpeechesService {
             if (!trimmedSsml.startsWith('<speak>')) {
                 data.ssmlText = `<speak>${trimmedSsml}</speak>`;
             }
-            const validation = await tts_service_1.ttsService.validateSSML(data.ssmlText);
+            const validation = await ai_1.aiService.validateSSML(data.ssmlText);
             if (!validation.valid) {
                 throw new Error(`Invalid SSML: ${validation.errors?.join(', ')}`);
             }
@@ -68,7 +68,7 @@ class SpeechesService {
             if (!trimmedSsml.startsWith('<speak>')) {
                 data.ssmlText = `<speak>${trimmedSsml}</speak>`;
             }
-            const validation = await tts_service_1.ttsService.validateSSML(data.ssmlText);
+            const validation = await ai_1.aiService.validateSSML(data.ssmlText);
             if (!validation.valid) {
                 throw new Error(`Invalid SSML: ${validation.errors?.join(', ')}`);
             }

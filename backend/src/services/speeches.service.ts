@@ -1,5 +1,5 @@
 import { PrismaClient, Speech } from '@prisma/client';
-import { ttsService } from '../tts/tts.service';
+import { aiService } from '../ai';
 
 const prisma = new PrismaClient();
 
@@ -53,7 +53,7 @@ export class SpeechesService {
                 data.ssmlText = `<speak>${trimmedSsml}</speak>`;
             }
             
-            const validation = await ttsService.validateSSML(data.ssmlText);
+            const validation = await aiService.validateSSML(data.ssmlText);
             if (!validation.valid) {
                 throw new Error(`Invalid SSML: ${validation.errors?.join(', ')}`);
             }
@@ -93,7 +93,7 @@ export class SpeechesService {
                 data.ssmlText = `<speak>${trimmedSsml}</speak>`;
             }
             
-            const validation = await ttsService.validateSSML(data.ssmlText);
+            const validation = await aiService.validateSSML(data.ssmlText);
             if (!validation.valid) {
                 throw new Error(`Invalid SSML: ${validation.errors?.join(', ')}`);
             }

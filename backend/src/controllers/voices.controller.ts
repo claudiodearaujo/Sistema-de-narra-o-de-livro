@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ttsService } from '../tts/tts.service';
+import { aiService } from '../ai';
 
 export class VoicesController {
     /**
@@ -7,7 +7,7 @@ export class VoicesController {
      */
     async listVoices(req: Request, res: Response) {
         try {
-            const voices = await ttsService.getAvailableVoices();
+            const voices = await aiService.getAvailableVoices();
             res.json(voices);
         } catch (error: any) {
             console.error('Erro ao listar vozes:', error);
@@ -30,7 +30,7 @@ export class VoicesController {
             
             console.log(`🎤 Gerando preview para voz: ${voiceId}`);
             
-            const result = await ttsService.previewVoice(voiceId, sampleText);
+            const result = await aiService.previewVoice({ voiceName: voiceId, sampleText });
             
             // Converter buffer para base64 para o frontend
             const audioBase64 = result.buffer.toString('base64');

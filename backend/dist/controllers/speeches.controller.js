@@ -2,8 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.speechesController = exports.SpeechesController = void 0;
 const speeches_service_1 = require("../services/speeches.service");
-const tts_service_1 = require("../tts/tts.service");
-const speech_assist_service_1 = require("../services/speech-assist.service");
+const ai_1 = require("../ai");
 class SpeechesController {
     async getByChapterId(req, res) {
         try {
@@ -104,7 +103,7 @@ class SpeechesController {
             if (!ssmlText) {
                 return res.status(400).json({ error: 'ssmlText is required' });
             }
-            const result = await tts_service_1.ttsService.validateSSML(ssmlText);
+            const result = await ai_1.aiService.validateSSML(ssmlText);
             res.json(result);
         }
         catch (error) {
@@ -114,7 +113,7 @@ class SpeechesController {
     async spellCheck(req, res) {
         try {
             const { text, language } = req.body;
-            const result = await speech_assist_service_1.speechAssistService.spellCheck(text, language);
+            const result = await ai_1.aiService.spellCheck({ text, language });
             res.json(result);
         }
         catch (error) {
@@ -129,7 +128,7 @@ class SpeechesController {
     }
     async suggestImprovements(req, res) {
         try {
-            const result = await speech_assist_service_1.speechAssistService.suggestImprovements(req.body);
+            const result = await ai_1.aiService.suggestImprovements(req.body);
             res.json(result);
         }
         catch (error) {
@@ -144,7 +143,7 @@ class SpeechesController {
     }
     async enrichWithCharacter(req, res) {
         try {
-            const result = await speech_assist_service_1.speechAssistService.enrichWithCharacterDetails(req.body);
+            const result = await ai_1.aiService.enrichWithCharacterDetails(req.body);
             res.json(result);
         }
         catch (error) {
@@ -159,7 +158,7 @@ class SpeechesController {
     }
     async generateEmotionImage(req, res) {
         try {
-            const result = await speech_assist_service_1.speechAssistService.generateEmotionImage(req.body);
+            const result = await ai_1.aiService.generateEmotionImage(req.body);
             res.json(result);
         }
         catch (error) {

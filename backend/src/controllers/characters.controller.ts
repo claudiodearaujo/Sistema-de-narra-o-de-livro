@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { charactersService } from '../services/characters.service';
-import { ttsService } from '../tts/tts.service';
+import { aiService } from '../ai';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -137,7 +137,7 @@ export class CharactersController {
             
             console.log(`🎤 Gerando preview para personagem ${character.name} com voz ${character.voiceId}`);
             
-            const result = await ttsService.previewVoice(character.voiceId, previewText);
+            const result = await aiService.previewVoice({ voiceName: character.voiceId, sampleText: previewText });
             
             // Criar diretório de previews se não existir
             const previewsDir = path.join(__dirname, '../../uploads/previews');
