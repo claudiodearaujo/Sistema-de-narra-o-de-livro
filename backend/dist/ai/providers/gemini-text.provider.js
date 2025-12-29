@@ -60,6 +60,7 @@ class GeminiTextProvider {
             role: 'user',
             parts: [{ text: options.prompt }]
         });
+        console.log('model', this.model);
         const response = await this.ai.models.generateContent({
             model: this.model,
             contents,
@@ -82,6 +83,8 @@ Receba um texto e retorne um JSON no formato {"correctedText":"...","notes":["..
 Mantenha o tom do autor, apenas corrigindo erros e fluidez.
 Texto:
 """${options.text}"""`;
+        console.log('SpellCheck Prompt:', prompt);
+        console.log('model', this.model);
         const response = await this.generateText({
             prompt,
             temperature: 0.1,
