@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const envPath = path.join(__dirname, '.env');
-const geminiApiKey = 'AIzaSyC815C4B-zDm4UBp7gNRPMaO0BNUW2aJnU';
+const geminiApiKey = 'AIzaSyDEyqmMARQAiXyHwL7Tw_d6n6eEcqgXdEY';
 
 console.log('🔧 Adicionando Gemini API Key ao arquivo .env...\n');
 
