@@ -7,6 +7,7 @@ import {
     EmotionImageOptions,
     EmotionImageResult
 } from '../interfaces/image-provider.interface';
+import { RateLimiter, rateLimiterManager } from '../../utils/rate-limiter';
 
 export class GeminiImageProvider implements ImageAIProvider {
     readonly name = 'gemini';
@@ -16,68 +17,73 @@ export class GeminiImageProvider implements ImageAIProvider {
     private ai: GoogleGenAI;
     private model: string;
     private textModel: string;
+    private rateLimiter: RateLimiter;
 
     constructor() {
         this.ai = new GoogleGenAI({});
         // Modelo para geração de imagens com Gemini 2.5
         this.model = aiConfig.providers.gemini?.imageModel || 'gemini-2.0-flash-exp';
         this.textModel = aiConfig.providers.gemini?.textModel || 'gemini-2.0-flash';
+        this.rateLimiter = rateLimiterManager.get('gemini-image', aiConfig.rateLimit.gemini);
     }
 
     async initialize(): Promise<void> {
         console.log(`✅ Gemini Image Provider inicializado`);
         console.log(`   Modelo: ${this.model}`);
+        console.log(`   Rate Limit: ${aiConfig.rateLimit.gemini.maxRequests} req/min`);
     }
 
     private async runImageGeneration(
         prompt: string
     ): Promise<Array<{ base64: string; mimeType: string; text?: string }>> {
-        const stream = await this.ai.models.generateContentStream({
-            model: this.model,
-            contents: [
-                {
-                    role: 'user',
-                    parts: [{ text: prompt }]
+        return this.rateLimiter.execute(async () => {
+            const stream = await this.ai.models.generateContentStream({
+                model: this.model,
+                contents: [
+                    {
+                        role: 'user',
+                        parts: [{ text: prompt }]
+                    }
+                ],
+                config: {
+                    responseModalities: ['IMAGE']
                 }
-            ],
-            config: {
-                responseModalities: ['IMAGE']
-            }
-        });
+            });
 console.log('Iniciando geração de imagem com prompt:', prompt);
 console.log('stream:', stream);
-        const images: Array<{ base64: string; mimeType: string; text?: string }> = [];
-        const seenPayloads = new Set<string>();
-        let textContent = '';
+            const images: Array<{ base64: string; mimeType: string; text?: string }> = [];
+            const seenPayloads = new Set<string>();
+            let textContent = '';
 
-        for await (const chunk of stream) {
-            const parts = chunk?.candidates?.[0]?.content?.parts || [];
+            for await (const chunk of stream) {
+                const parts = chunk?.candidates?.[0]?.content?.parts || [];
 
-            for (const part of parts) {
-                if ((part as any).inlineData?.data) {
-                    const inlineData = (part as any).inlineData;
-                    if (!seenPayloads.has(inlineData.data)) {
-                        images.push({
-                            base64: inlineData.data,
-                            mimeType: inlineData.mimeType || 'image/png'
-                        });
-                        seenPayloads.add(inlineData.data);
+                for (const part of parts) {
+                    if ((part as any).inlineData?.data) {
+                        const inlineData = (part as any).inlineData;
+                        if (!seenPayloads.has(inlineData.data)) {
+                            images.push({
+                                base64: inlineData.data,
+                                mimeType: inlineData.mimeType || 'image/png'
+                            });
+                            seenPayloads.add(inlineData.data);
+                        }
+                    } else if ((part as any).text) {
+                        textContent += (part as any).text;
                     }
-                } else if ((part as any).text) {
-                    textContent += (part as any).text;
                 }
             }
-        }
 
-        if (!images.length) {
-            throw new Error(textContent.trim() || 'Nenhuma imagem foi gerada.');
-        }
+            if (!images.length) {
+                throw new Error(textContent.trim() || 'Nenhuma imagem foi gerada.');
+            }
 
-        if (textContent.trim()) {
-            images[0].text = textContent.trim();
-        }
+            if (textContent.trim()) {
+                images[0].text = textContent.trim();
+            }
 
-        return images;
+            return images;
+        });
     }
 
     private extractText(response: any): string {
@@ -142,19 +148,21 @@ Retorne JSON no formato {"sentiment":"...","visualElements":["..."],"colorPalett
 Fala:
 """${options.text}"""`;
 console.log('Analisando sentimento com prompt:', analysisPrompt);
-        const analysisResponse = await this.ai.models.generateContent({
-            model: this.textModel,
-            contents: [
-                {
-                    role: 'user',
-                    parts: [{ text: analysisPrompt }]
+        const analysisResponse = await this.rateLimiter.execute(() => 
+            this.ai.models.generateContent({
+                model: this.textModel,
+                contents: [
+                    {
+                        role: 'user',
+                        parts: [{ text: analysisPrompt }]
+                    }
+                ],
+                config: {
+                    temperature: 0.2,
+                    responseMimeType: 'application/json'
                 }
-            ],
-            config: {
-                temperature: 0.2,
-                responseMimeType: 'application/json'
-            }
-        });
+            })
+        );
 console.log('Resposta da análise de sentimento:', analysisResponse);
         interface EmotionAnalysis {
             sentiment?: string;

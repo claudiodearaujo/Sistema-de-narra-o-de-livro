@@ -11,6 +11,7 @@ import {
     EnrichmentOptions,
     EnrichmentResult
 } from '../interfaces/text-provider.interface';
+import { RateLimiter, rateLimiterManager } from '../../utils/rate-limiter';
 
 export class GeminiTextProvider implements TextAIProvider {
     readonly name = 'gemini';
@@ -18,15 +19,18 @@ export class GeminiTextProvider implements TextAIProvider {
     
     private ai: GoogleGenAI;
     private model: string;
+    private rateLimiter: RateLimiter;
 
     constructor() {
         this.ai = new GoogleGenAI({});
         this.model = aiConfig.providers.gemini?.textModel || 'gemini-2.0-flash';
+        this.rateLimiter = rateLimiterManager.get('gemini-text', aiConfig.rateLimit.gemini);
     }
 
     async initialize(): Promise<void> {
         console.log(`✅ Gemini Text Provider inicializado`);
         console.log(`   Modelo: ${this.model}`);
+        console.log(`   Rate Limit: ${aiConfig.rateLimit.gemini.maxRequests} req/min`);
     }
 
     private extractText(response: any): string {
@@ -79,22 +83,24 @@ export class GeminiTextProvider implements TextAIProvider {
             parts: [{ text: options.prompt }]
         });
 console.log('model', this.model);
-        const response = await this.ai.models.generateContent({
-            model: this.model,
-            contents,
-            config: {
-                temperature: options.temperature ?? aiConfig.defaults.temperature,
-                maxOutputTokens: options.maxTokens ?? aiConfig.defaults.maxTokens,
-                responseMimeType: options.responseFormat === 'json' ? 'application/json' : 'text/plain'
-            }
+        return this.rateLimiter.execute(async () => {
+            const response = await this.ai.models.generateContent({
+                model: this.model,
+                contents,
+                config: {
+                    temperature: options.temperature ?? aiConfig.defaults.temperature,
+                    maxOutputTokens: options.maxTokens ?? aiConfig.defaults.maxTokens,
+                    responseMimeType: options.responseFormat === 'json' ? 'application/json' : 'text/plain'
+                }
+            });
+
+            const text = this.extractText(response);
+
+            return {
+                text,
+                finishReason: response?.candidates?.[0]?.finishReason || 'STOP'
+            };
         });
-
-        const text = this.extractText(response);
-
-        return {
-            text,
-            finishReason: response?.candidates?.[0]?.finishReason || 'STOP'
-        };
     }
 
     async spellCheck(options: SpellCheckOptions): Promise<SpellCheckResult> {

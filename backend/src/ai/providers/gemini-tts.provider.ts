@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { AudioResult, GenerateAudioOptions, TTSProvider, Voice } from '../interfaces/tts-provider.interface';
 import { aiConfig } from '../ai.config';
 import { convertWavToMp3 } from '../../utils/audio-converter';
+import { RateLimiter, rateLimiterManager } from '../../utils/rate-limiter';
 
 /**
  * 30 Vozes Fixas do Gemini TTS
@@ -44,15 +45,18 @@ export class GeminiTTSProvider implements TTSProvider {
     readonly name = 'gemini';
     readonly supportedFormats = ['mp3', 'wav'];
     private ai: GoogleGenAI;
+    private rateLimiter: RateLimiter;
 
     constructor() {
         this.ai = new GoogleGenAI({});
+        this.rateLimiter = rateLimiterManager.get('gemini-tts', aiConfig.rateLimit.gemini);
     }
 
     async initialize(): Promise<void> {
         console.log('✅ Gemini TTS Provider inicializado');
         console.log(`   Modelo: ${aiConfig.providers.gemini?.ttsModel}`);
         console.log(`   Vozes disponíveis: ${GEMINI_VOICES.length}`);
+        console.log(`   Rate Limit: ${aiConfig.rateLimit.gemini.maxRequests} req/min`);
     }
 
     async generateAudio(options: GenerateAudioOptions): Promise<AudioResult> {
@@ -63,7 +67,7 @@ export class GeminiTTSProvider implements TTSProvider {
         console.log(`   Voz: ${voiceName}`);
         console.log(`   Texto: ${options.text.substring(0, 50)}...`);
 
-        try {
+        return this.rateLimiter.execute(async () => {
             const response = await this.ai.models.generateContent({
                 model: modelName,
                 contents: [{ parts: [{ text: options.text }] }],
@@ -98,10 +102,7 @@ export class GeminiTTSProvider implements TTSProvider {
                 format: 'mp3',
                 sampleRate: 24000
             };
-        } catch (error: any) {
-            console.error('❌ Erro ao gerar áudio:', error);
-            throw new Error(`Falha na geração de áudio: ${error.message}`);
-        }
+        });
     }
 
     async getAvailableVoices(): Promise<Voice[]> {
