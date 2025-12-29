@@ -115,7 +115,7 @@ export interface UpdateCharacterDto {
     name?: string;
     voiceId?: string;
     voiceDescription?: string;
-    previewAudioUrl?: string;
+    previewAudioUrl?: string | null;
     identity?: CharacterIdentityDto;
     physique?: CharacterPhysiqueDto;
     face?: CharacterFaceDto;

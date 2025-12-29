@@ -22,4 +22,7 @@ router.get('/characters', characters_controller_1.charactersController.getAll);
 router.get('/characters/:id', characters_controller_1.charactersController.getById);
 router.put('/characters/:id', characters_controller_1.charactersController.update);
 router.delete('/characters/:id', characters_controller_1.charactersController.delete);
+// Preview audio routes
+router.get('/characters/:id/preview-audio', characters_controller_1.charactersController.getPreviewAudio);
+router.post('/characters/:id/preview-audio', characters_controller_1.charactersController.generatePreviewAudio);
 exports.default = router;

@@ -26,4 +26,8 @@ router.get('/characters/:id', charactersController.getById);
 router.put('/characters/:id', charactersController.update);
 router.delete('/characters/:id', charactersController.delete);
 
+// Preview audio routes
+router.get('/characters/:id/preview-audio', charactersController.getPreviewAudio);
+router.post('/characters/:id/preview-audio', charactersController.generatePreviewAudio);
+
 export default router;

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GeminiTTSProvider = void 0;
 const genai_1 = require("@google/genai");
 const tts_config_1 = require("../tts.config");
+const audio_converter_1 = require("../../utils/audio-converter");
 /**
  * 30 Vozes Fixas do Gemini TTS
  * Documentação: https://ai.google.dev/gemini-api/docs/speech-generation?hl=pt-br#voices
@@ -42,7 +43,7 @@ const GEMINI_VOICES = [
 class GeminiTTSProvider {
     constructor() {
         this.name = 'gemini';
-        this.supportedFormats = ['wav'];
+        this.supportedFormats = ['mp3', 'wav'];
         // GoogleGenAI usa a variável de ambiente GEMINI_API_KEY automaticamente
         this.ai = new genai_1.GoogleGenAI({});
     }
@@ -79,11 +80,15 @@ class GeminiTTSProvider {
                 console.error('Resposta sem áudio:', JSON.stringify(response, null, 2));
                 throw new Error('Nenhum dado de áudio na resposta');
             }
-            const buffer = Buffer.from(audioData, 'base64');
-            console.log(`✅ Áudio gerado: ${buffer.length} bytes`);
+            const wavBuffer = Buffer.from(audioData, 'base64');
+            console.log(`✅ Áudio WAV gerado: ${wavBuffer.length} bytes`);
+            // Converter WAV para MP3
+            console.log(`🔄 Convertendo para MP3...`);
+            const mp3Buffer = await (0, audio_converter_1.convertWavToMp3)(wavBuffer);
+            console.log(`✅ Áudio MP3 gerado: ${mp3Buffer.length} bytes`);
             return {
-                buffer: buffer,
-                format: 'wav',
+                buffer: mp3Buffer,
+                format: 'mp3',
                 sampleRate: 24000
             };
         }
