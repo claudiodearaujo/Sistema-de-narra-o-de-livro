@@ -115,7 +115,12 @@ export class SpeechesController {
             const result = await speechAssistService.spellCheck(text, language);
             res.json(result);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            } else {
+                res.status(400).json({ error: errorMessage });
+            }
         }
     }
 
@@ -124,7 +129,12 @@ export class SpeechesController {
             const result = await speechAssistService.suggestImprovements(req.body);
             res.json(result);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            } else {
+                res.status(400).json({ error: errorMessage });
+            }
         }
     }
 
@@ -133,7 +143,12 @@ export class SpeechesController {
             const result = await speechAssistService.enrichWithCharacterDetails(req.body);
             res.json(result);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            } else {
+                res.status(400).json({ error: errorMessage });
+            }
         }
     }
 
@@ -142,7 +157,12 @@ export class SpeechesController {
             const result = await speechAssistService.generateEmotionImage(req.body);
             res.json(result);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            } else {
+                res.status(400).json({ error: errorMessage });
+            }
         }
     }
 }

@@ -118,7 +118,13 @@ class SpeechesController {
             res.json(result);
         }
         catch (error) {
-            res.status(400).json({ error: error.message });
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            }
+            else {
+                res.status(400).json({ error: errorMessage });
+            }
         }
     }
     async suggestImprovements(req, res) {
@@ -127,7 +133,13 @@ class SpeechesController {
             res.json(result);
         }
         catch (error) {
-            res.status(400).json({ error: error.message });
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            }
+            else {
+                res.status(400).json({ error: errorMessage });
+            }
         }
     }
     async enrichWithCharacter(req, res) {
@@ -136,7 +148,13 @@ class SpeechesController {
             res.json(result);
         }
         catch (error) {
-            res.status(400).json({ error: error.message });
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            }
+            else {
+                res.status(400).json({ error: errorMessage });
+            }
         }
     }
     async generateEmotionImage(req, res) {
@@ -145,7 +163,13 @@ class SpeechesController {
             res.json(result);
         }
         catch (error) {
-            res.status(400).json({ error: error.message });
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            }
+            else {
+                res.status(400).json({ error: errorMessage });
+            }
         }
     }
 }
