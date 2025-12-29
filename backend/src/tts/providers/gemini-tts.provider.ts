@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { AudioResult, GenerateAudioOptions, TTSProvider, Voice } from '../interfaces/tts-provider.interface';
 import { ttsConfig } from '../tts.config';
 
@@ -42,14 +42,11 @@ const GEMINI_VOICES: Voice[] = [
 export class GeminiTTSProvider implements TTSProvider {
     readonly name = 'gemini';
     readonly supportedFormats = ['wav'];
-    private genAI: GoogleGenerativeAI;
+    private ai: GoogleGenAI;
 
     constructor() {
-        const apiKey = ttsConfig.providers.gemini?.apiKey;
-        if (!apiKey) {
-            throw new Error('GEMINI_API_KEY não configurada. Configure no arquivo .env');
-        }
-        this.genAI = new GoogleGenerativeAI(apiKey);
+        // GoogleGenAI usa a variável de ambiente GEMINI_API_KEY automaticamente
+        this.ai = new GoogleGenAI({});
     }
 
     async initialize(): Promise<void> {
@@ -67,48 +64,27 @@ export class GeminiTTSProvider implements TTSProvider {
         console.log(`   Texto: ${options.text.substring(0, 50)}...`);
 
         try {
-            // Usar a API do Gemini para TTS
-            // NOTA: A API de TTS do Gemini requer o SDK @google/genai (diferente do @google/generative-ai)
-            // Por enquanto, usamos uma abordagem via REST API direta
-            
-            const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${ttsConfig.providers.gemini.apiKey}`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: options.text }]
-                        }],
-                        generationConfig: {
-                            responseModalities: ['AUDIO'],
-                            speechConfig: {
-                                voiceConfig: {
-                                    prebuiltVoiceConfig: {
-                                        voiceName: voiceName
-                                    }
-                                }
+            // Usar a API do SDK @google/genai
+            const response = await this.ai.models.generateContent({
+                model: modelName,
+                contents: [{ parts: [{ text: options.text }] }],
+                config: {
+                    responseModalities: ['AUDIO'],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: {
+                                voiceName: voiceName
                             }
                         }
-                    })
+                    }
                 }
-            );
+            });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Erro da API Gemini:', errorData);
-                throw new Error(`Erro na API Gemini: ${errorData.error?.message || response.statusText}`);
-            }
-
-            const data = await response.json();
-            
             // Extrair o áudio da resposta
-            const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+            const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
             
             if (!audioData) {
-                console.error('Resposta sem áudio:', JSON.stringify(data, null, 2));
+                console.error('Resposta sem áudio:', JSON.stringify(response, null, 2));
                 throw new Error('Nenhum dado de áudio na resposta');
             }
 
