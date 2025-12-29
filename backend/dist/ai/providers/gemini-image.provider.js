@@ -9,12 +9,57 @@ class GeminiImageProvider {
         this.supportedFormats = ['png', 'jpeg', 'webp'];
         this.maxResolution = { width: 1024, height: 1024 };
         this.ai = new genai_1.GoogleGenAI({});
-        this.model = ai_config_1.aiConfig.providers.gemini?.imageModel || 'imagen-3.0-generate-001';
+        // Modelo para geração de imagens com Gemini 2.5
+        this.model = ai_config_1.aiConfig.providers.gemini?.imageModel || 'gemini-2.0-flash-exp';
         this.textModel = ai_config_1.aiConfig.providers.gemini?.textModel || 'gemini-2.0-flash';
     }
     async initialize() {
         console.log(`✅ Gemini Image Provider inicializado`);
         console.log(`   Modelo: ${this.model}`);
+    }
+    async runImageGeneration(prompt) {
+        const stream = await this.ai.models.generateContentStream({
+            model: this.model,
+            contents: [
+                {
+                    role: 'user',
+                    parts: [{ text: prompt }]
+                }
+            ],
+            config: {
+                responseModalities: ['IMAGE']
+            }
+        });
+        console.log('Iniciando geração de imagem com prompt:', prompt);
+        console.log('stream:', stream);
+        const images = [];
+        const seenPayloads = new Set();
+        let textContent = '';
+        for await (const chunk of stream) {
+            const parts = chunk?.candidates?.[0]?.content?.parts || [];
+            for (const part of parts) {
+                if (part.inlineData?.data) {
+                    const inlineData = part.inlineData;
+                    if (!seenPayloads.has(inlineData.data)) {
+                        images.push({
+                            base64: inlineData.data,
+                            mimeType: inlineData.mimeType || 'image/png'
+                        });
+                        seenPayloads.add(inlineData.data);
+                    }
+                }
+                else if (part.text) {
+                    textContent += part.text;
+                }
+            }
+        }
+        if (!images.length) {
+            throw new Error(textContent.trim() || 'Nenhuma imagem foi gerada.');
+        }
+        if (textContent.trim()) {
+            images[0].text = textContent.trim();
+        }
+        return images;
     }
     extractText(response) {
         const parts = response?.candidates?.[0]?.content?.parts || [];
@@ -47,34 +92,23 @@ class GeminiImageProvider {
         }
     }
     async generateImage(options) {
-        const response = await this.ai.models.generateContent({
-            model: this.model,
-            contents: [
-                {
-                    role: 'user',
-                    parts: [{ text: options.prompt }]
-                }
-            ],
-            config: {
-                temperature: 0.65,
-                responseMimeType: 'image/png',
-                responseModalities: ['IMAGE']
-            }
-        });
-        const images = response?.candidates?.[0]?.content?.parts
-            ?.filter((part) => part.inlineData?.data)
-            .map((part) => ({
-            base64: part.inlineData.data,
-            mimeType: part.inlineData.mimeType || 'image/png',
-            width: options.width,
-            height: options.height
-        })) || [];
-        if (images.length === 0) {
-            throw new Error('Nenhuma imagem foi gerada.');
-        }
+        const promptParts = [
+            options.prompt,
+            options.style ? `Estilo sugerido: ${options.style}.` : '',
+            options.quality === 'hd' ? 'Qualidade cinematográfica, ultra detalhado.' : '',
+            options.width && options.height ? `Proporção aproximada: ${options.width}x${options.height}.` : ''
+        ].filter(Boolean);
+        const finalPrompt = promptParts.join('\n');
+        const images = await this.runImageGeneration(finalPrompt);
         return {
-            images,
-            prompt: options.prompt
+            images: images.map(image => ({
+                base64: image.base64,
+                mimeType: image.mimeType,
+                width: options.width,
+                height: options.height,
+                revisedPrompt: image.text
+            })),
+            prompt: finalPrompt
         };
     }
     async generateEmotionImage(options) {
@@ -83,6 +117,7 @@ class GeminiImageProvider {
 Retorne JSON no formato {"sentiment":"...","visualElements":["..."],"colorPalette":"...","shortCaption":"..."}.
 Fala:
 """${options.text}"""`;
+        console.log('Analisando sentimento com prompt:', analysisPrompt);
         const analysisResponse = await this.ai.models.generateContent({
             model: this.textModel,
             contents: [
@@ -96,8 +131,11 @@ Fala:
                 responseMimeType: 'application/json'
             }
         });
+        console.log('Resposta da análise de sentimento:', analysisResponse);
         const analysisText = this.extractText(analysisResponse);
         const analysis = this.safeJsonParse(analysisText) || {};
+        console.log('Análise de sentimento extraída:', analysis);
+        console.log('Análise de sentimento extraída:', analysisText);
         // Construir prompt para imagem
         const imagePrompt = [
             'Crie uma ilustração conceitual em estilo pintura digital cinematográfica.',
@@ -110,28 +148,12 @@ Fala:
             options.characterSummary ? `Detalhes do personagem:\n${options.characterSummary}` : '',
             'Formato 1:1, alta definição, pinceladas suaves.'
         ].filter(Boolean).join('\n');
+        console.log('Prompt para geração de imagem emocional:', imagePrompt);
         // Gerar imagem
-        const imageResponse = await this.ai.models.generateContent({
-            model: this.model,
-            contents: [
-                {
-                    role: 'user',
-                    parts: [{ text: imagePrompt }]
-                }
-            ],
-            config: {
-                temperature: 0.65,
-                responseMimeType: 'image/png',
-                responseModalities: ['IMAGE']
-            }
-        });
-        const imagePart = imageResponse?.candidates?.[0]?.content?.parts?.find((part) => part.inlineData?.data);
-        if (!imagePart?.inlineData?.data) {
-            throw new Error('Não foi possível gerar a imagem do sentimento.');
-        }
+        const [image] = await this.runImageGeneration(imagePrompt);
         return {
-            imageBase64: imagePart.inlineData.data,
-            mimeType: imagePart.inlineData.mimeType || 'image/png',
+            imageBase64: image.base64,
+            mimeType: image.mimeType,
             prompt: imagePrompt,
             caption: analysis.shortCaption || 'Visualização do sentimento da fala',
             sentiment: analysis.sentiment || 'desconhecido'
