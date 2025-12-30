@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { createServer } from 'http';
+import authRoutes from './routes/auth.routes';
 import booksRoutes from './routes/books.routes';
 import chaptersRoutes from './routes/chapters.routes';
 import charactersRoutes from './routes/characters.routes';
@@ -33,7 +34,10 @@ app.get('/', (req, res) => {
     res.send('Sistema de Narração de Livros API - Gemini TTS');
 });
 
-// Routes
+// Auth Routes (public and protected)
+app.use('/api/auth', authRoutes);
+
+// Protected Routes (will add middleware to protect these later)
 app.use('/api/books', booksRoutes);
 app.use('/api', chaptersRoutes);
 app.use('/api', charactersRoutes);

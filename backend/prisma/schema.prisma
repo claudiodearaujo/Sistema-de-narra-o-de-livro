@@ -3,9 +3,71 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
+
+// ========== AUTHENTICATION MODELS ==========
+
+enum UserRole {
+  USER
+  WRITER
+  ADMIN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  GITHUB
+}
+
+model User {
+  id            String       @id @default(uuid())
+  email         String       @unique
+  password      String?      // Null for OAuth users
+  name          String
+  username      String?      @unique
+  avatar        String?
+  bio           String?
+  role          UserRole     @default(USER)
+  isVerified    Boolean      @default(false) @map("is_verified")
+  
+  // OAuth support (future)
+  provider      AuthProvider @default(LOCAL)
+  providerId    String?      @map("provider_id")
+  
+  // Email verification
+  verifyToken   String?      @map("verify_token")
+  verifyExpires DateTime?    @map("verify_expires")
+  
+  // Password reset
+  resetToken    String?      @map("reset_token")
+  resetExpires  DateTime?    @map("reset_expires")
+  
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  books         Book[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ========== BOOK MODELS ==========
 
 model Book {
   id          String    @id @default(uuid())
@@ -15,9 +77,15 @@ model Book {
   coverUrl    String?   @map("cover_url")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  // Owner relationship
+  userId      String?   @map("user_id")
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
   chapters    Chapter[]
   characters  Character[]
 
+  @@index([userId])
   @@map("books")
 }
 
