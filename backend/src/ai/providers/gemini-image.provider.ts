@@ -20,7 +20,10 @@ export class GeminiImageProvider implements ImageAIProvider {
     private rateLimiter: RateLimiter;
 
     constructor() {
-        this.ai = new GoogleGenAI({});
+        this.ai = new GoogleGenAI({
+
+            apiKey: aiConfig.providers.gemini?.apiKey || ''
+        });
         // Modelo para geração de imagens com Gemini 2.5
         this.model = aiConfig.providers.gemini?.imageModel || 'gemini-2.0-flash-exp';
         this.textModel = aiConfig.providers.gemini?.textModel || 'gemini-2.0-flash';

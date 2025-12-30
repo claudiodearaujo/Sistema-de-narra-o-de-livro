@@ -50,5 +50,25 @@ exports.aiConfig = {
         maxRetries: 3,
         cacheVoicesTTL: 24 * 60 * 60 * 1000, // 24 hours
         defaultVoice: 'Schedar'
+    },
+    rateLimit: {
+        gemini: {
+            maxRequests: parseInt(process.env.GEMINI_RATE_LIMIT_RPM || '15', 10),
+            windowMs: 60000, // 1 minuto
+            retryDelayMs: parseInt(process.env.GEMINI_RATE_LIMIT_RETRY_DELAY || '5000', 10),
+            maxRetries: parseInt(process.env.GEMINI_RATE_LIMIT_MAX_RETRIES || '5', 10)
+        },
+        openai: {
+            maxRequests: parseInt(process.env.OPENAI_RATE_LIMIT_RPM || '60', 10),
+            windowMs: 60000,
+            retryDelayMs: parseInt(process.env.OPENAI_RATE_LIMIT_RETRY_DELAY || '1000', 10),
+            maxRetries: parseInt(process.env.OPENAI_RATE_LIMIT_MAX_RETRIES || '3', 10)
+        },
+        anthropic: {
+            maxRequests: parseInt(process.env.ANTHROPIC_RATE_LIMIT_RPM || '60', 10),
+            windowMs: 60000,
+            retryDelayMs: parseInt(process.env.ANTHROPIC_RATE_LIMIT_RETRY_DELAY || '1000', 10),
+            maxRetries: parseInt(process.env.ANTHROPIC_RATE_LIMIT_MAX_RETRIES || '3', 10)
+        }
     }
 };

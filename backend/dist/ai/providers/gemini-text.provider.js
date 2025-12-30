@@ -3,16 +3,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GeminiTextProvider = void 0;
 const genai_1 = require("@google/genai");
 const ai_config_1 = require("../ai.config");
+const rate_limiter_1 = require("../../utils/rate-limiter");
 class GeminiTextProvider {
     constructor() {
         this.name = 'gemini';
         this.supportedLanguages = ['pt-BR', 'en-US', 'es-ES', 'fr-FR', 'de-DE'];
         this.ai = new genai_1.GoogleGenAI({});
         this.model = ai_config_1.aiConfig.providers.gemini?.textModel || 'gemini-2.0-flash';
+        this.rateLimiter = rate_limiter_1.rateLimiterManager.get('gemini-text', ai_config_1.aiConfig.rateLimit.gemini);
     }
     async initialize() {
         console.log(`✅ Gemini Text Provider inicializado`);
         console.log(`   Modelo: ${this.model}`);
+        console.log(`   Rate Limit: ${ai_config_1.aiConfig.rateLimit.gemini.maxRequests} req/min`);
     }
     extractText(response) {
         const parts = response?.candidates?.[0]?.content?.parts || [];
@@ -61,20 +64,22 @@ class GeminiTextProvider {
             parts: [{ text: options.prompt }]
         });
         console.log('model', this.model);
-        const response = await this.ai.models.generateContent({
-            model: this.model,
-            contents,
-            config: {
-                temperature: options.temperature ?? ai_config_1.aiConfig.defaults.temperature,
-                maxOutputTokens: options.maxTokens ?? ai_config_1.aiConfig.defaults.maxTokens,
-                responseMimeType: options.responseFormat === 'json' ? 'application/json' : 'text/plain'
-            }
+        return this.rateLimiter.execute(async () => {
+            const response = await this.ai.models.generateContent({
+                model: this.model,
+                contents,
+                config: {
+                    temperature: options.temperature ?? ai_config_1.aiConfig.defaults.temperature,
+                    maxOutputTokens: options.maxTokens ?? ai_config_1.aiConfig.defaults.maxTokens,
+                    responseMimeType: options.responseFormat === 'json' ? 'application/json' : 'text/plain'
+                }
+            });
+            const text = this.extractText(response);
+            return {
+                text,
+                finishReason: response?.candidates?.[0]?.finishReason || 'STOP'
+            };
         });
-        const text = this.extractText(response);
-        return {
-            text,
-            finishReason: response?.candidates?.[0]?.finishReason || 'STOP'
-        };
     }
     async spellCheck(options) {
         const language = options.language || ai_config_1.aiConfig.defaults.language;

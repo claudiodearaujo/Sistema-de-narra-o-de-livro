@@ -4,6 +4,7 @@ exports.GeminiTTSProvider = void 0;
 const genai_1 = require("@google/genai");
 const ai_config_1 = require("../ai.config");
 const audio_converter_1 = require("../../utils/audio-converter");
+const rate_limiter_1 = require("../../utils/rate-limiter");
 /**
  * 30 Vozes Fixas do Gemini TTS
  * Documentação: https://ai.google.dev/gemini-api/docs/speech-generation?hl=pt-br#voices
@@ -45,11 +46,13 @@ class GeminiTTSProvider {
         this.name = 'gemini';
         this.supportedFormats = ['mp3', 'wav'];
         this.ai = new genai_1.GoogleGenAI({});
+        this.rateLimiter = rate_limiter_1.rateLimiterManager.get('gemini-tts', ai_config_1.aiConfig.rateLimit.gemini);
     }
     async initialize() {
         console.log('✅ Gemini TTS Provider inicializado');
         console.log(`   Modelo: ${ai_config_1.aiConfig.providers.gemini?.ttsModel}`);
         console.log(`   Vozes disponíveis: ${GEMINI_VOICES.length}`);
+        console.log(`   Rate Limit: ${ai_config_1.aiConfig.rateLimit.gemini.maxRequests} req/min`);
     }
     async generateAudio(options) {
         const voiceName = options.voice.voiceId || ai_config_1.aiConfig.tts.defaultVoice;
@@ -57,7 +60,7 @@ class GeminiTTSProvider {
         console.log(`🎤 Gerando áudio com Gemini TTS`);
         console.log(`   Voz: ${voiceName}`);
         console.log(`   Texto: ${options.text.substring(0, 50)}...`);
-        try {
+        return this.rateLimiter.execute(async () => {
             const response = await this.ai.models.generateContent({
                 model: modelName,
                 contents: [{ parts: [{ text: options.text }] }],
@@ -87,11 +90,7 @@ class GeminiTTSProvider {
                 format: 'mp3',
                 sampleRate: 24000
             };
-        }
-        catch (error) {
-            console.error('❌ Erro ao gerar áudio:', error);
-            throw new Error(`Falha na geração de áudio: ${error.message}`);
-        }
+        });
     }
     async getAvailableVoices() {
         return GEMINI_VOICES;
