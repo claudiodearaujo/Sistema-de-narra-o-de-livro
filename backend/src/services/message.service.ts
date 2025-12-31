@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma';
 import { Message, User } from '@prisma/client';
+import { achievementService } from './achievement.service';
 
 /**
  * Message validation constants
@@ -408,6 +409,15 @@ class MessageService {
 
     // Create notification for receiver
     await this.createMessageNotification(receiverId, senderId, sanitizedContent);
+
+    // Sprint 10: Check achievements for messages sent
+    setImmediate(async () => {
+      try {
+        await achievementService.checkAndUnlock(senderId, 'messages_sent');
+      } catch (err) {
+        console.error('Failed to check achievements:', err);
+      }
+    });
 
     return { message: messageWithSender };
   }

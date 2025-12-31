@@ -1,10 +1,12 @@
 import prisma from '../lib/prisma';
+import { achievementService } from './achievement.service';
 
 export interface CreateBookDto {
     title: string;
     author: string;
     description?: string;
     coverUrl?: string;
+    userId?: string;
 }
 
 export interface UpdateBookDto {
@@ -92,7 +94,20 @@ export class BooksService {
                 author: data.author.trim(),
                 description: data.description?.trim(),
                 coverUrl: data.coverUrl,
+                userId: data.userId,
             },
+        }).then(async (book) => {
+            // Sprint 10: Check achievements for books created
+            if (data.userId) {
+                setImmediate(async () => {
+                    try {
+                        await achievementService.checkAndUnlock(data.userId!, 'books_count');
+                    } catch (err) {
+                        console.error('Failed to check achievements:', err);
+                    }
+                });
+            }
+            return book;
         });
     }
 

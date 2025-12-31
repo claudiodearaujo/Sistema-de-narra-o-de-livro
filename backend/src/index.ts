@@ -21,6 +21,9 @@ import profileRoutes from './routes/profile.routes';
 import searchRoutes from './routes/search.routes';
 import messageRoutes from './routes/message.routes';
 import livraRoutes from './routes/livra.routes';
+import subscriptionRoutes from './routes/subscription.routes';
+import webhookRoutes from './routes/webhook.routes';
+import achievementRoutes from './routes/achievement.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
@@ -28,6 +31,7 @@ import './queues/narration.processor';
 import './queues/audio.queue';
 import './queues/notification.queue';
 import './queues/notification.worker';
+import './queues/subscription.worker';
 
 dotenv.config();
 
@@ -74,6 +78,13 @@ app.use('/api/messages', messageRoutes); // Direct messages
 
 // Sprint 8: Livra system routes
 app.use('/api/livras', livraRoutes);     // Livra balance and transactions
+
+// Sprint 9: Subscription and payment routes
+app.use('/api/subscription', subscriptionRoutes);  // Subscription management
+app.use('/api/webhooks', webhookRoutes);           // Stripe webhooks
+
+// Sprint 10: Achievement routes
+app.use('/api/achievements', achievementRoutes);   // Achievements and gamification
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

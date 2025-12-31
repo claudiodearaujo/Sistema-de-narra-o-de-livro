@@ -11,6 +11,10 @@ import {
   getUserBalance,
   getUserTransactions,
 } from '../controllers/livra.controller';
+import {
+  getLivraPackages,
+  purchaseLivraPackage,
+} from '../controllers/livra-package.controller';
 
 const router = Router();
 
@@ -27,6 +31,14 @@ router.get('/cost/:action', authenticate, getCost);
 
 // Check if user can afford an amount
 router.get('/can-afford', authenticate, canAfford);
+
+// ========== Livra Package routes (Sprint 9) ==========
+
+// Get available Livra packages for purchase
+router.get('/packages', getLivraPackages);
+
+// Purchase a Livra package
+router.post('/purchase/:packageId', authenticate, purchaseLivraPackage);
 
 // ========== Admin routes ==========
 

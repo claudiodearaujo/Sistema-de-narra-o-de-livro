@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma';
 import { Comment, User } from '@prisma/client';
 import { livraService } from './livra.service';
+import { achievementService } from './achievement.service';
 
 /**
  * Comment with user info
@@ -153,6 +154,15 @@ class CommentService {
       } catch (err) {
         console.error('Failed to award Livras for comment:', err);
       }
+
+      // Sprint 10: Check achievements for comments received
+      setImmediate(async () => {
+        try {
+          await achievementService.checkAndUnlock(post.userId, 'comments_received');
+        } catch (err) {
+          console.error('Failed to check achievements:', err);
+        }
+      });
     }
 
     // If reply, notify parent comment author

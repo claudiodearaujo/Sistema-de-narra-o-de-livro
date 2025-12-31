@@ -1,6 +1,5 @@
-import { PrismaClient, LivraTransactionType } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { LivraTransactionType } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 // WebSocket emitter type
 type WebSocketEmitter = (userId: string, event: string, data: any) => void;

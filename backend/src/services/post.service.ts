@@ -3,6 +3,7 @@ import { PostType, Prisma } from '@prisma/client';
 import { redisService } from '../lib/redis';
 import { feedService } from './feed.service';
 import { notificationService } from './notification.service';
+import { achievementService } from './achievement.service';
 
 export interface CreatePostDto {
   type: PostType;
@@ -160,6 +161,15 @@ class PostService {
     // Adiciona ao feed dos seguidores (fanout-on-write via FeedService)
     feedService.addPostToFollowerFeeds(post.id, userId, post.createdAt).catch(err => {
       console.error('[PostService] Erro no fanout:', err);
+    });
+
+    // Check achievements for posts
+    setImmediate(async () => {
+      try {
+        await achievementService.checkAndUnlock(userId, 'posts_count');
+      } catch (err) {
+        console.error('[PostService] Erro ao verificar conquistas:', err);
+      }
     });
 
     return post;

@@ -38,7 +38,8 @@ export class BooksController {
 
     async create(req: Request, res: Response) {
         try {
-            const book = await booksService.create(req.body);
+            const userId = (req as any).user?.userId;
+            const book = await booksService.create({ ...req.body, userId });
             res.status(201).json(book);
         } catch (error) {
             if (error instanceof Error && (

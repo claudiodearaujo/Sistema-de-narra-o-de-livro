@@ -2,6 +2,7 @@ import prisma from '../lib/prisma';
 import { Follow, User } from '@prisma/client';
 import { feedService } from './feed.service';
 import { livraService } from './livra.service';
+import { achievementService } from './achievement.service';
 
 /**
  * Follow response
@@ -126,10 +127,17 @@ class FollowService {
           } catch (err) {
             console.error('Failed to award Livras for follow:', err);
           }
-        });
 
-        // TODO: Check achievements (first_follower, 10_followers, 100_followers)
-        // await achievementService.checkFollowerAchievements(followingId);
+          // Sprint 10: Check achievements for both users
+          try {
+            // Check follower achievements for the followed user
+            await achievementService.checkAndUnlock(followingId, 'followers_count');
+            // Check following achievements for the follower
+            await achievementService.checkAndUnlock(followerId, 'following_count');
+          } catch (err) {
+            console.error('Failed to check achievements:', err);
+          }
+        });
 
         return {
           following: true,

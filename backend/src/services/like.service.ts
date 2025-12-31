@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma';
 import { Like, Post, User } from '@prisma/client';
 import { livraService } from './livra.service';
+import { achievementService } from './achievement.service';
 
 /**
  * Like Response with counts
@@ -100,6 +101,15 @@ class LikeService {
         
         // Create notification for post author
         await this.createLikeNotification(postId, post.userId, userId);
+
+        // Sprint 10: Check achievements for likes received
+        setImmediate(async () => {
+          try {
+            await achievementService.checkAndUnlock(post.userId, 'likes_received');
+          } catch (err) {
+            console.error('Failed to check achievements:', err);
+          }
+        });
       }
 
       return {

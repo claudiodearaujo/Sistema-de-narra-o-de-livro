@@ -1,4 +1,5 @@
 import prisma from '../lib/prisma';
+import { achievementService } from './achievement.service';
 
 export interface CreateChapterDto {
     title: string;
@@ -66,6 +67,18 @@ export class ChaptersService {
                 orderIndex: newOrderIndex,
                 status: 'draft',
             },
+        }).then(async (chapter) => {
+            // Sprint 10: Check achievements for chapters created
+            if (book.userId) {
+                setImmediate(async () => {
+                    try {
+                        await achievementService.checkAndUnlock(book.userId!, 'chapters_count');
+                    } catch (err) {
+                        console.error('Failed to check achievements:', err);
+                    }
+                });
+            }
+            return chapter;
         });
     }
 
