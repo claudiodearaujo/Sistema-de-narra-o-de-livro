@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma';
 import { PostType, Prisma } from '@prisma/client';
 import { redisService } from '../lib/redis';
+import { feedService } from './feed.service';
 
 export interface CreatePostDto {
   type: PostType;
@@ -151,8 +152,8 @@ class PostService {
       });
     }
 
-    // Adiciona ao feed dos seguidores (fanout-on-write)
-    this.fanoutToFollowers(post.id, userId, post.createdAt).catch(err => {
+    // Adiciona ao feed dos seguidores (fanout-on-write via FeedService)
+    feedService.addPostToFollowerFeeds(post.id, userId, post.createdAt).catch(err => {
       console.error('[PostService] Erro no fanout:', err);
     });
 
@@ -216,13 +217,15 @@ class PostService {
       const cachedPostIds = await redisService.getFeed(userId, page, limit);
       if (cachedPostIds && cachedPostIds.length > 0) {
         const posts = await this.getPostsByIds(cachedPostIds, userId);
-        const hasMore = cachedPostIds.length === limit;
+        const feedSize = await redisService.getFeedSize(userId);
+        const totalPages = Math.ceil(feedSize / limit);
+        const hasMore = page < totalPages;
         return {
           data: posts,
-          total: posts.length,
+          total: feedSize,
           page,
           limit,
-          totalPages: hasMore ? page + 1 : page,
+          totalPages,
           hasMore,
         };
       }
@@ -408,58 +411,10 @@ class PostService {
       where: { id },
     });
 
-    // Remove do feed dos seguidores
-    this.removeFromFollowerFeeds(id, post.userId).catch(err => {
+    // Remove do feed dos seguidores via FeedService
+    feedService.removePostFromFeeds(id, post.userId).catch(err => {
       console.error('[PostService] Erro ao remover do feed:', err);
     });
-  }
-
-  /**
-   * Fanout-on-write: adiciona post ao feed dos seguidores
-   */
-  private async fanoutToFollowers(postId: string, authorId: string, createdAt: Date): Promise<void> {
-    // Busca todos os seguidores do autor
-    const followers = await prisma.follow.findMany({
-      where: { followingId: authorId },
-      select: { followerId: true },
-    });
-
-    // Limite de fanout para evitar problemas com muitos seguidores
-    const FANOUT_LIMIT = 10000;
-    if (followers.length > FANOUT_LIMIT) {
-      console.log(`[PostService] Fanout skipped for user ${authorId} - too many followers (${followers.length})`);
-      return;
-    }
-
-    const timestamp = createdAt.getTime();
-
-    // Adiciona ao feed de cada seguidor
-    const promises = followers.map(f => 
-      redisService.addToFeed(f.followerId, postId, timestamp)
-    );
-
-    // Adiciona ao próprio feed do autor
-    promises.push(redisService.addToFeed(authorId, postId, timestamp));
-
-    await Promise.all(promises);
-  }
-
-  /**
-   * Remove post do feed dos seguidores
-   */
-  private async removeFromFollowerFeeds(postId: string, authorId: string): Promise<void> {
-    const followers = await prisma.follow.findMany({
-      where: { followingId: authorId },
-      select: { followerId: true },
-    });
-
-    const promises = followers.map(f =>
-      redisService.removeFromFeed(f.followerId, postId)
-    );
-
-    promises.push(redisService.removeFromFeed(authorId, postId));
-
-    await Promise.all(promises);
   }
 
   /**
