@@ -26,6 +26,7 @@ import webhookRoutes from './routes/webhook.routes';
 import achievementRoutes from './routes/achievement.routes';
 import groupRoutes from './routes/group.routes';
 import campaignRoutes from './routes/campaign.routes';
+import storyRoutes from './routes/story.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
@@ -34,6 +35,7 @@ import './queues/audio.queue';
 import './queues/notification.queue';
 import './queues/notification.worker';
 import './queues/subscription.worker';
+import './queues/story.worker';
 
 dotenv.config();
 
@@ -91,6 +93,9 @@ app.use('/api/achievements', achievementRoutes);   // Achievements and gamificat
 // Sprint 11: Groups and Campaigns routes
 app.use('/api/groups', groupRoutes);               // Groups and group campaigns
 app.use('/api/campaigns', campaignRoutes);         // Campaign management
+
+// Sprint 12: Stories routes
+app.use('/api/stories', storyRoutes);              // Stories (ephemeral content)
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);
