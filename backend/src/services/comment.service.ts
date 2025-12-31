@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma';
 import { Comment, User } from '@prisma/client';
+import { livraService } from './livra.service';
 
 /**
  * Comment with user info
@@ -145,6 +146,13 @@ class CommentService {
     // Create notification for post author (if not self-comment)
     if (post.userId !== userId) {
       await this.createCommentNotification(postId, post.userId, userId, data.content);
+      
+      // Sprint 8: Award Livras to post author
+      try {
+        await livraService.awardForCommentReceived(post.userId, postId, userId, comment.id);
+      } catch (err) {
+        console.error('Failed to award Livras for comment:', err);
+      }
     }
 
     // If reply, notify parent comment author

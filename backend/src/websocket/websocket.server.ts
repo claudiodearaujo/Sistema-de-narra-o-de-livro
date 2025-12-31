@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { messageService } from '../services/message.service';
 import { notificationService } from '../services/notification.service';
 import { setNotificationWorkerEmitter } from '../queues/notification.worker';
+import { setLivraWebSocketEmitter } from '../services/livra.service';
 
 export let io: Server;
 
@@ -69,6 +70,7 @@ export const initializeWebSocket = (httpServer: HttpServer) => {
   messageService.setWebSocketEmitter(websocketEmitter);
   notificationService.setWebSocketEmitter(websocketEmitter);
   setNotificationWorkerEmitter(websocketEmitter);
+  setLivraWebSocketEmitter(websocketEmitter);
 
   io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);

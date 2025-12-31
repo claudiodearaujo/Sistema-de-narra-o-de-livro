@@ -20,6 +20,7 @@ import notificationRoutes from './routes/notification.routes';
 import profileRoutes from './routes/profile.routes';
 import searchRoutes from './routes/search.routes';
 import messageRoutes from './routes/message.routes';
+import livraRoutes from './routes/livra.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
@@ -70,6 +71,9 @@ app.use('/api/search', searchRoutes);    // Search routes
 
 // Sprint 5: Messages routes
 app.use('/api/messages', messageRoutes); // Direct messages
+
+// Sprint 8: Livra system routes
+app.use('/api/livras', livraRoutes);     // Livra balance and transactions
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

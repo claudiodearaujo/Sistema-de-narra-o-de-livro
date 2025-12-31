@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma';
 import { Follow, User } from '@prisma/client';
 import { feedService } from './feed.service';
+import { livraService } from './livra.service';
 
 /**
  * Follow response
@@ -118,10 +119,14 @@ class FollowService {
         setImmediate(async () => {
           await feedService.onFollow(followerId, followingId);
           await this.createFollowNotification(followingId, followerId);
+          
+          // Sprint 8: Award Livras to followed user
+          try {
+            await livraService.awardForFollowReceived(followingId, followerId);
+          } catch (err) {
+            console.error('Failed to award Livras for follow:', err);
+          }
         });
-
-        // TODO: Sprint 8 - Add Livras to followed user
-        // await livraService.addLivras(followingId, 5, 'EARNED_FOLLOW', { fromUserId: followerId });
 
         // TODO: Check achievements (first_follower, 10_followers, 100_followers)
         // await achievementService.checkFollowerAchievements(followingId);

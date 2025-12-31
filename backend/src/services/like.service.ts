@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma';
 import { Like, Post, User } from '@prisma/client';
+import { livraService } from './livra.service';
 
 /**
  * Like Response with counts
@@ -89,11 +90,15 @@ class LikeService {
         })
       ]);
 
-      // TODO: Sprint 8 - Add Livras to post author
-      // await livraService.addLivras(post.userId, 1, 'EARNED_LIKE', { postId, fromUserId: userId });
-
-      // TODO: Create notification for post author (if not self-like)
+      // Sprint 8: Award Livras to post author
       if (post.userId !== userId) {
+        try {
+          await livraService.awardForLikeReceived(post.userId, postId, userId);
+        } catch (err) {
+          console.error('Failed to award Livras for like:', err);
+        }
+        
+        // Create notification for post author
         await this.createLikeNotification(postId, post.userId, userId);
       }
 
