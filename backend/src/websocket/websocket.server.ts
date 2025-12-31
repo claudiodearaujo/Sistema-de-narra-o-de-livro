@@ -3,6 +3,7 @@ import { Server as HttpServer } from 'http';
 import jwt from 'jsonwebtoken';
 import { messageService } from '../services/message.service';
 import { notificationService } from '../services/notification.service';
+import { setNotificationWorkerEmitter } from '../queues/notification.worker';
 
 export let io: Server;
 
@@ -67,6 +68,7 @@ export const initializeWebSocket = (httpServer: HttpServer) => {
   // Connect services to WebSocket emitter
   messageService.setWebSocketEmitter(websocketEmitter);
   notificationService.setWebSocketEmitter(websocketEmitter);
+  setNotificationWorkerEmitter(websocketEmitter);
 
   io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);

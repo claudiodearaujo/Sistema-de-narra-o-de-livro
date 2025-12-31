@@ -1,5 +1,10 @@
 import prisma from '../lib/prisma';
 import { Notification, NotificationType } from '@prisma/client';
+import { 
+  notificationQueue, 
+  NOTIFICATION_JOB_NAMES, 
+  queueNotification 
+} from '../queues/notification.queue';
 
 /**
  * Notification with actor info
@@ -279,107 +284,250 @@ class NotificationService {
   async notifyLike(postId: string, authorId: string, likerId: string): Promise<void> {
     if (authorId === likerId) return; // Don't notify self-likes
 
-    const liker = await prisma.user.findUnique({
-      where: { id: likerId },
-      select: { name: true, username: true }
+    // Try to queue the notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.LIKE, {
+      postId,
+      authorId,
+      likerId
     });
 
-    if (!liker) return;
+    // If queue is not available, process directly
+    if (!queued) {
+      const liker = await prisma.user.findUnique({
+        where: { id: likerId },
+        select: { name: true, username: true }
+      });
 
-    await this.create({
-      userId: authorId,
-      type: 'LIKE',
-      title: 'Nova curtida',
-      message: `${liker.name} curtiu seu post`,
-      data: { postId, userId: likerId, username: liker.username }
-    });
+      if (!liker) return;
+
+      await this.create({
+        userId: authorId,
+        type: 'LIKE',
+        title: 'Nova curtida',
+        message: `${liker.name} curtiu seu post`,
+        data: { postId, userId: likerId, username: liker.username }
+      });
+    }
   }
 
   async notifyComment(postId: string, authorId: string, commenterId: string, preview: string): Promise<void> {
     if (authorId === commenterId) return;
 
-    const commenter = await prisma.user.findUnique({
-      where: { id: commenterId },
-      select: { name: true, username: true }
+    // Try to queue the notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.COMMENT, {
+      postId,
+      authorId,
+      commenterId,
+      preview
     });
 
-    if (!commenter) return;
+    // If queue is not available, process directly
+    if (!queued) {
+      const commenter = await prisma.user.findUnique({
+        where: { id: commenterId },
+        select: { name: true, username: true }
+      });
 
-    const truncatedPreview = preview.length > 50 ? preview.substring(0, 50) + '...' : preview;
+      if (!commenter) return;
 
-    await this.create({
-      userId: authorId,
-      type: 'COMMENT',
-      title: 'Novo comentário',
-      message: `${commenter.name} comentou: "${truncatedPreview}"`,
-      data: { postId, userId: commenterId, username: commenter.username }
-    });
+      const truncatedPreview = preview.length > 50 ? preview.substring(0, 50) + '...' : preview;
+
+      await this.create({
+        userId: authorId,
+        type: 'COMMENT',
+        title: 'Novo comentário',
+        message: `${commenter.name} comentou: "${truncatedPreview}"`,
+        data: { postId, userId: commenterId, username: commenter.username }
+      });
+    }
   }
 
   async notifyFollow(followingId: string, followerId: string): Promise<void> {
-    const follower = await prisma.user.findUnique({
-      where: { id: followerId },
-      select: { name: true, username: true }
+    // Try to queue the notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.FOLLOW, {
+      followingId,
+      followerId
     });
 
-    if (!follower) return;
+    // If queue is not available, process directly
+    if (!queued) {
+      const follower = await prisma.user.findUnique({
+        where: { id: followerId },
+        select: { name: true, username: true }
+      });
 
-    await this.create({
-      userId: followingId,
-      type: 'FOLLOW',
-      title: 'Novo seguidor',
-      message: `${follower.name} começou a seguir você`,
-      data: { userId: followerId, username: follower.username }
-    });
+      if (!follower) return;
+
+      await this.create({
+        userId: followingId,
+        type: 'FOLLOW',
+        title: 'Novo seguidor',
+        message: `${follower.name} começou a seguir você`,
+        data: { userId: followerId, username: follower.username }
+      });
+    }
   }
 
   async notifyMention(postId: string, mentionedUserId: string, mentionerId: string): Promise<void> {
     if (mentionedUserId === mentionerId) return;
 
-    const mentioner = await prisma.user.findUnique({
-      where: { id: mentionerId },
-      select: { name: true, username: true }
+    // Try to queue the notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.MENTION, {
+      postId,
+      mentionedUserId,
+      mentionerId
     });
 
-    if (!mentioner) return;
+    // If queue is not available, process directly
+    if (!queued) {
+      const mentioner = await prisma.user.findUnique({
+        where: { id: mentionerId },
+        select: { name: true, username: true }
+      });
 
-    await this.create({
-      userId: mentionedUserId,
-      type: 'MENTION',
-      title: 'Você foi mencionado',
-      message: `${mentioner.name} mencionou você em um post`,
-      data: { postId, userId: mentionerId, username: mentioner.username }
-    });
+      if (!mentioner) return;
+
+      await this.create({
+        userId: mentionedUserId,
+        type: 'MENTION',
+        title: 'Você foi mencionado',
+        message: `${mentioner.name} mencionou você em um post`,
+        data: { postId, userId: mentionerId, username: mentioner.username }
+      });
+    }
   }
 
   async notifyAchievement(userId: string, achievementName: string, livraReward: number): Promise<void> {
-    await this.create({
+    // Try to queue the notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.ACHIEVEMENT, {
       userId,
-      type: 'ACHIEVEMENT',
-      title: 'Conquista desbloqueada!',
-      message: `Você desbloqueou: ${achievementName}`,
-      data: { achievementName, livraReward }
+      achievementName,
+      livraReward
     });
+
+    // If queue is not available, process directly
+    if (!queued) {
+      await this.create({
+        userId,
+        type: 'ACHIEVEMENT',
+        title: 'Conquista desbloqueada!',
+        message: `Você desbloqueou: ${achievementName}`,
+        data: { achievementName, livraReward }
+      });
+    }
   }
 
   async notifyLivraEarned(userId: string, amount: number, reason: string): Promise<void> {
-    await this.create({
+    // Try to queue the notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.LIVRA_EARNED, {
       userId,
-      type: 'LIVRA_EARNED',
-      title: 'Livras recebidas!',
-      message: `Você ganhou ${amount} Livras: ${reason}`,
-      data: { amount, reason }
+      amount,
+      reason
     });
+
+    // If queue is not available, process directly
+    if (!queued) {
+      await this.create({
+        userId,
+        type: 'LIVRA_EARNED',
+        title: 'Livras recebidas!',
+        message: `Você ganhou ${amount} Livras: ${reason}`,
+        data: { amount, reason }
+      });
+    }
   }
 
   async notifySystem(userId: string, title: string, message: string, data?: Record<string, any>): Promise<void> {
-    await this.create({
+    // Try to queue the notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.SYSTEM, {
       userId,
-      type: 'SYSTEM',
       title,
       message,
       data
     });
+
+    // If queue is not available, process directly
+    if (!queued) {
+      await this.create({
+        userId,
+        type: 'SYSTEM',
+        title,
+        message,
+        data
+      });
+    }
+  }
+
+  /**
+   * Send notification about new message
+   */
+  async notifyMessage(recipientId: string, senderId: string, messagePreview: string, conversationId?: string): Promise<void> {
+    if (recipientId === senderId) return;
+
+    // Try to queue the notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.MESSAGE, {
+      recipientId,
+      senderId,
+      messagePreview,
+      conversationId
+    });
+
+    // If queue is not available, process directly
+    if (!queued) {
+      const sender = await prisma.user.findUnique({
+        where: { id: senderId },
+        select: { name: true, username: true }
+      });
+
+      if (!sender) return;
+
+      const truncatedPreview = messagePreview.length > 50 
+        ? messagePreview.substring(0, 50) + '...' 
+        : messagePreview;
+
+      await this.create({
+        userId: recipientId,
+        type: 'SYSTEM',
+        title: 'Nova mensagem',
+        message: `${sender.name}: ${truncatedPreview}`,
+        data: { userId: senderId, username: sender.username, conversationId }
+      });
+    }
+  }
+
+  /**
+   * Send bulk notification to multiple users
+   */
+  async notifyBulk(
+    userIds: string[], 
+    type: NotificationType, 
+    title: string, 
+    message: string, 
+    data?: Record<string, any>
+  ): Promise<void> {
+    if (userIds.length === 0) return;
+
+    // Try to queue the bulk notification
+    const queued = await queueNotification(NOTIFICATION_JOB_NAMES.BULK, {
+      userIds,
+      type,
+      title,
+      message,
+      data
+    });
+
+    // If queue is not available, process directly (sequentially to avoid overwhelming)
+    if (!queued) {
+      for (const userId of userIds) {
+        await this.create({
+          userId,
+          type,
+          title,
+          message,
+          data
+        });
+      }
+    }
   }
 }
 

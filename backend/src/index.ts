@@ -25,6 +25,8 @@ import { initializeWebSocket } from './websocket/websocket.server';
 import './queues/narration.queue';
 import './queues/narration.processor';
 import './queues/audio.queue';
+import './queues/notification.queue';
+import './queues/notification.worker';
 
 dotenv.config();
 
