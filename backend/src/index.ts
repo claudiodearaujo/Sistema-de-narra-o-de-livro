@@ -19,6 +19,7 @@ import followRoutes from './routes/follow.routes';
 import notificationRoutes from './routes/notification.routes';
 import profileRoutes from './routes/profile.routes';
 import searchRoutes from './routes/search.routes';
+import messageRoutes from './routes/message.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
@@ -64,6 +65,9 @@ app.use('/api/notifications', notificationRoutes);  // Notification routes
 // Sprint 4: Profile and Search routes
 app.use('/api/users', profileRoutes);    // Profile routes (must be after followRoutes)
 app.use('/api/search', searchRoutes);    // Search routes
+
+// Sprint 5: Messages routes
+app.use('/api/messages', messageRoutes); // Direct messages
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);
