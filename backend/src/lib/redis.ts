@@ -188,6 +188,15 @@ class RedisService {
   }
 
   /**
+   * Retorna o TTL restante de uma chave em segundos
+   * Retorna -1 se a chave não tem TTL, -2 se não existe
+   */
+  async ttl(key: string): Promise<number> {
+    const client = await this.getClientInternal();
+    return client.ttl(key);
+  }
+
+  /**
    * Verifica se uma chave existe
    */
   async exists(key: string): Promise<boolean> {

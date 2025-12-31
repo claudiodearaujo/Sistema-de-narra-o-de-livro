@@ -34,3 +34,10 @@ export {
   PLAN_LIMITS,
   type PlanLimits 
 } from './plan-limits.middleware';
+
+// Rate limiting middleware
+export {
+  rateLimit,
+  getRateLimitInfo,
+  RATE_LIMITS
+} from './rate-limit.middleware';
