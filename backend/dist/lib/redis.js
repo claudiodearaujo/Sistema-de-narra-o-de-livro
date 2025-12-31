@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RedisService = exports.redis = void 0;
+exports.RedisService = exports.redisService = exports.redis = void 0;
 const ioredis_1 = __importDefault(require("ioredis"));
 /**
  * Configuração do Redis
@@ -110,20 +110,31 @@ class RedisService {
         }
     }
     /**
-     * Retorna o cliente Redis (com conexão garantida)
+     * Retorna o cliente Redis (com conexão garantida) - interno
      */
-    async getClient() {
+    async getClientInternal() {
         if (!this.client || !this.isConnected) {
             await this.connect();
         }
         return this.client;
+    }
+    /**
+     * Retorna o cliente Redis para uso externo (pode ser null)
+     */
+    async getClient() {
+        try {
+            return await this.getClientInternal();
+        }
+        catch {
+            return null;
+        }
     }
     // ========== OPERAÇÕES BÁSICAS ==========
     /**
      * Define um valor com TTL opcional
      */
     async set(key, value, ttlSeconds) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         if (ttlSeconds) {
             await client.setex(key, ttlSeconds, value);
         }
@@ -135,35 +146,35 @@ class RedisService {
      * Obtém um valor
      */
     async get(key) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         return client.get(key);
     }
     /**
      * Deleta uma chave
      */
     async del(key) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         await client.del(key);
     }
     /**
      * Incrementa um valor
      */
     async incr(key) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         return client.incr(key);
     }
     /**
      * Define um TTL em uma chave existente
      */
     async expire(key, seconds) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         await client.expire(key, seconds);
     }
     /**
      * Verifica se uma chave existe
      */
     async exists(key) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         return (await client.exists(key)) === 1;
     }
     // ========== OPERAÇÕES DE FEED (Sorted Sets) ==========
@@ -174,7 +185,7 @@ class RedisService {
      * @param timestamp - Timestamp para ordenação (geralmente createdAt.getTime())
      */
     async addToFeed(userId, postId, timestamp) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const key = `${KEYS.FEED}${userId}`;
         // Pipeline para operações atômicas
         const pipeline = client.pipeline();
@@ -195,7 +206,7 @@ class RedisService {
     async addToMultipleFeeds(userIds, postId, timestamp) {
         if (userIds.length === 0)
             return;
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const pipeline = client.pipeline();
         for (const userId of userIds) {
             const key = `${KEYS.FEED}${userId}`;
@@ -213,7 +224,7 @@ class RedisService {
      * @returns Array de IDs de posts ordenados do mais recente ao mais antigo
      */
     async getFeed(userId, page = 1, limit = 20) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const key = `${KEYS.FEED}${userId}`;
         const offset = (page - 1) * limit;
         const end = offset + limit - 1;
@@ -224,7 +235,7 @@ class RedisService {
      * Obtém o tamanho do feed de um usuário
      */
     async getFeedSize(userId) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const key = `${KEYS.FEED}${userId}`;
         return client.zcard(key);
     }
@@ -232,7 +243,7 @@ class RedisService {
      * Remove um post do feed de um usuário
      */
     async removeFromFeed(userId, postId) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const key = `${KEYS.FEED}${userId}`;
         await client.zrem(key, postId);
     }
@@ -242,7 +253,7 @@ class RedisService {
     async removeFromMultipleFeeds(userIds, postId) {
         if (userIds.length === 0)
             return;
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const pipeline = client.pipeline();
         for (const userId of userIds) {
             const key = `${KEYS.FEED}${userId}`;
@@ -254,7 +265,7 @@ class RedisService {
      * Invalida (remove) o feed completo de um usuário
      */
     async invalidateFeed(userId) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const key = `${KEYS.FEED}${userId}`;
         await client.del(key);
     }
@@ -262,7 +273,7 @@ class RedisService {
      * Verifica se o feed de um usuário está em cache
      */
     async isFeedCached(userId) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const key = `${KEYS.FEED}${userId}`;
         return (await client.exists(key)) === 1;
     }
@@ -274,7 +285,7 @@ class RedisService {
     async populateFeed(userId, posts) {
         if (posts.length === 0)
             return;
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const key = `${KEYS.FEED}${userId}`;
         const pipeline = client.pipeline();
         // Adiciona todos os posts
@@ -335,7 +346,7 @@ class RedisService {
      * @returns Número atual de requests
      */
     async incrementRateLimit(key, windowSeconds) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const fullKey = `${KEYS.RATE_LIMIT}${key}`;
         const pipeline = client.pipeline();
         pipeline.incr(fullKey);
@@ -347,7 +358,7 @@ class RedisService {
      * Obtém contagem atual de rate limit
      */
     async getRateLimitCount(key) {
-        const client = await this.getClient();
+        const client = await this.getClientInternal();
         const fullKey = `${KEYS.RATE_LIMIT}${key}`;
         const value = await client.get(fullKey);
         return parseInt(value || '0', 10);
@@ -358,7 +369,7 @@ class RedisService {
      */
     async healthCheck() {
         try {
-            const client = await this.getClient();
+            const client = await this.getClientInternal();
             const start = Date.now();
             await client.ping();
             const latency = Date.now() - start;
@@ -373,7 +384,7 @@ class RedisService {
      */
     async getStats() {
         try {
-            const client = await this.getClient();
+            const client = await this.getClientInternal();
             const info = await client.info();
             const memoryMatch = info.match(/used_memory_human:(\S+)/);
             const clientsMatch = info.match(/connected_clients:(\d+)/);
@@ -392,6 +403,8 @@ class RedisService {
 exports.RedisService = RedisService;
 // Exporta a instância singleton
 exports.redis = RedisService.getInstance();
+// Alias para compatibilidade
+exports.redisService = exports.redis;
 // Graceful shutdown
 process.on('SIGINT', async () => {
     await exports.redis.disconnect();

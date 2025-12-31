@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserRole } from '@prisma/client';
 
+// Import to extend Express Request type with user property
+import './auth.middleware';
+
 /**
  * Role hierarchy: ADMIN > PRO > WRITER > USER
  */

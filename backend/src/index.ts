@@ -13,6 +13,10 @@ import { narrationRoutes } from './routes/narration.routes';
 import { audioRoutes } from './routes/audio.routes';
 import customVoicesRoutes from './routes/custom-voices.routes';
 import postRoutes from './routes/post.routes';
+import likeRoutes from './routes/like.routes';
+import commentRoutes from './routes/comment.routes';
+import followRoutes from './routes/follow.routes';
+import notificationRoutes from './routes/notification.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
@@ -48,6 +52,12 @@ app.use('/api', narrationRoutes);
 app.use('/api', audioRoutes);
 app.use('/api', customVoicesRoutes);
 app.use('/api/posts', postRoutes);
+
+// Social interaction routes (Sprint 3)
+app.use('/api/posts', likeRoutes);      // Like routes nested under posts
+app.use('/api', commentRoutes);          // Comment routes (posts/:postId/comments and /comments/:id)
+app.use('/api/users', followRoutes);     // Follow routes under users
+app.use('/api/notifications', notificationRoutes);  // Notification routes
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

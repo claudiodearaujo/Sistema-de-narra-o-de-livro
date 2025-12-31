@@ -17,6 +17,11 @@ const speeches_routes_1 = __importDefault(require("./routes/speeches.routes"));
 const narration_routes_1 = require("./routes/narration.routes");
 const audio_routes_1 = require("./routes/audio.routes");
 const custom_voices_routes_1 = __importDefault(require("./routes/custom-voices.routes"));
+const post_routes_1 = __importDefault(require("./routes/post.routes"));
+const like_routes_1 = __importDefault(require("./routes/like.routes"));
+const comment_routes_1 = __importDefault(require("./routes/comment.routes"));
+const follow_routes_1 = __importDefault(require("./routes/follow.routes"));
+const notification_routes_1 = __importDefault(require("./routes/notification.routes"));
 const websocket_server_1 = require("./websocket/websocket.server");
 // Initialize Redis queues (if enabled)
 require("./queues/narration.queue");
@@ -44,6 +49,12 @@ app.use('/api', speeches_routes_1.default);
 app.use('/api', narration_routes_1.narrationRoutes);
 app.use('/api', audio_routes_1.audioRoutes);
 app.use('/api', custom_voices_routes_1.default);
+app.use('/api/posts', post_routes_1.default);
+// Social interaction routes (Sprint 3)
+app.use('/api/posts', like_routes_1.default); // Like routes nested under posts
+app.use('/api', comment_routes_1.default); // Comment routes (posts/:postId/comments and /comments/:id)
+app.use('/api/users', follow_routes_1.default); // Follow routes under users
+app.use('/api/notifications', notification_routes_1.default); // Notification routes
 // Initialize WebSocket
 (0, websocket_server_1.initializeWebSocket)(httpServer);
 httpServer.listen(port, () => {

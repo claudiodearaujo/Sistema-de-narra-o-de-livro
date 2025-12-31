@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { SubscriptionPlan } from '@prisma/client';
 import prisma from '../lib/prisma';
 
+// Import to extend Express Request type with user property
+import './auth.middleware';
+
 /**
  * Interface para limites de cada plano
  */
