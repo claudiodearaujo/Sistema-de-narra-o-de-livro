@@ -39,7 +39,8 @@ class BooksController {
     }
     async create(req, res) {
         try {
-            const book = await books_service_1.booksService.create(req.body);
+            const userId = req.user?.userId;
+            const book = await books_service_1.booksService.create({ ...req.body, userId });
             res.status(201).json(book);
         }
         catch (error) {

@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.notificationService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const notification_queue_1 = require("../queues/notification.queue");
 // WebSocket service reference (will be injected)
 let websocketEmitter = null;
 /**
@@ -64,26 +65,37 @@ class NotificationService {
             prisma_1.default.notification.count({ where: whereClause }),
             prisma_1.default.notification.count({ where: { userId, isRead: false } })
         ]);
-        // Enrich notifications with actor info from data field
-        const enrichedNotifications = await Promise.all(notifications.map(async (n) => {
-            let actor = null;
+        // Collect all unique actor IDs to batch fetch (fixes N+1 query problem)
+        const actorIds = notifications
+            .map(n => {
             const data = n.data;
-            if (data?.userId) {
-                actor = await prisma_1.default.user.findUnique({
-                    where: { id: data.userId },
-                    select: {
-                        id: true,
-                        name: true,
-                        username: true,
-                        avatar: true
-                    }
-                });
-            }
+            return data?.userId;
+        })
+            .filter((id) => Boolean(id));
+        const uniqueActorIds = [...new Set(actorIds)];
+        // Batch fetch all actors in a single query
+        const actors = uniqueActorIds.length > 0
+            ? await prisma_1.default.user.findMany({
+                where: { id: { in: uniqueActorIds } },
+                select: {
+                    id: true,
+                    name: true,
+                    username: true,
+                    avatar: true
+                }
+            })
+            : [];
+        // Create a map for O(1) lookup
+        const actorMap = new Map(actors.map(a => [a.id, a]));
+        // Enrich notifications with actor info from the map
+        const enrichedNotifications = notifications.map(n => {
+            const data = n.data;
+            const actor = data?.userId ? actorMap.get(data.userId) || null : null;
             return {
                 ...n,
                 actor
             };
-        }));
+        });
         return {
             notifications: enrichedNotifications,
             total,
@@ -181,96 +193,220 @@ class NotificationService {
     async notifyLike(postId, authorId, likerId) {
         if (authorId === likerId)
             return; // Don't notify self-likes
-        const liker = await prisma_1.default.user.findUnique({
-            where: { id: likerId },
-            select: { name: true, username: true }
+        // Try to queue the notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.LIKE, {
+            postId,
+            authorId,
+            likerId
         });
-        if (!liker)
-            return;
-        await this.create({
-            userId: authorId,
-            type: 'LIKE',
-            title: 'Nova curtida',
-            message: `${liker.name} curtiu seu post`,
-            data: { postId, userId: likerId, username: liker.username }
-        });
+        // If queue is not available, process directly
+        if (!queued) {
+            const liker = await prisma_1.default.user.findUnique({
+                where: { id: likerId },
+                select: { name: true, username: true }
+            });
+            if (!liker)
+                return;
+            await this.create({
+                userId: authorId,
+                type: 'LIKE',
+                title: 'Nova curtida',
+                message: `${liker.name} curtiu seu post`,
+                data: { postId, userId: likerId, username: liker.username }
+            });
+        }
     }
     async notifyComment(postId, authorId, commenterId, preview) {
         if (authorId === commenterId)
             return;
-        const commenter = await prisma_1.default.user.findUnique({
-            where: { id: commenterId },
-            select: { name: true, username: true }
+        // Try to queue the notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.COMMENT, {
+            postId,
+            authorId,
+            commenterId,
+            preview
         });
-        if (!commenter)
-            return;
-        const truncatedPreview = preview.length > 50 ? preview.substring(0, 50) + '...' : preview;
-        await this.create({
-            userId: authorId,
-            type: 'COMMENT',
-            title: 'Novo comentário',
-            message: `${commenter.name} comentou: "${truncatedPreview}"`,
-            data: { postId, userId: commenterId, username: commenter.username }
-        });
+        // If queue is not available, process directly
+        if (!queued) {
+            const commenter = await prisma_1.default.user.findUnique({
+                where: { id: commenterId },
+                select: { name: true, username: true }
+            });
+            if (!commenter)
+                return;
+            const truncatedPreview = preview.length > 50 ? preview.substring(0, 50) + '...' : preview;
+            await this.create({
+                userId: authorId,
+                type: 'COMMENT',
+                title: 'Novo comentário',
+                message: `${commenter.name} comentou: "${truncatedPreview}"`,
+                data: { postId, userId: commenterId, username: commenter.username }
+            });
+        }
     }
     async notifyFollow(followingId, followerId) {
-        const follower = await prisma_1.default.user.findUnique({
-            where: { id: followerId },
-            select: { name: true, username: true }
+        // Try to queue the notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.FOLLOW, {
+            followingId,
+            followerId
         });
-        if (!follower)
-            return;
-        await this.create({
-            userId: followingId,
-            type: 'FOLLOW',
-            title: 'Novo seguidor',
-            message: `${follower.name} começou a seguir você`,
-            data: { userId: followerId, username: follower.username }
-        });
+        // If queue is not available, process directly
+        if (!queued) {
+            const follower = await prisma_1.default.user.findUnique({
+                where: { id: followerId },
+                select: { name: true, username: true }
+            });
+            if (!follower)
+                return;
+            await this.create({
+                userId: followingId,
+                type: 'FOLLOW',
+                title: 'Novo seguidor',
+                message: `${follower.name} começou a seguir você`,
+                data: { userId: followerId, username: follower.username }
+            });
+        }
     }
     async notifyMention(postId, mentionedUserId, mentionerId) {
         if (mentionedUserId === mentionerId)
             return;
-        const mentioner = await prisma_1.default.user.findUnique({
-            where: { id: mentionerId },
-            select: { name: true, username: true }
+        // Try to queue the notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.MENTION, {
+            postId,
+            mentionedUserId,
+            mentionerId
         });
-        if (!mentioner)
-            return;
-        await this.create({
-            userId: mentionedUserId,
-            type: 'MENTION',
-            title: 'Você foi mencionado',
-            message: `${mentioner.name} mencionou você em um post`,
-            data: { postId, userId: mentionerId, username: mentioner.username }
-        });
+        // If queue is not available, process directly
+        if (!queued) {
+            const mentioner = await prisma_1.default.user.findUnique({
+                where: { id: mentionerId },
+                select: { name: true, username: true }
+            });
+            if (!mentioner)
+                return;
+            await this.create({
+                userId: mentionedUserId,
+                type: 'MENTION',
+                title: 'Você foi mencionado',
+                message: `${mentioner.name} mencionou você em um post`,
+                data: { postId, userId: mentionerId, username: mentioner.username }
+            });
+        }
     }
     async notifyAchievement(userId, achievementName, livraReward) {
-        await this.create({
+        // Try to queue the notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.ACHIEVEMENT, {
             userId,
-            type: 'ACHIEVEMENT',
-            title: 'Conquista desbloqueada!',
-            message: `Você desbloqueou: ${achievementName}`,
-            data: { achievementName, livraReward }
+            achievementName,
+            livraReward
         });
+        // If queue is not available, process directly
+        if (!queued) {
+            await this.create({
+                userId,
+                type: 'ACHIEVEMENT',
+                title: 'Conquista desbloqueada!',
+                message: `Você desbloqueou: ${achievementName}`,
+                data: { achievementName, livraReward }
+            });
+        }
     }
     async notifyLivraEarned(userId, amount, reason) {
-        await this.create({
+        // Try to queue the notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.LIVRA_EARNED, {
             userId,
-            type: 'LIVRA_EARNED',
-            title: 'Livras recebidas!',
-            message: `Você ganhou ${amount} Livras: ${reason}`,
-            data: { amount, reason }
+            amount,
+            reason
         });
+        // If queue is not available, process directly
+        if (!queued) {
+            await this.create({
+                userId,
+                type: 'LIVRA_EARNED',
+                title: 'Livras recebidas!',
+                message: `Você ganhou ${amount} Livras: ${reason}`,
+                data: { amount, reason }
+            });
+        }
     }
     async notifySystem(userId, title, message, data) {
-        await this.create({
+        // Try to queue the notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.SYSTEM, {
             userId,
-            type: 'SYSTEM',
             title,
             message,
             data
         });
+        // If queue is not available, process directly
+        if (!queued) {
+            await this.create({
+                userId,
+                type: 'SYSTEM',
+                title,
+                message,
+                data
+            });
+        }
+    }
+    /**
+     * Send notification about new message
+     */
+    async notifyMessage(recipientId, senderId, messagePreview, conversationId) {
+        if (recipientId === senderId)
+            return;
+        // Try to queue the notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.MESSAGE, {
+            recipientId,
+            senderId,
+            messagePreview,
+            conversationId
+        });
+        // If queue is not available, process directly
+        if (!queued) {
+            const sender = await prisma_1.default.user.findUnique({
+                where: { id: senderId },
+                select: { name: true, username: true }
+            });
+            if (!sender)
+                return;
+            const truncatedPreview = messagePreview.length > 50
+                ? messagePreview.substring(0, 50) + '...'
+                : messagePreview;
+            await this.create({
+                userId: recipientId,
+                type: 'SYSTEM',
+                title: 'Nova mensagem',
+                message: `${sender.name}: ${truncatedPreview}`,
+                data: { userId: senderId, username: sender.username, conversationId }
+            });
+        }
+    }
+    /**
+     * Send bulk notification to multiple users
+     */
+    async notifyBulk(userIds, type, title, message, data) {
+        if (userIds.length === 0)
+            return;
+        // Try to queue the bulk notification
+        const queued = await (0, notification_queue_1.queueNotification)(notification_queue_1.NOTIFICATION_JOB_NAMES.BULK, {
+            userIds,
+            type,
+            title,
+            message,
+            data
+        });
+        // If queue is not available, process directly (sequentially to avoid overwhelming)
+        if (!queued) {
+            for (const userId of userIds) {
+                await this.create({
+                    userId,
+                    type,
+                    title,
+                    message,
+                    data
+                });
+            }
+        }
     }
 }
 exports.notificationService = new NotificationService();

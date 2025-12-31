@@ -8,6 +8,9 @@ exports.getPostById = getPostById;
 exports.getPostsByUser = getPostsByUser;
 exports.deletePost = deletePost;
 exports.rebuildFeed = rebuildFeed;
+exports.sharePost = sharePost;
+exports.getTrending = getTrending;
+exports.getPostStats = getPostStats;
 const post_service_1 = require("../services/post.service");
 /**
  * POST /api/posts - Criar post
@@ -207,4 +210,79 @@ exports.postController = {
     getPostsByUser,
     deletePost,
     rebuildFeed,
+    sharePost,
+    getTrending,
+    getPostStats,
 };
+/**
+ * POST /api/posts/:id/share - Compartilhar post
+ */
+async function sharePost(req, res) {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) {
+            res.status(401).json({ error: 'Autenticação necessária' });
+            return;
+        }
+        const { id } = req.params;
+        const { content } = req.body;
+        const post = await post_service_1.postService.share(userId, id, { content });
+        res.status(201).json(post);
+    }
+    catch (error) {
+        console.error('[PostController] Erro ao compartilhar post:', error.message);
+        if (error.message.includes('não encontrado')) {
+            res.status(404).json({ error: error.message });
+        }
+        else if (error.message.includes('Não é possível')) {
+            res.status(400).json({ error: error.message });
+        }
+        else {
+            res.status(500).json({ error: 'Erro ao compartilhar post' });
+        }
+    }
+}
+/**
+ * GET /api/posts/trending - Posts em alta (últimas 24h)
+ */
+async function getTrending(req, res) {
+    try {
+        const userId = req.user?.userId;
+        const page = parseInt(req.query.page) || 1;
+        const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+        const result = await post_service_1.postService.getTrending(page, limit, userId);
+        res.json({
+            posts: result.data,
+            pagination: {
+                page: result.page,
+                limit: result.limit,
+                total: result.total,
+                totalPages: result.totalPages,
+                hasMore: result.hasMore,
+            },
+        });
+    }
+    catch (error) {
+        console.error('[PostController] Erro ao buscar trending:', error.message);
+        res.status(500).json({ error: 'Erro ao buscar posts em alta' });
+    }
+}
+/**
+ * GET /api/posts/:id/stats - Estatísticas do post
+ */
+async function getPostStats(req, res) {
+    try {
+        const { id } = req.params;
+        const stats = await post_service_1.postService.getPostStats(id);
+        res.json(stats);
+    }
+    catch (error) {
+        console.error('[PostController] Erro ao buscar estatísticas:', error.message);
+        if (error.message.includes('não encontrado')) {
+            res.status(404).json({ error: error.message });
+        }
+        else {
+            res.status(500).json({ error: 'Erro ao buscar estatísticas' });
+        }
+    }
+}

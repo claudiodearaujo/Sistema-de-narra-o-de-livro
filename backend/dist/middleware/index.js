@@ -8,7 +8,7 @@
  * import { authenticate, requireRole, requireFeature, checkLimit } from '../middleware';
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PLAN_LIMITS = exports.getPlanLimits = exports.isPro = exports.isPremiumOrAbove = exports.loadPlanInfo = exports.checkLimit = exports.requireFeature = exports.requirePro = exports.requireWriter = exports.requireAdmin = exports.requireMinimumRole = exports.requireRole = exports.authorize = exports.optionalAuth = exports.authenticate = void 0;
+exports.RATE_LIMITS = exports.getRateLimitInfo = exports.rateLimit = exports.PLAN_LIMITS = exports.getPlanLimits = exports.isPro = exports.isPremiumOrAbove = exports.loadPlanInfo = exports.checkLimit = exports.requireFeature = exports.requirePro = exports.requireWriter = exports.requireAdmin = exports.requireMinimumRole = exports.requireRole = exports.authorize = exports.optionalAuth = exports.authenticate = void 0;
 // Authentication middleware
 var auth_middleware_1 = require("./auth.middleware");
 Object.defineProperty(exports, "authenticate", { enumerable: true, get: function () { return auth_middleware_1.authenticate; } });
@@ -30,3 +30,8 @@ Object.defineProperty(exports, "isPremiumOrAbove", { enumerable: true, get: func
 Object.defineProperty(exports, "isPro", { enumerable: true, get: function () { return plan_limits_middleware_1.isPro; } });
 Object.defineProperty(exports, "getPlanLimits", { enumerable: true, get: function () { return plan_limits_middleware_1.getPlanLimits; } });
 Object.defineProperty(exports, "PLAN_LIMITS", { enumerable: true, get: function () { return plan_limits_middleware_1.PLAN_LIMITS; } });
+// Rate limiting middleware
+var rate_limit_middleware_1 = require("./rate-limit.middleware");
+Object.defineProperty(exports, "rateLimit", { enumerable: true, get: function () { return rate_limit_middleware_1.rateLimit; } });
+Object.defineProperty(exports, "getRateLimitInfo", { enumerable: true, get: function () { return rate_limit_middleware_1.getRateLimitInfo; } });
+Object.defineProperty(exports, "RATE_LIMITS", { enumerable: true, get: function () { return rate_limit_middleware_1.RATE_LIMITS; } });

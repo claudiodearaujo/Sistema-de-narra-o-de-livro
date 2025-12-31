@@ -24,11 +24,21 @@ const follow_routes_1 = __importDefault(require("./routes/follow.routes"));
 const notification_routes_1 = __importDefault(require("./routes/notification.routes"));
 const profile_routes_1 = __importDefault(require("./routes/profile.routes"));
 const search_routes_1 = __importDefault(require("./routes/search.routes"));
+const message_routes_1 = __importDefault(require("./routes/message.routes"));
+const livra_routes_1 = __importDefault(require("./routes/livra.routes"));
+const subscription_routes_1 = __importDefault(require("./routes/subscription.routes"));
+const webhook_routes_1 = __importDefault(require("./routes/webhook.routes"));
+const achievement_routes_1 = __importDefault(require("./routes/achievement.routes"));
+const group_routes_1 = __importDefault(require("./routes/group.routes"));
+const campaign_routes_1 = __importDefault(require("./routes/campaign.routes"));
 const websocket_server_1 = require("./websocket/websocket.server");
 // Initialize Redis queues (if enabled)
 require("./queues/narration.queue");
 require("./queues/narration.processor");
 require("./queues/audio.queue");
+require("./queues/notification.queue");
+require("./queues/notification.worker");
+require("./queues/subscription.worker");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);
@@ -60,6 +70,18 @@ app.use('/api/notifications', notification_routes_1.default); // Notification ro
 // Sprint 4: Profile and Search routes
 app.use('/api/users', profile_routes_1.default); // Profile routes (must be after followRoutes)
 app.use('/api/search', search_routes_1.default); // Search routes
+// Sprint 5: Messages routes
+app.use('/api/messages', message_routes_1.default); // Direct messages
+// Sprint 8: Livra system routes
+app.use('/api/livras', livra_routes_1.default); // Livra balance and transactions
+// Sprint 9: Subscription and payment routes
+app.use('/api/subscription', subscription_routes_1.default); // Subscription management
+app.use('/api/webhooks', webhook_routes_1.default); // Stripe webhooks
+// Sprint 10: Achievement routes
+app.use('/api/achievements', achievement_routes_1.default); // Achievements and gamification
+// Sprint 11: Groups and Campaigns routes
+app.use('/api/groups', group_routes_1.default); // Groups and group campaigns
+app.use('/api/campaigns', campaign_routes_1.default); // Campaign management
 // Initialize WebSocket
 (0, websocket_server_1.initializeWebSocket)(httpServer);
 httpServer.listen(port, () => {

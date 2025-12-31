@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.booksService = exports.BooksService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const achievement_service_1 = require("./achievement.service");
 class BooksService {
     async getAll(page = 1, limit = 10, title, author) {
         const skip = (page - 1) * limit;
@@ -69,7 +70,21 @@ class BooksService {
                 author: data.author.trim(),
                 description: data.description?.trim(),
                 coverUrl: data.coverUrl,
+                userId: data.userId,
             },
+        }).then(async (book) => {
+            // Sprint 10: Check achievements for books created
+            if (data.userId) {
+                setImmediate(async () => {
+                    try {
+                        await achievement_service_1.achievementService.checkAndUnlock(data.userId, 'books_count');
+                    }
+                    catch (err) {
+                        console.error('Failed to check achievements:', err);
+                    }
+                });
+            }
+            return book;
         });
     }
     async update(id, data) {

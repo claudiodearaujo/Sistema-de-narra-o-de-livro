@@ -7,6 +7,8 @@ exports.postService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const redis_1 = require("../lib/redis");
 const feed_service_1 = require("./feed.service");
+const notification_service_1 = require("./notification.service");
+const achievement_service_1 = require("./achievement.service");
 // Include completo para posts
 const postInclude = {
     user: {
@@ -123,6 +125,15 @@ class PostService {
         // Adiciona ao feed dos seguidores (fanout-on-write via FeedService)
         feed_service_1.feedService.addPostToFollowerFeeds(post.id, userId, post.createdAt).catch(err => {
             console.error('[PostService] Erro no fanout:', err);
+        });
+        // Check achievements for posts
+        setImmediate(async () => {
+            try {
+                await achievement_service_1.achievementService.checkAndUnlock(userId, 'posts_count');
+            }
+            catch (err) {
+                console.error('[PostService] Erro ao verificar conquistas:', err);
+            }
         });
         return post;
     }
@@ -413,6 +424,218 @@ class PostService {
         for (const post of posts) {
             await redis_1.redisService.addToFeed(userId, post.id, post.createdAt.getTime());
         }
+    }
+    /**
+     * Compartilha um post (quote repost)
+     */
+    async share(userId, postId, dto = {}) {
+        // Verifica se o post original existe
+        const originalPost = await prisma_1.default.post.findUnique({
+            where: { id: postId },
+            include: {
+                user: { select: { id: true, name: true } }
+            }
+        });
+        if (!originalPost) {
+            throw new Error('Post não encontrado');
+        }
+        // Não pode compartilhar um post que já é compartilhamento
+        if (originalPost.sharedPostId) {
+            throw new Error('Não é possível compartilhar um post que já é compartilhamento');
+        }
+        // Cria o post de compartilhamento
+        const content = dto.content?.trim() || `📤 Compartilhou o post de @${originalPost.user?.name || 'usuário'}`;
+        const sharedPost = await this.create(userId, {
+            type: 'SHARED',
+            content,
+            sharedPostId: postId
+        });
+        // Notifica o autor do post original (se não for o mesmo usuário)
+        if (originalPost.userId !== userId) {
+            const sharer = await prisma_1.default.user.findUnique({
+                where: { id: userId },
+                select: { name: true, username: true }
+            });
+            if (sharer) {
+                await notification_service_1.notificationService.create({
+                    userId: originalPost.userId,
+                    type: 'SYSTEM',
+                    title: 'Post compartilhado',
+                    message: `${sharer.name} compartilhou seu post`,
+                    data: {
+                        postId,
+                        sharedPostId: sharedPost.id,
+                        userId,
+                        username: sharer.username
+                    }
+                });
+            }
+        }
+        return sharedPost;
+    }
+    /**
+     * Posts em trending (últimas 24h, ordenados por engajamento)
+     */
+    async getTrending(page = 1, limit = 10, userId) {
+        const skip = (page - 1) * limit;
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        // Busca posts das últimas 24h com cálculo de engajamento
+        // Fórmula: (likes * 2) + (comments * 3) + (shares * 4)
+        const posts = await prisma_1.default.post.findMany({
+            where: {
+                createdAt: { gte: twentyFourHoursAgo },
+                // Excluir posts que são apenas compartilhamentos sem texto
+                OR: [
+                    { type: { not: 'SHARED' } },
+                    {
+                        type: 'SHARED',
+                        content: { not: { startsWith: '📤' } }
+                    }
+                ]
+            },
+            include: postInclude,
+            orderBy: [
+                { likeCount: 'desc' },
+                { shareCount: 'desc' },
+                { commentCount: 'desc' },
+                { createdAt: 'desc' }
+            ],
+            skip,
+            take: limit
+        });
+        const total = await prisma_1.default.post.count({
+            where: {
+                createdAt: { gte: twentyFourHoursAgo },
+                OR: [
+                    { type: { not: 'SHARED' } },
+                    {
+                        type: 'SHARED',
+                        content: { not: { startsWith: '📤' } }
+                    }
+                ]
+            }
+        });
+        // Calcular score de engajamento e verificar likes
+        let likedPostIds = new Set();
+        if (userId) {
+            const likedPosts = await prisma_1.default.like.findMany({
+                where: {
+                    userId,
+                    postId: { in: posts.map(p => p.id) }
+                },
+                select: { postId: true }
+            });
+            likedPostIds = new Set(likedPosts.map(l => l.postId));
+        }
+        const postsWithScore = posts.map(post => ({
+            ...post,
+            isLiked: userId ? likedPostIds.has(post.id) : undefined,
+            engagementScore: (post.likeCount * 2) + (post.commentCount * 3) + (post.shareCount * 4)
+        }));
+        // Reordena por score de engajamento
+        postsWithScore.sort((a, b) => b.engagementScore - a.engagementScore);
+        return {
+            data: postsWithScore,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+            hasMore: skip + posts.length < total
+        };
+    }
+    /**
+     * Cria post automático quando um livro é publicado/atualizado
+     */
+    async createBookUpdatePost(userId, bookId, updateType) {
+        const book = await prisma_1.default.book.findUnique({
+            where: { id: bookId },
+            select: { title: true, description: true, coverUrl: true }
+        });
+        if (!book) {
+            throw new Error('Livro não encontrado');
+        }
+        const content = updateType === 'published'
+            ? `📚 Acabei de publicar "${book.title}"!\n\n${book.description?.substring(0, 200) || 'Confira meu novo livro!'}`
+            : `✏️ Atualizei meu livro "${book.title}"! Confira as novidades.`;
+        return this.create(userId, {
+            type: 'BOOK_UPDATE',
+            content,
+            bookId,
+            mediaUrl: book.coverUrl || undefined
+        });
+    }
+    /**
+     * Cria post automático quando um capítulo é publicado
+     */
+    async createChapterPreviewPost(userId, chapterId) {
+        const chapter = await prisma_1.default.chapter.findUnique({
+            where: { id: chapterId },
+            include: {
+                book: { select: { title: true, id: true } },
+                speeches: {
+                    take: 3,
+                    orderBy: { orderIndex: 'asc' },
+                    select: { text: true }
+                }
+            }
+        });
+        if (!chapter) {
+            throw new Error('Capítulo não encontrado');
+        }
+        // Build preview from first speeches
+        const speechTexts = chapter.speeches.map(s => s.text).join(' ');
+        const previewContent = speechTexts
+            ? speechTexts.substring(0, 280) + (speechTexts.length > 280 ? '...' : '')
+            : 'Novo capítulo disponível!';
+        const content = `📖 Novo capítulo de "${chapter.book.title}"!\n\n**${chapter.title}**\n\n"${previewContent}"\n\n🔗 Leia o capítulo completo!`;
+        return this.create(userId, {
+            type: 'CHAPTER_PREVIEW',
+            content,
+            bookId: chapter.book.id,
+            chapterId
+        });
+    }
+    /**
+     * Cria post automático quando um áudio é gerado
+     */
+    async createAudioPreviewPost(userId, chapterId, audioUrl) {
+        const chapter = await prisma_1.default.chapter.findUnique({
+            where: { id: chapterId },
+            include: {
+                book: { select: { title: true, id: true } }
+            }
+        });
+        if (!chapter) {
+            throw new Error('Capítulo não encontrado');
+        }
+        const content = `🎧 Narração disponível!\n\n"${chapter.title}" do livro "${chapter.book.title}" agora pode ser ouvido.\n\n▶️ Ouça o preview!`;
+        return this.create(userId, {
+            type: 'AUDIO_PREVIEW',
+            content,
+            bookId: chapter.book.id,
+            chapterId,
+            mediaUrl: audioUrl
+        });
+    }
+    /**
+     * Retorna estatísticas de um post
+     */
+    async getPostStats(postId) {
+        const post = await prisma_1.default.post.findUnique({
+            where: { id: postId },
+            select: {
+                likeCount: true,
+                commentCount: true,
+                shareCount: true
+            }
+        });
+        if (!post) {
+            throw new Error('Post não encontrado');
+        }
+        return {
+            ...post,
+            engagementScore: (post.likeCount * 2) + (post.commentCount * 3) + (post.shareCount * 4)
+        };
     }
 }
 exports.postService = new PostService();

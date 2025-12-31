@@ -5,6 +5,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const livra_service_1 = require("./livra.service");
+const achievement_service_1 = require("./achievement.service");
+/**
+ * Comment validation constants
+ */
+const COMMENT_MIN_LENGTH = 1;
+const COMMENT_MAX_LENGTH = 1000;
+/**
+ * Sanitize comment content - remove potentially harmful content
+ */
+function sanitizeContent(content) {
+    return content
+        .trim()
+        // Remove HTML tags
+        .replace(/<[^>]*>/g, '')
+        // Remove multiple spaces
+        .replace(/\s+/g, ' ')
+        // Remove null bytes
+        .replace(/\0/g, '');
+}
+/**
+ * Validate comment content
+ */
+function validateContent(content) {
+    if (!content || content.trim().length < COMMENT_MIN_LENGTH) {
+        return { valid: false, error: 'Comentário não pode ser vazio' };
+    }
+    if (content.length > COMMENT_MAX_LENGTH) {
+        return { valid: false, error: `Comentário muito longo (máximo ${COMMENT_MAX_LENGTH} caracteres)` };
+    }
+    return { valid: true };
+}
 /**
  * Service for managing comments
  */
@@ -13,6 +45,12 @@ class CommentService {
      * Create a new comment on a post
      */
     async create(postId, userId, data) {
+        // Validate and sanitize content
+        const sanitizedContent = sanitizeContent(data.content);
+        const validation = validateContent(sanitizedContent);
+        if (!validation.valid) {
+            throw new Error(validation.error);
+        }
         // Check if post exists
         const post = await prisma_1.default.post.findUnique({
             where: { id: postId },
@@ -40,7 +78,7 @@ class CommentService {
                 data: {
                     postId,
                     userId,
-                    content: data.content,
+                    content: sanitizedContent,
                     parentId: data.parentId || null
                 },
                 include: {
@@ -62,6 +100,22 @@ class CommentService {
         // Create notification for post author (if not self-comment)
         if (post.userId !== userId) {
             await this.createCommentNotification(postId, post.userId, userId, data.content);
+            // Sprint 8: Award Livras to post author
+            try {
+                await livra_service_1.livraService.awardForCommentReceived(post.userId, postId, userId, comment.id);
+            }
+            catch (err) {
+                console.error('Failed to award Livras for comment:', err);
+            }
+            // Sprint 10: Check achievements for comments received
+            setImmediate(async () => {
+                try {
+                    await achievement_service_1.achievementService.checkAndUnlock(post.userId, 'comments_received');
+                }
+                catch (err) {
+                    console.error('Failed to check achievements:', err);
+                }
+            });
         }
         // If reply, notify parent comment author
         if (data.parentId) {

@@ -24,6 +24,8 @@ import livraRoutes from './routes/livra.routes';
 import subscriptionRoutes from './routes/subscription.routes';
 import webhookRoutes from './routes/webhook.routes';
 import achievementRoutes from './routes/achievement.routes';
+import groupRoutes from './routes/group.routes';
+import campaignRoutes from './routes/campaign.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
@@ -85,6 +87,10 @@ app.use('/api/webhooks', webhookRoutes);           // Stripe webhooks
 
 // Sprint 10: Achievement routes
 app.use('/api/achievements', achievementRoutes);   // Achievements and gamification
+
+// Sprint 11: Groups and Campaigns routes
+app.use('/api/groups', groupRoutes);               // Groups and group campaigns
+app.use('/api/campaigns', campaignRoutes);         // Campaign management
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

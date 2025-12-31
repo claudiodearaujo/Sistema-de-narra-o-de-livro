@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.likeService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const livra_service_1 = require("./livra.service");
+const achievement_service_1 = require("./achievement.service");
 /**
  * Service for managing post likes
  */
@@ -60,11 +62,25 @@ class LikeService {
                     data: { likeCount: { increment: 1 } }
                 })
             ]);
-            // TODO: Sprint 8 - Add Livras to post author
-            // await livraService.addLivras(post.userId, 1, 'EARNED_LIKE', { postId, fromUserId: userId });
-            // TODO: Create notification for post author (if not self-like)
+            // Sprint 8: Award Livras to post author
             if (post.userId !== userId) {
+                try {
+                    await livra_service_1.livraService.awardForLikeReceived(post.userId, postId, userId);
+                }
+                catch (err) {
+                    console.error('Failed to award Livras for like:', err);
+                }
+                // Create notification for post author
                 await this.createLikeNotification(postId, post.userId, userId);
+                // Sprint 10: Check achievements for likes received
+                setImmediate(async () => {
+                    try {
+                        await achievement_service_1.achievementService.checkAndUnlock(post.userId, 'likes_received');
+                    }
+                    catch (err) {
+                        console.error('Failed to check achievements:', err);
+                    }
+                });
             }
             return {
                 liked: true,
