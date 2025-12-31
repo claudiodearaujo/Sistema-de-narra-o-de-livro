@@ -1,21 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { storyService } from '../services/story.service';
 
-interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-    plan: string;
-  };
-}
-
 /**
  * Get stories feed (from followed users)
  */
-export async function getStoriesFeed(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getStoriesFeed(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = req.user!.id;
+    const userId = (req as any).user!.id;
     const stories = await storyService.getStoriesFeed(userId);
 
     res.json({ stories });
@@ -27,10 +18,10 @@ export async function getStoriesFeed(req: AuthRequest, res: Response, next: Next
 /**
  * Get stories by user
  */
-export async function getStoriesByUser(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getStoriesByUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { userId } = req.params;
-    const viewerId = req.user!.id;
+    const viewerId = (req as any).user!.id;
 
     const stories = await storyService.getStoriesByUser(userId, viewerId);
 
@@ -43,10 +34,10 @@ export async function getStoriesByUser(req: AuthRequest, res: Response, next: Ne
 /**
  * Get single story
  */
-export async function getStoryById(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getStoryById(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const viewerId = req.user!.id;
+    const viewerId = (req as any).user!.id;
 
     const story = await storyService.getById(id, viewerId);
 
@@ -63,9 +54,9 @@ export async function getStoryById(req: AuthRequest, res: Response, next: NextFu
 /**
  * Create a new story
  */
-export async function createStory(req: AuthRequest, res: Response, next: NextFunction) {
+export async function createStory(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = req.user!.id;
+    const userId = (req as any).user!.id;
     const { type, content, mediaUrl, expiresInHours } = req.body;
 
     if (!type) {
@@ -91,10 +82,10 @@ export async function createStory(req: AuthRequest, res: Response, next: NextFun
 /**
  * Mark story as viewed
  */
-export async function viewStory(req: AuthRequest, res: Response, next: NextFunction) {
+export async function viewStory(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const userId = req.user!.id;
+    const userId = (req as any).user!.id;
 
     await storyService.markAsViewed(id, userId);
 
@@ -110,10 +101,10 @@ export async function viewStory(req: AuthRequest, res: Response, next: NextFunct
 /**
  * Delete a story
  */
-export async function deleteStory(req: AuthRequest, res: Response, next: NextFunction) {
+export async function deleteStory(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const userId = req.user!.id;
+    const userId = (req as any).user!.id;
 
     await storyService.delete(id, userId);
 
@@ -132,10 +123,10 @@ export async function deleteStory(req: AuthRequest, res: Response, next: NextFun
 /**
  * Get story viewers
  */
-export async function getStoryViewers(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getStoryViewers(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const userId = req.user!.id;
+    const userId = (req as any).user!.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
 
@@ -156,13 +147,11 @@ export async function getStoryViewers(req: AuthRequest, res: Response, next: Nex
 /**
  * Get my active stories count
  */
-export async function getMyStoriesCount(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getMyStoriesCount(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = req.user!.id;
-    const plan = req.user!.plan || 'FREE';
+    const userId = (req as any).user!.id;
 
-    const count = await storyService.getActiveStoriesCount(userId);
-    const limit = storyService.getStoryLimit(plan);
+    const { count, limit } = await storyService.getActiveStoriesCountWithLimit(userId);
 
     res.json({
       count,

@@ -1,13 +1,12 @@
 import prisma from '../lib/prisma';
 import { Story, StoryType, Prisma } from '@prisma/client';
-import { notificationService } from './notification.service';
 
 // Story with user data
 export interface StoryWithUser extends Story {
   user: {
     id: string;
     name: string;
-    avatarUrl: string | null;
+    avatar: string | null;
   };
   views: Array<{ userId: string }>;
   isViewed?: boolean;
@@ -47,7 +46,7 @@ const storyInclude = {
     select: {
       id: true,
       name: true,
-      avatarUrl: true,
+      avatar: true,
     },
   },
   views: {
@@ -96,7 +95,7 @@ class StoryService {
         userStoriesMap.set(story.userId, {
           userId: story.userId,
           userName: story.user.name,
-          userAvatar: story.user.avatarUrl,
+          userAvatar: story.user.avatar,
           stories: [],
           hasUnviewed: false,
           latestStoryAt: story.createdAt,
@@ -170,17 +169,14 @@ class StoryService {
    * Create a new story
    */
   async create(userId: string, data: CreateStoryDto): Promise<StoryWithUser> {
-    // Check daily limit based on plan
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+    // Check daily limit based on plan (get from subscription)
+    const subscription = await prisma.subscription.findUnique({
+      where: { userId },
       select: { plan: true },
     });
 
-    if (!user) {
-      throw new Error('Usuário não encontrado');
-    }
-
-    const dailyLimit = STORY_LIMITS[user.plan as keyof typeof STORY_LIMITS] || STORY_LIMITS.FREE;
+    const plan = subscription?.plan || 'FREE';
+    const dailyLimit = STORY_LIMITS[plan as keyof typeof STORY_LIMITS] || STORY_LIMITS.FREE;
     
     // Count stories created today
     const today = new Date();
@@ -321,7 +317,7 @@ class StoryService {
             select: {
               id: true,
               name: true,
-              avatarUrl: true,
+              avatar: true,
             },
           },
         },
@@ -333,7 +329,7 @@ class StoryService {
       viewers: views.map((v) => ({
         id: v.user.id,
         name: v.user.name,
-        avatarUrl: v.user.avatarUrl,
+        avatarUrl: v.user.avatar,
         viewedAt: v.viewedAt,
       })),
       total,
@@ -363,6 +359,24 @@ class StoryService {
         expiresAt: { gt: new Date() },
       },
     });
+  }
+
+  /**
+   * Get user's active stories count with limit info
+   */
+  async getActiveStoriesCountWithLimit(userId: string): Promise<{ count: number; limit: number }> {
+    const [count, subscription] = await Promise.all([
+      this.getActiveStoriesCount(userId),
+      prisma.subscription.findUnique({
+        where: { userId },
+        select: { plan: true },
+      }),
+    ]);
+
+    const plan = subscription?.plan || 'FREE';
+    const limit = this.getStoryLimit(plan);
+
+    return { count, limit };
   }
 
   /**
