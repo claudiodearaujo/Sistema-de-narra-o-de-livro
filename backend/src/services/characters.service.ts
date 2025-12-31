@@ -1,6 +1,5 @@
-import { PrismaClient, Character } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Character } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 // ========== DTOs para Ficha Completa ==========
 

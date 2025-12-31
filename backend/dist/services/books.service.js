@@ -1,8 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.booksService = exports.BooksService = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 class BooksService {
     async getAll(page = 1, limit = 10, title, author) {
         const skip = (page - 1) * limit;
@@ -14,7 +16,7 @@ class BooksService {
             where.author = { contains: author, mode: 'insensitive' };
         }
         const [books, total] = await Promise.all([
-            prisma.book.findMany({
+            prisma_1.default.book.findMany({
                 where,
                 skip,
                 take: limit,
@@ -28,7 +30,7 @@ class BooksService {
                     }
                 }
             }),
-            prisma.book.count({ where }),
+            prisma_1.default.book.count({ where }),
         ]);
         return {
             data: books,
@@ -39,7 +41,7 @@ class BooksService {
         };
     }
     async getById(id) {
-        const book = await prisma.book.findUnique({
+        const book = await prisma_1.default.book.findUnique({
             where: { id },
             include: {
                 chapters: {
@@ -61,7 +63,7 @@ class BooksService {
         if (!data.author || data.author.trim().length === 0) {
             throw new Error('Author is required');
         }
-        return await prisma.book.create({
+        return await prisma_1.default.book.create({
             data: {
                 title: data.title.trim(),
                 author: data.author.trim(),
@@ -78,11 +80,11 @@ class BooksService {
         if (data.author !== undefined && data.author.trim().length === 0) {
             throw new Error('Author is required');
         }
-        const book = await prisma.book.findUnique({ where: { id } });
+        const book = await prisma_1.default.book.findUnique({ where: { id } });
         if (!book) {
             throw new Error('Book not found');
         }
-        return await prisma.book.update({
+        return await prisma_1.default.book.update({
             where: { id },
             data: {
                 ...(data.title && { title: data.title.trim() }),
@@ -93,15 +95,15 @@ class BooksService {
         });
     }
     async delete(id) {
-        const book = await prisma.book.findUnique({ where: { id } });
+        const book = await prisma_1.default.book.findUnique({ where: { id } });
         if (!book) {
             throw new Error('Book not found');
         }
-        await prisma.book.delete({ where: { id } });
+        await prisma_1.default.book.delete({ where: { id } });
         return { message: 'Book deleted successfully' };
     }
     async getStats(id) {
-        const book = await prisma.book.findUnique({
+        const book = await prisma_1.default.book.findUnique({
             where: { id },
             include: {
                 chapters: {

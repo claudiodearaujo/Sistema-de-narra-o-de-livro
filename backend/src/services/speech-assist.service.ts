@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
-import { PrismaClient, Character, Chapter, Book } from '@prisma/client';
+import { Character, Chapter, Book } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 export interface SpellCheckResult {
     correctedText: string;
@@ -64,7 +65,6 @@ type CharacterWithProfile = Character & {
 type ChapterWithBook = Chapter & { book?: Book | null };
 
 class SpeechAssistService {
-    private prisma = new PrismaClient();
     private ai = new GoogleGenAI({});
     private textModel = process.env.GEMINI_TEXT_MODEL || 'gemini-2.0-flash';
     private imageModel = process.env.GEMINI_IMAGE_MODEL || 'imagen-3.0-generate-001';
@@ -127,7 +127,7 @@ class SpeechAssistService {
     }
 
     private async getCharacter(characterId: string): Promise<CharacterWithProfile | null> {
-        return this.prisma.character.findUnique({
+        return prisma.character.findUnique({
             where: { id: characterId },
             include: {
                 book: true,
@@ -142,7 +142,7 @@ class SpeechAssistService {
     }
 
     private async getChapter(chapterId: string): Promise<ChapterWithBook | null> {
-        return this.prisma.chapter.findUnique({
+        return prisma.chapter.findUnique({
             where: { id: chapterId },
             include: { book: true }
         });

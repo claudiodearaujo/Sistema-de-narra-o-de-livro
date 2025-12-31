@@ -4,8 +4,6 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // ========== AUTHENTICATION MODELS ==========
@@ -13,7 +11,95 @@ datasource db {
 enum UserRole {
   USER
   WRITER
+  PRO
   ADMIN
+}
+
+enum SubscriptionPlan {
+  FREE
+  PREMIUM
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+  BOOK_UPDATE
+  CHAPTER_PREVIEW
+  AUDIO_PREVIEW
+  POLL
+  SHARED
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  MENTION
+  MESSAGE
+  BOOK_UPDATE
+  ACHIEVEMENT
+  LIVRA_EARNED
+  SYSTEM
+}
+
+enum LivraTransactionType {
+  EARNED_LIKE
+  EARNED_COMMENT
+  EARNED_FOLLOW
+  EARNED_POST
+  EARNED_CAMPAIGN
+  EARNED_PLAN
+  EARNED_ACHIEVEMENT
+  EARNED_PURCHASE
+  SPENT_TTS
+  SPENT_IMAGE
+  SPENT_CHARACTER
+  SPENT_BOOST
+  EXPIRED
+  ADMIN_ADJUSTMENT
+}
+
+enum AchievementCategory {
+  WRITING
+  SOCIAL
+  READING
+  MILESTONE
+  SPECIAL
+}
+
+enum GroupRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum GroupPrivacy {
+  PUBLIC
+  PRIVATE
+  INVITE_ONLY
+}
+
+enum StoryType {
+  TEXT
+  IMAGE
+  QUOTE
+  POLL
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
 }
 
 enum AuthProvider {
@@ -51,6 +137,31 @@ model User {
   // Relations
   books         Book[]
   refreshTokens RefreshToken[]
+  
+  // Social relations
+  posts           Post[]
+  comments        Comment[]
+  likes           Like[]
+  followers       Follow[]       @relation("followers")
+  following       Follow[]       @relation("following")
+  sentMessages    Message[]      @relation("sentMessages")
+  receivedMessages Message[]     @relation("receivedMessages")
+  notifications   Notification[]
+  
+  // Gamification relations
+  subscription      Subscription?
+  livraBalance      LivraBalance?
+  livraTransactions LivraTransaction[]
+  achievements      UserAchievement[]
+  
+  // Groups relations
+  ownedGroups       Group[]
+  groupMemberships  GroupMember[]
+  campaignProgress  CampaignProgress[]
+  
+  // Stories relations
+  stories           Story[]
+  storyViews        StoryView[]
 
   @@map("users")
 }
@@ -84,6 +195,8 @@ model Book {
   
   chapters    Chapter[]
   characters  Character[]
+  posts       Post[]
+  campaignBooks CampaignBook[]
 
   @@index([userId])
   @@map("books")
@@ -100,6 +213,8 @@ model Chapter {
   book       Book        @relation(fields: [bookId], references: [id], onDelete: Cascade)
   speeches   Speech[]
   narration  Narration?
+  posts      Post[]
+  campaignBooks CampaignBook[]
 
   @@map("chapters")
 }
@@ -295,4 +410,353 @@ model CustomVoice {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("custom_voices")
+}
+
+// ========== SOCIAL MODELS ==========
+
+model Post {
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  type         PostType  @default(TEXT)
+  content      String
+  mediaUrl     String?   @map("media_url")
+  bookId       String?   @map("book_id")
+  chapterId    String?   @map("chapter_id")
+  sharedPostId String?   @map("shared_post_id")
+  likeCount    Int       @default(0) @map("like_count")
+  commentCount Int       @default(0) @map("comment_count")
+  shareCount   Int       @default(0) @map("share_count")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book         Book?     @relation(fields: [bookId], references: [id], onDelete: SetNull)
+  chapter      Chapter?  @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  sharedPost   Post?     @relation("SharedPosts", fields: [sharedPostId], references: [id], onDelete: SetNull)
+  shares       Post[]    @relation("SharedPosts")
+  comments     Comment[]
+  likes        Like[]
+
+  @@index([userId])
+  @@index([bookId])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  postId    String    @map("post_id")
+  userId    String    @map("user_id")
+  content   String
+  parentId  String?   @map("parent_id")
+  likeCount Int       @default(0) @map("like_count")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([userId])
+  @@map("comments")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@map("likes")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower    User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+// ========== COMMUNICATION MODELS ==========
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String   @map("sender_id")
+  receiverId String   @map("receiver_id")
+  content    String
+  isRead     Boolean  @default(false) @map("is_read")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  sender     User     @relation("sentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("receivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ========== GAMIFICATION MODELS ==========
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String             @unique @map("user_id")
+  plan                 SubscriptionPlan   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId     String?            @map("stripe_customer_id")
+  stripeSubscriptionId String?            @map("stripe_subscription_id")
+  stripePriceId        String?            @map("stripe_price_id")
+  currentPeriodStart   DateTime?          @map("current_period_start")
+  currentPeriodEnd     DateTime?          @map("current_period_end")
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model LivraBalance {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  balance   Int      @default(0)
+  lifetime  Int      @default(0) // Total earned ever
+  spent     Int      @default(0) // Total spent ever
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("livra_balances")
+}
+
+model LivraTransaction {
+  id        String               @id @default(uuid())
+  userId    String               @map("user_id")
+  type      LivraTransactionType
+  amount    Int                  // Positive for earned, negative for spent
+  balance   Int                  // Balance after transaction
+  metadata  Json?
+  expiresAt DateTime?            @map("expires_at")
+  createdAt DateTime             @default(now()) @map("created_at")
+
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("livra_transactions")
+}
+
+model LivraConfig {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Int
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("livra_configs")
+}
+
+model LivraPackage {
+  id            String   @id @default(uuid())
+  name          String
+  amount        Int      // Amount of Livras
+  price         Int      // Price in cents
+  stripePriceId String?  @map("stripe_price_id")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("livra_packages")
+}
+
+// ========== ACHIEVEMENT MODELS ==========
+
+model Achievement {
+  id          String              @id @default(uuid())
+  key         String              @unique
+  category    AchievementCategory
+  name        String
+  description String
+  icon        String
+  livraReward Int                 @default(0) @map("livra_reward")
+  requirement Json?               // { type: 'count', target: 10 }
+  isHidden    Boolean             @default(false) @map("is_hidden")
+  createdAt   DateTime            @default(now()) @map("created_at")
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(uuid())
+  userId        String      @map("user_id")
+  achievementId String      @map("achievement_id")
+  unlockedAt    DateTime    @default(now()) @map("unlocked_at")
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@map("user_achievements")
+}
+
+// ========== GROUP MODELS ==========
+
+model Group {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  coverUrl    String?      @map("cover_url")
+  ownerId     String       @map("owner_id")
+  privacy     GroupPrivacy @default(PUBLIC)
+  memberCount Int          @default(1) @map("member_count")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  campaigns   ReadingCampaign[]
+
+  @@index([ownerId])
+  @@map("groups")
+}
+
+model GroupMember {
+  id       String    @id @default(uuid())
+  groupId  String    @map("group_id")
+  userId   String    @map("user_id")
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now()) @map("joined_at")
+
+  group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@map("group_members")
+}
+
+model ReadingCampaign {
+  id          String         @id @default(uuid())
+  groupId     String         @map("group_id")
+  name        String
+  description String?
+  status      CampaignStatus @default(DRAFT)
+  startDate   DateTime?      @map("start_date")
+  endDate     DateTime?      @map("end_date")
+  livraReward Int            @default(0) @map("livra_reward")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  group       Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  books       CampaignBook[]
+  progress    CampaignProgress[]
+
+  @@index([groupId])
+  @@map("reading_campaigns")
+}
+
+model CampaignBook {
+  id         String          @id @default(uuid())
+  campaignId String          @map("campaign_id")
+  bookId     String          @map("book_id")
+  chapterId  String?         @map("chapter_id")
+  orderIndex Int             @default(0) @map("order_index")
+  createdAt  DateTime        @default(now()) @map("created_at")
+
+  campaign   ReadingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  book       Book            @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  chapter    Chapter?        @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+
+  @@index([campaignId])
+  @@map("campaign_books")
+}
+
+model CampaignProgress {
+  id          String          @id @default(uuid())
+  campaignId  String          @map("campaign_id")
+  userId      String          @map("user_id")
+  booksRead   Int             @default(0) @map("books_read")
+  isCompleted Boolean         @default(false) @map("is_completed")
+  completedAt DateTime?       @map("completed_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  campaign    ReadingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@map("campaign_progress")
+}
+
+// ========== STORY MODELS ==========
+
+model Story {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  type      StoryType @default(TEXT)
+  content   String?
+  mediaUrl  String?   @map("media_url")
+  expiresAt DateTime  @map("expires_at")
+  viewCount Int       @default(0) @map("view_count")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views     StoryView[]
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("stories")
+}
+
+model StoryView {
+  id       String   @id @default(uuid())
+  storyId  String   @map("story_id")
+  userId   String   @map("user_id")
+  viewedAt DateTime @default(now()) @map("viewed_at")
+
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@map("story_views")
 }

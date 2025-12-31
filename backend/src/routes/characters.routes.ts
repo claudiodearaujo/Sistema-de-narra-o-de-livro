@@ -1,33 +1,31 @@
 import { Router } from 'express';
 import { charactersController } from '../controllers/characters.controller';
+import { authenticate, optionalAuth, requireWriter } from '../middleware';
+import { checkLimit } from '../middleware';
+import prisma from '../lib/prisma';
 
 const router = Router();
 
-// Routes relative to /api/books/:bookId/characters or /api/characters
-// We need to handle both structures or be careful with how we mount them.
-// The plan says:
-// GET /api/books/:bookId/characters
-// POST /api/books/:bookId/characters
-// GET /api/characters/:id
-// PUT /api/characters/:id
-// DELETE /api/characters/:id
-
-// To handle this cleanly, we might mount this router at /api
-// and define full paths, or split it.
-// Let's define the specific paths here to match the plan.
-
 // Book-related character routes
-router.get('/books/:bookId/characters', charactersController.getByBookId);
-router.post('/books/:bookId/characters', charactersController.create);
+router.get('/books/:bookId/characters', optionalAuth, charactersController.getByBookId);
+router.post('/books/:bookId/characters', 
+  authenticate, 
+  requireWriter,
+  checkLimit('maxCharactersPerBook', async (req) => {
+    const { bookId } = req.params;
+    return prisma.character.count({ where: { bookId } });
+  }),
+  charactersController.create
+);
 
 // Character-specific routes
-router.get('/characters', charactersController.getAll);
-router.get('/characters/:id', charactersController.getById);
-router.put('/characters/:id', charactersController.update);
-router.delete('/characters/:id', charactersController.delete);
+router.get('/characters', optionalAuth, charactersController.getAll);
+router.get('/characters/:id', optionalAuth, charactersController.getById);
+router.put('/characters/:id', authenticate, requireWriter, charactersController.update);
+router.delete('/characters/:id', authenticate, requireWriter, charactersController.delete);
 
 // Preview audio routes
-router.get('/characters/:id/preview-audio', charactersController.getPreviewAudio);
-router.post('/characters/:id/preview-audio', charactersController.generatePreviewAudio);
+router.get('/characters/:id/preview-audio', optionalAuth, charactersController.getPreviewAudio);
+router.post('/characters/:id/preview-audio', authenticate, requireWriter, charactersController.generatePreviewAudio);
 
 export default router;

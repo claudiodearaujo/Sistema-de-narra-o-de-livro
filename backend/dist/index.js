@@ -8,6 +8,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 const http_1 = require("http");
+const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const books_routes_1 = __importDefault(require("./routes/books.routes"));
 const chapters_routes_1 = __importDefault(require("./routes/chapters.routes"));
 const characters_routes_1 = __importDefault(require("./routes/characters.routes"));
@@ -32,7 +33,9 @@ app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../
 app.get('/', (req, res) => {
     res.send('Sistema de Narração de Livros API - Gemini TTS');
 });
-// Routes
+// Auth Routes (public and protected)
+app.use('/api/auth', auth_routes_1.default);
+// Protected Routes (will add middleware to protect these later)
 app.use('/api/books', books_routes_1.default);
 app.use('/api', chapters_routes_1.default);
 app.use('/api', characters_routes_1.default);

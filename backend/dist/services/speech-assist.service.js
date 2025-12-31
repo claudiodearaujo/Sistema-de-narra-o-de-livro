@@ -1,11 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.speechAssistService = void 0;
 const genai_1 = require("@google/genai");
-const client_1 = require("@prisma/client");
+const prisma_1 = __importDefault(require("../lib/prisma"));
 class SpeechAssistService {
     constructor() {
-        this.prisma = new client_1.PrismaClient();
         this.ai = new genai_1.GoogleGenAI({});
         this.textModel = process.env.GEMINI_TEXT_MODEL || 'gemini-2.0-flash';
         this.imageModel = process.env.GEMINI_IMAGE_MODEL || 'imagen-3.0-generate-001';
@@ -64,7 +66,7 @@ class SpeechAssistService {
         return parsed;
     }
     async getCharacter(characterId) {
-        return this.prisma.character.findUnique({
+        return prisma_1.default.character.findUnique({
             where: { id: characterId },
             include: {
                 book: true,
@@ -78,7 +80,7 @@ class SpeechAssistService {
         });
     }
     async getChapter(chapterId) {
-        return this.prisma.chapter.findUnique({
+        return prisma_1.default.chapter.findUnique({
             where: { id: chapterId },
             include: { book: true }
         });

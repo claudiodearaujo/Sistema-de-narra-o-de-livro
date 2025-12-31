@@ -7,12 +7,11 @@ exports.audioWorker = exports.audioQueue = exports.AUDIO_JOB_NAME = void 0;
 const bullmq_1 = require("bullmq");
 const ioredis_1 = __importDefault(require("ioredis"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const client_1 = require("@prisma/client");
 const audio_processor_service_1 = require("../services/audio-processor.service");
 const google_drive_service_1 = require("../services/google-drive.service");
 const path_1 = __importDefault(require("path"));
+const prisma_1 = __importDefault(require("../lib/prisma"));
 dotenv_1.default.config();
-const prisma = new client_1.PrismaClient();
 // Configuração do Redis - opcional
 const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 let audioQueue = null;
@@ -47,7 +46,7 @@ if (REDIS_ENABLED) {
                     throw new Error('No speeches provided for audio processing');
                 }
                 // Get speeches from database
-                const speeches = await prisma.speech.findMany({
+                const speeches = await prisma_1.default.speech.findMany({
                     where: { id: { in: speechIds } },
                     orderBy: { orderIndex: 'asc' }
                 });

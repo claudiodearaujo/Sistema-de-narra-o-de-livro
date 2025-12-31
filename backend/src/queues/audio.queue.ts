@@ -1,14 +1,12 @@
 import { Queue, Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
 import { audioProcessorService } from '../services/audio-processor.service';
 import { googleDriveService } from '../services/google-drive.service';
 import path from 'path';
+import prisma from '../lib/prisma';
 
 dotenv.config();
-
-const prisma = new PrismaClient();
 
 // Configuração do Redis - opcional
 const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';

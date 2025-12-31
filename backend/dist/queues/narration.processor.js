@@ -40,13 +40,12 @@ exports.narrationWorker = void 0;
 const bullmq_1 = require("bullmq");
 const ioredis_1 = __importDefault(require("ioredis"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const client_1 = require("@prisma/client");
 const ai_1 = require("../ai");
 const websocket_server_1 = require("../websocket/websocket.server");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const prisma_1 = __importDefault(require("../lib/prisma"));
 dotenv_1.default.config();
-const prisma = new client_1.PrismaClient();
 const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 // Diretório para salvar os arquivos de áudio
 const AUDIO_DIR = path.join(__dirname, '../../uploads/audio');
@@ -108,7 +107,7 @@ if (REDIS_ENABLED) {
         console.log(`🎙️ Processando narração para capítulo ${chapterId}`);
         try {
             // 1. Buscar todas as falas do capítulo
-            const speeches = await prisma.speech.findMany({
+            const speeches = await prisma_1.default.speech.findMany({
                 where: { chapterId },
                 orderBy: { orderIndex: 'asc' },
                 include: { character: true }
@@ -146,7 +145,7 @@ if (REDIS_ENABLED) {
                     // Salvar arquivo de áudio
                     const audioUrl = saveAudioFile(audioResult.buffer, speech.id);
                     // Atualizar fala no banco
-                    await prisma.speech.update({
+                    await prisma_1.default.speech.update({
                         where: { id: speech.id },
                         data: { audioUrl }
                     });

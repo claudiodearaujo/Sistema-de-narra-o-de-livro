@@ -1,14 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.aiService = exports.AIService = void 0;
-const client_1 = require("@prisma/client");
 const ai_factory_1 = require("./ai.factory");
+const prisma_1 = __importDefault(require("../lib/prisma"));
 /**
  * Serviço principal de IA que orquestra provedores de texto, imagem e TTS
  */
 class AIService {
     constructor() {
-        this.prisma = new client_1.PrismaClient();
         this.textProvider = ai_factory_1.AIFactory.getDefaultTextProvider();
         this.imageProvider = ai_factory_1.AIFactory.getDefaultImageProvider();
         this.ttsProvider = ai_factory_1.AIFactory.getDefaultTTSProvider();
@@ -32,7 +34,7 @@ class AIService {
     }
     // ========== Helpers ==========
     async getCharacter(characterId) {
-        return this.prisma.character.findUnique({
+        return prisma_1.default.character.findUnique({
             where: { id: characterId },
             include: {
                 book: true,
@@ -46,7 +48,7 @@ class AIService {
         });
     }
     async getChapter(chapterId) {
-        return this.prisma.chapter.findUnique({
+        return prisma_1.default.chapter.findUnique({
             where: { id: chapterId },
             include: { book: true }
         });

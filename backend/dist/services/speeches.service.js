@@ -1,19 +1,21 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.speechesService = exports.SpeechesService = void 0;
-const client_1 = require("@prisma/client");
 const ai_1 = require("../ai");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 class SpeechesService {
     async getByChapterId(chapterId) {
-        return await prisma.speech.findMany({
+        return await prisma_1.default.speech.findMany({
             where: { chapterId },
             orderBy: { orderIndex: 'asc' },
             include: { character: true }
         });
     }
     async getById(id) {
-        const speech = await prisma.speech.findUnique({
+        const speech = await prisma_1.default.speech.findUnique({
             where: { id },
             include: { character: true }
         });
@@ -41,13 +43,13 @@ class SpeechesService {
         // Determine order index if not provided
         let orderIndex = data.orderIndex;
         if (orderIndex === undefined) {
-            const lastSpeech = await prisma.speech.findFirst({
+            const lastSpeech = await prisma_1.default.speech.findFirst({
                 where: { chapterId: data.chapterId },
                 orderBy: { orderIndex: 'desc' }
             });
             orderIndex = (lastSpeech?.orderIndex ?? 0) + 1;
         }
-        return await prisma.speech.create({
+        return await prisma_1.default.speech.create({
             data: {
                 chapterId: data.chapterId,
                 characterId: data.characterId,
@@ -58,7 +60,7 @@ class SpeechesService {
         });
     }
     async update(id, data) {
-        const speech = await prisma.speech.findUnique({ where: { id } });
+        const speech = await prisma_1.default.speech.findUnique({ where: { id } });
         if (!speech) {
             throw new Error('Speech not found');
         }
@@ -73,7 +75,7 @@ class SpeechesService {
                 throw new Error(`Invalid SSML: ${validation.errors?.join(', ')}`);
             }
         }
-        return await prisma.speech.update({
+        return await prisma_1.default.speech.update({
             where: { id },
             data: {
                 ...(data.characterId && { characterId: data.characterId }),
@@ -84,19 +86,19 @@ class SpeechesService {
         });
     }
     async delete(id) {
-        const speech = await prisma.speech.findUnique({ where: { id } });
+        const speech = await prisma_1.default.speech.findUnique({ where: { id } });
         if (!speech) {
             throw new Error('Speech not found');
         }
-        await prisma.speech.delete({ where: { id } });
+        await prisma_1.default.speech.delete({ where: { id } });
         return { message: 'Speech deleted successfully' };
     }
     async reorder(chapterId, orderedIds) {
-        const updates = orderedIds.map((id, index) => prisma.speech.update({
+        const updates = orderedIds.map((id, index) => prisma_1.default.speech.update({
             where: { id },
             data: { orderIndex: index }
         }));
-        await prisma.$transaction(updates);
+        await prisma_1.default.$transaction(updates);
         return { message: 'Speeches reordered successfully' };
     }
     async bulkCreate(chapterId, text, strategy, defaultCharacterId) {
@@ -116,7 +118,7 @@ class SpeechesService {
         else {
             parts = [text];
         }
-        const lastSpeech = await prisma.speech.findFirst({
+        const lastSpeech = await prisma_1.default.speech.findFirst({
             where: { chapterId },
             orderBy: { orderIndex: 'desc' }
         });
@@ -127,7 +129,7 @@ class SpeechesService {
             text: part.trim(),
             orderIndex: startOrder + index
         }));
-        await prisma.speech.createMany({
+        await prisma_1.default.speech.createMany({
             data: speechesData
         });
         return { message: `${speechesData.length} speeches created successfully` };

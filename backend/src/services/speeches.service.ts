@@ -1,7 +1,6 @@
-import { PrismaClient, Speech } from '@prisma/client';
+import { Speech } from '@prisma/client';
 import { aiService } from '../ai';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 export interface CreateSpeechDto {
     chapterId: string;

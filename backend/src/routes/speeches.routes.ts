@@ -1,26 +1,27 @@
 import { Router } from 'express';
 import { speechesController } from '../controllers/speeches.controller';
+import { authenticate, optionalAuth, requireWriter } from '../middleware';
 
 const router = Router();
 
 // Chapter-related speech routes
-router.get('/chapters/:chapterId/speeches', speechesController.getByChapterId);
-router.post('/chapters/:chapterId/speeches', speechesController.create);
-router.put('/chapters/:chapterId/speeches/reorder', speechesController.reorder);
-router.post('/chapters/:chapterId/speeches/bulk', speechesController.bulkCreate);
+router.get('/chapters/:chapterId/speeches', optionalAuth, speechesController.getByChapterId);
+router.post('/chapters/:chapterId/speeches', authenticate, requireWriter, speechesController.create);
+router.put('/chapters/:chapterId/speeches/reorder', authenticate, requireWriter, speechesController.reorder);
+router.post('/chapters/:chapterId/speeches/bulk', authenticate, requireWriter, speechesController.bulkCreate);
 
 // Speech-specific routes
-router.get('/speeches/:id', speechesController.getById);
-router.put('/speeches/:id', speechesController.update);
-router.delete('/speeches/:id', speechesController.delete);
+router.get('/speeches/:id', optionalAuth, speechesController.getById);
+router.put('/speeches/:id', authenticate, requireWriter, speechesController.update);
+router.delete('/speeches/:id', authenticate, requireWriter, speechesController.delete);
 
-// SSML validation
-router.post('/ssml/validate', speechesController.validateSSML);
+// SSML validation (protected - requires auth)
+router.post('/ssml/validate', authenticate, speechesController.validateSSML);
 
-// AI assist tools
-router.post('/speeches/tools/spell-check', speechesController.spellCheck);
-router.post('/speeches/tools/suggestions', speechesController.suggestImprovements);
-router.post('/speeches/tools/character-context', speechesController.enrichWithCharacter);
-router.post('/speeches/tools/emotion-image', speechesController.generateEmotionImage);
+// AI assist tools (protected - requires writer role)
+router.post('/speeches/tools/spell-check', authenticate, requireWriter, speechesController.spellCheck);
+router.post('/speeches/tools/suggestions', authenticate, requireWriter, speechesController.suggestImprovements);
+router.post('/speeches/tools/character-context', authenticate, requireWriter, speechesController.enrichWithCharacter);
+router.post('/speeches/tools/emotion-image', authenticate, requireWriter, speechesController.generateEmotionImage);
 
 export default router;

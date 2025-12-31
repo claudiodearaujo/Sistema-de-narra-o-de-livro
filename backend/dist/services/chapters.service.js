@@ -1,11 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chaptersService = exports.ChaptersService = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 class ChaptersService {
     async getByBookId(bookId) {
-        return await prisma.chapter.findMany({
+        return await prisma_1.default.chapter.findMany({
             where: { bookId },
             orderBy: { orderIndex: 'asc' },
             include: {
@@ -14,7 +16,7 @@ class ChaptersService {
         });
     }
     async getById(id) {
-        const chapter = await prisma.chapter.findUnique({
+        const chapter = await prisma_1.default.chapter.findUnique({
             where: { id },
             include: {
                 speeches: {
@@ -32,17 +34,17 @@ class ChaptersService {
         if (!data.title || data.title.trim().length === 0) {
             throw new Error('Title is required');
         }
-        const book = await prisma.book.findUnique({ where: { id: bookId } });
+        const book = await prisma_1.default.book.findUnique({ where: { id: bookId } });
         if (!book) {
             throw new Error('Book not found');
         }
         // Get max order index
-        const lastChapter = await prisma.chapter.findFirst({
+        const lastChapter = await prisma_1.default.chapter.findFirst({
             where: { bookId },
             orderBy: { orderIndex: 'desc' },
         });
         const newOrderIndex = lastChapter ? lastChapter.orderIndex + 1 : 1;
-        return await prisma.chapter.create({
+        return await prisma_1.default.chapter.create({
             data: {
                 bookId,
                 title: data.title.trim(),
@@ -55,11 +57,11 @@ class ChaptersService {
         if (data.title !== undefined && data.title.trim().length === 0) {
             throw new Error('Title is required');
         }
-        const chapter = await prisma.chapter.findUnique({ where: { id } });
+        const chapter = await prisma_1.default.chapter.findUnique({ where: { id } });
         if (!chapter) {
             throw new Error('Chapter not found');
         }
-        return await prisma.chapter.update({
+        return await prisma_1.default.chapter.update({
             where: { id },
             data: {
                 ...(data.title && { title: data.title.trim() }),
@@ -67,7 +69,7 @@ class ChaptersService {
         });
     }
     async delete(id) {
-        const chapter = await prisma.chapter.findUnique({
+        const chapter = await prisma_1.default.chapter.findUnique({
             where: { id },
             include: { narration: true }
         });
@@ -77,16 +79,16 @@ class ChaptersService {
         if (chapter.narration && chapter.narration.status === 'completed') {
             throw new Error('Cannot delete chapter with completed narration');
         }
-        await prisma.chapter.delete({ where: { id } });
+        await prisma_1.default.chapter.delete({ where: { id } });
         return { message: 'Chapter deleted successfully' };
     }
     async reorder(bookId, orderedIds) {
-        const book = await prisma.book.findUnique({ where: { id: bookId } });
+        const book = await prisma_1.default.book.findUnique({ where: { id: bookId } });
         if (!book) {
             throw new Error('Book not found');
         }
         // Verify all chapters belong to the book
-        const chapters = await prisma.chapter.findMany({
+        const chapters = await prisma_1.default.chapter.findMany({
             where: {
                 bookId,
                 id: { in: orderedIds }
@@ -96,7 +98,7 @@ class ChaptersService {
             throw new Error('Invalid chapter IDs provided');
         }
         // Update order in transaction
-        await prisma.$transaction(orderedIds.map((id, index) => prisma.chapter.update({
+        await prisma_1.default.$transaction(orderedIds.map((id, index) => prisma_1.default.chapter.update({
             where: { id },
             data: { orderIndex: index + 1 }
         })));

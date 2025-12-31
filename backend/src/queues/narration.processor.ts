@@ -1,15 +1,13 @@
 import { Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
 import { aiService } from '../ai';
 import { io } from '../websocket/websocket.server';
 import * as fs from 'fs';
 import * as path from 'path';
+import prisma from '../lib/prisma';
 
 dotenv.config();
-
-const prisma = new PrismaClient();
 const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 
 // Diretório para salvar os arquivos de áudio

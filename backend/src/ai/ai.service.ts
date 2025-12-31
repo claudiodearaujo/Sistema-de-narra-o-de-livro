@@ -1,8 +1,9 @@
-import { PrismaClient, Character, Chapter, Book } from '@prisma/client';
+import { Character, Chapter, Book } from '@prisma/client';
 import { AIFactory } from './ai.factory';
 import { TextAIProvider, SpellCheckResult, SuggestionResult, EnrichmentResult } from './interfaces/text-provider.interface';
 import { ImageAIProvider, EmotionImageResult, ImageGenerationResult } from './interfaces/image-provider.interface';
 import { TTSProvider, Voice, AudioResult, VoiceConfig } from './interfaces/tts-provider.interface';
+import prisma from '../lib/prisma';
 
 // Tipos com relações
 type CharacterWithProfile = Character & {
@@ -69,7 +70,6 @@ export interface VoicePreviewRequest {
  */
 export class AIService {
     private static instance: AIService;
-    private prisma = new PrismaClient();
     private textProvider: TextAIProvider;
     private imageProvider: ImageAIProvider;
     private ttsProvider: TTSProvider;
@@ -102,7 +102,7 @@ export class AIService {
     // ========== Helpers ==========
 
     private async getCharacter(characterId: string): Promise<CharacterWithProfile | null> {
-        return this.prisma.character.findUnique({
+        return prisma.character.findUnique({
             where: { id: characterId },
             include: {
                 book: true,
@@ -117,7 +117,7 @@ export class AIService {
     }
 
     private async getChapter(chapterId: string): Promise<ChapterWithBook | null> {
-        return this.prisma.chapter.findUnique({
+        return prisma.chapter.findUnique({
             where: { id: chapterId },
             include: { book: true }
         });

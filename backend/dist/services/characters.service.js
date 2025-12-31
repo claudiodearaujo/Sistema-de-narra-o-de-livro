@@ -1,8 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.charactersService = exports.CharactersService = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 // Contagem de campos por categoria para cálculo de percentual
 const FIELD_COUNTS = {
     identity: 8, // gender, age, nationality, occupation, birthDate, birthPlace, personality, background
@@ -45,14 +47,14 @@ class CharactersService {
         };
     }
     async getByBookId(bookId) {
-        const characters = await prisma.character.findMany({
+        const characters = await prisma_1.default.character.findMany({
             where: { bookId },
             orderBy: { name: 'asc' },
             include: this.includeFullProfile
         });
         // Buscar informações das vozes e calcular percentual
         const charactersWithVoice = await Promise.all(characters.map(async (character) => {
-            const voice = await prisma.customVoice.findUnique({
+            const voice = await prisma_1.default.customVoice.findUnique({
                 where: { id: character.voiceId },
             });
             return {
@@ -64,12 +66,12 @@ class CharactersService {
         return charactersWithVoice;
     }
     async getAll() {
-        const characters = await prisma.character.findMany({
+        const characters = await prisma_1.default.character.findMany({
             orderBy: { name: 'asc' },
             include: this.includeFullProfile
         });
         const charactersWithVoice = await Promise.all(characters.map(async (character) => {
-            const voice = await prisma.customVoice.findUnique({
+            const voice = await prisma_1.default.customVoice.findUnique({
                 where: { id: character.voiceId },
             });
             return {
@@ -81,14 +83,14 @@ class CharactersService {
         return charactersWithVoice;
     }
     async getById(id) {
-        const character = await prisma.character.findUnique({
+        const character = await prisma_1.default.character.findUnique({
             where: { id },
             include: this.includeFullProfile
         });
         if (!character) {
             throw new Error('Character not found');
         }
-        const voice = await prisma.customVoice.findUnique({
+        const voice = await prisma_1.default.customVoice.findUnique({
             where: { id: character.voiceId },
         });
         return {
@@ -106,11 +108,11 @@ class CharactersService {
             throw new Error('Voice ID is required');
         }
         // Verify book exists
-        const book = await prisma.book.findUnique({ where: { id: data.bookId } });
+        const book = await prisma_1.default.book.findUnique({ where: { id: data.bookId } });
         if (!book) {
             throw new Error('Book not found');
         }
-        const character = await prisma.character.create({
+        const character = await prisma_1.default.character.create({
             data: {
                 bookId: data.bookId,
                 name: data.name.trim(),
@@ -132,7 +134,7 @@ class CharactersService {
         };
     }
     async update(id, data) {
-        const character = await prisma.character.findUnique({
+        const character = await prisma_1.default.character.findUnique({
             where: { id },
             include: this.includeFullProfile
         });
@@ -140,7 +142,7 @@ class CharactersService {
             throw new Error('Character not found');
         }
         // Update main character data
-        const updatedCharacter = await prisma.character.update({
+        const updatedCharacter = await prisma_1.default.character.update({
             where: { id },
             data: {
                 ...(data.name && { name: data.name.trim() }),
@@ -153,84 +155,84 @@ class CharactersService {
         // Update or create profile sections
         if (data.identity) {
             if (character.identity) {
-                await prisma.characterIdentity.update({
+                await prisma_1.default.characterIdentity.update({
                     where: { characterId: id },
                     data: data.identity
                 });
             }
             else {
-                await prisma.characterIdentity.create({
+                await prisma_1.default.characterIdentity.create({
                     data: { ...data.identity, characterId: id }
                 });
             }
         }
         if (data.physique) {
             if (character.physique) {
-                await prisma.characterPhysique.update({
+                await prisma_1.default.characterPhysique.update({
                     where: { characterId: id },
                     data: data.physique
                 });
             }
             else {
-                await prisma.characterPhysique.create({
+                await prisma_1.default.characterPhysique.create({
                     data: { ...data.physique, characterId: id }
                 });
             }
         }
         if (data.face) {
             if (character.face) {
-                await prisma.characterFace.update({
+                await prisma_1.default.characterFace.update({
                     where: { characterId: id },
                     data: data.face
                 });
             }
             else {
-                await prisma.characterFace.create({
+                await prisma_1.default.characterFace.create({
                     data: { ...data.face, characterId: id }
                 });
             }
         }
         if (data.eyes) {
             if (character.eyes) {
-                await prisma.characterEyes.update({
+                await prisma_1.default.characterEyes.update({
                     where: { characterId: id },
                     data: data.eyes
                 });
             }
             else {
-                await prisma.characterEyes.create({
+                await prisma_1.default.characterEyes.create({
                     data: { ...data.eyes, characterId: id }
                 });
             }
         }
         if (data.hair) {
             if (character.hair) {
-                await prisma.characterHair.update({
+                await prisma_1.default.characterHair.update({
                     where: { characterId: id },
                     data: data.hair
                 });
             }
             else {
-                await prisma.characterHair.create({
+                await prisma_1.default.characterHair.create({
                     data: { ...data.hair, characterId: id }
                 });
             }
         }
         if (data.wardrobe) {
             if (character.wardrobe) {
-                await prisma.characterWardrobe.update({
+                await prisma_1.default.characterWardrobe.update({
                     where: { characterId: id },
                     data: data.wardrobe
                 });
             }
             else {
-                await prisma.characterWardrobe.create({
+                await prisma_1.default.characterWardrobe.create({
                     data: { ...data.wardrobe, characterId: id }
                 });
             }
         }
         // Fetch updated character with all relations
-        const finalCharacter = await prisma.character.findUnique({
+        const finalCharacter = await prisma_1.default.character.findUnique({
             where: { id },
             include: this.includeFullProfile
         });
@@ -240,11 +242,11 @@ class CharactersService {
         };
     }
     async delete(id) {
-        const character = await prisma.character.findUnique({ where: { id } });
+        const character = await prisma_1.default.character.findUnique({ where: { id } });
         if (!character) {
             throw new Error('Character not found');
         }
-        await prisma.character.delete({ where: { id } });
+        await prisma_1.default.character.delete({ where: { id } });
         return { message: 'Character deleted successfully' };
     }
 }

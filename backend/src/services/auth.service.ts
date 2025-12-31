@@ -1,4 +1,4 @@
-import { PrismaClient, User, UserRole, AuthProvider } from '@prisma/client';
+import { User, UserRole, AuthProvider } from '@prisma/client';
 import { hashPassword, comparePassword, generateRandomToken } from '../utils/password.utils';
 import { 
   generateAccessToken, 
@@ -7,8 +7,7 @@ import {
   getRefreshTokenExpiresAt,
   TokenPayload
 } from '../utils/jwt.utils';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 // Types
 export interface SignupInput {

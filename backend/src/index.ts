@@ -12,6 +12,7 @@ import speechesRoutes from './routes/speeches.routes';
 import { narrationRoutes } from './routes/narration.routes';
 import { audioRoutes } from './routes/audio.routes';
 import customVoicesRoutes from './routes/custom-voices.routes';
+import postRoutes from './routes/post.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
@@ -46,6 +47,7 @@ app.use('/api', speechesRoutes);
 app.use('/api', narrationRoutes);
 app.use('/api', audioRoutes);
 app.use('/api', customVoicesRoutes);
+app.use('/api/posts', postRoutes);
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

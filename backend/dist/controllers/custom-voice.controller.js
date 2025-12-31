@@ -1,13 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.customVoiceController = exports.CustomVoiceController = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 class CustomVoiceController {
     // Listar todas as vozes customizadas ativas
     async list(req, res) {
         try {
-            const voices = await prisma.customVoice.findMany({
+            const voices = await prisma_1.default.customVoice.findMany({
                 where: { isActive: true },
                 orderBy: { name: 'asc' }
             });
@@ -28,7 +30,7 @@ class CustomVoiceController {
                 });
             }
             // Verificar se já existe uma voz com esse nome
-            const existing = await prisma.customVoice.findUnique({
+            const existing = await prisma_1.default.customVoice.findUnique({
                 where: { name }
             });
             if (existing) {
@@ -36,7 +38,7 @@ class CustomVoiceController {
                     error: 'Já existe uma voz com este nome'
                 });
             }
-            const voice = await prisma.customVoice.create({
+            const voice = await prisma_1.default.customVoice.create({
                 data: {
                     name,
                     gender: gender.toUpperCase(),
@@ -56,7 +58,7 @@ class CustomVoiceController {
     async getById(req, res) {
         try {
             const { id } = req.params;
-            const voice = await prisma.customVoice.findUnique({
+            const voice = await prisma_1.default.customVoice.findUnique({
                 where: { id }
             });
             if (!voice) {
@@ -73,7 +75,7 @@ class CustomVoiceController {
         try {
             const { id } = req.params;
             const { name, gender, languageCode, description, voiceId, isActive } = req.body;
-            const voice = await prisma.customVoice.update({
+            const voice = await prisma_1.default.customVoice.update({
                 where: { id },
                 data: {
                     ...(name && { name }),
@@ -97,7 +99,7 @@ class CustomVoiceController {
     async delete(req, res) {
         try {
             const { id } = req.params;
-            const voice = await prisma.customVoice.update({
+            const voice = await prisma_1.default.customVoice.update({
                 where: { id },
                 data: { isActive: false }
             });
@@ -114,7 +116,7 @@ class CustomVoiceController {
     async hardDelete(req, res) {
         try {
             const { id } = req.params;
-            await prisma.customVoice.delete({
+            await prisma_1.default.customVoice.delete({
                 where: { id }
             });
             res.json({ message: 'Voz deletada permanentemente' });
