@@ -125,30 +125,42 @@ class NotificationService {
       prisma.notification.count({ where: { userId, isRead: false } })
     ]);
 
-    // Enrich notifications with actor info from data field
-    const enrichedNotifications = await Promise.all(
-      notifications.map(async (n) => {
-        let actor = null;
+    // Collect all unique actor IDs to batch fetch (fixes N+1 query problem)
+    const actorIds = notifications
+      .map(n => {
         const data = n.data as Record<string, any> | null;
-        
-        if (data?.userId) {
-          actor = await prisma.user.findUnique({
-            where: { id: data.userId },
-            select: {
-              id: true,
-              name: true,
-              username: true,
-              avatar: true
-            }
-          });
-        }
-
-        return {
-          ...n,
-          actor
-        };
+        return data?.userId as string | undefined;
       })
-    );
+      .filter((id): id is string => Boolean(id));
+
+    const uniqueActorIds = [...new Set(actorIds)];
+
+    // Batch fetch all actors in a single query
+    const actors = uniqueActorIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: uniqueActorIds } },
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatar: true
+          }
+        })
+      : [];
+
+    // Create a map for O(1) lookup
+    const actorMap = new Map(actors.map(a => [a.id, a]));
+
+    // Enrich notifications with actor info from the map
+    const enrichedNotifications = notifications.map(n => {
+      const data = n.data as Record<string, any> | null;
+      const actor = data?.userId ? actorMap.get(data.userId) || null : null;
+      
+      return {
+        ...n,
+        actor
+      };
+    });
 
     return {
       notifications: enrichedNotifications,

@@ -43,6 +43,39 @@ export interface PaginatedComments {
 }
 
 /**
+ * Comment validation constants
+ */
+const COMMENT_MIN_LENGTH = 1;
+const COMMENT_MAX_LENGTH = 1000;
+
+/**
+ * Sanitize comment content - remove potentially harmful content
+ */
+function sanitizeContent(content: string): string {
+  return content
+    .trim()
+    // Remove HTML tags
+    .replace(/<[^>]*>/g, '')
+    // Remove multiple spaces
+    .replace(/\s+/g, ' ')
+    // Remove null bytes
+    .replace(/\0/g, '');
+}
+
+/**
+ * Validate comment content
+ */
+function validateContent(content: string): { valid: boolean; error?: string } {
+  if (!content || content.trim().length < COMMENT_MIN_LENGTH) {
+    return { valid: false, error: 'Comentário não pode ser vazio' };
+  }
+  if (content.length > COMMENT_MAX_LENGTH) {
+    return { valid: false, error: `Comentário muito longo (máximo ${COMMENT_MAX_LENGTH} caracteres)` };
+  }
+  return { valid: true };
+}
+
+/**
  * Service for managing comments
  */
 class CommentService {
@@ -50,6 +83,13 @@ class CommentService {
    * Create a new comment on a post
    */
   async create(postId: string, userId: string, data: CreateCommentDto): Promise<CommentWithUser> {
+    // Validate and sanitize content
+    const sanitizedContent = sanitizeContent(data.content);
+    const validation = validateContent(sanitizedContent);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
     // Check if post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
@@ -82,7 +122,7 @@ class CommentService {
         data: {
           postId,
           userId,
-          content: data.content,
+          content: sanitizedContent,
           parentId: data.parentId || null
         },
         include: {

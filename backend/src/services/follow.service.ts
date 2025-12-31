@@ -54,7 +54,7 @@ export interface FollowCounts {
  */
 class FollowService {
   /**
-   * Follow or unfollow a user
+   * Follow or unfollow a user (atomic operation using transaction)
    */
   async toggleFollow(followerId: string, followingId: string): Promise<FollowResponse> {
     // Cannot follow yourself
@@ -72,63 +72,66 @@ class FollowService {
       throw new Error('Usuário não encontrado');
     }
 
-    // Check if already following
-    const existingFollow = await prisma.follow.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId,
-          followingId
+    // Use transaction to prevent race conditions
+    return await prisma.$transaction(async (tx) => {
+      // Check if already following (within transaction for consistency)
+      const existingFollow = await tx.follow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId,
+            followingId
+          }
         }
+      });
+
+      if (existingFollow) {
+        // Unfollow - delete within transaction
+        await tx.follow.delete({
+          where: { id: existingFollow.id }
+        });
+
+        const followerCount = await tx.follow.count({
+          where: { followingId }
+        });
+
+        // Update feed cache outside transaction (non-critical)
+        setImmediate(() => feedService.onUnfollow(followerId, followingId));
+
+        return {
+          following: false,
+          followerCount
+        };
+      } else {
+        // Follow - create within transaction
+        await tx.follow.create({
+          data: {
+            followerId,
+            followingId
+          }
+        });
+
+        const followerCount = await tx.follow.count({
+          where: { followingId }
+        });
+
+        // Side effects outside transaction (non-critical)
+        setImmediate(async () => {
+          await feedService.onFollow(followerId, followingId);
+          await this.createFollowNotification(followingId, followerId);
+        });
+
+        // TODO: Sprint 8 - Add Livras to followed user
+        // await livraService.addLivras(followingId, 5, 'EARNED_FOLLOW', { fromUserId: followerId });
+
+        // TODO: Check achievements (first_follower, 10_followers, 100_followers)
+        // await achievementService.checkFollowerAchievements(followingId);
+
+        return {
+          following: true,
+          followerCount
+        };
       }
     });
-
-    if (existingFollow) {
-      // Unfollow
-      await prisma.follow.delete({
-        where: { id: existingFollow.id }
-      });
-
-      // Update feed cache for the follower (remove unfollowed user's posts)
-      await feedService.onUnfollow(followerId, followingId);
-
-      const followerCount = await prisma.follow.count({
-        where: { followingId }
-      });
-
-      return {
-        following: false,
-        followerCount
-      };
-    } else {
-      // Follow
-      await prisma.follow.create({
-        data: {
-          followerId,
-          followingId
-        }
-      });
-
-      // Update feed cache for the follower (new posts will appear)
-      await feedService.onFollow(followerId, followingId);
-
-      // Create notification for followed user
-      await this.createFollowNotification(followingId, followerId);
-
-      // TODO: Sprint 8 - Add Livras to followed user
-      // await livraService.addLivras(followingId, 5, 'EARNED_FOLLOW', { fromUserId: followerId });
-
-      // TODO: Check achievements (first_follower, 10_followers, 100_followers)
-      // await achievementService.checkFollowerAchievements(followingId);
-
-      const followerCount = await prisma.follow.count({
-        where: { followingId }
-      });
-
-      return {
-        following: true,
-        followerCount
-      };
-    }
   }
 
   /**
