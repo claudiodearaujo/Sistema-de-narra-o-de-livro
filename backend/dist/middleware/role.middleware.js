@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.requirePro = exports.requireWriter = exports.requireAdmin = void 0;
 exports.requireRole = requireRole;
 exports.requireMinimumRole = requireMinimumRole;
+// Import to extend Express Request type with user property
+require("./auth.middleware");
 /**
  * Role hierarchy: ADMIN > PRO > WRITER > USER
  */

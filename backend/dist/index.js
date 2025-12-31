@@ -22,6 +22,8 @@ const like_routes_1 = __importDefault(require("./routes/like.routes"));
 const comment_routes_1 = __importDefault(require("./routes/comment.routes"));
 const follow_routes_1 = __importDefault(require("./routes/follow.routes"));
 const notification_routes_1 = __importDefault(require("./routes/notification.routes"));
+const profile_routes_1 = __importDefault(require("./routes/profile.routes"));
+const search_routes_1 = __importDefault(require("./routes/search.routes"));
 const websocket_server_1 = require("./websocket/websocket.server");
 // Initialize Redis queues (if enabled)
 require("./queues/narration.queue");
@@ -55,6 +57,9 @@ app.use('/api/posts', like_routes_1.default); // Like routes nested under posts
 app.use('/api', comment_routes_1.default); // Comment routes (posts/:postId/comments and /comments/:id)
 app.use('/api/users', follow_routes_1.default); // Follow routes under users
 app.use('/api/notifications', notification_routes_1.default); // Notification routes
+// Sprint 4: Profile and Search routes
+app.use('/api/users', profile_routes_1.default); // Profile routes (must be after followRoutes)
+app.use('/api/search', search_routes_1.default); // Search routes
 // Initialize WebSocket
 (0, websocket_server_1.initializeWebSocket)(httpServer);
 httpServer.listen(port, () => {

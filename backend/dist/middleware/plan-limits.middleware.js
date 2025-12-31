@@ -12,6 +12,8 @@ exports.isPro = isPro;
 exports.getPlanLimits = getPlanLimits;
 const client_1 = require("@prisma/client");
 const prisma_1 = __importDefault(require("../lib/prisma"));
+// Import to extend Express Request type with user property
+require("./auth.middleware");
 /**
  * Configuração de limites por plano
  */
