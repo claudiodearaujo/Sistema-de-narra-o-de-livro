@@ -219,4 +219,85 @@ export const postController = {
   getPostsByUser,
   deletePost,
   rebuildFeed,
+  sharePost,
+  getTrending,
+  getPostStats,
 };
+
+/**
+ * POST /api/posts/:id/share - Compartilhar post
+ */
+export async function sharePost(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Autenticação necessária' });
+      return;
+    }
+
+    const { id } = req.params;
+    const { content } = req.body;
+
+    const post = await postService.share(userId, id, { content });
+
+    res.status(201).json(post);
+  } catch (error: any) {
+    console.error('[PostController] Erro ao compartilhar post:', error.message);
+    
+    if (error.message.includes('não encontrado')) {
+      res.status(404).json({ error: error.message });
+    } else if (error.message.includes('Não é possível')) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'Erro ao compartilhar post' });
+    }
+  }
+}
+
+/**
+ * GET /api/posts/trending - Posts em alta (últimas 24h)
+ */
+export async function getTrending(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user?.userId;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
+
+    const result = await postService.getTrending(page, limit, userId);
+
+    res.json({
+      posts: result.data,
+      pagination: {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
+        hasMore: result.hasMore,
+      },
+    });
+  } catch (error: any) {
+    console.error('[PostController] Erro ao buscar trending:', error.message);
+    res.status(500).json({ error: 'Erro ao buscar posts em alta' });
+  }
+}
+
+/**
+ * GET /api/posts/:id/stats - Estatísticas do post
+ */
+export async function getPostStats(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+
+    const stats = await postService.getPostStats(id);
+
+    res.json(stats);
+  } catch (error: any) {
+    console.error('[PostController] Erro ao buscar estatísticas:', error.message);
+    
+    if (error.message.includes('não encontrado')) {
+      res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'Erro ao buscar estatísticas' });
+    }
+  }
+}
