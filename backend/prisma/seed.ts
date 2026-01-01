@@ -1,7 +1,20 @@
+import 'dotenv/config';
 import { PrismaClient, UserRole, AuthProvider, AchievementCategory } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient();
+// Create a PostgreSQL connection pool
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is not set');
+}
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+
+const prisma = new PrismaClient({ adapter });
 
 // Achievement definitions
 const achievements = [
@@ -306,6 +319,60 @@ async function main() {
   });
 
   console.log('✅ Created admin user:', sophia.email);
+
+  // Create test user (USER role)
+  const userPassword = await bcrypt.hash('User@2024!', 12);
+  const testUser = await prisma.user.upsert({
+    where: { email: 'usuario@livria.com.br' },
+    update: {},
+    create: {
+      email: 'usuario@livria.com.br',
+      password: userPassword,
+      name: 'João Leitor',
+      username: 'joaoleitor',
+      role: UserRole.USER,
+      isVerified: true,
+      provider: AuthProvider.LOCAL,
+      bio: 'Usuário padrão para testes - Amante de livros e leitura'
+    }
+  });
+  console.log('✅ Created test user (USER):', testUser.email);
+
+  // Create test writer (WRITER role)
+  const writerPassword = await bcrypt.hash('Writer@2024!', 12);
+  const testWriter = await prisma.user.upsert({
+    where: { email: 'escritor@livria.com.br' },
+    update: {},
+    create: {
+      email: 'escritor@livria.com.br',
+      password: writerPassword,
+      name: 'Maria Escritora',
+      username: 'mariaescritora',
+      role: UserRole.WRITER,
+      isVerified: true,
+      provider: AuthProvider.LOCAL,
+      bio: 'Escritora para testes - Autora de contos e romances'
+    }
+  });
+  console.log('✅ Created test writer (WRITER):', testWriter.email);
+
+  // Create test pro user (PRO role)
+  const proPassword = await bcrypt.hash('Pro@2024!', 12);
+  const testPro = await prisma.user.upsert({
+    where: { email: 'pro@livria.com.br' },
+    update: {},
+    create: {
+      email: 'pro@livria.com.br',
+      password: proPassword,
+      name: 'Carlos Profissional',
+      username: 'carlospro',
+      role: UserRole.PRO,
+      isVerified: true,
+      provider: AuthProvider.LOCAL,
+      bio: 'Usuário PRO para testes - Acesso completo às funcionalidades'
+    }
+  });
+  console.log('✅ Created test pro user (PRO):', testPro.email);
 
   // Assign existing books to Sophia
   const existingBooks = await prisma.book.findMany({
