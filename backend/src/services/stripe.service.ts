@@ -4,9 +4,8 @@
  * Sprint 9: Planos e Pagamentos
  */
 
-import { PrismaClient, SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 // Stripe types (we'll use fetch for API calls to avoid dependency)
 interface StripeCustomer {

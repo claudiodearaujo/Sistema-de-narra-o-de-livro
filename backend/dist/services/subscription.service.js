@@ -4,12 +4,14 @@
  * Manages user subscriptions and plan features
  * Sprint 9: Planos e Pagamentos
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.subscriptionService = exports.PLAN_FEATURES = void 0;
-const client_1 = require("@prisma/client");
+const prisma_1 = __importDefault(require("../lib/prisma"));
 const stripe_service_1 = require("./stripe.service");
 const livra_service_1 = require("./livra.service");
-const prisma = new client_1.PrismaClient();
 // Plan features configuration
 exports.PLAN_FEATURES = {
     FREE: {
@@ -54,7 +56,7 @@ class SubscriptionService {
      * Get user's current subscription
      */
     async getSubscription(userId) {
-        const subscription = await prisma.subscription.findUnique({
+        const subscription = await prisma_1.default.subscription.findUnique({
             where: { userId },
         });
         if (!subscription) {
@@ -74,7 +76,7 @@ class SubscriptionService {
      * Get user's subscription plan (defaults to FREE)
      */
     async getUserPlan(userId) {
-        const subscription = await prisma.subscription.findUnique({
+        const subscription = await prisma_1.default.subscription.findUnique({
             where: { userId },
             select: { plan: true, status: true },
         });
@@ -121,7 +123,7 @@ class SubscriptionService {
     async handleCheckoutCompleted(userId, stripeSubscriptionId, priceId) {
         const plan = stripe_service_1.stripeService.mapStripePlanToLocal(priceId);
         const stripeSubscription = await stripe_service_1.stripeService.getStripeSubscription(stripeSubscriptionId);
-        await prisma.subscription.upsert({
+        await prisma_1.default.subscription.upsert({
             where: { userId },
             create: {
                 userId,
@@ -152,7 +154,7 @@ class SubscriptionService {
         });
         // Update user role based on plan
         const role = this.mapPlanToRole(plan);
-        await prisma.user.update({
+        await prisma_1.default.user.update({
             where: { id: userId },
             data: { role },
         });
@@ -170,7 +172,7 @@ class SubscriptionService {
      * Handle subscription updated (renewal, plan change)
      */
     async handleSubscriptionUpdated(stripeSubscriptionId, status, priceId, currentPeriodStart, currentPeriodEnd, cancelAtPeriodEnd) {
-        const subscription = await prisma.subscription.findFirst({
+        const subscription = await prisma_1.default.subscription.findFirst({
             where: { stripeSubscriptionId },
         });
         if (!subscription) {
@@ -179,7 +181,7 @@ class SubscriptionService {
         }
         const plan = stripe_service_1.stripeService.mapStripePlanToLocal(priceId);
         const localStatus = stripe_service_1.stripeService.mapStripeStatusToLocal(status);
-        await prisma.subscription.update({
+        await prisma_1.default.subscription.update({
             where: { id: subscription.id },
             data: {
                 plan,
@@ -192,7 +194,7 @@ class SubscriptionService {
         });
         // Update user role
         const role = localStatus === 'ACTIVE' ? this.mapPlanToRole(plan) : 'USER';
-        await prisma.user.update({
+        await prisma_1.default.user.update({
             where: { id: subscription.userId },
             data: { role },
         });
@@ -201,14 +203,14 @@ class SubscriptionService {
      * Handle subscription cancelled
      */
     async handleSubscriptionCancelled(stripeSubscriptionId) {
-        const subscription = await prisma.subscription.findFirst({
+        const subscription = await prisma_1.default.subscription.findFirst({
             where: { stripeSubscriptionId },
         });
         if (!subscription) {
             console.warn(`Subscription not found: ${stripeSubscriptionId}`);
             return;
         }
-        await prisma.subscription.update({
+        await prisma_1.default.subscription.update({
             where: { id: subscription.id },
             data: {
                 plan: 'FREE',
@@ -219,7 +221,7 @@ class SubscriptionService {
             },
         });
         // Downgrade user role
-        await prisma.user.update({
+        await prisma_1.default.user.update({
             where: { id: subscription.userId },
             data: { role: 'USER' },
         });
@@ -228,7 +230,7 @@ class SubscriptionService {
      * Handle invoice paid (renewal)
      */
     async handleInvoicePaid(stripeSubscriptionId, customerId) {
-        const subscription = await prisma.subscription.findFirst({
+        const subscription = await prisma_1.default.subscription.findFirst({
             where: { stripeSubscriptionId },
         });
         if (!subscription) {
@@ -304,7 +306,7 @@ class SubscriptionService {
      * This should be called by a cron job on the 1st of each month
      */
     async processMonthlyLivraCredits() {
-        const activeSubscriptions = await prisma.subscription.findMany({
+        const activeSubscriptions = await prisma_1.default.subscription.findMany({
             where: {
                 status: 'ACTIVE',
                 plan: { not: 'FREE' },

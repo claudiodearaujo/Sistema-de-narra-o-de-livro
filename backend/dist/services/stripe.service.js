@@ -4,10 +4,12 @@
  * Handles all Stripe integration for subscriptions and payments
  * Sprint 9: Planos e Pagamentos
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stripeService = exports.LIVRA_PACKAGES = exports.PLAN_PRICES = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 // Plan pricing configuration
 exports.PLAN_PRICES = {
     PREMIUM: {
@@ -100,7 +102,7 @@ class StripeService {
      */
     async getOrCreateCustomer(userId) {
         // Check if user already has a Stripe customer ID
-        const subscription = await prisma.subscription.findUnique({
+        const subscription = await prisma_1.default.subscription.findUnique({
             where: { userId },
             select: { stripeCustomerId: true },
         });
@@ -108,7 +110,7 @@ class StripeService {
             return subscription.stripeCustomerId;
         }
         // Get user data
-        const user = await prisma.user.findUnique({
+        const user = await prisma_1.default.user.findUnique({
             where: { id: userId },
             select: { email: true, name: true },
         });
@@ -122,7 +124,7 @@ class StripeService {
             metadata: { userId },
         });
         // Save customer ID
-        await prisma.subscription.upsert({
+        await prisma_1.default.subscription.upsert({
             where: { userId },
             create: {
                 userId,
@@ -211,7 +213,7 @@ class StripeService {
      * Cancel subscription at period end
      */
     async cancelSubscription(userId) {
-        const subscription = await prisma.subscription.findUnique({
+        const subscription = await prisma_1.default.subscription.findUnique({
             where: { userId },
             select: { stripeSubscriptionId: true },
         });
@@ -219,7 +221,7 @@ class StripeService {
             throw new Error('No active subscription found');
         }
         await this.stripeRequest(`/subscriptions/${subscription.stripeSubscriptionId}`, 'POST', { cancel_at_period_end: true });
-        await prisma.subscription.update({
+        await prisma_1.default.subscription.update({
             where: { userId },
             data: { cancelAtPeriodEnd: true },
         });
@@ -228,7 +230,7 @@ class StripeService {
      * Resume a cancelled subscription (before period end)
      */
     async resumeSubscription(userId) {
-        const subscription = await prisma.subscription.findUnique({
+        const subscription = await prisma_1.default.subscription.findUnique({
             where: { userId },
             select: { stripeSubscriptionId: true },
         });
@@ -236,7 +238,7 @@ class StripeService {
             throw new Error('No subscription found');
         }
         await this.stripeRequest(`/subscriptions/${subscription.stripeSubscriptionId}`, 'POST', { cancel_at_period_end: false });
-        await prisma.subscription.update({
+        await prisma_1.default.subscription.update({
             where: { userId },
             data: { cancelAtPeriodEnd: false },
         });

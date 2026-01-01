@@ -4,11 +4,10 @@
  * Sprint 9: Planos e Pagamentos
  */
 
-import { PrismaClient, SubscriptionPlan, SubscriptionStatus, UserRole } from '@prisma/client';
+import { SubscriptionPlan, SubscriptionStatus, UserRole } from '@prisma/client';
+import prisma from '../lib/prisma';
 import { stripeService } from './stripe.service';
 import { livraService } from './livra.service';
-
-const prisma = new PrismaClient();
 
 export interface SubscriptionDto {
   id: string;
