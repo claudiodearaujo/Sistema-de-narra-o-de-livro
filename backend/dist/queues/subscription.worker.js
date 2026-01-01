@@ -4,6 +4,9 @@
  * Handles scheduled tasks for subscriptions
  * Sprint 9: Planos e Pagamentos
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initSubscriptionQueue = initSubscriptionQueue;
 exports.initSubscriptionWorker = initSubscriptionWorker;
@@ -11,33 +14,52 @@ exports.scheduleMonthlyLivraCredits = scheduleMonthlyLivraCredits;
 exports.scheduleExpirationCheck = scheduleExpirationCheck;
 exports.triggerMonthlyLivraCredits = triggerMonthlyLivraCredits;
 const bullmq_1 = require("bullmq");
+const ioredis_1 = __importDefault(require("ioredis"));
 const subscription_service_1 = require("../services/subscription.service");
-const redis_1 = require("../lib/redis");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const QUEUE_NAME = 'subscription-tasks';
-// Check if Redis is available
-const isRedisAvailable = async () => {
+// Redis connection for BullMQ (requires maxRetriesPerRequest: null)
+const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
+let connection = null;
+const createConnection = () => {
+    if (!REDIS_ENABLED)
+        return null;
     try {
-        const client = await redis_1.redis.getClient();
-        return client !== null;
+        return new ioredis_1.default({
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT || '6379'),
+            password: process.env.REDIS_PASSWORD || undefined,
+            maxRetriesPerRequest: null,
+            retryStrategy: (times) => {
+                if (times > 3) {
+                    console.warn('⚠️ Redis not available for subscription worker');
+                    return null;
+                }
+                return Math.min(times * 100, 3000);
+            }
+        });
     }
     catch {
-        return false;
+        return null;
     }
 };
 // Initialize queue if Redis is enabled
 let subscriptionQueue = null;
 async function initSubscriptionQueue() {
-    if (!await isRedisAvailable()) {
+    if (!REDIS_ENABLED) {
         console.log('⚠️ Redis disabled - Subscription queue not initialized');
         return null;
     }
-    const client = await redis_1.redis.getClient();
-    if (!client) {
+    if (!connection) {
+        connection = createConnection();
+    }
+    if (!connection) {
         console.log('⚠️ Redis client not available - Subscription queue not initialized');
         return null;
     }
     subscriptionQueue = new bullmq_1.Queue(QUEUE_NAME, {
-        connection: client,
+        connection: connection,
         defaultJobOptions: {
             attempts: 3,
             backoff: {
@@ -53,12 +75,13 @@ async function initSubscriptionQueue() {
 }
 // Initialize worker
 async function initSubscriptionWorker() {
-    if (!await isRedisAvailable()) {
+    if (!REDIS_ENABLED) {
         console.log('⚠️ Redis disabled - Subscription worker not initialized');
         return null;
     }
-    const client = await redis_1.redis.getClient();
-    if (!client) {
+    // Create a separate connection for the worker
+    const workerConnection = createConnection();
+    if (!workerConnection) {
         console.log('⚠️ Redis client not available - Subscription worker not initialized');
         return null;
     }
@@ -73,7 +96,7 @@ async function initSubscriptionWorker() {
                 console.warn(`Unknown job type: ${job.name}`);
         }
     }, {
-        connection: client,
+        connection: workerConnection,
         concurrency: 1,
     });
     worker.on('completed', (job) => {
@@ -197,7 +220,7 @@ async function triggerMonthlyLivraCredits() {
 }
 // Initialize asynchronously
 (async () => {
-    if (await isRedisAvailable()) {
+    if (REDIS_ENABLED) {
         await initSubscriptionQueue();
         await initSubscriptionWorker();
         // Schedule jobs after queue is ready

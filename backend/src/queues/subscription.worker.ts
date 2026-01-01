@@ -5,18 +5,38 @@
  */
 
 import { Queue, Worker, Job } from 'bullmq';
+import IORedis from 'ioredis';
 import { subscriptionService } from '../services/subscription.service';
-import { redis } from '../lib/redis';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const QUEUE_NAME = 'subscription-tasks';
 
-// Check if Redis is available
-const isRedisAvailable = async () => {
+// Redis connection for BullMQ (requires maxRetriesPerRequest: null)
+const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
+
+let connection: IORedis | null = null;
+
+const createConnection = (): IORedis | null => {
+  if (!REDIS_ENABLED) return null;
+  
   try {
-    const client = await redis.getClient();
-    return client !== null;
+    return new IORedis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
+      password: process.env.REDIS_PASSWORD || undefined,
+      maxRetriesPerRequest: null,
+      retryStrategy: (times) => {
+        if (times > 3) {
+          console.warn('⚠️ Redis not available for subscription worker');
+          return null;
+        }
+        return Math.min(times * 100, 3000);
+      }
+    });
   } catch {
-    return false;
+    return null;
   }
 };
 
@@ -24,19 +44,22 @@ const isRedisAvailable = async () => {
 let subscriptionQueue: Queue | null = null;
 
 export async function initSubscriptionQueue(): Promise<Queue | null> {
-  if (!await isRedisAvailable()) {
+  if (!REDIS_ENABLED) {
     console.log('⚠️ Redis disabled - Subscription queue not initialized');
     return null;
   }
 
-  const client = await redis.getClient();
-  if (!client) {
+  if (!connection) {
+    connection = createConnection();
+  }
+  
+  if (!connection) {
     console.log('⚠️ Redis client not available - Subscription queue not initialized');
     return null;
   }
 
   subscriptionQueue = new Queue(QUEUE_NAME, {
-    connection: client as any,
+    connection: connection,
     defaultJobOptions: {
       attempts: 3,
       backoff: {
@@ -54,13 +77,15 @@ export async function initSubscriptionQueue(): Promise<Queue | null> {
 
 // Initialize worker
 export async function initSubscriptionWorker(): Promise<Worker | null> {
-  if (!await isRedisAvailable()) {
+  if (!REDIS_ENABLED) {
     console.log('⚠️ Redis disabled - Subscription worker not initialized');
     return null;
   }
 
-  const client = await redis.getClient();
-  if (!client) {
+  // Create a separate connection for the worker
+  const workerConnection = createConnection();
+  
+  if (!workerConnection) {
     console.log('⚠️ Redis client not available - Subscription worker not initialized');
     return null;
   }
@@ -82,7 +107,7 @@ export async function initSubscriptionWorker(): Promise<Worker | null> {
       }
     },
     {
-      connection: client as any,
+      connection: workerConnection,
       concurrency: 1,
     }
   );
@@ -239,7 +264,7 @@ export async function triggerMonthlyLivraCredits(): Promise<{ processed: number;
 
 // Initialize asynchronously
 (async () => {
-  if (await isRedisAvailable()) {
+  if (REDIS_ENABLED) {
     await initSubscriptionQueue();
     await initSubscriptionWorker();
     
