@@ -172,8 +172,8 @@ async function runTests() {
     // === PLAN LIMITS TESTS ===
     runner.addTest('PLAN_LIMITS should have correct structure for FREE plan', async () => {
         const freeLimits = plan_limits_middleware_1.PLAN_LIMITS.FREE;
-        runner.assertEqual(freeLimits.maxBooks, 0, 'FREE should have 0 maxBooks');
-        runner.assertFalse(freeLimits.canUseTTS, 'FREE should not have TTS');
+        runner.assertEqual(freeLimits.maxBooks, 3, 'FREE should have 3 maxBooks');
+        runner.assertTrue(freeLimits.canUseTTS, 'FREE should have basic TTS');
         runner.assertFalse(freeLimits.canUseImageGen, 'FREE should not have image gen');
         runner.assertEqual(freeLimits.monthlyLivras, 0, 'FREE should have 0 monthly Livras');
     });

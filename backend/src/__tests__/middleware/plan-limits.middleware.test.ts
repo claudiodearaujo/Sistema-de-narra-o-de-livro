@@ -63,8 +63,8 @@ const runner = new TestRunner();
 // Test PLAN_LIMITS configuration
 runner.test('PLAN_LIMITS should have FREE plan with correct limits', () => {
   const freePlan = PLAN_LIMITS.FREE;
-  runner.assertEqual(freePlan.maxBooks, 0, 'FREE should have 0 max books');
-  runner.assertFalse(freePlan.canUseTTS, 'FREE should not have TTS');
+  runner.assertEqual(freePlan.maxBooks, 3, 'FREE should have 3 max books');
+  runner.assertTrue(freePlan.canUseTTS, 'FREE should have basic TTS');
   runner.assertEqual(freePlan.monthlyLivras, 0, 'FREE should have 0 monthly Livras');
 });
 
@@ -112,14 +112,14 @@ runner.test('getPlanLimits should return correct limits for each plan', () => {
   const premiumLimits = getPlanLimits('PREMIUM');
   const proLimits = getPlanLimits('PRO');
 
-  runner.assertEqual(freeLimits.maxBooks, 0);
+  runner.assertEqual(freeLimits.maxBooks, 3);
   runner.assertEqual(premiumLimits.maxBooks, 10);
   runner.assertEqual(proLimits.maxBooks, -1);
 });
 
 // Test feature differences between plans
-runner.test('TTS feature should be disabled for FREE and enabled for paid plans', () => {
-  runner.assertFalse(PLAN_LIMITS.FREE.canUseTTS, 'FREE should not have TTS');
+runner.test('TTS feature should be enabled for all plans', () => {
+  runner.assertTrue(PLAN_LIMITS.FREE.canUseTTS, 'FREE should have basic TTS');
   runner.assertTrue(PLAN_LIMITS.PREMIUM.canUseTTS, 'PREMIUM should have TTS');
   runner.assertTrue(PLAN_LIMITS.PRO.canUseTTS, 'PRO should have TTS');
 });

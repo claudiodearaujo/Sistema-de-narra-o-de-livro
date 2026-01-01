@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Backend Server",
+			"type": "shell",
+			"command": "cd backend && npm run start",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Backend Server",
+			"type": "shell",
+			"command": "cd backend && npm run start",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Backend API",
+			"type": "shell",
+			"command": "cd c:\\desenv\\Sistema-de-narra-o-de-livro\\backend && node dist/index.js",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

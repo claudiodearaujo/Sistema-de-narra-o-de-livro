@@ -26,12 +26,12 @@ export interface PlanLimits {
  */
 export const PLAN_LIMITS: Record<SubscriptionPlan, PlanLimits> = {
   FREE: {
-    maxBooks: 0,
-    maxCharactersPerBook: 3,
+    maxBooks: 3,
+    maxCharactersPerBook: 5,
     maxStoriesPerDay: 1,
     maxDMsPerDay: 10,
     maxGroupsOwned: 0,
-    canUseTTS: false,
+    canUseTTS: true,
     canUseImageGen: false,
     monthlyLivras: 0,
     canBoostPosts: false,
