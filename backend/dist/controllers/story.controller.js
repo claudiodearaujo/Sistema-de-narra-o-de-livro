@@ -14,7 +14,10 @@ const story_service_1 = require("../services/story.service");
  */
 async function getStoriesFeed(req, res, next) {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
         const stories = await story_service_1.storyService.getStoriesFeed(userId);
         res.json({ stories });
     }
@@ -28,7 +31,7 @@ async function getStoriesFeed(req, res, next) {
 async function getStoriesByUser(req, res, next) {
     try {
         const { userId } = req.params;
-        const viewerId = req.user.id;
+        const viewerId = req.user?.userId;
         const stories = await story_service_1.storyService.getStoriesByUser(userId, viewerId);
         res.json({ stories });
     }
@@ -42,7 +45,7 @@ async function getStoriesByUser(req, res, next) {
 async function getStoryById(req, res, next) {
     try {
         const { id } = req.params;
-        const viewerId = req.user.id;
+        const viewerId = req.user?.userId;
         const story = await story_service_1.storyService.getById(id, viewerId);
         if (!story) {
             return res.status(404).json({ error: 'Story não encontrado ou expirado' });
@@ -58,7 +61,10 @@ async function getStoryById(req, res, next) {
  */
 async function createStory(req, res, next) {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
         const { type, content, mediaUrl, expiresInHours } = req.body;
         if (!type) {
             return res.status(400).json({ error: 'Tipo do story é obrigatório' });
@@ -84,7 +90,10 @@ async function createStory(req, res, next) {
 async function viewStory(req, res, next) {
     try {
         const { id } = req.params;
-        const userId = req.user.id;
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
         await story_service_1.storyService.markAsViewed(id, userId);
         res.json({ success: true });
     }
@@ -101,7 +110,10 @@ async function viewStory(req, res, next) {
 async function deleteStory(req, res, next) {
     try {
         const { id } = req.params;
-        const userId = req.user.id;
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
         await story_service_1.storyService.delete(id, userId);
         res.json({ success: true, message: 'Story excluído com sucesso' });
     }
@@ -121,7 +133,10 @@ async function deleteStory(req, res, next) {
 async function getStoryViewers(req, res, next) {
     try {
         const { id } = req.params;
-        const userId = req.user.id;
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
         const page = parseInt(req.query.page) || 1;
         const limit = Math.min(parseInt(req.query.limit) || 50, 100);
         const result = await story_service_1.storyService.getViewers(id, userId, page, limit);
@@ -142,7 +157,10 @@ async function getStoryViewers(req, res, next) {
  */
 async function getMyStoriesCount(req, res, next) {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
         const { count, limit } = await story_service_1.storyService.getActiveStoriesCountWithLimit(userId);
         res.json({
             count,

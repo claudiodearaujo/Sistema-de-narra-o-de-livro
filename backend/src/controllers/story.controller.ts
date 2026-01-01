@@ -6,7 +6,10 @@ import { storyService } from '../services/story.service';
  */
 export async function getStoriesFeed(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = (req as any).user!.id;
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Não autenticado' });
+    }
     const stories = await storyService.getStoriesFeed(userId);
 
     res.json({ stories });
@@ -21,7 +24,7 @@ export async function getStoriesFeed(req: Request, res: Response, next: NextFunc
 export async function getStoriesByUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { userId } = req.params;
-    const viewerId = (req as any).user!.id;
+    const viewerId = (req as any).user?.userId;
 
     const stories = await storyService.getStoriesByUser(userId, viewerId);
 
@@ -37,7 +40,7 @@ export async function getStoriesByUser(req: Request, res: Response, next: NextFu
 export async function getStoryById(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const viewerId = (req as any).user!.id;
+    const viewerId = (req as any).user?.userId;
 
     const story = await storyService.getById(id, viewerId);
 
@@ -56,7 +59,10 @@ export async function getStoryById(req: Request, res: Response, next: NextFuncti
  */
 export async function createStory(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = (req as any).user!.id;
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Não autenticado' });
+    }
     const { type, content, mediaUrl, expiresInHours } = req.body;
 
     if (!type) {
@@ -85,7 +91,10 @@ export async function createStory(req: Request, res: Response, next: NextFunctio
 export async function viewStory(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const userId = (req as any).user!.id;
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Não autenticado' });
+    }
 
     await storyService.markAsViewed(id, userId);
 
@@ -104,7 +113,10 @@ export async function viewStory(req: Request, res: Response, next: NextFunction)
 export async function deleteStory(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const userId = (req as any).user!.id;
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Não autenticado' });
+    }
 
     await storyService.delete(id, userId);
 
@@ -126,7 +138,10 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
 export async function getStoryViewers(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const userId = (req as any).user!.id;
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Não autenticado' });
+    }
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
 
@@ -149,7 +164,10 @@ export async function getStoryViewers(req: Request, res: Response, next: NextFun
  */
 export async function getMyStoriesCount(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = (req as any).user!.id;
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Não autenticado' });
+    }
 
     const { count, limit } = await storyService.getActiveStoriesCountWithLimit(userId);
 
