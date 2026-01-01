@@ -60,11 +60,20 @@ function websocketEmitter(userId, event, data) {
     }
 }
 const initializeWebSocket = (httpServer) => {
+    // WebSocket CORS Configuration - restrict origins in production
+    const allowedOrigins = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',')
+        : ['http://localhost:4200', 'http://localhost:3000'];
     exports.io = new socket_io_1.Server(httpServer, {
         cors: {
-            origin: '*', // Configure appropriately for production
-            methods: ['GET', 'POST']
-        }
+            origin: process.env.NODE_ENV === 'production'
+                ? allowedOrigins
+                : '*',
+            methods: ['GET', 'POST'],
+            credentials: true
+        },
+        pingTimeout: 60000,
+        pingInterval: 25000
     });
     // Connect services to WebSocket emitter
     message_service_1.messageService.setWebSocketEmitter(websocketEmitter);

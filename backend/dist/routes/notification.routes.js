@@ -22,4 +22,7 @@ router.patch('/:id/read', middleware_1.authenticate, notification_controller_1.n
 router.delete('/', middleware_1.authenticate, notification_controller_1.notificationController.deleteAllNotifications);
 // Delete a specific notification
 router.delete('/:id', middleware_1.authenticate, notification_controller_1.notificationController.deleteNotification);
+// Push notification subscription management
+router.post('/push/subscribe', middleware_1.authenticate, notification_controller_1.notificationController.subscribeToPush);
+router.post('/push/unsubscribe', middleware_1.authenticate, notification_controller_1.notificationController.unsubscribeFromPush);
 exports.default = router;

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { notificationService } from '../services/notification.service';
+import { pushService, PushSubscriptionData } from '../services/push.service';
 import { NotificationType } from '@prisma/client';
 
 /**
@@ -156,11 +157,73 @@ export async function deleteAllNotifications(req: Request, res: Response): Promi
   }
 }
 
+/**
+ * POST /api/notifications/push/subscribe - Subscribe to push notifications
+ */
+export async function subscribeToPush(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Autenticação necessária' });
+      return;
+    }
+
+    const { subscription } = req.body as { subscription: PushSubscriptionData };
+    
+    if (!subscription || !subscription.endpoint || !subscription.keys) {
+      res.status(400).json({ error: 'Dados de subscription inválidos' });
+      return;
+    }
+
+    await pushService.saveSubscription(userId, subscription);
+    
+    res.json({ 
+      success: true, 
+      message: 'Inscrição para push notifications ativada' 
+    });
+  } catch (error: any) {
+    console.error('[NotificationController] Error subscribing to push:', error.message);
+    res.status(500).json({ error: 'Erro ao ativar push notifications' });
+  }
+}
+
+/**
+ * POST /api/notifications/push/unsubscribe - Unsubscribe from push notifications
+ */
+export async function unsubscribeFromPush(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Autenticação necessária' });
+      return;
+    }
+
+    const { endpoint } = req.body as { endpoint: string };
+    
+    if (!endpoint) {
+      res.status(400).json({ error: 'Endpoint é obrigatório' });
+      return;
+    }
+
+    await pushService.removeSubscription(userId, endpoint);
+    
+    res.json({ 
+      success: true, 
+      message: 'Inscrição para push notifications cancelada' 
+    });
+  } catch (error: any) {
+    console.error('[NotificationController] Error unsubscribing from push:', error.message);
+    res.status(500).json({ error: 'Erro ao cancelar push notifications' });
+  }
+}
+
 export const notificationController = {
   getNotifications,
   getNotificationCount,
   markAsRead,
   markAllAsRead,
   deleteNotification,
-  deleteAllNotifications
+  deleteAllNotifications,
+  subscribeToPush,
+  unsubscribeFromPush
 };

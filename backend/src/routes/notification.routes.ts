@@ -29,4 +29,8 @@ router.delete('/', authenticate, notificationController.deleteAllNotifications);
 // Delete a specific notification
 router.delete('/:id', authenticate, notificationController.deleteNotification);
 
+// Push notification subscription management
+router.post('/push/subscribe', authenticate, notificationController.subscribeToPush);
+router.post('/push/unsubscribe', authenticate, notificationController.unsubscribeFromPush);
+
 export default router;

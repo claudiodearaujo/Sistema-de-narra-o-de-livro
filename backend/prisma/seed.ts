@@ -182,6 +182,81 @@ const achievements = [
     icon: '🔍',
     livraReward: 5,
     requirement: { type: 'following_count', target: 10 }
+  },
+
+  // SPECIAL achievements
+  {
+    key: 'early_adopter',
+    category: AchievementCategory.SPECIAL,
+    name: 'Pioneiro',
+    description: 'Seja um dos primeiros 1000 usuários do LIVRIA',
+    icon: '🚀',
+    livraReward: 100,
+    requirement: null,
+    isHidden: true
+  },
+  {
+    key: 'verified_account',
+    category: AchievementCategory.SPECIAL,
+    name: 'Conta Verificada',
+    description: 'Verifique seu email',
+    icon: '✅',
+    livraReward: 5,
+    requirement: null
+  },
+  {
+    key: 'premium_member',
+    category: AchievementCategory.SPECIAL,
+    name: 'Membro Premium',
+    description: 'Assine o plano Premium',
+    icon: '💎',
+    livraReward: 25,
+    requirement: null
+  },
+  {
+    key: 'pro_member',
+    category: AchievementCategory.SPECIAL,
+    name: 'Membro Pro',
+    description: 'Assine o plano Pro',
+    icon: '👑',
+    livraReward: 50,
+    requirement: null
+  },
+  {
+    key: 'first_audio',
+    category: AchievementCategory.WRITING,
+    name: 'Narrador',
+    description: 'Gere seu primeiro áudio de narração',
+    icon: '🎙️',
+    livraReward: 15,
+    requirement: null
+  },
+  {
+    key: 'story_creator',
+    category: AchievementCategory.SOCIAL,
+    name: 'Contador de Histórias',
+    description: 'Crie seu primeiro story',
+    icon: '📸',
+    livraReward: 5,
+    requirement: null
+  },
+  {
+    key: '500_followers',
+    category: AchievementCategory.SOCIAL,
+    name: 'Estrela',
+    description: 'Alcance 500 seguidores',
+    icon: '⭐',
+    livraReward: 100,
+    requirement: { type: 'followers_count', target: 500 }
+  },
+  {
+    key: '1000_followers',
+    category: AchievementCategory.SOCIAL,
+    name: 'Celebridade Literária',
+    description: 'Alcance 1000 seguidores',
+    icon: '🌟',
+    livraReward: 200,
+    requirement: { type: 'followers_count', target: 1000 }
   }
 ];
 

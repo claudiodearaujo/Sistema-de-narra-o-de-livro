@@ -7,7 +7,10 @@ exports.markAsRead = markAsRead;
 exports.markAllAsRead = markAllAsRead;
 exports.deleteNotification = deleteNotification;
 exports.deleteAllNotifications = deleteAllNotifications;
+exports.subscribeToPush = subscribeToPush;
+exports.unsubscribeFromPush = unsubscribeFromPush;
 const notification_service_1 = require("../services/notification.service");
+const push_service_1 = require("../services/push.service");
 /**
  * GET /api/notifications - Get notifications for current user
  */
@@ -154,11 +157,65 @@ async function deleteAllNotifications(req, res) {
         res.status(500).json({ error: 'Erro ao excluir notificações' });
     }
 }
+/**
+ * POST /api/notifications/push/subscribe - Subscribe to push notifications
+ */
+async function subscribeToPush(req, res) {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) {
+            res.status(401).json({ error: 'Autenticação necessária' });
+            return;
+        }
+        const { subscription } = req.body;
+        if (!subscription || !subscription.endpoint || !subscription.keys) {
+            res.status(400).json({ error: 'Dados de subscription inválidos' });
+            return;
+        }
+        await push_service_1.pushService.saveSubscription(userId, subscription);
+        res.json({
+            success: true,
+            message: 'Inscrição para push notifications ativada'
+        });
+    }
+    catch (error) {
+        console.error('[NotificationController] Error subscribing to push:', error.message);
+        res.status(500).json({ error: 'Erro ao ativar push notifications' });
+    }
+}
+/**
+ * POST /api/notifications/push/unsubscribe - Unsubscribe from push notifications
+ */
+async function unsubscribeFromPush(req, res) {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) {
+            res.status(401).json({ error: 'Autenticação necessária' });
+            return;
+        }
+        const { endpoint } = req.body;
+        if (!endpoint) {
+            res.status(400).json({ error: 'Endpoint é obrigatório' });
+            return;
+        }
+        await push_service_1.pushService.removeSubscription(userId, endpoint);
+        res.json({
+            success: true,
+            message: 'Inscrição para push notifications cancelada'
+        });
+    }
+    catch (error) {
+        console.error('[NotificationController] Error unsubscribing from push:', error.message);
+        res.status(500).json({ error: 'Erro ao cancelar push notifications' });
+    }
+}
 exports.notificationController = {
     getNotifications,
     getNotificationCount,
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    deleteAllNotifications
+    deleteAllNotifications,
+    subscribeToPush,
+    unsubscribeFromPush
 };
