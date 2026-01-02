@@ -2,6 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.groupController = void 0;
 const group_service_1 = require("../services/group.service");
+// Helper to get userId from request (uses Express.Request.user from auth middleware)
+function getUserId(req) {
+    return req.user?.userId;
+}
 class GroupController {
     /**
      * GET /api/groups
@@ -12,7 +16,7 @@ class GroupController {
             const page = parseInt(req.query.page) || 1;
             const limit = Math.min(parseInt(req.query.limit) || 20, 50);
             const search = req.query.search;
-            const result = await group_service_1.groupService.discoverGroups(req.userId || null, page, limit, search);
+            const result = await group_service_1.groupService.discoverGroups(getUserId(req) || null, page, limit, search);
             res.json(result);
         }
         catch (error) {
@@ -26,9 +30,13 @@ class GroupController {
      */
     async getMyGroups(req, res) {
         try {
+            const userId = getUserId(req);
+            if (!userId) {
+                return res.status(401).json({ error: 'Não autenticado' });
+            }
             const page = parseInt(req.query.page) || 1;
             const limit = Math.min(parseInt(req.query.limit) || 20, 50);
-            const result = await group_service_1.groupService.getMyGroups(req.userId, page, limit);
+            const result = await group_service_1.groupService.getMyGroups(userId, page, limit);
             res.json(result);
         }
         catch (error) {
@@ -43,7 +51,7 @@ class GroupController {
     async getById(req, res) {
         try {
             const { id } = req.params;
-            const group = await group_service_1.groupService.getById(id, req.userId);
+            const group = await group_service_1.groupService.getById(id, getUserId(req));
             if (!group) {
                 return res.status(404).json({ error: 'Grupo não encontrado' });
             }
@@ -63,6 +71,10 @@ class GroupController {
      */
     async create(req, res) {
         try {
+            const userId = getUserId(req);
+            if (!userId) {
+                return res.status(401).json({ error: 'Não autenticado' });
+            }
             const { name, description, coverUrl, privacy } = req.body;
             if (!name) {
                 return res.status(400).json({ error: 'O nome do grupo é obrigatório' });
@@ -70,7 +82,7 @@ class GroupController {
             const validPrivacy = ['PUBLIC', 'PRIVATE', 'INVITE_ONLY'].includes(privacy)
                 ? privacy
                 : undefined;
-            const group = await group_service_1.groupService.create(req.userId, {
+            const group = await group_service_1.groupService.create(userId, {
                 name,
                 description,
                 coverUrl,
@@ -89,12 +101,16 @@ class GroupController {
      */
     async update(req, res) {
         try {
+            const userId = getUserId(req);
+            if (!userId) {
+                return res.status(401).json({ error: 'Não autenticado' });
+            }
             const { id } = req.params;
             const { name, description, coverUrl, privacy } = req.body;
             const validPrivacy = ['PUBLIC', 'PRIVATE', 'INVITE_ONLY'].includes(privacy)
                 ? privacy
                 : undefined;
-            const group = await group_service_1.groupService.update(id, req.userId, {
+            const group = await group_service_1.groupService.update(id, userId, {
                 name,
                 description,
                 coverUrl,
@@ -116,8 +132,12 @@ class GroupController {
      */
     async delete(req, res) {
         try {
+            const userId = getUserId(req);
+            if (!userId) {
+                return res.status(401).json({ error: 'Não autenticado' });
+            }
             const { id } = req.params;
-            await group_service_1.groupService.delete(id, req.userId);
+            await group_service_1.groupService.delete(id, userId);
             res.status(204).send();
         }
         catch (error) {
@@ -134,8 +154,12 @@ class GroupController {
      */
     async join(req, res) {
         try {
+            const userId = getUserId(req);
+            if (!userId) {
+                return res.status(401).json({ error: 'Não autenticado' });
+            }
             const { id } = req.params;
-            const membership = await group_service_1.groupService.join(id, req.userId);
+            const membership = await group_service_1.groupService.join(id, userId);
             res.status(201).json(membership);
         }
         catch (error) {
@@ -152,8 +176,12 @@ class GroupController {
      */
     async leave(req, res) {
         try {
+            const userId = getUserId(req);
+            if (!userId) {
+                return res.status(401).json({ error: 'Não autenticado' });
+            }
             const { id } = req.params;
-            await group_service_1.groupService.leave(id, req.userId);
+            await group_service_1.groupService.leave(id, userId);
             res.status(204).send();
         }
         catch (error) {
@@ -187,12 +215,16 @@ class GroupController {
      */
     async updateMemberRole(req, res) {
         try {
+            const currentUserId = getUserId(req);
+            if (!currentUserId) {
+                return res.status(401).json({ error: 'Não autenticado' });
+            }
             const { id, userId } = req.params;
             const { role } = req.body;
             if (!['OWNER', 'ADMIN', 'MODERATOR', 'MEMBER'].includes(role)) {
                 return res.status(400).json({ error: 'Role inválida' });
             }
-            const member = await group_service_1.groupService.updateMemberRole(id, userId, role, req.userId);
+            const member = await group_service_1.groupService.updateMemberRole(id, userId, role, currentUserId);
             res.json(member);
         }
         catch (error) {
@@ -209,8 +241,12 @@ class GroupController {
      */
     async removeMember(req, res) {
         try {
+            const currentUserId = getUserId(req);
+            if (!currentUserId) {
+                return res.status(401).json({ error: 'Não autenticado' });
+            }
             const { id, userId } = req.params;
-            await group_service_1.groupService.removeMember(id, userId, req.userId);
+            await group_service_1.groupService.removeMember(id, userId, currentUserId);
             res.status(204).send();
         }
         catch (error) {

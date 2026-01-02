@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import { groupService } from '../services/group.service';
 import { GroupPrivacy, GroupRole } from '@prisma/client';
 
-interface AuthRequest extends Request {
-  userId?: string;
+// Helper to get userId from request (uses Express.Request.user from auth middleware)
+function getUserId(req: Request): string | undefined {
+  return req.user?.userId;
 }
 
 class GroupController {
@@ -11,13 +12,13 @@ class GroupController {
    * GET /api/groups
    * Lista grupos públicos para descoberta
    */
-  async discoverGroups(req: AuthRequest, res: Response) {
+  async discoverGroups(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
       const search = req.query.search as string | undefined;
 
-      const result = await groupService.discoverGroups(req.userId || null, page, limit, search);
+      const result = await groupService.discoverGroups(getUserId(req) || null, page, limit, search);
 
       res.json(result);
     } catch (error: any) {
@@ -30,12 +31,17 @@ class GroupController {
    * GET /api/groups/my
    * Lista grupos do usuário logado
    */
-  async getMyGroups(req: AuthRequest, res: Response) {
+  async getMyGroups(req: Request, res: Response) {
     try {
+      const userId = getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: 'Não autenticado' });
+      }
+
       const page = parseInt(req.query.page as string) || 1;
       const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
 
-      const result = await groupService.getMyGroups(req.userId!, page, limit);
+      const result = await groupService.getMyGroups(userId, page, limit);
 
       res.json(result);
     } catch (error: any) {
@@ -48,11 +54,11 @@ class GroupController {
    * GET /api/groups/:id
    * Obtém detalhes de um grupo
    */
-  async getById(req: AuthRequest, res: Response) {
+  async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
 
-      const group = await groupService.getById(id, req.userId);
+      const group = await groupService.getById(id, getUserId(req));
 
       if (!group) {
         return res.status(404).json({ error: 'Grupo não encontrado' });
@@ -72,8 +78,13 @@ class GroupController {
    * POST /api/groups
    * Cria um novo grupo
    */
-  async create(req: AuthRequest, res: Response) {
+  async create(req: Request, res: Response) {
     try {
+      const userId = getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: 'Não autenticado' });
+      }
+
       const { name, description, coverUrl, privacy } = req.body;
 
       if (!name) {
@@ -84,7 +95,7 @@ class GroupController {
         ? (privacy as GroupPrivacy)
         : undefined;
 
-      const group = await groupService.create(req.userId!, {
+      const group = await groupService.create(userId, {
         name,
         description,
         coverUrl,
@@ -102,8 +113,13 @@ class GroupController {
    * PUT /api/groups/:id
    * Atualiza um grupo
    */
-  async update(req: AuthRequest, res: Response) {
+  async update(req: Request, res: Response) {
     try {
+      const userId = getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: 'Não autenticado' });
+      }
+
       const { id } = req.params;
       const { name, description, coverUrl, privacy } = req.body;
 
@@ -111,7 +127,7 @@ class GroupController {
         ? (privacy as GroupPrivacy)
         : undefined;
 
-      const group = await groupService.update(id, req.userId!, {
+      const group = await groupService.update(id, userId, {
         name,
         description,
         coverUrl,
@@ -132,11 +148,16 @@ class GroupController {
    * DELETE /api/groups/:id
    * Deleta um grupo
    */
-  async delete(req: AuthRequest, res: Response) {
+  async delete(req: Request, res: Response) {
     try {
+      const userId = getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: 'Não autenticado' });
+      }
+
       const { id } = req.params;
 
-      await groupService.delete(id, req.userId!);
+      await groupService.delete(id, userId);
 
       res.status(204).send();
     } catch (error: any) {
@@ -152,11 +173,16 @@ class GroupController {
    * POST /api/groups/:id/join
    * Entrar em um grupo
    */
-  async join(req: AuthRequest, res: Response) {
+  async join(req: Request, res: Response) {
     try {
+      const userId = getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: 'Não autenticado' });
+      }
+
       const { id } = req.params;
 
-      const membership = await groupService.join(id, req.userId!);
+      const membership = await groupService.join(id, userId);
 
       res.status(201).json(membership);
     } catch (error: any) {
@@ -172,11 +198,16 @@ class GroupController {
    * DELETE /api/groups/:id/leave
    * Sair de um grupo
    */
-  async leave(req: AuthRequest, res: Response) {
+  async leave(req: Request, res: Response) {
     try {
+      const userId = getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: 'Não autenticado' });
+      }
+
       const { id } = req.params;
 
-      await groupService.leave(id, req.userId!);
+      await groupService.leave(id, userId);
 
       res.status(204).send();
     } catch (error: any) {
@@ -192,7 +223,7 @@ class GroupController {
    * GET /api/groups/:id/members
    * Lista membros do grupo
    */
-  async getMembers(req: AuthRequest, res: Response) {
+  async getMembers(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const page = parseInt(req.query.page as string) || 1;
@@ -211,8 +242,13 @@ class GroupController {
    * PUT /api/groups/:id/members/:userId/role
    * Atualiza role de um membro
    */
-  async updateMemberRole(req: AuthRequest, res: Response) {
+  async updateMemberRole(req: Request, res: Response) {
     try {
+      const currentUserId = getUserId(req);
+      if (!currentUserId) {
+        return res.status(401).json({ error: 'Não autenticado' });
+      }
+
       const { id, userId } = req.params;
       const { role } = req.body;
 
@@ -224,7 +260,7 @@ class GroupController {
         id,
         userId,
         role as GroupRole,
-        req.userId!
+        currentUserId
       );
 
       res.json(member);
@@ -241,11 +277,16 @@ class GroupController {
    * DELETE /api/groups/:id/members/:userId
    * Remove um membro do grupo
    */
-  async removeMember(req: AuthRequest, res: Response) {
+  async removeMember(req: Request, res: Response) {
     try {
+      const currentUserId = getUserId(req);
+      if (!currentUserId) {
+        return res.status(401).json({ error: 'Não autenticado' });
+      }
+
       const { id, userId } = req.params;
 
-      await groupService.removeMember(id, userId, req.userId!);
+      await groupService.removeMember(id, userId, currentUserId);
 
       res.status(204).send();
     } catch (error: any) {
