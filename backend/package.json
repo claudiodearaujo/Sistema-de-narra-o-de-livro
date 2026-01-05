@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npx prisma generate && tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "seed": "npx ts-node prisma/seed.ts",
+    "postinstall": "npx prisma generate",
     "test": "npm run test:all",
     "test:all": "npm run test:middleware && npm run test:redis && npm run test:services",
     "test:middleware": "npx ts-node src/__tests__/middleware/role.middleware.test.ts && npx ts-node src/__tests__/middleware/plan-limits.middleware.test.ts",
