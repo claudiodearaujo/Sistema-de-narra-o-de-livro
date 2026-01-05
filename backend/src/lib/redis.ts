@@ -1,15 +1,13 @@
 import Redis from 'ioredis';
+import { getRedisConfig } from '../config/redis.config';
 
 /**
  * Configuração do Redis
  */
 const REDIS_CONFIG = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379', 10),
-  password: process.env.REDIS_PASSWORD || undefined,
+  ...getRedisConfig(),
   maxRetriesPerRequest: 3,
   retryDelayOnFailover: 100,
-  enableReadyCheck: true,
   lazyConnect: true,
 };
 

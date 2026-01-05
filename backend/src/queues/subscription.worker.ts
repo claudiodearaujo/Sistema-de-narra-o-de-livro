@@ -8,33 +8,19 @@ import { Queue, Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import { subscriptionService } from '../services/subscription.service';
 import dotenv from 'dotenv';
+import { getRedisConfig, isRedisEnabled } from '../config/redis.config';
 
 dotenv.config();
 
 const QUEUE_NAME = 'subscription-tasks';
 
-// Redis connection for BullMQ (requires maxRetriesPerRequest: null)
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
-
 let connection: IORedis | null = null;
 
 const createConnection = (): IORedis | null => {
-  if (!REDIS_ENABLED) return null;
-  
+  if (!isRedisEnabled()) return null;
+
   try {
-    return new IORedis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD || undefined,
-      maxRetriesPerRequest: null,
-      retryStrategy: (times) => {
-        if (times > 3) {
-          console.warn('⚠️ Redis not available for subscription worker');
-          return null;
-        }
-        return Math.min(times * 100, 3000);
-      }
-    });
+    return new IORedis(getRedisConfig());
   } catch {
     return null;
   }
@@ -44,7 +30,7 @@ const createConnection = (): IORedis | null => {
 let subscriptionQueue: Queue | null = null;
 
 export async function initSubscriptionQueue(): Promise<Queue | null> {
-  if (!REDIS_ENABLED) {
+  if (!isRedisEnabled()) {
     console.log('⚠️ Redis disabled - Subscription queue not initialized');
     return null;
   }
@@ -77,7 +63,7 @@ export async function initSubscriptionQueue(): Promise<Queue | null> {
 
 // Initialize worker
 export async function initSubscriptionWorker(): Promise<Worker | null> {
-  if (!REDIS_ENABLED) {
+  if (!isRedisEnabled()) {
     console.log('⚠️ Redis disabled - Subscription worker not initialized');
     return null;
   }
@@ -264,7 +250,7 @@ export async function triggerMonthlyLivraCredits(): Promise<{ processed: number;
 
 // Initialize asynchronously
 (async () => {
-  if (REDIS_ENABLED) {
+  if (isRedisEnabled()) {
     await initSubscriptionQueue();
     await initSubscriptionWorker();
     

@@ -5,16 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RedisService = exports.redisService = exports.redis = void 0;
 const ioredis_1 = __importDefault(require("ioredis"));
+const redis_config_1 = require("../config/redis.config");
 /**
  * Configuração do Redis
  */
 const REDIS_CONFIG = {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379', 10),
-    password: process.env.REDIS_PASSWORD || undefined,
+    ...(0, redis_config_1.getRedisConfig)(),
     maxRetriesPerRequest: 3,
     retryDelayOnFailover: 100,
-    enableReadyCheck: true,
     lazyConnect: true,
 };
 /**

@@ -11,28 +11,16 @@ const audio_processor_service_1 = require("../services/audio-processor.service")
 const google_drive_service_1 = require("../services/google-drive.service");
 const path_1 = __importDefault(require("path"));
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const redis_config_1 = require("../config/redis.config");
 dotenv_1.default.config();
-// Configuração do Redis - opcional
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 let audioQueue = null;
 exports.audioQueue = audioQueue;
 let audioWorker = null;
 exports.audioWorker = audioWorker;
 exports.AUDIO_JOB_NAME = 'process-audio';
-if (REDIS_ENABLED) {
+if ((0, redis_config_1.isRedisEnabled)()) {
     try {
-        const redisConnection = new ioredis_1.default({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-            maxRetriesPerRequest: null,
-            retryStrategy: (times) => {
-                if (times > 3) {
-                    console.warn('⚠️  Redis não disponível. Audio queue desabilitada.');
-                    return null;
-                }
-                return Math.min(times * 100, 3000);
-            }
-        });
+        const redisConnection = new ioredis_1.default((0, redis_config_1.getRedisConfig)());
         redisConnection.on('error', (err) => {
             console.warn('⚠️  Redis connection error (audio queue):', err.message);
         });

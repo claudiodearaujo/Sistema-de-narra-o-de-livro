@@ -6,9 +6,9 @@ import { io } from '../websocket/websocket.server';
 import * as fs from 'fs';
 import * as path from 'path';
 import prisma from '../lib/prisma';
+import { getRedisConfig, isRedisEnabled } from '../config/redis.config';
 
 dotenv.config();
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 
 // Diretório para salvar os arquivos de áudio
 const AUDIO_DIR = path.join(__dirname, '../../uploads/audio');
@@ -67,12 +67,8 @@ function createWavBuffer(pcmData: Buffer, sampleRate: number = 24000, channels: 
 
 let narrationWorker: Worker | null = null;
 
-if (REDIS_ENABLED) {
-    const redisConnection = new IORedis({
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        maxRetriesPerRequest: null
-    });
+if (isRedisEnabled()) {
+    const redisConnection = new IORedis(getRedisConfig());
 
     redisConnection.on('error', (err) => {
         console.error('Redis connection error (worker):', err.message);

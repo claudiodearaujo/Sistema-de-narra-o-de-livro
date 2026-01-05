@@ -1,29 +1,16 @@
 import { Queue } from 'bullmq';
 import IORedis from 'ioredis';
 import dotenv from 'dotenv';
+import { getRedisConfig, isRedisEnabled } from '../config/redis.config';
 
 dotenv.config();
-
-// Configuração do Redis - opcional
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 
 let connection: IORedis | null = null;
 let narrationQueue: Queue | null = null;
 
-if (REDIS_ENABLED) {
+if (isRedisEnabled()) {
     try {
-        connection = new IORedis({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-            maxRetriesPerRequest: null,
-            retryStrategy: (times) => {
-                if (times > 3) {
-                    console.warn('⚠️  Redis não disponível. Funcionalidades de fila desabilitadas.');
-                    return null;
-                }
-                return Math.min(times * 100, 3000);
-            }
-        });
+        connection = new IORedis(getRedisConfig());
 
         connection.on('ready', () => {
             console.log('✅ Redis connected (Narration Queue)');

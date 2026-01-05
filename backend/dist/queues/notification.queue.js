@@ -8,26 +8,14 @@ exports.queueNotification = queueNotification;
 const bullmq_1 = require("bullmq");
 const ioredis_1 = __importDefault(require("ioredis"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const redis_config_1 = require("../config/redis.config");
 dotenv_1.default.config();
-// Configuração do Redis - opcional
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 let connection = null;
 let notificationQueue = null;
 exports.notificationQueue = notificationQueue;
-if (REDIS_ENABLED) {
+if ((0, redis_config_1.isRedisEnabled)()) {
     try {
-        connection = new ioredis_1.default({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-            maxRetriesPerRequest: null,
-            retryStrategy: (times) => {
-                if (times > 3) {
-                    console.warn('⚠️  Redis não disponível. Funcionalidades de fila de notificações desabilitadas.');
-                    return null;
-                }
-                return Math.min(times * 100, 3000);
-            }
-        });
+        connection = new ioredis_1.default((0, redis_config_1.getRedisConfig)());
         connection.on('ready', () => {
             console.log('✅ Redis connected (Notification Queue)');
         });

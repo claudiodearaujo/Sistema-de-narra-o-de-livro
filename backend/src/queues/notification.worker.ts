@@ -2,6 +2,7 @@ import { Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import dotenv from 'dotenv';
 import prisma from '../lib/prisma';
+import { getRedisConfig, isRedisEnabled } from '../config/redis.config';
 import { 
     NOTIFICATION_JOB_NAMES,
     NotifyLikeJobData,
@@ -16,7 +17,6 @@ import {
 } from './notification.queue';
 
 dotenv.config();
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 
 // WebSocket service reference (will be injected)
 let websocketEmitter: ((userId: string, event: string, data: any) => void) | null = null;
@@ -279,20 +279,9 @@ async function processBulkNotification(data: NotifyBulkJobData): Promise<void> {
 
 let notificationWorker: Worker | null = null;
 
-if (REDIS_ENABLED) {
+if (isRedisEnabled()) {
     try {
-        const redisConnection = new IORedis({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-            maxRetriesPerRequest: null,
-            retryStrategy: (times) => {
-                if (times > 3) {
-                    console.warn('⚠️  Redis não disponível para worker de notificações.');
-                    return null;
-                }
-                return Math.min(times * 100, 3000);
-            }
-        });
+        const redisConnection = new IORedis(getRedisConfig());
 
         redisConnection.on('error', (err) => {
             console.error('Redis connection error (notification worker):', err.message);

@@ -10,9 +10,9 @@ const bullmq_1 = require("bullmq");
 const ioredis_1 = __importDefault(require("ioredis"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const redis_config_1 = require("../config/redis.config");
 const notification_queue_1 = require("./notification.queue");
 dotenv_1.default.config();
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 // WebSocket service reference (will be injected)
 let websocketEmitter = null;
 /**
@@ -189,20 +189,9 @@ async function processBulkNotification(data) {
 }
 let notificationWorker = null;
 exports.notificationWorker = notificationWorker;
-if (REDIS_ENABLED) {
+if ((0, redis_config_1.isRedisEnabled)()) {
     try {
-        const redisConnection = new ioredis_1.default({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-            maxRetriesPerRequest: null,
-            retryStrategy: (times) => {
-                if (times > 3) {
-                    console.warn('⚠️  Redis não disponível para worker de notificações.');
-                    return null;
-                }
-                return Math.min(times * 100, 3000);
-            }
-        });
+        const redisConnection = new ioredis_1.default((0, redis_config_1.getRedisConfig)());
         redisConnection.on('error', (err) => {
             console.error('Redis connection error (notification worker):', err.message);
         });

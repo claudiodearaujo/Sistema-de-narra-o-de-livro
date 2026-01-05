@@ -5,31 +5,18 @@ import { audioProcessorService } from '../services/audio-processor.service';
 import { googleDriveService } from '../services/google-drive.service';
 import path from 'path';
 import prisma from '../lib/prisma';
+import { getRedisConfig, isRedisEnabled } from '../config/redis.config';
 
 dotenv.config();
-
-// Configuração do Redis - opcional
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 
 let audioQueue: Queue | null = null;
 let audioWorker: Worker | null = null;
 
 export const AUDIO_JOB_NAME = 'process-audio';
 
-if (REDIS_ENABLED) {
+if (isRedisEnabled()) {
     try {
-        const redisConnection = new IORedis({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-            maxRetriesPerRequest: null,
-            retryStrategy: (times) => {
-                if (times > 3) {
-                    console.warn('⚠️  Redis não disponível. Audio queue desabilitada.');
-                    return null;
-                }
-                return Math.min(times * 100, 3000);
-            }
-        });
+        const redisConnection = new IORedis(getRedisConfig());
 
         redisConnection.on('error', (err) => {
             console.warn('⚠️  Redis connection error (audio queue):', err.message);

@@ -17,28 +17,15 @@ const bullmq_1 = require("bullmq");
 const ioredis_1 = __importDefault(require("ioredis"));
 const subscription_service_1 = require("../services/subscription.service");
 const dotenv_1 = __importDefault(require("dotenv"));
+const redis_config_1 = require("../config/redis.config");
 dotenv_1.default.config();
 const QUEUE_NAME = 'subscription-tasks';
-// Redis connection for BullMQ (requires maxRetriesPerRequest: null)
-const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 let connection = null;
 const createConnection = () => {
-    if (!REDIS_ENABLED)
+    if (!(0, redis_config_1.isRedisEnabled)())
         return null;
     try {
-        return new ioredis_1.default({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-            password: process.env.REDIS_PASSWORD || undefined,
-            maxRetriesPerRequest: null,
-            retryStrategy: (times) => {
-                if (times > 3) {
-                    console.warn('⚠️ Redis not available for subscription worker');
-                    return null;
-                }
-                return Math.min(times * 100, 3000);
-            }
-        });
+        return new ioredis_1.default((0, redis_config_1.getRedisConfig)());
     }
     catch {
         return null;
@@ -47,7 +34,7 @@ const createConnection = () => {
 // Initialize queue if Redis is enabled
 let subscriptionQueue = null;
 async function initSubscriptionQueue() {
-    if (!REDIS_ENABLED) {
+    if (!(0, redis_config_1.isRedisEnabled)()) {
         console.log('⚠️ Redis disabled - Subscription queue not initialized');
         return null;
     }
@@ -75,7 +62,7 @@ async function initSubscriptionQueue() {
 }
 // Initialize worker
 async function initSubscriptionWorker() {
-    if (!REDIS_ENABLED) {
+    if (!(0, redis_config_1.isRedisEnabled)()) {
         console.log('⚠️ Redis disabled - Subscription worker not initialized');
         return null;
     }
@@ -220,7 +207,7 @@ async function triggerMonthlyLivraCredits() {
 }
 // Initialize asynchronously
 (async () => {
-    if (REDIS_ENABLED) {
+    if ((0, redis_config_1.isRedisEnabled)()) {
         await initSubscriptionQueue();
         await initSubscriptionWorker();
         // Schedule jobs after queue is ready
