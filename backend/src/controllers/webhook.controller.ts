@@ -7,6 +7,8 @@
 import { Request, Response } from 'express';
 import { stripeService } from '../services/stripe.service';
 import { subscriptionService } from '../services/subscription.service';
+import { notificationService } from '../services/notification.service';
+import prisma from '../lib/prisma';
 
 /**
  * POST /webhooks/stripe
@@ -153,9 +155,28 @@ async function handleInvoicePaymentFailed(invoice: any) {
   const customerId = invoice.customer;
   
   console.warn(`Payment failed for subscription ${subscriptionId}, customer ${customerId}`);
-  
-  // The subscription status will be updated by customer.subscription.updated
-  // We could send a notification to the user here
+
+  // Find user by subscription ID
+  const subscription = await prisma.subscription.findFirst({
+    where: { stripeSubscriptionId: subscriptionId },
+    select: { userId: true }
+  });
+
+  if (subscription) {
+    await notificationService.notifySystem(
+      subscription.userId,
+      'Pagamento falhou',
+      'Houve um problema com o pagamento da sua assinatura. Por favor, atualize seus dados de pagamento para evitar o cancelamento.',
+      { 
+        subscriptionId, 
+        invoiceId: invoice.id,
+        invoiceUrl: invoice.hosted_invoice_url 
+      }
+    );
+    console.log(`Notification sent to user ${subscription.userId} about payment failure`);
+  } else {
+    console.warn(`Could not find user for subscription ${subscriptionId} to send notification`);
+  }
 }
 
 /**

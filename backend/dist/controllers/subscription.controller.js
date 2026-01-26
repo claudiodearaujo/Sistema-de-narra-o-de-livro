@@ -4,6 +4,9 @@
  * Handles HTTP requests for subscriptions and payments
  * Sprint 9: Planos e Pagamentos
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSubscription = getSubscription;
 exports.getPlans = getPlans;
@@ -14,6 +17,7 @@ exports.resumeSubscription = resumeSubscription;
 exports.getPlanFeatures = getPlanFeatures;
 const subscription_service_1 = require("../services/subscription.service");
 const stripe_service_1 = require("../services/stripe.service");
+const crypto_1 = __importDefault(require("crypto"));
 /**
  * GET /subscription
  * Get current user's subscription
@@ -81,11 +85,13 @@ async function createCheckoutSession(req, res) {
         if (!stripe_service_1.stripeService.isConfigured()) {
             return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
         }
+        const idempotencyKey = crypto_1.default.randomUUID();
         const session = await subscription_service_1.subscriptionService.createCheckoutSession(userId, {
             plan,
             billingPeriod,
             successUrl,
             cancelUrl,
+            idempotencyKey,
         });
         res.json(session);
     }
@@ -111,7 +117,8 @@ async function createPortalSession(req, res) {
         if (!stripe_service_1.stripeService.isConfigured()) {
             return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
         }
-        const session = await subscription_service_1.subscriptionService.createPortalSession(userId, returnUrl);
+        const idempotencyKey = crypto_1.default.randomUUID();
+        const session = await subscription_service_1.subscriptionService.createPortalSession(userId, returnUrl, idempotencyKey);
         res.json(session);
     }
     catch (error) {
@@ -132,7 +139,8 @@ async function cancelSubscription(req, res) {
         if (!stripe_service_1.stripeService.isConfigured()) {
             return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
         }
-        await subscription_service_1.subscriptionService.cancelSubscription(userId);
+        const idempotencyKey = crypto_1.default.randomUUID();
+        await subscription_service_1.subscriptionService.cancelSubscription(userId, idempotencyKey);
         res.json({ message: 'Assinatura será cancelada ao final do período' });
     }
     catch (error) {
@@ -153,7 +161,8 @@ async function resumeSubscription(req, res) {
         if (!stripe_service_1.stripeService.isConfigured()) {
             return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
         }
-        await subscription_service_1.subscriptionService.resumeSubscription(userId);
+        const idempotencyKey = crypto_1.default.randomUUID();
+        await subscription_service_1.subscriptionService.resumeSubscription(userId, idempotencyKey);
         res.json({ message: 'Assinatura reativada com sucesso' });
     }
     catch (error) {

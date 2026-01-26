@@ -4,10 +4,15 @@
  * Handles Stripe webhook events
  * Sprint 9: Planos e Pagamentos
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleStripeWebhook = handleStripeWebhook;
 const stripe_service_1 = require("../services/stripe.service");
 const subscription_service_1 = require("../services/subscription.service");
+const notification_service_1 = require("../services/notification.service");
+const prisma_1 = __importDefault(require("../lib/prisma"));
 /**
  * POST /webhooks/stripe
  * Handle Stripe webhook events
@@ -125,8 +130,22 @@ async function handleInvoicePaymentFailed(invoice) {
     const subscriptionId = invoice.subscription;
     const customerId = invoice.customer;
     console.warn(`Payment failed for subscription ${subscriptionId}, customer ${customerId}`);
-    // The subscription status will be updated by customer.subscription.updated
-    // We could send a notification to the user here
+    // Find user by subscription ID
+    const subscription = await prisma_1.default.subscription.findFirst({
+        where: { stripeSubscriptionId: subscriptionId },
+        select: { userId: true }
+    });
+    if (subscription) {
+        await notification_service_1.notificationService.notifySystem(subscription.userId, 'Pagamento falhou', 'Houve um problema com o pagamento da sua assinatura. Por favor, atualize seus dados de pagamento para evitar o cancelamento.', {
+            subscriptionId,
+            invoiceId: invoice.id,
+            invoiceUrl: invoice.hosted_invoice_url
+        });
+        console.log(`Notification sent to user ${subscription.userId} about payment failure`);
+    }
+    else {
+        console.warn(`Could not find user for subscription ${subscriptionId} to send notification`);
+    }
 }
 /**
  * Handle customer.subscription.updated event

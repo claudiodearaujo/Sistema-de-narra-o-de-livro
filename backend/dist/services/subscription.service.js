@@ -97,25 +97,25 @@ class SubscriptionService {
      * Create a checkout session for subscription upgrade
      */
     async createCheckoutSession(userId, data) {
-        return stripe_service_1.stripeService.createCheckoutSession(userId, data.plan, data.billingPeriod, data.successUrl, data.cancelUrl);
+        return stripe_service_1.stripeService.createCheckoutSession(userId, data.plan, data.billingPeriod, data.successUrl, data.cancelUrl, data.idempotencyKey);
     }
     /**
      * Create a portal session for subscription management
      */
-    async createPortalSession(userId, returnUrl) {
-        return stripe_service_1.stripeService.createPortalSession(userId, returnUrl);
+    async createPortalSession(userId, returnUrl, idempotencyKey) {
+        return stripe_service_1.stripeService.createPortalSession(userId, returnUrl, idempotencyKey);
     }
     /**
      * Cancel subscription at period end
      */
-    async cancelSubscription(userId) {
-        await stripe_service_1.stripeService.cancelSubscription(userId);
+    async cancelSubscription(userId, idempotencyKey) {
+        await stripe_service_1.stripeService.cancelSubscription(userId, idempotencyKey);
     }
     /**
      * Resume a cancelled subscription
      */
-    async resumeSubscription(userId) {
-        await stripe_service_1.stripeService.resumeSubscription(userId);
+    async resumeSubscription(userId, idempotencyKey) {
+        await stripe_service_1.stripeService.resumeSubscription(userId, idempotencyKey);
     }
     /**
      * Handle successful subscription checkout
@@ -357,8 +357,8 @@ class SubscriptionService {
     /**
      * Create checkout session for Livra package
      */
-    async createLivraCheckoutSession(userId, packageId, successUrl, cancelUrl) {
-        return stripe_service_1.stripeService.createLivraCheckoutSession(userId, packageId, successUrl, cancelUrl);
+    async createLivraCheckoutSession(userId, packageId, successUrl, cancelUrl, idempotencyKey) {
+        return stripe_service_1.stripeService.createLivraCheckoutSession(userId, packageId, successUrl, cancelUrl, idempotencyKey);
     }
 }
 exports.subscriptionService = new SubscriptionService();

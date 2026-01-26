@@ -7,7 +7,7 @@ exports.hashPassword = hashPassword;
 exports.comparePassword = comparePassword;
 exports.generateRandomToken = generateRandomToken;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const SALT_ROUNDS = 12;
+const SALT_ROUNDS = 10;
 /**
  * Hash a plain text password
  */

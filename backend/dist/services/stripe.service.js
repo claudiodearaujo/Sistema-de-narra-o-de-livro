@@ -10,6 +10,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stripeService = exports.LIVRA_PACKAGES = exports.PLAN_PRICES = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const crypto_1 = __importDefault(require("crypto"));
 // Plan pricing configuration
 exports.PLAN_PRICES = {
     PREMIUM: {
@@ -48,7 +49,7 @@ class StripeService {
     /**
      * Make a request to Stripe API
      */
-    async stripeRequest(endpoint, method = 'GET', body) {
+    async stripeRequest(endpoint, method = 'GET', body, options) {
         if (!this.isConfigured()) {
             throw new Error('Stripe is not configured');
         }
@@ -57,7 +58,10 @@ class StripeService {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/x-www-form-urlencoded',
         };
-        const options = {
+        if (options?.idempotencyKey) {
+            headers['Idempotency-Key'] = options.idempotencyKey;
+        }
+        const requestOptions = {
             method,
             headers,
         };
@@ -87,9 +91,9 @@ class StripeService {
                 }
             };
             flattenObject(body);
-            options.body = formData.toString();
+            requestOptions.body = formData.toString();
         }
-        const response = await fetch(url, options);
+        const response = await fetch(url, requestOptions);
         const data = await response.json();
         if (!response.ok) {
             console.error('Stripe API error:', data);
@@ -141,7 +145,7 @@ class StripeService {
     /**
      * Create a checkout session for subscription
      */
-    async createCheckoutSession(userId, plan, billingPeriod = 'monthly', successUrl, cancelUrl) {
+    async createCheckoutSession(userId, plan, billingPeriod = 'monthly', successUrl, cancelUrl, idempotencyKey) {
         const customerId = await this.getOrCreateCustomer(userId);
         const priceId = exports.PLAN_PRICES[plan][billingPeriod];
         const session = await this.stripeRequest('/checkout/sessions', 'POST', {
@@ -162,7 +166,7 @@ class StripeService {
                     plan,
                 },
             },
-        });
+        }, { idempotencyKey });
         return {
             sessionId: session.id,
             url: session.url,
@@ -171,7 +175,7 @@ class StripeService {
     /**
      * Create a checkout session for Livra package purchase
      */
-    async createLivraCheckoutSession(userId, packageId, successUrl, cancelUrl) {
+    async createLivraCheckoutSession(userId, packageId, successUrl, cancelUrl, idempotencyKey) {
         const pkg = exports.LIVRA_PACKAGES.find(p => p.id === packageId);
         if (!pkg) {
             throw new Error('Package not found');
@@ -192,7 +196,7 @@ class StripeService {
                 packageId,
                 livraAmount: pkg.amount.toString(),
             },
-        });
+        }, { idempotencyKey });
         return {
             sessionId: session.id,
             url: session.url,
@@ -201,18 +205,18 @@ class StripeService {
     /**
      * Create a customer portal session
      */
-    async createPortalSession(userId, returnUrl) {
+    async createPortalSession(userId, returnUrl, idempotencyKey) {
         const customerId = await this.getOrCreateCustomer(userId);
         const session = await this.stripeRequest('/billing_portal/sessions', 'POST', {
             customer: customerId,
             return_url: returnUrl,
-        });
+        }, { idempotencyKey });
         return { url: session.url };
     }
     /**
      * Cancel subscription at period end
      */
-    async cancelSubscription(userId) {
+    async cancelSubscription(userId, idempotencyKey) {
         const subscription = await prisma_1.default.subscription.findUnique({
             where: { userId },
             select: { stripeSubscriptionId: true },
@@ -220,7 +224,7 @@ class StripeService {
         if (!subscription?.stripeSubscriptionId) {
             throw new Error('No active subscription found');
         }
-        await this.stripeRequest(`/subscriptions/${subscription.stripeSubscriptionId}`, 'POST', { cancel_at_period_end: true });
+        await this.stripeRequest(`/subscriptions/${subscription.stripeSubscriptionId}`, 'POST', { cancel_at_period_end: true }, { idempotencyKey });
         await prisma_1.default.subscription.update({
             where: { userId },
             data: { cancelAtPeriodEnd: true },
@@ -229,7 +233,7 @@ class StripeService {
     /**
      * Resume a cancelled subscription (before period end)
      */
-    async resumeSubscription(userId) {
+    async resumeSubscription(userId, idempotencyKey) {
         const subscription = await prisma_1.default.subscription.findUnique({
             where: { userId },
             select: { stripeSubscriptionId: true },
@@ -237,7 +241,7 @@ class StripeService {
         if (!subscription?.stripeSubscriptionId) {
             throw new Error('No subscription found');
         }
-        await this.stripeRequest(`/subscriptions/${subscription.stripeSubscriptionId}`, 'POST', { cancel_at_period_end: false });
+        await this.stripeRequest(`/subscriptions/${subscription.stripeSubscriptionId}`, 'POST', { cancel_at_period_end: false }, { idempotencyKey });
         await prisma_1.default.subscription.update({
             where: { userId },
             data: { cancelAtPeriodEnd: false },
@@ -265,7 +269,6 @@ class StripeService {
         }
         try {
             // Simple signature verification (in production, use Stripe's crypto)
-            const crypto = require('crypto');
             const payloadString = typeof payload === 'string' ? payload : payload.toString('utf8');
             // Parse the signature header
             const elements = signature.split(',');
@@ -287,12 +290,19 @@ class StripeService {
             }
             // Create expected signature
             const signedPayload = `${timestamp}.${payloadString}`;
-            const computedSig = crypto
+            const computedSig = crypto_1.default
                 .createHmac('sha256', this.webhookSecret)
                 .update(signedPayload)
                 .digest('hex');
             if (computedSig !== expectedSig) {
                 console.warn('Webhook signature mismatch');
+                return null;
+            }
+            // Use timingSafeEqual to prevent timing attacks
+            const computedBuffer = Buffer.from(computedSig);
+            const expectedBuffer = Buffer.from(expectedSig);
+            if (computedBuffer.length !== expectedBuffer.length || !crypto_1.default.timingSafeEqual(computedBuffer, expectedBuffer)) {
+                console.warn('Webhook signature mismatch (secure check)');
                 return null;
             }
             return JSON.parse(payloadString);

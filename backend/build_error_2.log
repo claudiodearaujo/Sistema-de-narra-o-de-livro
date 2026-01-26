@@ -1,0 +1,184 @@
+
+> backend@1.0.0 build
+> tsc
+
+src/controllers/achievement.controller.ts(34,75): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/achievement.controller.ts(35,64): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/books.controller.ts(25,53): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/books.controller.ts(62,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/books.controller.ts(84,54): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/books.controller.ts(101,55): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(21,64): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(47,53): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(74,54): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(100,53): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(127,36): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(147,59): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(167,58): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(189,72): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/campaign.controller.ts(211,59): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/chapters.controller.ts(8,64): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/chapters.controller.ts(21,59): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/chapters.controller.ts(38,58): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/chapters.controller.ts(57,58): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/chapters.controller.ts(76,57): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/chapters.controller.ts(101,58): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/characters.controller.ts(14,68): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/characters.controller.ts(39,63): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/characters.controller.ts(67,62): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/characters.controller.ts(81,59): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/characters.controller.ts(102,63): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/characters.controller.ts(157,44): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/characters.controller.ts(182,63): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/characters.controller.ts(195,48): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/comment.controller.ts(19,51): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/comment.controller.ts(57,49): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/comment.controller.ts(84,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/comment.controller.ts(126,49): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/comment.controller.ts(161,33): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/comment.controller.ts(193,59): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/custom-voice.controller.ts(63,26): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/custom-voice.controller.ts(83,26): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/custom-voice.controller.ts(109,26): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/custom-voice.controller.ts(128,26): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/follow.controller.ts(21,68): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/follow.controller.ts(51,53): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/follow.controller.ts(74,53): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/follow.controller.ts(99,71): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/follow.controller.ts(118,56): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/group.controller.ts(61,48): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/group.controller.ts(130,47): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/group.controller.ts(160,33): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/group.controller.ts(185,50): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/group.controller.ts(210,32): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/group.controller.ts(232,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/group.controller.ts(260,9): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/group.controller.ts(289,39): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/like.controller.ts(21,49): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/like.controller.ts(48,53): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/like.controller.ts(73,47): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/livra-package.controller.ts(62,7): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/livra.controller.ts(99,39): error TS2339: Property 'toUpperCase' does not exist on type 'string | string[]'.
+  Property 'toUpperCase' does not exist on type 'string[]'.
+src/controllers/livra.controller.ts(179,51): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/livra.controller.ts(199,67): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/message.controller.ts(65,68): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/message.controller.ts(101,63): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/message.controller.ts(133,67): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/message.controller.ts(158,40): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/message.controller.ts(191,41): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/narration.controller.ts(8,66): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/narration.controller.ts(18,70): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/narration.controller.ts(28,67): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/notification.controller.ts(75,63): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/notification.controller.ts(126,38): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/post.controller.ts(122,44): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/post.controller.ts(146,48): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/post.controller.ts(178,30): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/post.controller.ts(241,50): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/post.controller.ts(291,50): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/profile.controller.ts(18,63): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/profile.controller.ts(46,57): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/profile.controller.ts(133,54): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/profile.controller.ts(166,54): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/speeches.controller.ts(9,67): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/speeches.controller.ts(19,58): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/speeches.controller.ts(43,57): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/speeches.controller.ts(57,57): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/speeches.controller.ts(75,58): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/speeches.controller.ts(91,61): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/story.controller.ts(29,57): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/story.controller.ts(45,46): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/story.controller.ts(99,37): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/story.controller.ts(121,31): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/story.controller.ts(148,50): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/characters.routes.ts(16,46): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Character"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Character"> | undefined'.

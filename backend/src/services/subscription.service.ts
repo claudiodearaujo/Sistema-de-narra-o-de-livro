@@ -24,6 +24,7 @@ export interface CreateSubscriptionDto {
   billingPeriod: 'monthly' | 'yearly';
   successUrl: string;
   cancelUrl: string;
+  idempotencyKey?: string;
 }
 
 // Plan features configuration
@@ -127,29 +128,30 @@ class SubscriptionService {
       data.plan,
       data.billingPeriod,
       data.successUrl,
-      data.cancelUrl
+      data.cancelUrl,
+      data.idempotencyKey
     );
   }
 
   /**
    * Create a portal session for subscription management
    */
-  async createPortalSession(userId: string, returnUrl: string): Promise<{ url: string }> {
-    return stripeService.createPortalSession(userId, returnUrl);
+  async createPortalSession(userId: string, returnUrl: string, idempotencyKey?: string): Promise<{ url: string }> {
+    return stripeService.createPortalSession(userId, returnUrl, idempotencyKey);
   }
 
   /**
    * Cancel subscription at period end
    */
-  async cancelSubscription(userId: string): Promise<void> {
-    await stripeService.cancelSubscription(userId);
+  async cancelSubscription(userId: string, idempotencyKey?: string): Promise<void> {
+    await stripeService.cancelSubscription(userId, idempotencyKey);
   }
 
   /**
    * Resume a cancelled subscription
    */
-  async resumeSubscription(userId: string): Promise<void> {
-    await stripeService.resumeSubscription(userId);
+  async resumeSubscription(userId: string, idempotencyKey?: string): Promise<void> {
+    await stripeService.resumeSubscription(userId, idempotencyKey);
   }
 
   /**
@@ -443,9 +445,10 @@ class SubscriptionService {
     userId: string,
     packageId: string,
     successUrl: string,
-    cancelUrl: string
+    cancelUrl: string,
+    idempotencyKey?: string
   ): Promise<{ sessionId: string; url: string }> {
-    return stripeService.createLivraCheckoutSession(userId, packageId, successUrl, cancelUrl);
+    return stripeService.createLivraCheckoutSession(userId, packageId, successUrl, cancelUrl, idempotencyKey);
   }
 }
 

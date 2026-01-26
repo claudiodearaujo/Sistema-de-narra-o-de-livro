@@ -7,6 +7,7 @@
 import { Request, Response } from 'express';
 import { subscriptionService } from '../services/subscription.service';
 import { stripeService } from '../services/stripe.service';
+import crypto from 'crypto';
 
 /**
  * GET /subscription
@@ -85,11 +86,13 @@ export async function createCheckoutSession(req: Request, res: Response) {
       return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
     }
 
+    const idempotencyKey = crypto.randomUUID();
     const session = await subscriptionService.createCheckoutSession(userId, {
       plan,
       billingPeriod,
       successUrl,
       cancelUrl,
+      idempotencyKey,
     });
 
     res.json(session);
@@ -120,7 +123,8 @@ export async function createPortalSession(req: Request, res: Response) {
       return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
     }
 
-    const session = await subscriptionService.createPortalSession(userId, returnUrl);
+    const idempotencyKey = crypto.randomUUID();
+    const session = await subscriptionService.createPortalSession(userId, returnUrl, idempotencyKey);
 
     res.json(session);
   } catch (error) {
@@ -144,7 +148,8 @@ export async function cancelSubscription(req: Request, res: Response) {
       return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
     }
 
-    await subscriptionService.cancelSubscription(userId);
+    const idempotencyKey = crypto.randomUUID();
+    await subscriptionService.cancelSubscription(userId, idempotencyKey);
 
     res.json({ message: 'Assinatura será cancelada ao final do período' });
   } catch (error: any) {
@@ -168,7 +173,8 @@ export async function resumeSubscription(req: Request, res: Response) {
       return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
     }
 
-    await subscriptionService.resumeSubscription(userId);
+    const idempotencyKey = crypto.randomUUID();
+    await subscriptionService.resumeSubscription(userId, idempotencyKey);
 
     res.json({ message: 'Assinatura reativada com sucesso' });
   } catch (error: any) {

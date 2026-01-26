@@ -7,6 +7,7 @@
 import { Request, Response } from 'express';
 import { subscriptionService } from '../services/subscription.service';
 import { stripeService } from '../services/stripe.service';
+import crypto from 'crypto';
 
 /**
  * GET /livras/packages
@@ -33,7 +34,7 @@ export async function purchaseLivraPackage(req: Request, res: Response) {
       return res.status(401).json({ error: 'Não autenticado' });
     }
 
-    const { packageId } = req.params;
+    const packageId = req.params.packageId as string;
     const { successUrl, cancelUrl } = req.body;
 
     if (!packageId) {
@@ -55,11 +56,13 @@ export async function purchaseLivraPackage(req: Request, res: Response) {
       return res.status(503).json({ error: 'Sistema de pagamento não configurado' });
     }
 
+    const idempotencyKey = crypto.randomUUID();
     const session = await subscriptionService.createLivraCheckoutSession(
       userId,
       packageId,
       successUrl,
-      cancelUrl
+      cancelUrl,
+      idempotencyKey
     );
 
     res.json(session);

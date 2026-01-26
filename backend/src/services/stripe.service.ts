@@ -6,6 +6,7 @@
 
 import { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
 import prisma from '../lib/prisma';
+import crypto from 'crypto';
 
 // Stripe types (we'll use fetch for API calls to avoid dependency)
 interface StripeCustomer {
@@ -110,7 +111,8 @@ class StripeService {
   private async stripeRequest<T>(
     endpoint: string,
     method: 'GET' | 'POST' | 'DELETE' = 'GET',
-    body?: Record<string, any>
+    body?: Record<string, any>,
+    options?: { idempotencyKey?: string }
   ): Promise<T> {
     if (!this.isConfigured()) {
       throw new Error('Stripe is not configured');
@@ -122,7 +124,11 @@ class StripeService {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
 
-    const options: RequestInit = {
+    if (options?.idempotencyKey) {
+      headers['Idempotency-Key'] = options.idempotencyKey;
+    }
+
+    const requestOptions: RequestInit = {
       method,
       headers,
     };
@@ -150,10 +156,10 @@ class StripeService {
         }
       };
       flattenObject(body);
-      options.body = formData.toString();
+      requestOptions.body = formData.toString();
     }
 
-    const response = await fetch(url, options);
+    const response = await fetch(url, requestOptions);
     const data = await response.json();
 
     if (!response.ok) {
@@ -220,7 +226,8 @@ class StripeService {
     plan: 'PREMIUM' | 'PRO',
     billingPeriod: 'monthly' | 'yearly' = 'monthly',
     successUrl: string,
-    cancelUrl: string
+    cancelUrl: string,
+    idempotencyKey?: string
   ): Promise<{ sessionId: string; url: string }> {
     const customerId = await this.getOrCreateCustomer(userId);
     const priceId = PLAN_PRICES[plan][billingPeriod];
@@ -243,7 +250,7 @@ class StripeService {
           plan,
         },
       },
-    });
+    }, { idempotencyKey });
 
     return {
       sessionId: session.id,
@@ -258,7 +265,8 @@ class StripeService {
     userId: string,
     packageId: string,
     successUrl: string,
-    cancelUrl: string
+    cancelUrl: string,
+    idempotencyKey?: string
   ): Promise<{ sessionId: string; url: string }> {
     const pkg = LIVRA_PACKAGES.find(p => p.id === packageId);
     if (!pkg) {
@@ -282,7 +290,7 @@ class StripeService {
         packageId,
         livraAmount: pkg.amount.toString(),
       },
-    });
+    }, { idempotencyKey });
 
     return {
       sessionId: session.id,
@@ -293,13 +301,13 @@ class StripeService {
   /**
    * Create a customer portal session
    */
-  async createPortalSession(userId: string, returnUrl: string): Promise<{ url: string }> {
+  async createPortalSession(userId: string, returnUrl: string, idempotencyKey?: string): Promise<{ url: string }> {
     const customerId = await this.getOrCreateCustomer(userId);
 
     const session = await this.stripeRequest<StripePortalSession>('/billing_portal/sessions', 'POST', {
       customer: customerId,
       return_url: returnUrl,
-    });
+    }, { idempotencyKey });
 
     return { url: session.url };
   }
@@ -307,7 +315,7 @@ class StripeService {
   /**
    * Cancel subscription at period end
    */
-  async cancelSubscription(userId: string): Promise<void> {
+  async cancelSubscription(userId: string, idempotencyKey?: string): Promise<void> {
     const subscription = await prisma.subscription.findUnique({
       where: { userId },
       select: { stripeSubscriptionId: true },
@@ -320,7 +328,8 @@ class StripeService {
     await this.stripeRequest<StripeSubscription>(
       `/subscriptions/${subscription.stripeSubscriptionId}`,
       'POST',
-      { cancel_at_period_end: true }
+      { cancel_at_period_end: true },
+      { idempotencyKey }
     );
 
     await prisma.subscription.update({
@@ -332,7 +341,7 @@ class StripeService {
   /**
    * Resume a cancelled subscription (before period end)
    */
-  async resumeSubscription(userId: string): Promise<void> {
+  async resumeSubscription(userId: string, idempotencyKey?: string): Promise<void> {
     const subscription = await prisma.subscription.findUnique({
       where: { userId },
       select: { stripeSubscriptionId: true },
@@ -345,7 +354,8 @@ class StripeService {
     await this.stripeRequest<StripeSubscription>(
       `/subscriptions/${subscription.stripeSubscriptionId}`,
       'POST',
-      { cancel_at_period_end: false }
+      { cancel_at_period_end: false },
+      { idempotencyKey }
     );
 
     await prisma.subscription.update({
@@ -377,7 +387,6 @@ class StripeService {
 
     try {
       // Simple signature verification (in production, use Stripe's crypto)
-      const crypto = require('crypto');
       const payloadString = typeof payload === 'string' ? payload : payload.toString('utf8');
       
       // Parse the signature header
@@ -409,6 +418,15 @@ class StripeService {
       if (computedSig !== expectedSig) {
         console.warn('Webhook signature mismatch');
         return null;
+      }
+      
+      // Use timingSafeEqual to prevent timing attacks
+      const computedBuffer = Buffer.from(computedSig);
+      const expectedBuffer = Buffer.from(expectedSig);
+      
+      if (computedBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(computedBuffer, expectedBuffer)) {
+          console.warn('Webhook signature mismatch (secure check)');
+          return null;
       }
 
       return JSON.parse(payloadString) as StripeEvent;
