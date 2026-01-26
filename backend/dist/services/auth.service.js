@@ -89,11 +89,13 @@ async function signup(input) {
  */
 async function login(input) {
     const { email, password } = input;
+    console.log('[AUTH] Login attempt for email:', email);
     // Find user
     const user = await prisma_1.default.user.findUnique({ where: { email } });
     if (!user) {
         throw new Error('Credenciais inválidas');
     }
+    console.log('[AUTH] User found:', user.id);
     // Check if user has password (local auth)
     if (!user.password) {
         throw new Error('Esta conta usa login social. Use o botão correspondente.');
@@ -105,8 +107,11 @@ async function login(input) {
     }
     // Generate tokens
     const payload = createTokenPayload(user);
+    console.log('create token payload for user:', payload);
     const accessToken = (0, jwt_utils_1.generateAccessToken)(payload);
+    console.log('generate access token:', accessToken);
     const refreshToken = (0, jwt_utils_1.generateRefreshToken)(payload);
+    console.log('generate refresh token:', refreshToken);
     // Store refresh token
     await prisma_1.default.refreshToken.create({
         data: {

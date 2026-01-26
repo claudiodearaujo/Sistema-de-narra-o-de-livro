@@ -1,8 +1,8 @@
 import { User, UserRole, AuthProvider } from '@prisma/client';
 import { hashPassword, comparePassword, generateRandomToken } from '../utils/password.utils';
-import { 
-  generateAccessToken, 
-  generateRefreshToken, 
+import {
+  generateAccessToken,
+  generateRefreshToken,
   verifyRefreshToken,
   getRefreshTokenExpiresAt,
   TokenPayload
@@ -120,12 +120,13 @@ export async function signup(input: SignupInput): Promise<AuthResponse> {
  */
 export async function login(input: LoginInput): Promise<AuthResponse> {
   const { email, password } = input;
-
+  console.log('[AUTH] Login attempt for email:', email);
   // Find user
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     throw new Error('Credenciais inválidas');
   }
+  console.log('[AUTH] User found:', user.id);
 
   // Check if user has password (local auth)
   if (!user.password) {
@@ -140,8 +141,11 @@ export async function login(input: LoginInput): Promise<AuthResponse> {
 
   // Generate tokens
   const payload = createTokenPayload(user);
+  console.log('create token payload for user:', payload);
   const accessToken = generateAccessToken(payload);
+  console.log('generate access token:', accessToken);
   const refreshToken = generateRefreshToken(payload);
+  console.log('generate refresh token:', refreshToken);
 
   // Store refresh token
   await prisma.refreshToken.create({
@@ -247,7 +251,7 @@ export async function updateProfile(userId: string, input: ProfileUpdateInput): 
   // Check username uniqueness if changing
   if (input.username) {
     const existingUsername = await prisma.user.findFirst({
-      where: { 
+      where: {
         username: input.username,
         NOT: { id: userId }
       }
@@ -298,7 +302,7 @@ export async function changePassword(userId: string, input: ChangePasswordInput)
  */
 export async function requestPasswordReset(email: string): Promise<{ message: string }> {
   const user = await prisma.user.findUnique({ where: { email } });
-  
+
   // Always return success to prevent email enumeration
   if (!user) {
     return { message: 'Se o e-mail estiver cadastrado, você receberá instruções de recuperação' };
@@ -380,7 +384,7 @@ export async function verifyEmail(token: string): Promise<void> {
  */
 export async function resendVerificationEmail(userId: string): Promise<{ message: string }> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  
+
   if (!user) {
     throw new Error('Usuário não encontrado');
   }
