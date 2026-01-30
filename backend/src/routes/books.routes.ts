@@ -7,8 +7,10 @@ import prisma from '../lib/prisma';
 
 const router = Router();
 
-// Public routes (with optional auth for personalized data)
-router.get('/', optionalAuth, (req, res) => booksController.getAll(req, res));
+// List books - require authentication to show only user's books
+router.get('/', authenticate, (req, res) => booksController.getAll(req, res));
+
+// Public routes for viewing books
 router.get('/:id', optionalAuth, (req, res) => booksController.getById(req, res));
 router.get('/:id/stats', optionalAuth, (req, res) => booksController.getStats(req, res));
 

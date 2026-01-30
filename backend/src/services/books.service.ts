@@ -23,10 +23,16 @@ export interface BookStats {
 }
 
 export class BooksService {
-    async getAll(page: number = 1, limit: number = 10, title?: string, author?: string) {
+    async getAll(page: number = 1, limit: number = 10, title?: string, author?: string, userId?: string) {
         const skip = (page - 1) * limit;
 
         const where: any = {};
+
+        // Always filter by userId - only show books created by the logged in user
+        if (userId) {
+            where.userId = userId;
+        }
+
         if (title) {
             where.title = { contains: title, mode: 'insensitive' };
         }
@@ -111,7 +117,7 @@ export class BooksService {
         });
     }
 
-    async update(id: string, data: UpdateBookDto) {
+    async update(id: string, data: UpdateBookDto, userId?: string) {
         // Validation
         if (data.title !== undefined && data.title.trim().length < 3) {
             throw new Error('Title must be at least 3 characters long');
@@ -125,6 +131,11 @@ export class BooksService {
             throw new Error('Book not found');
         }
 
+        // Check if user owns this book
+        if (userId && book.userId !== userId) {
+            throw new Error('Unauthorized: You can only update your own books');
+        }
+
         return await prisma.book.update({
             where: { id },
             data: {
@@ -136,10 +147,15 @@ export class BooksService {
         });
     }
 
-    async delete(id: string) {
+    async delete(id: string, userId?: string) {
         const book = await prisma.book.findUnique({ where: { id } });
         if (!book) {
             throw new Error('Book not found');
+        }
+
+        // Check if user owns this book
+        if (userId && book.userId !== userId) {
+            throw new Error('Unauthorized: You can only delete your own books');
         }
 
         await prisma.book.delete({ where: { id } });
