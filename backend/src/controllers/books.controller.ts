@@ -8,8 +8,9 @@ export class BooksController {
             const limit = parseInt(req.query.limit as string) || 10;
             const title = req.query.title as string;
             const author = req.query.author as string;
+            const userId = (req as any).user?.userId;
 
-            const result = await booksService.getAll(page, limit, title, author);
+            const result = await booksService.getAll(page, limit, title, author, userId);
             res.json(result);
         } catch (error) {
             res.status(500).json({
@@ -59,11 +60,14 @@ export class BooksController {
     async update(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const book = await booksService.update(id, req.body);
+            const userId = (req as any).user?.userId;
+            const book = await booksService.update(id, req.body, userId);
             res.json(book);
         } catch (error) {
             if (error instanceof Error && error.message === 'Book not found') {
                 res.status(404).json({ error: error.message });
+            } else if (error instanceof Error && error.message === 'Unauthorized: You can only update your own books') {
+                res.status(403).json({ error: error.message });
             } else if (error instanceof Error && (
                 error.message.includes('Title') ||
                 error.message.includes('Author')
@@ -81,11 +85,14 @@ export class BooksController {
     async delete(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const result = await booksService.delete(id);
+            const userId = (req as any).user?.userId;
+            const result = await booksService.delete(id, userId);
             res.json(result);
         } catch (error) {
             if (error instanceof Error && error.message === 'Book not found') {
                 res.status(404).json({ error: error.message });
+            } else if (error instanceof Error && error.message === 'Unauthorized: You can only delete your own books') {
+                res.status(403).json({ error: error.message });
             } else {
                 res.status(500).json({
                     error: 'Failed to delete book',
