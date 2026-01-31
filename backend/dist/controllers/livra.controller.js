@@ -161,7 +161,7 @@ async function getUserBalance(req, res, next) {
         if (req.user?.role !== 'ADMIN') {
             return res.status(403).json({ error: 'Admin access required' });
         }
-        const { userId } = req.params;
+        const userId = req.params.userId;
         const balance = await livra_service_1.livraService.getBalance(userId);
         res.json(balance);
     }
@@ -177,7 +177,7 @@ async function getUserTransactions(req, res, next) {
         if (req.user?.role !== 'ADMIN') {
             return res.status(403).json({ error: 'Admin access required' });
         }
-        const { userId } = req.params;
+        const userId = req.params.userId;
         const page = parseInt(req.query.page) || 1;
         const limit = Math.min(parseInt(req.query.limit) || 20, 100);
         const transactions = await livra_service_1.livraService.getTransactionHistory(userId, page, limit);

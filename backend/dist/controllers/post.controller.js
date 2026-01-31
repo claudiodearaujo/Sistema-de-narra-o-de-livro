@@ -115,7 +115,7 @@ async function getExplore(req, res) {
  */
 async function getPostById(req, res) {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const userId = req.user?.userId;
         const post = await post_service_1.postService.getById(id, userId);
         res.json(post);
@@ -161,7 +161,7 @@ async function getPostsByUser(req, res) {
  */
 async function deletePost(req, res) {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const userId = req.user?.userId;
         const isAdmin = req.user?.role === 'ADMIN';
         if (!userId) {
@@ -224,7 +224,7 @@ async function sharePost(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { id } = req.params;
+        const id = req.params.id;
         const { content } = req.body;
         const post = await post_service_1.postService.share(userId, id, { content });
         res.status(201).json(post);
@@ -272,7 +272,7 @@ async function getTrending(req, res) {
  */
 async function getPostStats(req, res) {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const stats = await post_service_1.postService.getPostStats(id);
         res.json(stats);
     }

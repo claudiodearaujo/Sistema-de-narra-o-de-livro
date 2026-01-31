@@ -30,7 +30,7 @@ async function getStoriesFeed(req, res, next) {
  */
 async function getStoriesByUser(req, res, next) {
     try {
-        const { userId } = req.params;
+        const userId = req.params.userId;
         const viewerId = req.user?.userId;
         const stories = await story_service_1.storyService.getStoriesByUser(userId, viewerId);
         res.json({ stories });
@@ -44,7 +44,7 @@ async function getStoriesByUser(req, res, next) {
  */
 async function getStoryById(req, res, next) {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const viewerId = req.user?.userId;
         const story = await story_service_1.storyService.getById(id, viewerId);
         if (!story) {
@@ -89,7 +89,7 @@ async function createStory(req, res, next) {
  */
 async function viewStory(req, res, next) {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const userId = req.user?.userId;
         if (!userId) {
             return res.status(401).json({ error: 'Não autenticado' });
@@ -109,7 +109,7 @@ async function viewStory(req, res, next) {
  */
 async function deleteStory(req, res, next) {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const userId = req.user?.userId;
         if (!userId) {
             return res.status(401).json({ error: 'Não autenticado' });
@@ -132,7 +132,7 @@ async function deleteStory(req, res, next) {
  */
 async function getStoryViewers(req, res, next) {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const userId = req.user?.userId;
         if (!userId) {
             return res.status(401).json({ error: 'Não autenticado' });

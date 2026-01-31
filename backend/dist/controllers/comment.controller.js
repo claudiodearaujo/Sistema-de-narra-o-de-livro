@@ -13,7 +13,7 @@ const comment_service_1 = require("../services/comment.service");
  */
 async function getComments(req, res) {
     try {
-        const { postId } = req.params;
+        const postId = req.params.postId;
         if (!postId) {
             res.status(400).json({ error: 'ID do post é obrigatório' });
             return;
@@ -39,7 +39,7 @@ async function createComment(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { postId } = req.params;
+        const postId = req.params.postId;
         if (!postId) {
             res.status(400).json({ error: 'ID do post é obrigatório' });
             return;
@@ -72,7 +72,7 @@ async function createComment(req, res) {
  */
 async function getReplies(req, res) {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         if (!id) {
             res.status(400).json({ error: 'ID do comentário é obrigatório' });
             return;
@@ -102,7 +102,7 @@ async function updateComment(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { id } = req.params;
+        const id = req.params.id;
         if (!id) {
             res.status(400).json({ error: 'ID do comentário é obrigatório' });
             return;
@@ -142,7 +142,7 @@ async function deleteComment(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { id } = req.params;
+        const id = req.params.id;
         if (!id) {
             res.status(400).json({ error: 'ID do comentário é obrigatório' });
             return;
@@ -175,7 +175,7 @@ async function toggleCommentLike(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { id } = req.params;
+        const id = req.params.id;
         if (!id) {
             res.status(400).json({ error: 'ID do comentário é obrigatório' });
             return;

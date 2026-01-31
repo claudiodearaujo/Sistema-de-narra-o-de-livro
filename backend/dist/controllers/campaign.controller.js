@@ -9,7 +9,7 @@ class CampaignController {
      */
     async getCampaignsByGroup(req, res) {
         try {
-            const { groupId } = req.params;
+            const groupId = req.params.groupId;
             const page = parseInt(req.query.page) || 1;
             const limit = Math.min(parseInt(req.query.limit) || 20, 50);
             const status = req.query.status;
@@ -27,7 +27,7 @@ class CampaignController {
      */
     async create(req, res) {
         try {
-            const { groupId } = req.params;
+            const groupId = req.params.groupId;
             const { name, description, startDate, endDate, livraReward, bookIds } = req.body;
             if (!name) {
                 return res.status(400).json({ error: 'O nome da campanha é obrigatório' });
@@ -59,7 +59,7 @@ class CampaignController {
      */
     async getById(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const campaign = await campaign_service_1.campaignService.getById(id, req.userId);
             if (!campaign) {
                 return res.status(404).json({ error: 'Campanha não encontrada' });
@@ -77,7 +77,7 @@ class CampaignController {
      */
     async update(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const { name, description, status, startDate, endDate, livraReward } = req.body;
             const validStatus = ['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED'].includes(status)
                 ? status
@@ -106,7 +106,7 @@ class CampaignController {
      */
     async delete(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             await campaign_service_1.campaignService.delete(id, req.userId);
             res.status(204).send();
         }
@@ -124,7 +124,7 @@ class CampaignController {
      */
     async join(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const progress = await campaign_service_1.campaignService.joinCampaign(id, req.userId);
             res.status(201).json(progress);
         }
@@ -142,7 +142,7 @@ class CampaignController {
      */
     async getProgress(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const progress = await campaign_service_1.campaignService.getProgress(id, req.userId);
             if (!progress) {
                 return res.status(404).json({ error: 'Você não está participando desta campanha' });
@@ -160,7 +160,7 @@ class CampaignController {
      */
     async getLeaderboard(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const limit = Math.min(parseInt(req.query.limit) || 10, 50);
             const leaderboard = await campaign_service_1.campaignService.getCampaignLeaderboard(id, limit);
             res.json(leaderboard);
@@ -176,7 +176,7 @@ class CampaignController {
      */
     async completeBook(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const { bookId } = req.body;
             if (!bookId) {
                 return res.status(400).json({ error: 'O ID do livro é obrigatório' });

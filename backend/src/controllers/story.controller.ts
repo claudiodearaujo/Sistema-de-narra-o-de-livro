@@ -23,7 +23,7 @@ export async function getStoriesFeed(req: Request, res: Response, next: NextFunc
  */
 export async function getStoriesByUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     const viewerId = (req as any).user?.userId;
 
     const stories = await storyService.getStoriesByUser(userId, viewerId);
@@ -39,7 +39,7 @@ export async function getStoriesByUser(req: Request, res: Response, next: NextFu
  */
 export async function getStoryById(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const viewerId = (req as any).user?.userId;
 
     const story = await storyService.getById(id, viewerId);
@@ -90,7 +90,7 @@ export async function createStory(req: Request, res: Response, next: NextFunctio
  */
 export async function viewStory(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = (req as any).user?.userId;
     if (!userId) {
       return res.status(401).json({ error: 'Não autenticado' });
@@ -112,7 +112,7 @@ export async function viewStory(req: Request, res: Response, next: NextFunction)
  */
 export async function deleteStory(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = (req as any).user?.userId;
     if (!userId) {
       return res.status(401).json({ error: 'Não autenticado' });
@@ -137,7 +137,7 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
  */
 export async function getStoryViewers(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = (req as any).user?.userId;
     if (!userId) {
       return res.status(401).json({ error: 'Não autenticado' });

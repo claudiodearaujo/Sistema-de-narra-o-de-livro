@@ -7,7 +7,7 @@ import * as profileService from '../services/profile.service';
  */
 export async function getProfile(req: Request, res: Response): Promise<void> {
   try {
-    const { username } = req.params;
+    const username = req.params.username as string;
     const currentUserId = req.user?.userId;
 
     if (!username) {
@@ -35,7 +35,7 @@ export async function getProfile(req: Request, res: Response): Promise<void> {
  */
 export async function getProfileById(req: Request, res: Response): Promise<void> {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     const currentUserId = req.user?.userId;
 
     if (!userId) {
@@ -120,7 +120,7 @@ export async function updateProfile(req: Request, res: Response): Promise<void> 
  */
 export async function getUserPosts(req: Request, res: Response): Promise<void> {
   try {
-    const { username } = req.params;
+    const username = req.params.username as string;
     const currentUserId = req.user?.userId;
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
@@ -154,7 +154,7 @@ export async function getUserPosts(req: Request, res: Response): Promise<void> {
  */
 export async function getUserBooks(req: Request, res: Response): Promise<void> {
   try {
-    const { username } = req.params;
+    const username = req.params.username as string;
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
 

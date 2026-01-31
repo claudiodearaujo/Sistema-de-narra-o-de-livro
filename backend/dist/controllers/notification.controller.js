@@ -69,7 +69,7 @@ async function markAsRead(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { id } = req.params;
+        const id = req.params.id;
         if (!id) {
             res.status(400).json({ error: 'ID da notificação é obrigatório' });
             return;
@@ -118,7 +118,7 @@ async function deleteNotification(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { id } = req.params;
+        const id = req.params.id;
         if (!id) {
             res.status(400).json({ error: 'ID da notificação é obrigatório' });
             return;

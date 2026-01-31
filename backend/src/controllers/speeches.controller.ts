@@ -5,7 +5,7 @@ import { aiService } from '../ai';
 export class SpeechesController {
     async getByChapterId(req: Request, res: Response) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId as string;
             const speeches = await speechesService.getByChapterId(chapterId);
             res.json(speeches);
         } catch (error: any) {
@@ -15,7 +15,7 @@ export class SpeechesController {
 
     async getById(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const speech = await speechesService.getById(id);
             res.json(speech);
         } catch (error: any) {
@@ -29,7 +29,7 @@ export class SpeechesController {
 
     async create(req: Request, res: Response) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId as string;
             const speech = await speechesService.create({ ...req.body, chapterId });
             res.status(201).json(speech);
         } catch (error: any) {
@@ -39,7 +39,7 @@ export class SpeechesController {
 
     async update(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const speech = await speechesService.update(id, req.body);
             res.json(speech);
         } catch (error: any) {
@@ -53,7 +53,7 @@ export class SpeechesController {
 
     async delete(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const result = await speechesService.delete(id);
             res.json(result);
         } catch (error: any) {
@@ -67,7 +67,7 @@ export class SpeechesController {
 
     async reorder(req: Request, res: Response) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId as string;
             const { orderedIds } = req.body;
             if (!orderedIds || !Array.isArray(orderedIds)) {
                 return res.status(400).json({ error: 'orderedIds array is required' });
@@ -81,7 +81,7 @@ export class SpeechesController {
 
     async bulkCreate(req: Request, res: Response) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId as string;
             const { text, strategy, defaultCharacterId } = req.body;
 
             if (!text || !strategy || !defaultCharacterId) {

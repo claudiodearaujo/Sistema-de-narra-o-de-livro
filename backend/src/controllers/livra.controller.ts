@@ -96,7 +96,7 @@ export async function updateConfig(req: Request, res: Response, next: NextFuncti
  */
 export async function getCost(req: Request, res: Response, next: NextFunction) {
   try {
-    const action = req.params.action?.toUpperCase() as 'TTS' | 'IMAGE' | 'CHARACTER' | 'BOOST';
+    const action = (req.params.action as string)?.toUpperCase() as 'TTS' | 'IMAGE' | 'CHARACTER' | 'BOOST';
     
     if (!['TTS', 'IMAGE', 'CHARACTER', 'BOOST'].includes(action)) {
       return res.status(400).json({ error: 'Invalid action. Must be one of: TTS, IMAGE, CHARACTER, BOOST' });
@@ -175,7 +175,7 @@ export async function getUserBalance(req: Request, res: Response, next: NextFunc
       return res.status(403).json({ error: 'Admin access required' });
     }
 
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     const balance = await livraService.getBalance(userId);
     res.json(balance);
   } catch (error) {
@@ -192,7 +192,7 @@ export async function getUserTransactions(req: Request, res: Response, next: Nex
       return res.status(403).json({ error: 'Admin access required' });
     }
 
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 

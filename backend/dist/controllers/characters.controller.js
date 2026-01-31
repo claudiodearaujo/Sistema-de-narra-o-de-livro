@@ -41,7 +41,7 @@ const path = __importStar(require("path"));
 class CharactersController {
     async getByBookId(req, res) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId;
             console.log(`[Backend] Fetching characters for bookId: ${bookId}`);
             const characters = await characters_service_1.charactersService.getByBookId(bookId);
             console.log(`[Backend] Found ${characters.length} characters`);
@@ -66,7 +66,7 @@ class CharactersController {
     }
     async getById(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const character = await characters_service_1.charactersService.getById(id);
             res.json(character);
         }
@@ -81,7 +81,7 @@ class CharactersController {
     }
     async create(req, res) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId;
             const character = await characters_service_1.charactersService.create({ ...req.body, bookId });
             res.status(201).json(character);
         }
@@ -96,7 +96,7 @@ class CharactersController {
     }
     async update(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const character = await characters_service_1.charactersService.update(id, req.body);
             res.json(character);
         }
@@ -111,7 +111,7 @@ class CharactersController {
     }
     async delete(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const result = await characters_service_1.charactersService.delete(id);
             res.json(result);
         }
@@ -130,7 +130,7 @@ class CharactersController {
      */
     async generatePreviewAudio(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const { forceRegenerate } = req.body;
             // Buscar o personagem
             const character = await characters_service_1.charactersService.getById(id);
@@ -198,7 +198,7 @@ class CharactersController {
      */
     async getPreviewAudio(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const character = await characters_service_1.charactersService.getById(id);
             if (!character) {
                 return res.status(404).json({ error: 'Character not found' });

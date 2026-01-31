@@ -53,7 +53,7 @@ export async function getMessages(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     if (!userId) {
       res.status(400).json({ error: 'ID do usuário é obrigatório' });
       return;
@@ -86,7 +86,7 @@ export async function sendMessage(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { userId: receiverId } = req.params;
+    const { userId: receiverId } = req.params as { userId: string };
     if (!receiverId) {
       res.status(400).json({ error: 'ID do destinatário é obrigatório' });
       return;
@@ -124,7 +124,7 @@ export async function markAsRead(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { userId: otherUserId } = req.params;
+    const { userId: otherUserId } = req.params as { userId: string };
     if (!otherUserId) {
       res.status(400).json({ error: 'ID do usuário é obrigatório' });
       return;
@@ -149,7 +149,7 @@ export async function deleteMessage(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const { messageId } = req.params;
+    const messageId = req.params.messageId as string;
     if (!messageId) {
       res.status(400).json({ error: 'ID da mensagem é obrigatório' });
       return;
@@ -181,7 +181,7 @@ export async function notifyTyping(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { userId: receiverId } = req.params;
+    const { userId: receiverId } = req.params as { userId: string };
     if (!receiverId) {
       res.status(400).json({ error: 'ID do usuário é obrigatório' });
       return;

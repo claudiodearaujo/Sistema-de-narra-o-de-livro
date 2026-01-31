@@ -46,7 +46,7 @@ const profileService = __importStar(require("../services/profile.service"));
  */
 async function getProfile(req, res) {
     try {
-        const { username } = req.params;
+        const username = req.params.username;
         const currentUserId = req.user?.userId;
         if (!username) {
             res.status(400).json({ error: 'Nome de usuário é obrigatório' });
@@ -70,7 +70,7 @@ async function getProfile(req, res) {
  */
 async function getProfileById(req, res) {
     try {
-        const { userId } = req.params;
+        const userId = req.params.userId;
         const currentUserId = req.user?.userId;
         if (!userId) {
             res.status(400).json({ error: 'ID do usuário é obrigatório' });
@@ -142,7 +142,7 @@ async function updateProfile(req, res) {
  */
 async function getUserPosts(req, res) {
     try {
-        const { username } = req.params;
+        const username = req.params.username;
         const currentUserId = req.user?.userId;
         const page = parseInt(req.query.page) || 1;
         const limit = Math.min(parseInt(req.query.limit) || 20, 50);
@@ -171,7 +171,7 @@ async function getUserPosts(req, res) {
  */
 async function getUserBooks(req, res) {
     try {
-        const { username } = req.params;
+        const username = req.params.username;
         const page = parseInt(req.query.page) || 1;
         const limit = Math.min(parseInt(req.query.limit) || 20, 50);
         if (!username) {

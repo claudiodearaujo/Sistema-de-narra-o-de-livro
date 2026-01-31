@@ -15,7 +15,7 @@ async function toggleLike(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { postId } = req.params;
+        const postId = req.params.postId;
         if (!postId) {
             res.status(400).json({ error: 'ID do post é obrigatório' });
             return;
@@ -38,7 +38,7 @@ async function toggleLike(req, res) {
  */
 async function getLikes(req, res) {
     try {
-        const { postId } = req.params;
+        const postId = req.params.postId;
         if (!postId) {
             res.status(400).json({ error: 'ID do post é obrigatório' });
             return;
@@ -63,7 +63,7 @@ async function getLikeStatus(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { postId } = req.params;
+        const postId = req.params.postId;
         if (!postId) {
             res.status(400).json({ error: 'ID do post é obrigatório' });
             return;

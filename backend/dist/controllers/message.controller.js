@@ -58,7 +58,7 @@ async function getMessages(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { userId } = req.params;
+        const userId = req.params.userId;
         if (!userId) {
             res.status(400).json({ error: 'ID do usuário é obrigatório' });
             return;
@@ -147,7 +147,7 @@ async function deleteMessage(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { messageId } = req.params;
+        const messageId = req.params.messageId;
         if (!messageId) {
             res.status(400).json({ error: 'ID da mensagem é obrigatório' });
             return;

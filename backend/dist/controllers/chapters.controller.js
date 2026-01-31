@@ -5,7 +5,7 @@ const chapters_service_1 = require("../services/chapters.service");
 class ChaptersController {
     async getByBookId(req, res) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId;
             const chapters = await chapters_service_1.chaptersService.getByBookId(bookId);
             res.json(chapters);
         }
@@ -18,7 +18,7 @@ class ChaptersController {
     }
     async getById(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const chapter = await chapters_service_1.chaptersService.getById(id);
             res.json(chapter);
         }
@@ -36,7 +36,7 @@ class ChaptersController {
     }
     async create(req, res) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId;
             const chapter = await chapters_service_1.chaptersService.create(bookId, req.body);
             res.status(201).json(chapter);
         }
@@ -57,7 +57,7 @@ class ChaptersController {
     }
     async update(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const chapter = await chapters_service_1.chaptersService.update(id, req.body);
             res.json(chapter);
         }
@@ -78,7 +78,7 @@ class ChaptersController {
     }
     async delete(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const result = await chapters_service_1.chaptersService.delete(id);
             res.json(result);
         }
@@ -99,7 +99,7 @@ class ChaptersController {
     }
     async reorder(req, res) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId;
             const { orderedIds } = req.body;
             if (!Array.isArray(orderedIds)) {
                 return res.status(400).json({ error: 'orderedIds must be an array' });

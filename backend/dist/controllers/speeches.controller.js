@@ -6,7 +6,7 @@ const ai_1 = require("../ai");
 class SpeechesController {
     async getByChapterId(req, res) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId;
             const speeches = await speeches_service_1.speechesService.getByChapterId(chapterId);
             res.json(speeches);
         }
@@ -16,7 +16,7 @@ class SpeechesController {
     }
     async getById(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const speech = await speeches_service_1.speechesService.getById(id);
             res.json(speech);
         }
@@ -31,7 +31,7 @@ class SpeechesController {
     }
     async create(req, res) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId;
             const speech = await speeches_service_1.speechesService.create({ ...req.body, chapterId });
             res.status(201).json(speech);
         }
@@ -41,7 +41,7 @@ class SpeechesController {
     }
     async update(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const speech = await speeches_service_1.speechesService.update(id, req.body);
             res.json(speech);
         }
@@ -56,7 +56,7 @@ class SpeechesController {
     }
     async delete(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const result = await speeches_service_1.speechesService.delete(id);
             res.json(result);
         }
@@ -71,7 +71,7 @@ class SpeechesController {
     }
     async reorder(req, res) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId;
             const { orderedIds } = req.body;
             if (!orderedIds || !Array.isArray(orderedIds)) {
                 return res.status(400).json({ error: 'orderedIds array is required' });
@@ -85,7 +85,7 @@ class SpeechesController {
     }
     async bulkCreate(req, res) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId;
             const { text, strategy, defaultCharacterId } = req.body;
             if (!text || !strategy || !defaultCharacterId) {
                 return res.status(400).json({ error: 'Text, strategy, and defaultCharacterId are required' });

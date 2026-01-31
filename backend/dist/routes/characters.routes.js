@@ -12,7 +12,7 @@ const router = (0, express_1.Router)();
 // Book-related character routes
 router.get('/books/:bookId/characters', middleware_1.optionalAuth, characters_controller_1.charactersController.getByBookId);
 router.post('/books/:bookId/characters', middleware_1.authenticate, middleware_1.requireWriter, (0, middleware_2.checkLimit)('maxCharactersPerBook', async (req) => {
-    const { bookId } = req.params;
+    const bookId = req.params.bookId;
     return prisma_1.default.character.count({ where: { bookId } });
 }), characters_controller_1.charactersController.create);
 // Character-specific routes

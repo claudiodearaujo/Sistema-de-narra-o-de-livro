@@ -18,7 +18,7 @@ async function toggleFollow(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { userId } = req.params;
+        const userId = req.params.userId;
         if (!userId) {
             res.status(400).json({ error: 'ID do usuário é obrigatório' });
             return;
@@ -44,7 +44,7 @@ async function toggleFollow(req, res) {
  */
 async function getFollowers(req, res) {
     try {
-        const { userId } = req.params;
+        const userId = req.params.userId;
         if (!userId) {
             res.status(400).json({ error: 'ID do usuário é obrigatório' });
             return;
@@ -65,7 +65,7 @@ async function getFollowers(req, res) {
  */
 async function getFollowing(req, res) {
     try {
-        const { userId } = req.params;
+        const userId = req.params.userId;
         if (!userId) {
             res.status(400).json({ error: 'ID do usuário é obrigatório' });
             return;
@@ -91,7 +91,7 @@ async function getFollowStatus(req, res) {
             res.status(401).json({ error: 'Autenticação necessária' });
             return;
         }
-        const { userId } = req.params;
+        const userId = req.params.userId;
         if (!userId) {
             res.status(400).json({ error: 'ID do usuário é obrigatório' });
             return;
@@ -109,7 +109,7 @@ async function getFollowStatus(req, res) {
  */
 async function getFollowCounts(req, res) {
     try {
-        const { userId } = req.params;
+        const userId = req.params.userId;
         if (!userId) {
             res.status(400).json({ error: 'ID do usuário é obrigatório' });
             return;

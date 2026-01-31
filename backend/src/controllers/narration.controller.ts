@@ -4,7 +4,7 @@ import { narrationService } from '../services/narration.service';
 export class NarrationController {
     async startNarration(req: Request, res: Response) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId as string;
             const result = await narrationService.startNarration(chapterId);
             res.json(result);
         } catch (error: any) {
@@ -14,7 +14,7 @@ export class NarrationController {
 
     async getNarrationStatus(req: Request, res: Response) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId as string;
             const status = await narrationService.getNarrationStatus(chapterId);
             res.json(status);
         } catch (error: any) {
@@ -24,7 +24,7 @@ export class NarrationController {
 
     async cancelNarration(req: Request, res: Response) {
         try {
-            const { chapterId } = req.params;
+            const chapterId = req.params.chapterId as string;
             const result = await narrationService.cancelNarration(chapterId);
             res.json(result);
         } catch (error: any) {

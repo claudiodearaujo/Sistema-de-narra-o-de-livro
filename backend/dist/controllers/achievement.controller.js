@@ -31,7 +31,7 @@ exports.getAllAchievements = getAllAchievements;
  */
 const getUserAchievements = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.params.userId;
         const achievements = await achievement_service_1.achievementService.getAchievementsByUserId(userId);
         const stats = await achievement_service_1.achievementService.getAchievementStats(userId);
         res.json({

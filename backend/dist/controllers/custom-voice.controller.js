@@ -57,7 +57,7 @@ class CustomVoiceController {
     // Buscar voz por ID
     async getById(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const voice = await prisma_1.default.customVoice.findUnique({
                 where: { id }
             });
@@ -73,7 +73,7 @@ class CustomVoiceController {
     // Atualizar voz
     async update(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const { name, gender, languageCode, description, voiceId, isActive } = req.body;
             const voice = await prisma_1.default.customVoice.update({
                 where: { id },
@@ -98,7 +98,7 @@ class CustomVoiceController {
     // Deletar voz (soft delete - apenas desativa)
     async delete(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const voice = await prisma_1.default.customVoice.update({
                 where: { id },
                 data: { isActive: false }
@@ -115,7 +115,7 @@ class CustomVoiceController {
     // Deletar permanentemente
     async hardDelete(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             await prisma_1.default.customVoice.delete({
                 where: { id }
             });

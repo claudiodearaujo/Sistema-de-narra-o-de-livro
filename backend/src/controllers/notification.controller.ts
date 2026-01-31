@@ -66,7 +66,7 @@ export async function markAsRead(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     if (!id) {
       res.status(400).json({ error: 'ID da notificação é obrigatório' });
       return;
@@ -117,7 +117,7 @@ export async function deleteNotification(req: Request, res: Response): Promise<v
       return;
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     if (!id) {
       res.status(400).json({ error: 'ID da notificação é obrigatório' });
       return;

@@ -116,7 +116,7 @@ export async function getExplore(req: Request, res: Response): Promise<void> {
  */
 export async function getPostById(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.user?.userId;
 
     const post = await postService.getById(id, userId);
@@ -138,7 +138,7 @@ export async function getPostById(req: Request, res: Response): Promise<void> {
  */
 export async function getPostsByUser(req: Request, res: Response): Promise<void> {
   try {
-    const { userId: targetUserId } = req.params;
+    const { userId: targetUserId } = req.params as { userId: string };
     const currentUserId = req.user?.userId;
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
@@ -166,7 +166,7 @@ export async function getPostsByUser(req: Request, res: Response): Promise<void>
  */
 export async function deletePost(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.user?.userId;
     const isAdmin = req.user?.role === 'ADMIN';
 
@@ -235,7 +235,7 @@ export async function sharePost(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { content } = req.body;
 
     const post = await postService.share(userId, id, { content });
@@ -286,7 +286,7 @@ export async function getTrending(req: Request, res: Response): Promise<void> {
  */
 export async function getPostStats(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const stats = await postService.getPostStats(id);
 

@@ -12,7 +12,7 @@ export async function toggleLike(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { postId } = req.params;
+    const postId = req.params.postId as string;
     if (!postId) {
       res.status(400).json({ error: 'ID do post é obrigatório' });
       return;
@@ -36,7 +36,7 @@ export async function toggleLike(req: Request, res: Response): Promise<void> {
  */
 export async function getLikes(req: Request, res: Response): Promise<void> {
   try {
-    const { postId } = req.params;
+    const postId = req.params.postId as string;
     if (!postId) {
       res.status(400).json({ error: 'ID do post é obrigatório' });
       return;
@@ -64,7 +64,7 @@ export async function getLikeStatus(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const { postId } = req.params;
+    const postId = req.params.postId as string;
     if (!postId) {
       res.status(400).json({ error: 'ID do post é obrigatório' });
       return;

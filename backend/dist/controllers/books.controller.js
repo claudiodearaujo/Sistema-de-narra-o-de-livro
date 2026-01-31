@@ -22,7 +22,7 @@ class BooksController {
     }
     async getById(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const book = await books_service_1.booksService.getById(id);
             res.json(book);
         }
@@ -59,7 +59,7 @@ class BooksController {
     }
     async update(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const userId = req.user?.userId;
             const book = await books_service_1.booksService.update(id, req.body, userId);
             res.json(book);
@@ -85,7 +85,7 @@ class BooksController {
     }
     async delete(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const userId = req.user?.userId;
             const result = await books_service_1.booksService.delete(id, userId);
             res.json(result);
@@ -107,7 +107,7 @@ class BooksController {
     }
     async getStats(req, res) {
         try {
-            const { id } = req.params;
+            const id = req.params.id;
             const stats = await books_service_1.booksService.getStats(id);
             res.json(stats);
         }
