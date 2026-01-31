@@ -162,6 +162,9 @@ model User {
   // Stories relations
   stories           Story[]
   storyViews        StoryView[]
+  
+  // Audit relations
+  auditLogs         AuditLog[]
 
   @@map("users")
 }
@@ -759,4 +762,196 @@ model StoryView {
 
   @@unique([storyId, userId])
   @@map("story_views")
+}
+
+// ========== AUDIT LOGGING MODELS ==========
+
+enum AuditAction {
+  // Autenticacao
+  AUTH_LOGIN
+  AUTH_LOGIN_FAILED
+  AUTH_LOGOUT
+  AUTH_LOGOUT_ALL
+  AUTH_SIGNUP
+  AUTH_TOKEN_REFRESH
+  AUTH_PASSWORD_CHANGE
+  AUTH_PASSWORD_RESET_REQUEST
+  AUTH_PASSWORD_RESET_COMPLETE
+  AUTH_EMAIL_VERIFY
+
+  // Livros
+  BOOK_CREATE
+  BOOK_UPDATE
+  BOOK_DELETE
+  BOOK_VIEW
+
+  // Capitulos
+  CHAPTER_CREATE
+  CHAPTER_UPDATE
+  CHAPTER_DELETE
+  CHAPTER_REORDER
+
+  // Personagens
+  CHARACTER_CREATE
+  CHARACTER_UPDATE
+  CHARACTER_DELETE
+
+  // Falas / Dialogos
+  SPEECH_CREATE
+  SPEECH_UPDATE
+  SPEECH_DELETE
+
+  // Narracao e Audio
+  NARRATION_START
+  NARRATION_COMPLETE
+  NARRATION_FAIL
+  AUDIO_GENERATE
+  AUDIO_DELETE
+
+  // Social - Posts
+  POST_CREATE
+  POST_UPDATE
+  POST_DELETE
+
+  // Social - Comentarios
+  COMMENT_CREATE
+  COMMENT_DELETE
+
+  // Social - Interacoes
+  LIKE_TOGGLE
+  FOLLOW_TOGGLE
+
+  // Mensagens
+  MESSAGE_SEND
+  MESSAGE_DELETE
+
+  // Perfil
+  PROFILE_UPDATE
+  AVATAR_UPLOAD
+
+  // Grupos
+  GROUP_CREATE
+  GROUP_UPDATE
+  GROUP_DELETE
+  GROUP_JOIN
+  GROUP_LEAVE
+  GROUP_MEMBER_ROLE_CHANGE
+  GROUP_MEMBER_REMOVE
+
+  // Campanhas
+  CAMPAIGN_CREATE
+  CAMPAIGN_UPDATE
+  CAMPAIGN_DELETE
+  CAMPAIGN_JOIN
+
+  // Stories
+  STORY_CREATE
+  STORY_DELETE
+
+  // Financeiro / Assinatura
+  SUBSCRIPTION_CREATE
+  SUBSCRIPTION_CANCEL
+  SUBSCRIPTION_UPGRADE
+  SUBSCRIPTION_DOWNGRADE
+  LIVRA_PURCHASE
+  LIVRA_SPEND
+  LIVRA_EARN
+
+  // AI
+  AI_TEXT_GENERATE
+  AI_IMAGE_GENERATE
+  AI_TTS_GENERATE
+
+  // Admin
+  ADMIN_USER_BAN
+  ADMIN_USER_UNBAN
+  ADMIN_USER_ROLE_CHANGE
+  ADMIN_CONTENT_REMOVE
+  ADMIN_CONFIG_CHANGE
+
+  // Sistema
+  RATE_LIMIT_EXCEEDED
+  PERMISSION_DENIED
+  PLAN_LIMIT_REACHED
+}
+
+enum AuditCategory {
+  AUTH
+  BOOK
+  CHAPTER
+  CHARACTER
+  SPEECH
+  NARRATION
+  SOCIAL
+  MESSAGE
+  PROFILE
+  GROUP
+  CAMPAIGN
+  STORY
+  FINANCIAL
+  AI
+  ADMIN
+  SYSTEM
+}
+
+enum AuditSeverity {
+  LOW        // Acoes de leitura, visualizacao
+  MEDIUM     // Acoes de criacao e edicao
+  HIGH       // Acoes de delecao, mudanca de senha
+  CRITICAL   // Acoes admin, financeiras, falhas de seguranca
+}
+
+model AuditLog {
+  id          String         @id @default(uuid())
+
+  // Quem
+  userId      String?        // Null para acoes anonimas (login falho)
+  user        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail   String?        // Snapshot do email no momento da acao
+  userRole    UserRole?      // Snapshot do role no momento da acao
+
+  // O que
+  action      AuditAction
+  category    AuditCategory
+  severity    AuditSeverity  @default(MEDIUM)
+
+  // Onde
+  resource    String?        // Tipo do recurso: "Book", "Chapter", "Post", etc.
+  resourceId  String?        // ID do recurso afetado
+
+  // Como
+  method      String?        // HTTP method: GET, POST, PUT, DELETE
+  endpoint    String?        // Rota da API: /api/books/:id
+  statusCode  Int?           // HTTP status code da resposta
+
+  // Detalhes
+  metadata    Json?          // Dados adicionais (campos alterados, valores anteriores)
+  description String?        // Descricao legivel da acao
+
+  // Contexto de rede
+  ipAddress   String?
+  userAgent   String?
+  sessionId   String?        // ID da sessao/refresh token
+
+  // Resultado
+  success     Boolean        @default(true)
+  errorMessage String?       // Mensagem de erro se success = false
+
+  // Tempo
+  duration    Int?           // Duracao da operacao em ms
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([action])
+  @@index([category])
+  @@index([severity])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+  @@index([success])
+  @@index([ipAddress])
+  @@index([userId, createdAt])
+  @@index([category, createdAt])
+  @@index([action, createdAt])
+
+  @@map("audit_logs")
 }

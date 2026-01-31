@@ -41,3 +41,9 @@ export {
   getRateLimitInfo,
   RATE_LIMITS
 } from './rate-limit.middleware';
+
+// Audit logging middleware
+export {
+  auditContext
+} from './audit.middleware';
+

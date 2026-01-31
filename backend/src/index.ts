@@ -28,6 +28,7 @@ import groupRoutes from './routes/group.routes';
 import campaignRoutes from './routes/campaign.routes';
 import storyRoutes from './routes/story.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
+import { auditContext } from './middleware';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
 import './queues/narration.processor';
@@ -63,6 +64,9 @@ const corsOptions: cors.CorsOptions = {
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
+
+// Audit context middleware - MUST be first to capture all request data
+app.use(auditContext());
 
 app.use(cors(corsOptions));
 app.use(express.json());

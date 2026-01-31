@@ -20,6 +20,7 @@ const client_1 = require("@prisma/client");
 const password_utils_1 = require("../utils/password.utils");
 const jwt_utils_1 = require("../utils/jwt.utils");
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const audit_service_1 = require("./audit.service");
 // Helper to sanitize user (remove sensitive fields)
 function sanitizeUser(user) {
     const { password, verifyToken, resetToken, resetExpires, verifyExpires, ...sanitized } = user;
@@ -37,7 +38,7 @@ function createTokenPayload(user) {
  * Register a new user
  */
 async function signup(input) {
-    const { name, email, password, username } = input;
+    const { name, email, password, username, ipAddress } = input;
     // Check if email already exists
     const existingEmail = await prisma_1.default.user.findUnique({ where: { email } });
     if (existingEmail) {
@@ -77,6 +78,9 @@ async function signup(input) {
             expiresAt: (0, jwt_utils_1.getRefreshTokenExpiresAt)()
         }
     });
+    // Audit log - fire and forget
+    audit_service_1.auditService.logSignup(user.id, user.email, ipAddress || 'unknown')
+        .catch(err => console.error('[AUDIT]', err));
     return {
         user: sanitizeUser(user),
         accessToken,
@@ -88,44 +92,58 @@ async function signup(input) {
  * Login user
  */
 async function login(input) {
-    const { email, password } = input;
+    const { email, password, ipAddress, userAgent } = input;
     console.log('[AUTH] Login attempt for email:', email);
-    // Find user
-    const user = await prisma_1.default.user.findUnique({ where: { email } });
-    if (!user) {
-        throw new Error('Credenciais inválidas');
-    }
-    console.log('[AUTH] User found:', user.id);
-    // Check if user has password (local auth)
-    if (!user.password) {
-        throw new Error('Esta conta usa login social. Use o botão correspondente.');
-    }
-    // Verify password
-    const isValidPassword = await (0, password_utils_1.comparePassword)(password, user.password);
-    if (!isValidPassword) {
-        throw new Error('Credenciais inválidas');
-    }
-    // Generate tokens
-    const payload = createTokenPayload(user);
-    console.log('create token payload for user:', payload);
-    const accessToken = (0, jwt_utils_1.generateAccessToken)(payload);
-    console.log('generate access token:', accessToken);
-    const refreshToken = (0, jwt_utils_1.generateRefreshToken)(payload);
-    console.log('generate refresh token:', refreshToken);
-    // Store refresh token
-    await prisma_1.default.refreshToken.create({
-        data: {
-            token: refreshToken,
-            userId: user.id,
-            expiresAt: (0, jwt_utils_1.getRefreshTokenExpiresAt)()
+    try {
+        // Find user
+        const user = await prisma_1.default.user.findUnique({ where: { email } });
+        if (!user) {
+            // Audit log - login failed
+            audit_service_1.auditService.logLoginFailed(email, ipAddress || 'unknown', userAgent || 'unknown', 'Usuário não encontrado').catch(err => console.error('[AUDIT]', err));
+            throw new Error('Credenciais inválidas');
         }
-    });
-    return {
-        user: sanitizeUser(user),
-        accessToken,
-        refreshToken,
-        expiresIn: 3600
-    };
+        console.log('[AUTH] User found:', user.id);
+        // Check if user has password (local auth)
+        if (!user.password) {
+            // Audit log - login failed
+            audit_service_1.auditService.logLoginFailed(email, ipAddress || 'unknown', userAgent || 'unknown', 'Conta usa login social').catch(err => console.error('[AUDIT]', err));
+            throw new Error('Esta conta usa login social. Use o botão correspondente.');
+        }
+        // Verify password
+        const isValidPassword = await (0, password_utils_1.comparePassword)(password, user.password);
+        if (!isValidPassword) {
+            // Audit log - login failed
+            audit_service_1.auditService.logLoginFailed(email, ipAddress || 'unknown', userAgent || 'unknown', 'Senha incorreta').catch(err => console.error('[AUDIT]', err));
+            throw new Error('Credenciais inválidas');
+        }
+        // Generate tokens
+        const payload = createTokenPayload(user);
+        console.log('create token payload for user:', payload);
+        const accessToken = (0, jwt_utils_1.generateAccessToken)(payload);
+        console.log('generate access token:', accessToken);
+        const refreshToken = (0, jwt_utils_1.generateRefreshToken)(payload);
+        console.log('generate refresh token:', refreshToken);
+        // Store refresh token
+        await prisma_1.default.refreshToken.create({
+            data: {
+                token: refreshToken,
+                userId: user.id,
+                expiresAt: (0, jwt_utils_1.getRefreshTokenExpiresAt)()
+            }
+        });
+        // Audit log - login success
+        audit_service_1.auditService.logLogin(user.id, user.email, ipAddress || 'unknown', userAgent || 'unknown').catch(err => console.error('[AUDIT]', err));
+        return {
+            user: sanitizeUser(user),
+            accessToken,
+            refreshToken,
+            expiresIn: 3600
+        };
+    }
+    catch (error) {
+        // Re-throw the error after logging
+        throw error;
+    }
 }
 /**
  * Refresh access token
@@ -173,18 +191,34 @@ async function refreshAccessToken(refreshToken) {
 /**
  * Logout user (invalidate refresh token)
  */
-async function logout(refreshToken) {
+async function logout(refreshToken, userId, email) {
     await prisma_1.default.refreshToken.deleteMany({
         where: { token: refreshToken }
     });
+    // Audit log - logout
+    if (userId && email) {
+        audit_service_1.auditService.logLogout(userId, email)
+            .catch(err => console.error('[AUDIT]', err));
+    }
 }
 /**
  * Logout from all devices
  */
-async function logoutAll(userId) {
+async function logoutAll(userId, email) {
     await prisma_1.default.refreshToken.deleteMany({
         where: { userId }
     });
+    // Audit log - logout all (if called explicitly, not from password change)
+    if (email) {
+        audit_service_1.auditService.log({
+            userId,
+            userEmail: email,
+            action: 'AUTH_LOGOUT_ALL',
+            category: 'AUTH',
+            severity: 'MEDIUM',
+            description: `Usuário ${email} fez logout de todos os dispositivos`,
+        }).catch(err => console.error('[AUDIT]', err));
+    }
 }
 /**
  * Get user profile
@@ -238,13 +272,16 @@ async function changePassword(userId, input) {
         where: { id: userId },
         data: { password: hashedPassword }
     });
+    // Audit log - password change
+    audit_service_1.auditService.logPasswordChange(userId, user.email)
+        .catch(err => console.error('[AUDIT]', err));
     // Invalidate all refresh tokens (security measure)
     await logoutAll(userId);
 }
 /**
  * Request password reset
  */
-async function requestPasswordReset(email) {
+async function requestPasswordReset(email, ipAddress) {
     const user = await prisma_1.default.user.findUnique({ where: { email } });
     // Always return success to prevent email enumeration
     if (!user) {
@@ -257,6 +294,9 @@ async function requestPasswordReset(email) {
         where: { id: user.id },
         data: { resetToken, resetExpires }
     });
+    // Audit log - password reset request
+    audit_service_1.auditService.logPasswordResetRequest(email, ipAddress || 'unknown')
+        .catch(err => console.error('[AUDIT]', err));
     // TODO: Send email with reset link
     // await sendPasswordResetEmail(email, resetToken);
     console.log(`[AUTH] Password reset token for ${email}: ${resetToken}`);
@@ -284,6 +324,9 @@ async function resetPassword(token, newPassword) {
             resetExpires: null
         }
     });
+    // Audit log - password reset complete
+    audit_service_1.auditService.logPasswordResetComplete(user.id, user.email)
+        .catch(err => console.error('[AUDIT]', err));
     // Invalidate all refresh tokens
     await logoutAll(user.id);
 }

@@ -33,6 +33,7 @@ const group_routes_1 = __importDefault(require("./routes/group.routes"));
 const campaign_routes_1 = __importDefault(require("./routes/campaign.routes"));
 const story_routes_1 = __importDefault(require("./routes/story.routes"));
 const websocket_server_1 = require("./websocket/websocket.server");
+const middleware_1 = require("./middleware");
 // Initialize Redis queues (if enabled)
 require("./queues/narration.queue");
 require("./queues/narration.processor");
@@ -65,6 +66,8 @@ const corsOptions = {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
+// Audit context middleware - MUST be first to capture all request data
+app.use((0, middleware_1.auditContext)());
 app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
 // Servir arquivos estáticos (áudios gerados)
