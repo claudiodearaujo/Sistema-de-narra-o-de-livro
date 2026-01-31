@@ -7,6 +7,7 @@ exports.groupService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const notification_service_1 = require("./notification.service");
 const achievement_service_1 = require("./achievement.service");
+const audit_service_1 = require("./audit.service");
 // Include para grupos
 const groupInclude = {
     owner: {
@@ -156,7 +157,7 @@ class GroupService {
     /**
      * Cria um novo grupo
      */
-    async create(userId, data) {
+    async create(userId, data, userEmail) {
         if (!data.name || data.name.trim().length === 0) {
             throw new Error('O nome do grupo é obrigatório');
         }
@@ -186,6 +187,20 @@ class GroupService {
             });
             return newGroup;
         });
+        // Audit log - group created
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'GROUP_CREATE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Group',
+                resourceId: group.id,
+                description: `Grupo criado pelo usuário`,
+                metadata: { name: group.name, privacy: group.privacy }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         // Verificar conquista de grupos (criar também conta como participar)
         await achievement_service_1.achievementService.checkAndUnlock(userId, 'groups_joined');
         return group;
@@ -193,9 +208,14 @@ class GroupService {
     /**
      * Atualiza um grupo
      */
-    async update(groupId, userId, data) {
+    async update(groupId, userId, data, userEmail) {
         // Verificar permissão
         await this.checkPermission(groupId, userId, ['OWNER', 'ADMIN']);
+        // Get current state for audit
+        const currentGroup = await prisma_1.default.group.findUnique({
+            where: { id: groupId },
+            select: { name: true, privacy: true, description: true }
+        });
         const group = await prisma_1.default.group.update({
             where: { id: groupId },
             data: {
@@ -206,16 +226,38 @@ class GroupService {
             },
             include: groupInclude,
         });
+        // Audit log - group updated
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'GROUP_UPDATE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Group',
+                resourceId: groupId,
+                description: `Grupo atualizado pelo usuário`,
+                metadata: {
+                    changes: Object.keys(data),
+                    before: currentGroup,
+                    after: {
+                        name: group.name,
+                        privacy: group.privacy,
+                        description: group.description
+                    }
+                }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         return group;
     }
     /**
      * Deleta um grupo
      */
-    async delete(groupId, userId) {
+    async delete(groupId, userId, userEmail) {
         // Verificar se é owner
         const group = await prisma_1.default.group.findUnique({
             where: { id: groupId },
-            select: { ownerId: true },
+            select: { ownerId: true, name: true },
         });
         if (!group) {
             throw new Error('Grupo não encontrado');
@@ -226,14 +268,28 @@ class GroupService {
         await prisma_1.default.group.delete({
             where: { id: groupId },
         });
+        // Audit log - group deleted
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'GROUP_DELETE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Group',
+                resourceId: groupId,
+                description: `Grupo deletado pelo usuário`,
+                metadata: { name: group.name }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
     }
     /**
      * Entrar em um grupo
      */
-    async join(groupId, userId) {
+    async join(groupId, userId, userEmail) {
         const group = await prisma_1.default.group.findUnique({
             where: { id: groupId },
-            select: { id: true, privacy: true, ownerId: true },
+            select: { id: true, privacy: true, ownerId: true, name: true },
         });
         if (!group) {
             throw new Error('Grupo não encontrado');
@@ -263,6 +319,20 @@ class GroupService {
                 data: { memberCount: { increment: 1 } },
             }),
         ]);
+        // Audit log - group join
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'GROUP_JOIN',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Group',
+                resourceId: groupId,
+                description: `Usuário entrou no grupo`,
+                metadata: { name: group.name }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         // Verificar conquista de entrar em grupo
         await achievement_service_1.achievementService.checkAndUnlock(userId, 'groups_joined');
         // Notificar owner
@@ -278,10 +348,10 @@ class GroupService {
     /**
      * Sair de um grupo
      */
-    async leave(groupId, userId) {
+    async leave(groupId, userId, userEmail) {
         const group = await prisma_1.default.group.findUnique({
             where: { id: groupId },
-            select: { ownerId: true },
+            select: { ownerId: true, name: true },
         });
         if (!group) {
             throw new Error('Grupo não encontrado');
@@ -304,6 +374,20 @@ class GroupService {
                 data: { memberCount: { decrement: 1 } },
             }),
         ]);
+        // Audit log - group leave
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'GROUP_LEAVE',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Group',
+                resourceId: groupId,
+                description: `Usuário saiu do grupo`,
+                metadata: { name: group.name }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
     }
     /**
      * Lista membros do grupo
@@ -335,12 +419,12 @@ class GroupService {
     /**
      * Atualiza role de um membro
      */
-    async updateMemberRole(groupId, targetUserId, newRole, actorUserId) {
+    async updateMemberRole(groupId, targetUserId, newRole, actorUserId, actorUserEmail) {
         // Verificar permissão do ator
         await this.checkPermission(groupId, actorUserId, ['OWNER', 'ADMIN']);
         const group = await prisma_1.default.group.findUnique({
             where: { id: groupId },
-            select: { ownerId: true },
+            select: { ownerId: true, name: true },
         });
         if (!group) {
             throw new Error('Grupo não encontrado');
@@ -364,6 +448,7 @@ class GroupService {
             actorMembership?.role !== 'OWNER') {
             throw new Error('Apenas o dono pode promover para Admin ou Owner');
         }
+        const previousRole = targetMembership.role;
         // Se promovendo para OWNER, transferir propriedade
         if (newRole === 'OWNER') {
             await prisma_1.default.$transaction([
@@ -390,6 +475,25 @@ class GroupService {
                 data: { role: newRole },
             });
         }
+        // Audit log - member role updated
+        if (actorUserEmail) {
+            audit_service_1.auditService.log({
+                userId: actorUserId,
+                userEmail: actorUserEmail,
+                action: 'GROUP_MEMBER_ROLE_UPDATE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Group',
+                resourceId: groupId,
+                description: `Role de membro atualizada no grupo`,
+                metadata: {
+                    targetUserId,
+                    previousRole,
+                    newRole,
+                    groupName: group.name
+                }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         const updatedMember = await prisma_1.default.groupMember.findUnique({
             where: { groupId_userId: { groupId, userId: targetUserId } },
             include: memberInclude,
@@ -399,12 +503,12 @@ class GroupService {
     /**
      * Remove um membro do grupo
      */
-    async removeMember(groupId, targetUserId, actorUserId) {
+    async removeMember(groupId, targetUserId, actorUserId, actorUserEmail) {
         // Verificar permissão
         await this.checkPermission(groupId, actorUserId, ['OWNER', 'ADMIN', 'MODERATOR']);
         const group = await prisma_1.default.group.findUnique({
             where: { id: groupId },
-            select: { ownerId: true },
+            select: { ownerId: true, name: true },
         });
         if (!group) {
             throw new Error('Grupo não encontrado');
@@ -439,6 +543,20 @@ class GroupService {
                 data: { memberCount: { decrement: 1 } },
             }),
         ]);
+        // Audit log - member removed
+        if (actorUserEmail) {
+            audit_service_1.auditService.log({
+                userId: actorUserId,
+                userEmail: actorUserEmail,
+                action: 'GROUP_MEMBER_REMOVE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Group',
+                resourceId: groupId,
+                description: `Membro removido do grupo`,
+                metadata: { targetUserId, groupName: group.name }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
     }
     /**
      * Verifica permissão do usuário no grupo

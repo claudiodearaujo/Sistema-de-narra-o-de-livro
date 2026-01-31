@@ -8,6 +8,7 @@ import { SubscriptionPlan, SubscriptionStatus, UserRole } from '@prisma/client';
 import prisma from '../lib/prisma';
 import { stripeService } from './stripe.service';
 import { livraService } from './livra.service';
+import { auditService } from './audit.service';
 
 export interface SubscriptionDto {
   id: string;
@@ -145,6 +146,22 @@ class SubscriptionService {
    */
   async cancelSubscription(userId: string, idempotencyKey?: string): Promise<void> {
     await stripeService.cancelSubscription(userId, idempotencyKey);
+    
+    // Audit log - cancel intent
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+    if (user) {
+      auditService.log({
+        userId,
+        userEmail: user.email,
+        action: 'SUBSCRIPTION_CANCEL_REQUEST' as any,
+        category: 'SUBSCRIPTION' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Subscription',
+        resourceId: userId,
+        description: `Usuário solicitou cancelamento da assinatura`,
+        metadata: { idempotencyKey }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**
@@ -152,6 +169,22 @@ class SubscriptionService {
    */
   async resumeSubscription(userId: string, idempotencyKey?: string): Promise<void> {
     await stripeService.resumeSubscription(userId, idempotencyKey);
+
+    // Audit log - resume intent
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+    if (user) {
+      auditService.log({
+        userId,
+        userEmail: user.email,
+        action: 'SUBSCRIPTION_RESUME_REQUEST' as any,
+        category: 'SUBSCRIPTION' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Subscription',
+        resourceId: userId,
+        description: `Usuário reativou a assinatura cancelada`,
+        metadata: { idempotencyKey }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**
@@ -165,7 +198,7 @@ class SubscriptionService {
     const plan = stripeService.mapStripePlanToLocal(priceId);
     const stripeSubscription = await stripeService.getStripeSubscription(stripeSubscriptionId);
 
-    await prisma.subscription.upsert({
+    const subscription = await prisma.subscription.upsert({
       where: { userId },
       create: {
         userId,
@@ -197,10 +230,26 @@ class SubscriptionService {
 
     // Update user role based on plan
     const role = this.mapPlanToRole(plan);
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: userId },
       data: { role },
+      select: { email: true }
     });
+
+    // Audit log - subscription activated
+    if (user) {
+      auditService.log({
+        userId,
+        userEmail: user.email,
+        action: 'SUBSCRIPTION_ACTIVATE' as any,
+        category: 'SUBSCRIPTION' as any,
+        severity: 'HIGH' as any,
+        resource: 'Subscription',
+        resourceId: subscription.id,
+        description: `Assinatura ativada para o plano ${plan}`,
+        metadata: { plan, stripeSubscriptionId, priceId }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
 
     // Give monthly Livras bonus
     const monthlyLivras = PLAN_FEATURES[plan].monthlyLivras;
@@ -235,6 +284,7 @@ class SubscriptionService {
 
     const plan = stripeService.mapStripePlanToLocal(priceId);
     const localStatus = stripeService.mapStripeStatusToLocal(status);
+    const previousPlan = subscription.plan;
 
     await prisma.subscription.update({
       where: { id: subscription.id },
@@ -250,10 +300,31 @@ class SubscriptionService {
 
     // Update user role
     const role = localStatus === 'ACTIVE' ? this.mapPlanToRole(plan) : 'USER';
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: subscription.userId },
       data: { role },
+      select: { email: true }
     });
+
+    // Audit log - subscription updated
+    if (user) {
+      auditService.log({
+        userId: subscription.userId,
+        userEmail: user.email,
+        action: 'SUBSCRIPTION_UPDATE' as any,
+        category: 'SUBSCRIPTION' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Subscription',
+        resourceId: subscription.id,
+        description: `Assinatura atualizada: plano ${plan}, status ${localStatus}`,
+        metadata: { 
+          previousPlan, 
+          newPlan: plan, 
+          status: localStatus,
+          cancelAtPeriodEnd 
+        }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**
@@ -281,10 +352,26 @@ class SubscriptionService {
     });
 
     // Downgrade user role
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: subscription.userId },
       data: { role: 'USER' },
+      select: { email: true }
     });
+
+    // Audit log - subscription cancelled
+    if (user) {
+      auditService.log({
+        userId: subscription.userId,
+        userEmail: user.email,
+        action: 'SUBSCRIPTION_CANCEL' as any,
+        category: 'SUBSCRIPTION' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Subscription',
+        resourceId: subscription.id,
+        description: `Assinatura cancelada`,
+        metadata: { stripeSubscriptionId }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**
@@ -315,6 +402,22 @@ class SubscriptionService {
         },
       });
     }
+
+    // Audit log - subscription renewal
+    const user = await prisma.user.findUnique({ where: { id: subscription.userId }, select: { email: true } });
+    if (user) {
+      auditService.log({
+        userId: subscription.userId,
+        userEmail: user.email,
+        action: 'SUBSCRIPTION_RENEWAL' as any,
+        category: 'SUBSCRIPTION' as any,
+        severity: 'LOW' as any,
+        resource: 'Subscription',
+        resourceId: subscription.id,
+        description: `Fatura paga - Assinatura renovada`,
+        metadata: { plan: subscription.plan, stripeSubscriptionId }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**
@@ -326,6 +429,22 @@ class SubscriptionService {
       amount: livraAmount,
       metadata: { reason: 'livra_package_purchase' },
     });
+
+    // Audit log - livra purchase
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+    if (user) {
+      auditService.log({
+        userId,
+        userEmail: user.email,
+        action: 'LIVRA_PURCHASE' as any,
+        category: 'SUBSCRIPTION' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'User',
+        resourceId: userId,
+        description: `Pacote de Livras adquirido: ${livraAmount} Livras`,
+        metadata: { amount: livraAmount }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**

@@ -27,6 +27,20 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
 
   const parts = authHeader.split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    // Audit log - malformed token
+    import('../services/audit.service').then(({ auditService }) => {
+      auditService.log({
+        userId: 'system',
+        userEmail: 'anonymous',
+        action: 'AUTH_FAILURE' as any,
+        category: 'SECURITY' as any,
+        severity: 'LOW' as any,
+        resource: 'Auth',
+        description: `Formato de token inválido`,
+        metadata: { path: req.originalUrl, ip: req.ip }
+      }).catch(err => console.error('[AUDIT]', err));
+    });
+
     res.status(401).json({ 
       error: 'Formato de token inválido',
       code: 'INVALID_TOKEN_FORMAT'
@@ -38,6 +52,20 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
   const decoded = verifyAccessToken(token);
 
   if (!decoded) {
+    // Audit log - invalid/expired token
+    import('../services/audit.service').then(({ auditService }) => {
+      auditService.log({
+        userId: 'system',
+        userEmail: 'anonymous',
+        action: 'AUTH_FAILURE' as any,
+        category: 'SECURITY' as any,
+        severity: 'LOW' as any,
+        resource: 'Auth',
+        description: `Token inválido ou expirado`,
+        metadata: { path: req.originalUrl, ip: req.ip }
+      }).catch(err => console.error('[AUDIT]', err));
+    });
+
     res.status(401).json({ 
       error: 'Token inválido ou expirado',
       code: 'INVALID_TOKEN'
@@ -87,6 +115,16 @@ export function authorize(...allowedRoles: UserRole[]) {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
+      // Audit log - unauthorized access attempt
+      import('../services/audit.service').then(({ auditService }) => {
+        auditService.logPermissionDenied(
+          req.user!.id,
+          req.user!.email,
+          req.originalUrl,
+          `Required roles: ${allowedRoles.join(', ')}, User role: ${req.user!.role}`
+        ).catch(err => console.error('[AUDIT]', err));
+      });
+
       res.status(403).json({ 
         error: 'Você não tem permissão para acessar este recurso',
         code: 'FORBIDDEN'

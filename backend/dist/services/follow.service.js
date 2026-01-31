@@ -8,6 +8,7 @@ const prisma_1 = __importDefault(require("../lib/prisma"));
 const feed_service_1 = require("./feed.service");
 const livra_service_1 = require("./livra.service");
 const achievement_service_1 = require("./achievement.service");
+const audit_service_1 = require("./audit.service");
 /**
  * Service for managing user follows
  */
@@ -15,7 +16,7 @@ class FollowService {
     /**
      * Follow or unfollow a user (atomic operation using transaction)
      */
-    async toggleFollow(followerId, followingId) {
+    async toggleFollow(followerId, followingId, userEmail) {
         // Cannot follow yourself
         if (followerId === followingId) {
             throw new Error('Você não pode seguir a si mesmo');
@@ -44,6 +45,20 @@ class FollowService {
                 await tx.follow.delete({
                     where: { id: existingFollow.id }
                 });
+                // Audit log - unfollow
+                if (userEmail) {
+                    audit_service_1.auditService.log({
+                        userId: followerId,
+                        userEmail,
+                        action: 'USER_UNFOLLOW',
+                        category: 'SOCIAL',
+                        severity: 'LOW',
+                        resource: 'User',
+                        resourceId: followingId,
+                        description: `Usuário deixou de seguir ${targetUser.name}`,
+                        metadata: { followingId, targetName: targetUser.name }
+                    }).catch(err => console.error('[AUDIT]', err));
+                }
                 const followerCount = await tx.follow.count({
                     where: { followingId }
                 });
@@ -62,6 +77,20 @@ class FollowService {
                         followingId
                     }
                 });
+                // Audit log - follow
+                if (userEmail) {
+                    audit_service_1.auditService.log({
+                        userId: followerId,
+                        userEmail,
+                        action: 'USER_FOLLOW',
+                        category: 'SOCIAL',
+                        severity: 'LOW',
+                        resource: 'User',
+                        resourceId: followingId,
+                        description: `Usuário começou a seguir ${targetUser.name}`,
+                        metadata: { followingId, targetName: targetUser.name }
+                    }).catch(err => console.error('[AUDIT]', err));
+                }
                 const followerCount = await tx.follow.count({
                     where: { followingId }
                 });
@@ -292,7 +321,6 @@ class FollowService {
                     }
                 }
             });
-            // TODO: Emit WebSocket event
         }
         catch (error) {
             console.error('[FollowService] Error creating notification:', error);

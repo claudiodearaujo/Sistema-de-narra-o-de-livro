@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const achievement_service_1 = require("./achievement.service");
+const audit_service_1 = require("./audit.service");
 /**
  * Message validation constants
  */
@@ -230,7 +231,7 @@ class MessageService {
     /**
      * Send a message to a user
      */
-    async sendMessage(senderId, receiverId, dto) {
+    async sendMessage(senderId, receiverId, dto, userEmail) {
         // Cannot message yourself
         if (senderId === receiverId) {
             throw new Error('Você não pode enviar mensagem para si mesmo');
@@ -262,6 +263,20 @@ class MessageService {
                 }
             }
         });
+        // Audit log - message sent (privacy: log IDs, not content)
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId: senderId,
+                userEmail,
+                action: 'MESSAGE_SEND',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Message',
+                resourceId: message.id,
+                description: `Mensagem enviada`,
+                metadata: { receiverId }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         const messageWithSender = {
             id: message.id,
             content: message.content,
@@ -325,7 +340,7 @@ class MessageService {
     /**
      * Delete a message (soft delete or hard delete)
      */
-    async deleteMessage(messageId, userId) {
+    async deleteMessage(messageId, userId, userEmail) {
         const message = await prisma_1.default.message.findUnique({
             where: { id: messageId }
         });
@@ -339,6 +354,20 @@ class MessageService {
         await prisma_1.default.message.delete({
             where: { id: messageId }
         });
+        // Audit log - message deleted
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'MESSAGE_DELETE',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Message',
+                resourceId: messageId,
+                description: `Mensagem deletada`,
+                metadata: { receiverId: message.receiverId }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
     }
     /**
      * Emit typing status

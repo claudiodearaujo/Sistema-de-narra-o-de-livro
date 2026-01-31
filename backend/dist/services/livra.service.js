@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.livraService = void 0;
 exports.setLivraWebSocketEmitter = setLivraWebSocketEmitter;
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const audit_service_1 = require("./audit.service");
 let wsEmitter = null;
 /**
  * Set WebSocket emitter for real-time updates
@@ -87,6 +88,11 @@ class LivraService {
                 finalExpiresAt.setDate(finalExpiresAt.getDate() + expirationDays);
             }
         }
+        // Get user email for audit
+        const user = await prisma_1.default.user.findUnique({
+            where: { id: userId },
+            select: { email: true }
+        });
         // Use transaction to ensure atomicity
         const result = await prisma_1.default.$transaction(async (tx) => {
             // Get or create balance
@@ -134,6 +140,20 @@ class LivraService {
             expiresAt: result.expiresAt,
             createdAt: result.createdAt,
         };
+        // Audit log - Livras added
+        if (user?.email) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail: user.email,
+                action: 'LIVRA_EARN',
+                category: 'ECONOMY',
+                severity: 'LOW',
+                resource: 'LivraBalance',
+                resourceId: result.id,
+                description: `Usuário ganhou ${amount} Livras`,
+                metadata: { type, amount, balance: result.balance, detail: metadata }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         // Emit real-time update
         emitLivraUpdate(userId, transactionDto);
         return transactionDto;
@@ -146,6 +166,11 @@ class LivraService {
         if (amount <= 0) {
             throw new Error('Amount must be positive');
         }
+        // Get user email for audit
+        const user = await prisma_1.default.user.findUnique({
+            where: { id: userId },
+            select: { email: true }
+        });
         // Use transaction to ensure atomicity
         const result = await prisma_1.default.$transaction(async (tx) => {
             // Get balance
@@ -185,6 +210,20 @@ class LivraService {
             expiresAt: result.expiresAt,
             createdAt: result.createdAt,
         };
+        // Audit log - Livras spent
+        if (user?.email) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail: user.email,
+                action: 'LIVRA_SPEND',
+                category: 'ECONOMY',
+                severity: 'LOW',
+                resource: 'LivraBalance',
+                resourceId: result.id,
+                description: `Usuário gastou ${amount} Livras`,
+                metadata: { type, amount, balance: result.balance, detail: metadata }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         // Emit real-time update
         emitLivraUpdate(userId, transactionDto);
         return transactionDto;

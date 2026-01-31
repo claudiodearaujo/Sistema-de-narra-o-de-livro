@@ -1,8 +1,9 @@
 import { narrationQueue, NARRATION_JOB_NAME } from '../queues/narration.queue';
 import { Job } from 'bullmq';
+import { auditService } from './audit.service';
 
 export class NarrationService {
-    async startNarration(chapterId: string) {
+    async startNarration(chapterId: string, userId?: string, userEmail?: string) {
         if (!narrationQueue) {
             throw new Error('Redis não está habilitado. Funcionalidade de fila não disponível.');
         }
@@ -16,6 +17,22 @@ export class NarrationService {
         }
 
         const job = await narrationQueue.add(NARRATION_JOB_NAME, { chapterId });
+
+        // Audit log - narration started
+        if (userId && userEmail) {
+            auditService.log({
+                userId,
+                userEmail,
+                action: 'NARRATION_START' as any,
+                category: 'NARRATION' as any,
+                severity: 'MEDIUM' as any,
+                resource: 'Narration',
+                resourceId: chapterId,
+                description: `Geração de áudio iniciada para o capítulo`,
+                metadata: { chapterId, jobId: job.id }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
+
         return { message: 'Narration started', jobId: job.id };
     }
 
@@ -45,7 +62,7 @@ export class NarrationService {
         };
     }
 
-    async cancelNarration(chapterId: string) {
+    async cancelNarration(chapterId: string, userId?: string, userEmail?: string) {
         if (!narrationQueue) {
             throw new Error('Redis não está habilitado. Funcionalidade de fila não disponível.');
         }
@@ -55,6 +72,22 @@ export class NarrationService {
 
         if (job) {
             await job.remove();
+
+            // Audit log - narration cancelled
+            if (userId && userEmail) {
+                auditService.log({
+                    userId,
+                    userEmail,
+                    action: 'NARRATION_CANCEL' as any,
+                    category: 'NARRATION' as any,
+                    severity: 'LOW' as any,
+                    resource: 'Narration',
+                    resourceId: chapterId,
+                    description: `Geração de áudio cancelada`,
+                    metadata: { chapterId, jobId: job.id }
+                }).catch(err => console.error('[AUDIT]', err));
+            }
+
             return { message: 'Narration cancelled' };
         }
 

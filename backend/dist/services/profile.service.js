@@ -9,6 +9,7 @@ exports.updateProfile = updateProfile;
 exports.getUserPosts = getUserPosts;
 exports.getUserBooks = getUserBooks;
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const audit_service_1 = require("./audit.service");
 /**
  * Get user profile by username
  */
@@ -168,7 +169,7 @@ async function getProfileById(userId, currentUserId) {
 /**
  * Update user profile
  */
-async function updateProfile(userId, input) {
+async function updateProfile(userId, input, userEmail) {
     // If username is being changed, check availability
     if (input.username) {
         const existing = await prisma_1.default.user.findFirst({
@@ -181,6 +182,11 @@ async function updateProfile(userId, input) {
             throw new Error('Este nome de usuário já está em uso');
         }
     }
+    // Get current profile for audit comparison
+    const currentProfile = await prisma_1.default.user.findUnique({
+        where: { id: userId },
+        select: { name: true, username: true, bio: true, avatar: true, email: true }
+    });
     const user = await prisma_1.default.user.update({
         where: { id: userId },
         data: {
@@ -190,6 +196,32 @@ async function updateProfile(userId, input) {
             ...(input.avatar !== undefined && { avatar: input.avatar })
         }
     });
+    // Audit log - profile updated
+    if (userEmail || currentProfile?.email) {
+        audit_service_1.auditService.log({
+            userId,
+            userEmail: userEmail || currentProfile?.email || 'unknown',
+            action: 'USER_UPDATE_PROFILE',
+            category: 'USER_MANAGEMENT',
+            severity: 'MEDIUM',
+            resource: 'User',
+            resourceId: userId,
+            description: `Perfil do usuário atualizado`,
+            metadata: {
+                changes: Object.keys(input),
+                before: {
+                    name: currentProfile?.name,
+                    username: currentProfile?.username,
+                    bio: currentProfile?.bio
+                },
+                after: {
+                    name: input.name,
+                    username: input.username,
+                    bio: input.bio
+                }
+            }
+        }).catch(err => console.error('[AUDIT]', err));
+    }
     const profile = await getProfileById(userId);
     if (!profile) {
         throw new Error('Erro ao recuperar perfil atualizado');

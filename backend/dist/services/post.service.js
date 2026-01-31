@@ -9,6 +9,7 @@ const redis_1 = require("../lib/redis");
 const feed_service_1 = require("./feed.service");
 const notification_service_1 = require("./notification.service");
 const achievement_service_1 = require("./achievement.service");
+const audit_service_1 = require("./audit.service");
 // Include completo para posts
 const postInclude = {
     user: {
@@ -115,6 +116,20 @@ class PostService {
             },
             include: postInclude,
         });
+        // Audit log - post created
+        if (data.userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail: data.userEmail,
+                action: 'POST_CREATE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Post',
+                resourceId: post.id,
+                description: `Post criado pelo usuário`,
+                metadata: { type: post.type, content: post.content.substring(0, 100) }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         // Se é um compartilhamento, incrementa o contador do post original
         if (data.sharedPostId) {
             await prisma_1.default.post.update({
@@ -348,10 +363,10 @@ class PostService {
     /**
      * Deleta um post
      */
-    async delete(id, userId, isAdmin = false) {
+    async delete(id, userId, isAdmin = false, userEmail) {
         const post = await prisma_1.default.post.findUnique({
             where: { id },
-            select: { userId: true },
+            select: { userId: true, type: true },
         });
         if (!post) {
             throw new Error('Post não encontrado');
@@ -362,6 +377,20 @@ class PostService {
         await prisma_1.default.post.delete({
             where: { id },
         });
+        // Audit log - post deleted
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'POST_DELETE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Post',
+                resourceId: id,
+                description: `Post deletado pelo usuário`,
+                metadata: { type: post.type }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         // Remove do feed dos seguidores via FeedService
         feed_service_1.feedService.removePostFromFeeds(id, post.userId).catch(err => {
             console.error('[PostService] Erro ao remover do feed:', err);
@@ -428,7 +457,7 @@ class PostService {
     /**
      * Compartilha um post (quote repost)
      */
-    async share(userId, postId, dto = {}) {
+    async share(userId, postId, dto = {}, userEmail) {
         // Verifica se o post original existe
         const originalPost = await prisma_1.default.post.findUnique({
             where: { id: postId },
@@ -448,7 +477,8 @@ class PostService {
         const sharedPost = await this.create(userId, {
             type: 'SHARED',
             content,
-            sharedPostId: postId
+            sharedPostId: postId,
+            userEmail
         });
         // Notifica o autor do post original (se não for o mesmo usuário)
         if (originalPost.userId !== userId) {

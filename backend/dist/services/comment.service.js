@@ -7,6 +7,7 @@ exports.commentService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const livra_service_1 = require("./livra.service");
 const achievement_service_1 = require("./achievement.service");
+const audit_service_1 = require("./audit.service");
 /**
  * Comment validation constants
  */
@@ -44,7 +45,7 @@ class CommentService {
     /**
      * Create a new comment on a post
      */
-    async create(postId, userId, data) {
+    async create(postId, userId, data, userEmail) {
         // Validate and sanitize content
         const sanitizedContent = sanitizeContent(data.content);
         const validation = validateContent(sanitizedContent);
@@ -97,6 +98,20 @@ class CommentService {
                 data: { commentCount: { increment: 1 } }
             })
         ]);
+        // Audit log - comment created
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'COMMENT_CREATE',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Comment',
+                resourceId: comment.id,
+                description: `Comentário criado no post`,
+                metadata: { postId, content: sanitizedContent.substring(0, 100), parentId: data.parentId }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         // Create notification for post author (if not self-comment)
         if (post.userId !== userId) {
             await this.createCommentNotification(postId, post.userId, userId, data.content);
@@ -127,8 +142,6 @@ class CommentService {
                 await this.createReplyNotification(postId, parentComment.userId, userId, data.content);
             }
         }
-        // TODO: Sprint 8 - Add Livras to post author
-        // await livraService.addLivras(post.userId, 2, 'EARNED_COMMENT', { postId, fromUserId: userId });
         return comment;
     }
     /**
@@ -191,10 +204,10 @@ class CommentService {
     /**
      * Update a comment
      */
-    async update(commentId, userId, content) {
+    async update(commentId, userId, content, userEmail) {
         const comment = await prisma_1.default.comment.findUnique({
             where: { id: commentId },
-            select: { id: true, userId: true }
+            select: { id: true, userId: true, content: true }
         });
         if (!comment) {
             throw new Error('Comentário não encontrado');
@@ -216,15 +229,32 @@ class CommentService {
                 }
             }
         });
+        // Audit log - comment updated
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'COMMENT_UPDATE',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Comment',
+                resourceId: commentId,
+                description: `Comentário atualizado`,
+                metadata: {
+                    before: comment.content.substring(0, 100),
+                    after: content.substring(0, 100)
+                }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         return updated;
     }
     /**
      * Delete a comment
      */
-    async delete(commentId, userId, isAdmin = false) {
+    async delete(commentId, userId, isAdmin = false, userEmail) {
         const comment = await prisma_1.default.comment.findUnique({
             where: { id: commentId },
-            select: { id: true, userId: true, postId: true },
+            select: { id: true, userId: true, postId: true, content: true },
         });
         if (!comment) {
             throw new Error('Comentário não encontrado');
@@ -252,13 +282,25 @@ class CommentService {
                 data: { commentCount: { decrement: totalToDecrement } }
             })
         ]);
+        // Audit log - comment deleted
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'COMMENT_DELETE',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Comment',
+                resourceId: commentId,
+                description: `Comentário deletado`,
+                metadata: { postId: comment.postId, contentPreview: comment.content.substring(0, 100) }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
     }
     /**
      * Toggle like on a comment
      */
     async toggleCommentLike(commentId, userId) {
-        // For now, we'll just increment/decrement the likeCount on the comment
-        // In a full implementation, we'd have a CommentLike table
         const comment = await prisma_1.default.comment.findUnique({
             where: { id: commentId },
             select: { id: true, likeCount: true }
@@ -266,8 +308,6 @@ class CommentService {
         if (!comment) {
             throw new Error('Comentário não encontrado');
         }
-        // TODO: Implement CommentLike table for proper tracking
-        // For now, this is a simplified version
         const updated = await prisma_1.default.comment.update({
             where: { id: commentId },
             data: { likeCount: { increment: 1 } }
@@ -302,7 +342,6 @@ class CommentService {
                     }
                 }
             });
-            // TODO: Emit WebSocket event
         }
         catch (error) {
             console.error('[CommentService] Error creating notification:', error);
@@ -333,7 +372,6 @@ class CommentService {
                     }
                 }
             });
-            // TODO: Emit WebSocket event
         }
         catch (error) {
             console.error('[CommentService] Error creating reply notification:', error);

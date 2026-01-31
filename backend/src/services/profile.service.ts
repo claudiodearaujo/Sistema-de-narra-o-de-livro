@@ -1,5 +1,6 @@
 import { User, Post, Book, PostType } from '@prisma/client';
 import prisma from '../lib/prisma';
+import { auditService } from './audit.service';
 
 /**
  * User profile with statistics
@@ -228,7 +229,8 @@ export async function getProfileById(
  */
 export async function updateProfile(
   userId: string,
-  input: ProfileUpdateInput
+  input: ProfileUpdateInput,
+  userEmail?: string
 ): Promise<UserProfile> {
   // If username is being changed, check availability
   if (input.username) {
@@ -244,6 +246,12 @@ export async function updateProfile(
     }
   }
 
+  // Get current profile for audit comparison
+  const currentProfile = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true, username: true, bio: true, avatar: true, email: true }
+  });
+
   const user = await prisma.user.update({
     where: { id: userId },
     data: {
@@ -253,6 +261,33 @@ export async function updateProfile(
       ...(input.avatar !== undefined && { avatar: input.avatar })
     }
   });
+
+  // Audit log - profile updated
+  if (userEmail || currentProfile?.email) {
+    auditService.log({
+      userId,
+      userEmail: userEmail || currentProfile?.email || 'unknown',
+      action: 'USER_UPDATE_PROFILE' as any,
+      category: 'USER_MANAGEMENT' as any,
+      severity: 'MEDIUM' as any,
+      resource: 'User',
+      resourceId: userId,
+      description: `Perfil do usuário atualizado`,
+      metadata: { 
+        changes: Object.keys(input),
+        before: {
+          name: currentProfile?.name,
+          username: currentProfile?.username,
+          bio: currentProfile?.bio
+        },
+        after: {
+          name: input.name,
+          username: input.username,
+          bio: input.bio
+        }
+      }
+    }).catch(err => console.error('[AUDIT]', err));
+  }
 
   const profile = await getProfileById(userId);
   if (!profile) {

@@ -4,6 +4,7 @@ import { notificationService } from './notification.service';
 import { livraService } from './livra.service';
 import { achievementService } from './achievement.service';
 import { groupService } from './group.service';
+import { auditService } from './audit.service';
 
 export interface CreateCampaignDto {
   name: string;
@@ -169,7 +170,8 @@ class CampaignService {
   async create(
     groupId: string,
     userId: string,
-    data: CreateCampaignDto
+    data: CreateCampaignDto,
+    userEmail?: string
   ): Promise<CampaignWithRelations> {
     if (!data.name || data.name.trim().length === 0) {
       throw new Error('O nome da campanha é obrigatório');
@@ -222,6 +224,21 @@ class CampaignService {
       include: campaignInclude,
     });
 
+    // Audit log - campaign created
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'CAMPAIGN_CREATE' as any,
+        category: 'CONTENT' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Campaign',
+        resourceId: campaign.id,
+        description: `Campanha de leitura criada`,
+        metadata: { name: campaign.name, groupId, bookCount: data.bookIds.length }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
+
     // Notificar membros do grupo
     const members = await prisma.groupMember.findMany({
       where: { groupId, userId: { not: userId } },
@@ -247,20 +264,21 @@ class CampaignService {
   async update(
     campaignId: string,
     userId: string,
-    data: UpdateCampaignDto
+    data: UpdateCampaignDto,
+    userEmail?: string
   ): Promise<CampaignWithRelations> {
-    const campaign = await prisma.readingCampaign.findUnique({
+    const campaignSnapshot = await prisma.readingCampaign.findUnique({
       where: { id: campaignId },
-      select: { groupId: true, status: true },
+      select: { groupId: true, status: true, name: true, description: true, livraReward: true }
     });
 
-    if (!campaign) {
+    if (!campaignSnapshot) {
       throw new Error('Campanha não encontrada');
     }
 
     // Verificar permissão no grupo
     const membership = await prisma.groupMember.findUnique({
-      where: { groupId_userId: { groupId: campaign.groupId, userId } },
+      where: { groupId_userId: { groupId: campaignSnapshot.groupId, userId } },
     });
 
     if (!membership || !['OWNER', 'ADMIN'].includes(membership.role)) {
@@ -268,7 +286,7 @@ class CampaignService {
     }
 
     // Não pode editar campanha concluída
-    if (campaign.status === 'COMPLETED') {
+    if (campaignSnapshot.status === 'COMPLETED') {
       throw new Error('Não é possível editar uma campanha concluída');
     }
 
@@ -285,16 +303,39 @@ class CampaignService {
       include: campaignInclude,
     });
 
+    // Audit log - campaign updated
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'CAMPAIGN_UPDATE' as any,
+        category: 'CONTENT' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Campaign',
+        resourceId: campaignId,
+        description: `Campanha de leitura atualizada`,
+        metadata: { 
+          changes: Object.keys(data),
+          before: campaignSnapshot,
+          after: {
+            name: updated.name,
+            status: updated.status,
+            livraReward: updated.livraReward
+          }
+        }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
+
     return updated;
   }
 
   /**
    * Deleta uma campanha
    */
-  async delete(campaignId: string, userId: string): Promise<void> {
+  async delete(campaignId: string, userId: string, userEmail?: string): Promise<void> {
     const campaign = await prisma.readingCampaign.findUnique({
       where: { id: campaignId },
-      select: { groupId: true },
+      select: { groupId: true, name: true },
     });
 
     if (!campaign) {
@@ -314,15 +355,30 @@ class CampaignService {
     await prisma.readingCampaign.delete({
       where: { id: campaignId },
     });
+
+    // Audit log - campaign deleted
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'CAMPAIGN_DELETE' as any,
+        category: 'CONTENT' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Campaign',
+        resourceId: campaignId,
+        description: `Campanha de leitura deletada`,
+        metadata: { name: campaign.name, groupId: campaign.groupId }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**
    * Participa de uma campanha
    */
-  async joinCampaign(campaignId: string, userId: string): Promise<ProgressWithRelations> {
+  async joinCampaign(campaignId: string, userId: string, userEmail?: string): Promise<ProgressWithRelations> {
     const campaign = await prisma.readingCampaign.findUnique({
       where: { id: campaignId },
-      select: { id: true, groupId: true, status: true },
+      select: { id: true, groupId: true, status: true, name: true },
     });
 
     if (!campaign) {
@@ -360,6 +416,21 @@ class CampaignService {
       },
       include: progressInclude,
     });
+
+    // Audit log - campaign join
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'CAMPAIGN_JOIN' as any,
+        category: 'SOCIAL' as any,
+        severity: 'LOW' as any,
+        resource: 'Campaign',
+        resourceId: campaignId,
+        description: `Usuário entrou na campanha`,
+        metadata: { name: campaign.name }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
 
     return progress;
   }
@@ -425,7 +496,8 @@ class CampaignService {
   async completeBook(
     campaignId: string,
     bookId: string,
-    userId: string
+    userId: string,
+    userEmail?: string
   ): Promise<ProgressWithRelations & { rewardEarned?: number }> {
     const campaign = await prisma.readingCampaign.findUnique({
       where: { id: campaignId },
@@ -479,6 +551,25 @@ class CampaignService {
       },
       include: progressInclude,
     });
+
+    // Audit log - campaign progress
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'CAMPAIGN_PROGRESS' as any,
+        category: 'SOCIAL' as any,
+        severity: 'LOW' as any,
+        resource: 'Campaign',
+        resourceId: campaignId,
+        description: `Usuário leu um livro da campanha`,
+        metadata: { 
+          bookId, 
+          progress: `${newBooksRead}/${totalBooks}`,
+          isCompleted: isNowCompleted
+        }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
 
     let rewardEarned: number | undefined;
 

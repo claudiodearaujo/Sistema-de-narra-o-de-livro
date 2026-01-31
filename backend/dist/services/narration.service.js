@@ -2,8 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.narrationService = exports.NarrationService = void 0;
 const narration_queue_1 = require("../queues/narration.queue");
+const audit_service_1 = require("./audit.service");
 class NarrationService {
-    async startNarration(chapterId) {
+    async startNarration(chapterId, userId, userEmail) {
         if (!narration_queue_1.narrationQueue) {
             throw new Error('Redis não está habilitado. Funcionalidade de fila não disponível.');
         }
@@ -14,6 +15,20 @@ class NarrationService {
             throw new Error('Narration generation already in progress for this chapter');
         }
         const job = await narration_queue_1.narrationQueue.add(narration_queue_1.NARRATION_JOB_NAME, { chapterId });
+        // Audit log - narration started
+        if (userId && userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'NARRATION_START',
+                category: 'NARRATION',
+                severity: 'MEDIUM',
+                resource: 'Narration',
+                resourceId: chapterId,
+                description: `Geração de áudio iniciada para o capítulo`,
+                metadata: { chapterId, jobId: job.id }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         return { message: 'Narration started', jobId: job.id };
     }
     async getNarrationStatus(chapterId) {
@@ -37,7 +52,7 @@ class NarrationService {
             failedReason: latestJob.failedReason
         };
     }
-    async cancelNarration(chapterId) {
+    async cancelNarration(chapterId, userId, userEmail) {
         if (!narration_queue_1.narrationQueue) {
             throw new Error('Redis não está habilitado. Funcionalidade de fila não disponível.');
         }
@@ -45,6 +60,20 @@ class NarrationService {
         const job = jobs.find(j => j.data.chapterId === chapterId);
         if (job) {
             await job.remove();
+            // Audit log - narration cancelled
+            if (userId && userEmail) {
+                audit_service_1.auditService.log({
+                    userId,
+                    userEmail,
+                    action: 'NARRATION_CANCEL',
+                    category: 'NARRATION',
+                    severity: 'LOW',
+                    resource: 'Narration',
+                    resourceId: chapterId,
+                    description: `Geração de áudio cancelada`,
+                    metadata: { chapterId, jobId: job.id }
+                }).catch(err => console.error('[AUDIT]', err));
+            }
             return { message: 'Narration cancelled' };
         }
         throw new Error('No active narration found for this chapter');

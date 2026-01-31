@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.storyService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const audit_service_1 = require("./audit.service");
 // Plan limits for stories
 const STORY_LIMITS = {
     FREE: 3, // 3 stories per day
@@ -130,7 +131,7 @@ class StoryService {
     /**
      * Create a new story
      */
-    async create(userId, data) {
+    async create(userId, data, userEmail) {
         // Check daily limit based on plan (get from subscription)
         const subscription = await prisma_1.default.subscription.findUnique({
             where: { userId },
@@ -171,12 +172,26 @@ class StoryService {
             },
             include: storyInclude,
         });
+        // Audit log - story created
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'STORY_CREATE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Story',
+                resourceId: story.id,
+                description: `Story criado pelo usuário`,
+                metadata: { type: story.type, expiresAt: story.expiresAt }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         return { ...story, isViewed: false };
     }
     /**
      * Mark story as viewed
      */
-    async markAsViewed(storyId, userId) {
+    async markAsViewed(storyId, userId, userEmail) {
         const story = await prisma_1.default.story.findUnique({
             where: { id: storyId },
             select: { userId: true, expiresAt: true },
@@ -205,11 +220,25 @@ class StoryService {
                 data: { viewCount: { increment: 1 } },
             }),
         ]);
+        // Audit log - story viewed (optional, but good for tracking engagement)
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'STORY_VIEW',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Story',
+                resourceId: storyId,
+                description: `Story visualizado pelo usuário`,
+                metadata: { ownerId: story.userId }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
     }
     /**
      * Delete a story
      */
-    async delete(storyId, userId) {
+    async delete(storyId, userId, userEmail) {
         const story = await prisma_1.default.story.findUnique({
             where: { id: storyId },
             select: { userId: true },
@@ -223,6 +252,20 @@ class StoryService {
         await prisma_1.default.story.delete({
             where: { id: storyId },
         });
+        // Audit log - story deleted
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'STORY_DELETE',
+                category: 'SOCIAL',
+                severity: 'MEDIUM',
+                resource: 'Story',
+                resourceId: storyId,
+                description: `Story deletado pelo usuário`,
+                metadata: {}
+            }).catch(err => console.error('[AUDIT]', err));
+        }
     }
     /**
      * Get story viewers list

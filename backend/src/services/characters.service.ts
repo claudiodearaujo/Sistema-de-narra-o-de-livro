@@ -1,5 +1,6 @@
 import { Character } from '@prisma/client';
 import prisma from '../lib/prisma';
+import { auditService } from './audit.service';
 
 // ========== DTOs para Ficha Completa ==========
 
@@ -108,6 +109,8 @@ export interface CreateCharacterDto {
     eyes?: CharacterEyesDto;
     hair?: CharacterHairDto;
     wardrobe?: CharacterWardrobeDto;
+    userId?: string;     // Para audit logging
+    userEmail?: string;  // Para audit logging
 }
 
 export interface UpdateCharacterDto {
@@ -266,13 +269,24 @@ export class CharactersService {
             include: this.includeFullProfile
         });
 
+        // Audit log - character created
+        if (data.userId && data.userEmail) {
+            auditService.logCreate(
+                data.userId,
+                data.userEmail,
+                'Character',
+                character.id,
+                { name: character.name, bookId: data.bookId, voiceId: data.voiceId }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
         return {
             ...character,
             completionPercentage: calculateCompletionPercentage(character)
         };
     }
 
-    async update(id: string, data: UpdateCharacterDto) {
+    async update(id: string, data: UpdateCharacterDto, userId?: string, userEmail?: string) {
         const character = await prisma.character.findUnique({ 
             where: { id },
             include: this.includeFullProfile
@@ -280,6 +294,13 @@ export class CharactersService {
         if (!character) {
             throw new Error('Character not found');
         }
+
+        // Capture before state for audit
+        const before = {
+            name: character.name,
+            voiceId: character.voiceId,
+            voiceDescription: character.voiceDescription
+        };
 
         // Update main character data
         const updatedCharacter = await prisma.character.update({
@@ -378,19 +399,49 @@ export class CharactersService {
             include: this.includeFullProfile
         });
 
+        // Audit log - character updated
+        if (userId && userEmail) {
+            auditService.logUpdate(
+                userId,
+                userEmail,
+                'Character',
+                id,
+                {
+                    before,
+                    after: {
+                        name: finalCharacter!.name,
+                        voiceId: finalCharacter!.voiceId,
+                        voiceDescription: finalCharacter!.voiceDescription
+                    }
+                }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
         return {
             ...finalCharacter,
             completionPercentage: calculateCompletionPercentage(finalCharacter)
         };
     }
 
-    async delete(id: string) {
+    async delete(id: string, userId?: string, userEmail?: string) {
         const character = await prisma.character.findUnique({ where: { id } });
         if (!character) {
             throw new Error('Character not found');
         }
 
         await prisma.character.delete({ where: { id } });
+
+        // Audit log - character deleted
+        if (userId && userEmail) {
+            auditService.logDelete(
+                userId,
+                userEmail,
+                'Character',
+                id,
+                { name: character.name, bookId: character.bookId }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
         return { message: 'Character deleted successfully' };
     }
 }

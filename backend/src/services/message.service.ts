@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma';
 import { Message, User } from '@prisma/client';
 import { achievementService } from './achievement.service';
+import { auditService } from './audit.service';
 
 /**
  * Message validation constants
@@ -352,7 +353,8 @@ class MessageService {
   async sendMessage(
     senderId: string,
     receiverId: string,
-    dto: SendMessageDto
+    dto: SendMessageDto,
+    userEmail?: string
   ): Promise<SendMessageResponse> {
     // Cannot message yourself
     if (senderId === receiverId) {
@@ -389,6 +391,21 @@ class MessageService {
         }
       }
     });
+
+    // Audit log - message sent (privacy: log IDs, not content)
+    if (userEmail) {
+      auditService.log({
+        userId: senderId,
+        userEmail,
+        action: 'MESSAGE_SEND' as any,
+        category: 'SOCIAL' as any,
+        severity: 'LOW' as any,
+        resource: 'Message',
+        resourceId: message.id,
+        description: `Mensagem enviada`,
+        metadata: { receiverId }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
 
     const messageWithSender: MessageWithSender = {
       id: message.id,
@@ -461,7 +478,7 @@ class MessageService {
   /**
    * Delete a message (soft delete or hard delete)
    */
-  async deleteMessage(messageId: string, userId: string): Promise<void> {
+  async deleteMessage(messageId: string, userId: string, userEmail?: string): Promise<void> {
     const message = await prisma.message.findUnique({
       where: { id: messageId }
     });
@@ -478,6 +495,21 @@ class MessageService {
     await prisma.message.delete({
       where: { id: messageId }
     });
+
+    // Audit log - message deleted
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'MESSAGE_DELETE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'LOW' as any,
+        resource: 'Message',
+        resourceId: messageId,
+        description: `Mensagem deletada`,
+        metadata: { receiverId: message.receiverId }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**

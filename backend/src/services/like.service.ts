@@ -2,6 +2,7 @@ import prisma from '../lib/prisma';
 import { Like, Post, User } from '@prisma/client';
 import { livraService } from './livra.service';
 import { achievementService } from './achievement.service';
+import { auditService } from './audit.service';
 
 /**
  * Like Response with counts
@@ -39,7 +40,7 @@ class LikeService {
   /**
    * Toggle like on a post (like if not liked, unlike if already liked)
    */
-  async toggleLike(postId: string, userId: string): Promise<LikeResponse> {
+  async toggleLike(postId: string, userId: string, userEmail?: string): Promise<LikeResponse> {
     // Check if post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
@@ -72,6 +73,21 @@ class LikeService {
         })
       ]);
 
+      // Audit log - unlike
+      if (userEmail) {
+        auditService.log({
+          userId,
+          userEmail,
+          action: 'POST_UNLIKE' as any,
+          category: 'SOCIAL' as any,
+          severity: 'LOW' as any,
+          resource: 'Post',
+          resourceId: postId,
+          description: `Usuário descurtiu o post`,
+          metadata: { postId }
+        }).catch(err => console.error('[AUDIT]', err));
+      }
+
       return {
         liked: false,
         likeCount: Math.max(0, post.likeCount - 1)
@@ -90,6 +106,21 @@ class LikeService {
           data: { likeCount: { increment: 1 } }
         })
       ]);
+
+      // Audit log - like
+      if (userEmail) {
+        auditService.log({
+          userId,
+          userEmail,
+          action: 'POST_LIKE' as any,
+          category: 'SOCIAL' as any,
+          severity: 'LOW' as any,
+          resource: 'Post',
+          resourceId: postId,
+          description: `Usuário curtiu o post`,
+          metadata: { postId }
+        }).catch(err => console.error('[AUDIT]', err));
+      }
 
       // Sprint 8: Award Livras to post author
       if (post.userId !== userId) {
@@ -214,9 +245,6 @@ class LikeService {
           }
         }
       });
-
-      // TODO: Emit WebSocket event for real-time notification
-      // websocketService.emitToUser(authorId, 'notification:new', notification);
     } catch (error) {
       console.error('[LikeService] Error creating notification:', error);
     }

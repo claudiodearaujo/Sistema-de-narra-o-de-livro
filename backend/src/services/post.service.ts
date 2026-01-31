@@ -4,6 +4,7 @@ import { redisService } from '../lib/redis';
 import { feedService } from './feed.service';
 import { notificationService } from './notification.service';
 import { achievementService } from './achievement.service';
+import { auditService } from './audit.service';
 
 export interface CreatePostDto {
   type: PostType;
@@ -12,6 +13,7 @@ export interface CreatePostDto {
   bookId?: string;
   chapterId?: string;
   sharedPostId?: string;
+  userEmail?: string; // Para audit logging
 }
 
 export interface SharePostDto {
@@ -149,6 +151,21 @@ class PostService {
       },
       include: postInclude,
     });
+
+    // Audit log - post created
+    if (data.userEmail) {
+      auditService.log({
+        userId,
+        userEmail: data.userEmail,
+        action: 'POST_CREATE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Post',
+        resourceId: post.id,
+        description: `Post criado pelo usuário`,
+        metadata: { type: post.type, content: post.content.substring(0, 100) }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
 
     // Se é um compartilhamento, incrementa o contador do post original
     if (data.sharedPostId) {
@@ -408,10 +425,10 @@ class PostService {
   /**
    * Deleta um post
    */
-  async delete(id: string, userId: string, isAdmin: boolean = false): Promise<void> {
+  async delete(id: string, userId: string, isAdmin: boolean = false, userEmail?: string): Promise<void> {
     const post = await prisma.post.findUnique({
       where: { id },
-      select: { userId: true },
+      select: { userId: true, type: true },
     });
 
     if (!post) {
@@ -425,6 +442,21 @@ class PostService {
     await prisma.post.delete({
       where: { id },
     });
+
+    // Audit log - post deleted
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'POST_DELETE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Post',
+        resourceId: id,
+        description: `Post deletado pelo usuário`,
+        metadata: { type: post.type }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
 
     // Remove do feed dos seguidores via FeedService
     feedService.removePostFromFeeds(id, post.userId).catch(err => {
@@ -502,7 +534,7 @@ class PostService {
   /**
    * Compartilha um post (quote repost)
    */
-  async share(userId: string, postId: string, dto: SharePostDto = {}): Promise<PostWithRelations> {
+  async share(userId: string, postId: string, dto: SharePostDto = {}, userEmail?: string): Promise<PostWithRelations> {
     // Verifica se o post original existe
     const originalPost = await prisma.post.findUnique({
       where: { id: postId },
@@ -526,7 +558,8 @@ class PostService {
     const sharedPost = await this.create(userId, {
       type: 'SHARED',
       content,
-      sharedPostId: postId
+      sharedPostId: postId,
+      userEmail
     });
 
     // Notifica o autor do post original (se não for o mesmo usuário)

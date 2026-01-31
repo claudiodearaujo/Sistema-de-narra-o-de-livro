@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.speechesService = exports.SpeechesService = void 0;
 const ai_1 = require("../ai");
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const audit_service_1 = require("./audit.service");
 class SpeechesService {
     async getByChapterId(chapterId) {
         return await prisma_1.default.speech.findMany({
@@ -49,7 +50,7 @@ class SpeechesService {
             });
             orderIndex = (lastSpeech?.orderIndex ?? 0) + 1;
         }
-        return await prisma_1.default.speech.create({
+        const speech = await prisma_1.default.speech.create({
             data: {
                 chapterId: data.chapterId,
                 characterId: data.characterId,
@@ -58,12 +59,23 @@ class SpeechesService {
                 orderIndex: orderIndex
             }
         });
+        // Audit log - speech created
+        if (data.userId && data.userEmail) {
+            audit_service_1.auditService.logCreate(data.userId, data.userEmail, 'Speech', speech.id, { text: data.text.substring(0, 100), characterId: data.characterId, chapterId: data.chapterId }).catch(err => console.error('[AUDIT]', err));
+        }
+        return speech;
     }
-    async update(id, data) {
+    async update(id, data, userId, userEmail) {
         const speech = await prisma_1.default.speech.findUnique({ where: { id } });
         if (!speech) {
             throw new Error('Speech not found');
         }
+        // Capture before state for audit
+        const before = {
+            characterId: speech.characterId,
+            text: speech.text,
+            orderIndex: speech.orderIndex
+        };
         // Auto-wrap SSML with <speak> tag if not present
         if (data.ssmlText) {
             const trimmedSsml = data.ssmlText.trim();
@@ -75,7 +87,7 @@ class SpeechesService {
                 throw new Error(`Invalid SSML: ${validation.errors?.join(', ')}`);
             }
         }
-        return await prisma_1.default.speech.update({
+        const updatedSpeech = await prisma_1.default.speech.update({
             where: { id },
             data: {
                 ...(data.characterId && { characterId: data.characterId }),
@@ -84,24 +96,57 @@ class SpeechesService {
                 ...(data.orderIndex !== undefined && { orderIndex: data.orderIndex })
             }
         });
+        // Audit log - speech updated
+        if (userId && userEmail) {
+            audit_service_1.auditService.logUpdate(userId, userEmail, 'Speech', id, {
+                before: {
+                    ...before,
+                    text: before.text.substring(0, 100)
+                },
+                after: {
+                    characterId: updatedSpeech.characterId,
+                    text: updatedSpeech.text.substring(0, 100),
+                    orderIndex: updatedSpeech.orderIndex
+                }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
+        return updatedSpeech;
     }
-    async delete(id) {
+    async delete(id, userId, userEmail) {
         const speech = await prisma_1.default.speech.findUnique({ where: { id } });
         if (!speech) {
             throw new Error('Speech not found');
         }
         await prisma_1.default.speech.delete({ where: { id } });
+        // Audit log - speech deleted
+        if (userId && userEmail) {
+            audit_service_1.auditService.logDelete(userId, userEmail, 'Speech', id, { text: speech.text.substring(0, 100), chapterId: speech.chapterId }).catch(err => console.error('[AUDIT]', err));
+        }
         return { message: 'Speech deleted successfully' };
     }
-    async reorder(chapterId, orderedIds) {
+    async reorder(chapterId, orderedIds, userId, userEmail) {
         const updates = orderedIds.map((id, index) => prisma_1.default.speech.update({
             where: { id },
             data: { orderIndex: index }
         }));
         await prisma_1.default.$transaction(updates);
+        // Audit log - speeches reordered
+        if (userId && userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'CHAPTER_REORDER', // Reciclando a ação de reorder
+                category: 'CONTENT',
+                severity: 'LOW',
+                resource: 'Speech',
+                resourceId: chapterId,
+                description: 'Falas reordenadas no capítulo',
+                metadata: { chapterId, orderedIds }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         return { message: 'Speeches reordered successfully' };
     }
-    async bulkCreate(chapterId, text, strategy, defaultCharacterId) {
+    async bulkCreate(chapterId, text, strategy, defaultCharacterId, userId, userEmail) {
         let parts = [];
         if (strategy === 'paragraph') {
             parts = text.split(/\n\n+/).filter(p => p.trim().length > 0);
@@ -132,6 +177,20 @@ class SpeechesService {
         await prisma_1.default.speech.createMany({
             data: speechesData
         });
+        // Audit log - bulk create
+        if (userId && userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'SPEECH_BULK_CREATE',
+                category: 'CONTENT',
+                severity: 'MEDIUM',
+                resource: 'Speech',
+                resourceId: chapterId,
+                description: `Criação em massa de ${speechesData.length} falas`,
+                metadata: { chapterId, count: speechesData.length, strategy }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         return { message: `${speechesData.length} speeches created successfully` };
     }
 }

@@ -7,6 +7,7 @@ exports.likeService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const livra_service_1 = require("./livra.service");
 const achievement_service_1 = require("./achievement.service");
+const audit_service_1 = require("./audit.service");
 /**
  * Service for managing post likes
  */
@@ -14,7 +15,7 @@ class LikeService {
     /**
      * Toggle like on a post (like if not liked, unlike if already liked)
      */
-    async toggleLike(postId, userId) {
+    async toggleLike(postId, userId, userEmail) {
         // Check if post exists
         const post = await prisma_1.default.post.findUnique({
             where: { id: postId },
@@ -43,6 +44,20 @@ class LikeService {
                     data: { likeCount: { decrement: 1 } }
                 })
             ]);
+            // Audit log - unlike
+            if (userEmail) {
+                audit_service_1.auditService.log({
+                    userId,
+                    userEmail,
+                    action: 'POST_UNLIKE',
+                    category: 'SOCIAL',
+                    severity: 'LOW',
+                    resource: 'Post',
+                    resourceId: postId,
+                    description: `Usuário descurtiu o post`,
+                    metadata: { postId }
+                }).catch(err => console.error('[AUDIT]', err));
+            }
             return {
                 liked: false,
                 likeCount: Math.max(0, post.likeCount - 1)
@@ -62,6 +77,20 @@ class LikeService {
                     data: { likeCount: { increment: 1 } }
                 })
             ]);
+            // Audit log - like
+            if (userEmail) {
+                audit_service_1.auditService.log({
+                    userId,
+                    userEmail,
+                    action: 'POST_LIKE',
+                    category: 'SOCIAL',
+                    severity: 'LOW',
+                    resource: 'Post',
+                    resourceId: postId,
+                    description: `Usuário curtiu o post`,
+                    metadata: { postId }
+                }).catch(err => console.error('[AUDIT]', err));
+            }
             // Sprint 8: Award Livras to post author
             if (post.userId !== userId) {
                 try {
@@ -175,8 +204,6 @@ class LikeService {
                     }
                 }
             });
-            // TODO: Emit WebSocket event for real-time notification
-            // websocketService.emitToUser(authorId, 'notification:new', notification);
         }
         catch (error) {
             console.error('[LikeService] Error creating notification:', error);

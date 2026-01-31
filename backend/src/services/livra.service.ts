@@ -1,5 +1,6 @@
 import { LivraTransactionType } from '@prisma/client';
 import prisma from '../lib/prisma';
+import { auditService } from './audit.service';
 
 // WebSocket emitter type
 type WebSocketEmitter = (userId: string, event: string, data: any) => void;
@@ -140,6 +141,12 @@ class LivraService {
       }
     }
 
+    // Get user email for audit
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true }
+    });
+
     // Use transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
       // Get or create balance
@@ -194,6 +201,21 @@ class LivraService {
       createdAt: result.createdAt,
     };
 
+    // Audit log - Livras added
+    if (user?.email) {
+      auditService.log({
+        userId,
+        userEmail: user.email,
+        action: 'LIVRA_EARN' as any,
+        category: 'ECONOMY' as any,
+        severity: 'LOW' as any,
+        resource: 'LivraBalance',
+        resourceId: result.id,
+        description: `Usuário ganhou ${amount} Livras`,
+        metadata: { type, amount, balance: result.balance, detail: metadata }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
+
     // Emit real-time update
     emitLivraUpdate(userId, transactionDto);
 
@@ -209,6 +231,12 @@ class LivraService {
     if (amount <= 0) {
       throw new Error('Amount must be positive');
     }
+
+    // Get user email for audit
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true }
+    });
 
     // Use transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
@@ -255,6 +283,21 @@ class LivraService {
       expiresAt: result.expiresAt,
       createdAt: result.createdAt,
     };
+
+    // Audit log - Livras spent
+    if (user?.email) {
+      auditService.log({
+        userId,
+        userEmail: user.email,
+        action: 'LIVRA_SPEND' as any,
+        category: 'ECONOMY' as any,
+        severity: 'LOW' as any,
+        resource: 'LivraBalance',
+        resourceId: result.id,
+        description: `Usuário gastou ${amount} Livras`,
+        metadata: { type, amount, balance: result.balance, detail: metadata }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
 
     // Emit real-time update
     emitLivraUpdate(userId, transactionDto);

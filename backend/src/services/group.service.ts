@@ -3,6 +3,7 @@ import { GroupPrivacy, GroupRole, Prisma } from '@prisma/client';
 import { notificationService } from './notification.service';
 import { livraService } from './livra.service';
 import { achievementService } from './achievement.service';
+import { auditService } from './audit.service';
 
 export interface CreateGroupDto {
   name: string;
@@ -210,7 +211,7 @@ class GroupService {
   /**
    * Cria um novo grupo
    */
-  async create(userId: string, data: CreateGroupDto): Promise<GroupWithRelations> {
+  async create(userId: string, data: CreateGroupDto, userEmail?: string): Promise<GroupWithRelations> {
     if (!data.name || data.name.trim().length === 0) {
       throw new Error('O nome do grupo é obrigatório');
     }
@@ -245,6 +246,21 @@ class GroupService {
       return newGroup;
     });
 
+    // Audit log - group created
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'GROUP_CREATE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Group',
+        resourceId: group.id,
+        description: `Grupo criado pelo usuário`,
+        metadata: { name: group.name, privacy: group.privacy }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
+
     // Verificar conquista de grupos (criar também conta como participar)
     await achievementService.checkAndUnlock(userId, 'groups_joined');
 
@@ -254,9 +270,15 @@ class GroupService {
   /**
    * Atualiza um grupo
    */
-  async update(groupId: string, userId: string, data: UpdateGroupDto): Promise<GroupWithRelations> {
+  async update(groupId: string, userId: string, data: UpdateGroupDto, userEmail?: string): Promise<GroupWithRelations> {
     // Verificar permissão
     await this.checkPermission(groupId, userId, ['OWNER', 'ADMIN']);
+
+    // Get current state for audit
+    const currentGroup = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { name: true, privacy: true, description: true }
+    });
 
     const group = await prisma.group.update({
       where: { id: groupId },
@@ -269,17 +291,40 @@ class GroupService {
       include: groupInclude,
     });
 
+    // Audit log - group updated
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'GROUP_UPDATE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Group',
+        resourceId: groupId,
+        description: `Grupo atualizado pelo usuário`,
+        metadata: { 
+          changes: Object.keys(data),
+          before: currentGroup,
+          after: {
+            name: group.name,
+            privacy: group.privacy,
+            description: group.description
+          }
+        }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
+
     return group;
   }
 
   /**
    * Deleta um grupo
    */
-  async delete(groupId: string, userId: string): Promise<void> {
+  async delete(groupId: string, userId: string, userEmail?: string): Promise<void> {
     // Verificar se é owner
     const group = await prisma.group.findUnique({
       where: { id: groupId },
-      select: { ownerId: true },
+      select: { ownerId: true, name: true },
     });
 
     if (!group) {
@@ -293,15 +338,30 @@ class GroupService {
     await prisma.group.delete({
       where: { id: groupId },
     });
+
+    // Audit log - group deleted
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'GROUP_DELETE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Group',
+        resourceId: groupId,
+        description: `Grupo deletado pelo usuário`,
+        metadata: { name: group.name }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**
    * Entrar em um grupo
    */
-  async join(groupId: string, userId: string): Promise<MemberWithUser> {
+  async join(groupId: string, userId: string, userEmail?: string): Promise<MemberWithUser> {
     const group = await prisma.group.findUnique({
       where: { id: groupId },
-      select: { id: true, privacy: true, ownerId: true },
+      select: { id: true, privacy: true, ownerId: true, name: true },
     });
 
     if (!group) {
@@ -337,6 +397,21 @@ class GroupService {
       }),
     ]);
 
+    // Audit log - group join
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'GROUP_JOIN' as any,
+        category: 'SOCIAL' as any,
+        severity: 'LOW' as any,
+        resource: 'Group',
+        resourceId: groupId,
+        description: `Usuário entrou no grupo`,
+        metadata: { name: group.name }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
+
     // Verificar conquista de entrar em grupo
     await achievementService.checkAndUnlock(userId, 'groups_joined');
 
@@ -355,10 +430,10 @@ class GroupService {
   /**
    * Sair de um grupo
    */
-  async leave(groupId: string, userId: string): Promise<void> {
+  async leave(groupId: string, userId: string, userEmail?: string): Promise<void> {
     const group = await prisma.group.findUnique({
       where: { id: groupId },
-      select: { ownerId: true },
+      select: { ownerId: true, name: true },
     });
 
     if (!group) {
@@ -386,6 +461,21 @@ class GroupService {
         data: { memberCount: { decrement: 1 } },
       }),
     ]);
+
+    // Audit log - group leave
+    if (userEmail) {
+      auditService.log({
+        userId,
+        userEmail,
+        action: 'GROUP_LEAVE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'LOW' as any,
+        resource: 'Group',
+        resourceId: groupId,
+        description: `Usuário saiu do grupo`,
+        metadata: { name: group.name }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**
@@ -429,14 +519,15 @@ class GroupService {
     groupId: string,
     targetUserId: string,
     newRole: GroupRole,
-    actorUserId: string
+    actorUserId: string,
+    actorUserEmail?: string
   ): Promise<MemberWithUser> {
     // Verificar permissão do ator
     await this.checkPermission(groupId, actorUserId, ['OWNER', 'ADMIN']);
 
     const group = await prisma.group.findUnique({
       where: { id: groupId },
-      select: { ownerId: true },
+      select: { ownerId: true, name: true },
     });
 
     if (!group) {
@@ -469,6 +560,8 @@ class GroupService {
       throw new Error('Apenas o dono pode promover para Admin ou Owner');
     }
 
+    const previousRole = targetMembership.role;
+
     // Se promovendo para OWNER, transferir propriedade
     if (newRole === 'OWNER') {
       await prisma.$transaction([
@@ -495,6 +588,26 @@ class GroupService {
       });
     }
 
+    // Audit log - member role updated
+    if (actorUserEmail) {
+      auditService.log({
+        userId: actorUserId,
+        userEmail: actorUserEmail,
+        action: 'GROUP_MEMBER_ROLE_UPDATE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Group',
+        resourceId: groupId,
+        description: `Role de membro atualizada no grupo`,
+        metadata: { 
+          targetUserId, 
+          previousRole, 
+          newRole,
+          groupName: group.name
+        }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
+
     const updatedMember = await prisma.groupMember.findUnique({
       where: { groupId_userId: { groupId, userId: targetUserId } },
       include: memberInclude,
@@ -506,13 +619,13 @@ class GroupService {
   /**
    * Remove um membro do grupo
    */
-  async removeMember(groupId: string, targetUserId: string, actorUserId: string): Promise<void> {
+  async removeMember(groupId: string, targetUserId: string, actorUserId: string, actorUserEmail?: string): Promise<void> {
     // Verificar permissão
     await this.checkPermission(groupId, actorUserId, ['OWNER', 'ADMIN', 'MODERATOR']);
 
     const group = await prisma.group.findUnique({
       where: { id: groupId },
-      select: { ownerId: true },
+      select: { ownerId: true, name: true },
     });
 
     if (!group) {
@@ -553,6 +666,21 @@ class GroupService {
         data: { memberCount: { decrement: 1 } },
       }),
     ]);
+
+    // Audit log - member removed
+    if (actorUserEmail) {
+      auditService.log({
+        userId: actorUserId,
+        userEmail: actorUserEmail,
+        action: 'GROUP_MEMBER_REMOVE' as any,
+        category: 'SOCIAL' as any,
+        severity: 'MEDIUM' as any,
+        resource: 'Group',
+        resourceId: groupId,
+        description: `Membro removido do grupo`,
+        metadata: { targetUserId, groupName: group.name }
+      }).catch(err => console.error('[AUDIT]', err));
+    }
   }
 
   /**

@@ -8,6 +8,7 @@ const prisma_1 = __importDefault(require("../lib/prisma"));
 const notification_service_1 = require("./notification.service");
 const livra_service_1 = require("./livra.service");
 const achievement_service_1 = require("./achievement.service");
+const audit_service_1 = require("./audit.service");
 // Include para campanhas
 const campaignInclude = {
     group: {
@@ -112,7 +113,7 @@ class CampaignService {
     /**
      * Cria uma nova campanha
      */
-    async create(groupId, userId, data) {
+    async create(groupId, userId, data, userEmail) {
         if (!data.name || data.name.trim().length === 0) {
             throw new Error('O nome da campanha é obrigatório');
         }
@@ -156,6 +157,20 @@ class CampaignService {
             },
             include: campaignInclude,
         });
+        // Audit log - campaign created
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'CAMPAIGN_CREATE',
+                category: 'CONTENT',
+                severity: 'MEDIUM',
+                resource: 'Campaign',
+                resourceId: campaign.id,
+                description: `Campanha de leitura criada`,
+                metadata: { name: campaign.name, groupId, bookCount: data.bookIds.length }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         // Notificar membros do grupo
         const members = await prisma_1.default.groupMember.findMany({
             where: { groupId, userId: { not: userId } },
@@ -175,23 +190,23 @@ class CampaignService {
     /**
      * Atualiza uma campanha
      */
-    async update(campaignId, userId, data) {
-        const campaign = await prisma_1.default.readingCampaign.findUnique({
+    async update(campaignId, userId, data, userEmail) {
+        const campaignSnapshot = await prisma_1.default.readingCampaign.findUnique({
             where: { id: campaignId },
-            select: { groupId: true, status: true },
+            select: { groupId: true, status: true, name: true, description: true, livraReward: true }
         });
-        if (!campaign) {
+        if (!campaignSnapshot) {
             throw new Error('Campanha não encontrada');
         }
         // Verificar permissão no grupo
         const membership = await prisma_1.default.groupMember.findUnique({
-            where: { groupId_userId: { groupId: campaign.groupId, userId } },
+            where: { groupId_userId: { groupId: campaignSnapshot.groupId, userId } },
         });
         if (!membership || !['OWNER', 'ADMIN'].includes(membership.role)) {
             throw new Error('Você não tem permissão para editar esta campanha');
         }
         // Não pode editar campanha concluída
-        if (campaign.status === 'COMPLETED') {
+        if (campaignSnapshot.status === 'COMPLETED') {
             throw new Error('Não é possível editar uma campanha concluída');
         }
         const updated = await prisma_1.default.readingCampaign.update({
@@ -206,15 +221,37 @@ class CampaignService {
             },
             include: campaignInclude,
         });
+        // Audit log - campaign updated
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'CAMPAIGN_UPDATE',
+                category: 'CONTENT',
+                severity: 'MEDIUM',
+                resource: 'Campaign',
+                resourceId: campaignId,
+                description: `Campanha de leitura atualizada`,
+                metadata: {
+                    changes: Object.keys(data),
+                    before: campaignSnapshot,
+                    after: {
+                        name: updated.name,
+                        status: updated.status,
+                        livraReward: updated.livraReward
+                    }
+                }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         return updated;
     }
     /**
      * Deleta uma campanha
      */
-    async delete(campaignId, userId) {
+    async delete(campaignId, userId, userEmail) {
         const campaign = await prisma_1.default.readingCampaign.findUnique({
             where: { id: campaignId },
-            select: { groupId: true },
+            select: { groupId: true, name: true },
         });
         if (!campaign) {
             throw new Error('Campanha não encontrada');
@@ -230,14 +267,28 @@ class CampaignService {
         await prisma_1.default.readingCampaign.delete({
             where: { id: campaignId },
         });
+        // Audit log - campaign deleted
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'CAMPAIGN_DELETE',
+                category: 'CONTENT',
+                severity: 'MEDIUM',
+                resource: 'Campaign',
+                resourceId: campaignId,
+                description: `Campanha de leitura deletada`,
+                metadata: { name: campaign.name, groupId: campaign.groupId }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
     }
     /**
      * Participa de uma campanha
      */
-    async joinCampaign(campaignId, userId) {
+    async joinCampaign(campaignId, userId, userEmail) {
         const campaign = await prisma_1.default.readingCampaign.findUnique({
             where: { id: campaignId },
-            select: { id: true, groupId: true, status: true },
+            select: { id: true, groupId: true, status: true, name: true },
         });
         if (!campaign) {
             throw new Error('Campanha não encontrada');
@@ -268,6 +319,20 @@ class CampaignService {
             },
             include: progressInclude,
         });
+        // Audit log - campaign join
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'CAMPAIGN_JOIN',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Campaign',
+                resourceId: campaignId,
+                description: `Usuário entrou na campanha`,
+                metadata: { name: campaign.name }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         return progress;
     }
     /**
@@ -311,7 +376,7 @@ class CampaignService {
     /**
      * Marca um livro como lido na campanha
      */
-    async completeBook(campaignId, bookId, userId) {
+    async completeBook(campaignId, bookId, userId, userEmail) {
         const campaign = await prisma_1.default.readingCampaign.findUnique({
             where: { id: campaignId },
             include: {
@@ -357,6 +422,24 @@ class CampaignService {
             },
             include: progressInclude,
         });
+        // Audit log - campaign progress
+        if (userEmail) {
+            audit_service_1.auditService.log({
+                userId,
+                userEmail,
+                action: 'CAMPAIGN_PROGRESS',
+                category: 'SOCIAL',
+                severity: 'LOW',
+                resource: 'Campaign',
+                resourceId: campaignId,
+                description: `Usuário leu um livro da campanha`,
+                metadata: {
+                    bookId,
+                    progress: `${newBooksRead}/${totalBooks}`,
+                    isCompleted: isNowCompleted
+                }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
         let rewardEarned;
         // Se completou a campanha, dar recompensa
         if (isNowCompleted && campaign.livraReward > 0) {
