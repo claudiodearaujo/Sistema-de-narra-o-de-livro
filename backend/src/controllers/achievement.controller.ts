@@ -29,7 +29,7 @@ export const getAllAchievements = async (req: Request, res: Response) => {
  */
 export const getUserAchievements = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
 
     const achievements = await achievementService.getAchievementsByUserId(userId);
     const stats = await achievementService.getAchievementStats(userId);

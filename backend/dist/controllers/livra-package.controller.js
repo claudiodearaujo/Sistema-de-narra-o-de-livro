@@ -37,7 +37,7 @@ async function purchaseLivraPackage(req, res) {
         if (!userId) {
             return res.status(401).json({ error: 'Não autenticado' });
         }
-        const { packageId } = req.params;
+        const packageId = req.params.packageId;
         const { successUrl, cancelUrl } = req.body;
         if (!packageId) {
             return res.status(400).json({ error: 'ID do pacote é obrigatório' });

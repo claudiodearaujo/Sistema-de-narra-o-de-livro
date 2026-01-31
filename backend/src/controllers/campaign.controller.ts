@@ -13,7 +13,7 @@ class CampaignController {
    */
   async getCampaignsByGroup(req: AuthRequest, res: Response) {
     try {
-      const { groupId } = req.params;
+      const groupId = req.params.groupId as string;
       const page = parseInt(req.query.page as string) || 1;
       const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
       const status = req.query.status as CampaignStatus | undefined;
@@ -33,7 +33,7 @@ class CampaignController {
    */
   async create(req: AuthRequest, res: Response) {
     try {
-      const { groupId } = req.params;
+      const groupId = req.params.groupId as string;
       const { name, description, startDate, endDate, livraReward, bookIds } = req.body;
 
       if (!name) {
@@ -69,7 +69,7 @@ class CampaignController {
    */
   async getById(req: AuthRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       const campaign = await campaignService.getById(id, req.userId);
 
@@ -90,7 +90,7 @@ class CampaignController {
    */
   async update(req: AuthRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const { name, description, status, startDate, endDate, livraReward } = req.body;
 
       const validStatus = ['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED'].includes(status)
@@ -122,7 +122,7 @@ class CampaignController {
    */
   async delete(req: AuthRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       await campaignService.delete(id, req.userId!);
 
@@ -142,7 +142,7 @@ class CampaignController {
    */
   async join(req: AuthRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       const progress = await campaignService.joinCampaign(id, req.userId!);
 
@@ -162,7 +162,7 @@ class CampaignController {
    */
   async getProgress(req: AuthRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       const progress = await campaignService.getProgress(id, req.userId!);
 
@@ -183,7 +183,7 @@ class CampaignController {
    */
   async getLeaderboard(req: AuthRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
 
       const leaderboard = await campaignService.getCampaignLeaderboard(id, limit);
@@ -201,7 +201,7 @@ class CampaignController {
    */
   async completeBook(req: AuthRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const { bookId } = req.body;
 
       if (!bookId) {

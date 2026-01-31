@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class CharactersController {
     async getByBookId(req: Request, res: Response) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId as string;
             console.log(`[Backend] Fetching characters for bookId: ${bookId}`);
             
             const characters = await charactersService.getByBookId(bookId);
@@ -35,7 +35,7 @@ export class CharactersController {
 
     async getById(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const character = await charactersService.getById(id);
             res.json(character);
         } catch (error: any) {
@@ -49,7 +49,7 @@ export class CharactersController {
 
     async create(req: Request, res: Response) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId as string;
             const character = await charactersService.create({ ...req.body, bookId });
             res.status(201).json(character);
         } catch (error: any) {
@@ -63,7 +63,7 @@ export class CharactersController {
 
     async update(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const character = await charactersService.update(id, req.body);
             res.json(character);
         } catch (error: any) {
@@ -77,7 +77,7 @@ export class CharactersController {
 
     async delete(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const result = await charactersService.delete(id);
             res.json(result);
         } catch (error: any) {
@@ -95,7 +95,7 @@ export class CharactersController {
      */
     async generatePreviewAudio(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const { forceRegenerate } = req.body;
             
             // Buscar o personagem
@@ -177,7 +177,7 @@ export class CharactersController {
      */
     async getPreviewAudio(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             
             const character = await charactersService.getById(id);
             if (!character) {

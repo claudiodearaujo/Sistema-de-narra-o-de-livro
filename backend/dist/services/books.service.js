@@ -7,9 +7,13 @@ exports.booksService = exports.BooksService = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const achievement_service_1 = require("./achievement.service");
 class BooksService {
-    async getAll(page = 1, limit = 10, title, author) {
+    async getAll(page = 1, limit = 10, title, author, userId) {
         const skip = (page - 1) * limit;
         const where = {};
+        // Always filter by userId - only show books created by the logged in user
+        if (userId) {
+            where.userId = userId;
+        }
         if (title) {
             where.title = { contains: title, mode: 'insensitive' };
         }
@@ -87,7 +91,7 @@ class BooksService {
             return book;
         });
     }
-    async update(id, data) {
+    async update(id, data, userId) {
         // Validation
         if (data.title !== undefined && data.title.trim().length < 3) {
             throw new Error('Title must be at least 3 characters long');
@@ -99,6 +103,10 @@ class BooksService {
         if (!book) {
             throw new Error('Book not found');
         }
+        // Check if user owns this book
+        if (userId && book.userId !== userId) {
+            throw new Error('Unauthorized: You can only update your own books');
+        }
         return await prisma_1.default.book.update({
             where: { id },
             data: {
@@ -109,10 +117,14 @@ class BooksService {
             },
         });
     }
-    async delete(id) {
+    async delete(id, userId) {
         const book = await prisma_1.default.book.findUnique({ where: { id } });
         if (!book) {
             throw new Error('Book not found');
+        }
+        // Check if user owns this book
+        if (userId && book.userId !== userId) {
+            throw new Error('Unauthorized: You can only delete your own books');
         }
         await prisma_1.default.book.delete({ where: { id } });
         return { message: 'Book deleted successfully' };

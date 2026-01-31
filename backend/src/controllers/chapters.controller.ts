@@ -4,7 +4,7 @@ import { chaptersService } from '../services/chapters.service';
 export class ChaptersController {
     async getByBookId(req: Request, res: Response) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId as string;
             const chapters = await chaptersService.getByBookId(bookId);
             res.json(chapters);
         } catch (error) {
@@ -17,7 +17,7 @@ export class ChaptersController {
 
     async getById(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const chapter = await chaptersService.getById(id);
             res.json(chapter);
         } catch (error) {
@@ -34,7 +34,7 @@ export class ChaptersController {
 
     async create(req: Request, res: Response) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId as string;
             const chapter = await chaptersService.create(bookId, req.body);
             res.status(201).json(chapter);
         } catch (error) {
@@ -53,7 +53,7 @@ export class ChaptersController {
 
     async update(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const chapter = await chaptersService.update(id, req.body);
             res.json(chapter);
         } catch (error) {
@@ -72,7 +72,7 @@ export class ChaptersController {
 
     async delete(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const result = await chaptersService.delete(id);
             res.json(result);
         } catch (error) {
@@ -91,7 +91,7 @@ export class ChaptersController {
 
     async reorder(req: Request, res: Response) {
         try {
-            const { bookId } = req.params;
+            const bookId = req.params.bookId as string;
             const { orderedIds } = req.body;
 
             if (!Array.isArray(orderedIds)) {

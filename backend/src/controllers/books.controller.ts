@@ -22,7 +22,7 @@ export class BooksController {
 
     async getById(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const book = await booksService.getById(id);
             res.json(book);
         } catch (error) {
@@ -59,7 +59,7 @@ export class BooksController {
 
     async update(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const userId = (req as any).user?.userId;
             const book = await booksService.update(id, req.body, userId);
             res.json(book);
@@ -84,7 +84,7 @@ export class BooksController {
 
     async delete(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const userId = (req as any).user?.userId;
             const result = await booksService.delete(id, userId);
             res.json(result);
@@ -104,7 +104,7 @@ export class BooksController {
 
     async getStats(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const stats = await booksService.getStats(id);
             res.json(stats);
         } catch (error) {

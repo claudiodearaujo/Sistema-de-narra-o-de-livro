@@ -56,7 +56,7 @@ class GroupController {
    */
   async getById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       const group = await groupService.getById(id, getUserId(req));
 
@@ -120,7 +120,7 @@ class GroupController {
         return res.status(401).json({ error: 'Não autenticado' });
       }
 
-      const { id } = req.params;
+      const id = req.params.id as string;
       const { name, description, coverUrl, privacy } = req.body;
 
       const validPrivacy = ['PUBLIC', 'PRIVATE', 'INVITE_ONLY'].includes(privacy)
@@ -155,7 +155,7 @@ class GroupController {
         return res.status(401).json({ error: 'Não autenticado' });
       }
 
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       await groupService.delete(id, userId);
 
@@ -180,7 +180,7 @@ class GroupController {
         return res.status(401).json({ error: 'Não autenticado' });
       }
 
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       const membership = await groupService.join(id, userId);
 
@@ -205,7 +205,7 @@ class GroupController {
         return res.status(401).json({ error: 'Não autenticado' });
       }
 
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       await groupService.leave(id, userId);
 
@@ -225,7 +225,7 @@ class GroupController {
    */
   async getMembers(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const page = parseInt(req.query.page as string) || 1;
       const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
 
@@ -249,7 +249,8 @@ class GroupController {
         return res.status(401).json({ error: 'Não autenticado' });
       }
 
-      const { id, userId } = req.params;
+      const id = req.params.id as string;
+      const userId = req.params.userId as string;
       const { role } = req.body;
 
       if (!['OWNER', 'ADMIN', 'MODERATOR', 'MEMBER'].includes(role)) {
@@ -284,7 +285,8 @@ class GroupController {
         return res.status(401).json({ error: 'Não autenticado' });
       }
 
-      const { id, userId } = req.params;
+      const id = req.params.id as string;
+      const userId = req.params.userId as string;
 
       await groupService.removeMember(id, userId, currentUserId);
 

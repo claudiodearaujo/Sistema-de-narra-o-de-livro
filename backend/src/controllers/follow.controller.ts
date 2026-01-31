@@ -12,7 +12,7 @@ export async function toggleFollow(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     if (!userId) {
       res.status(400).json({ error: 'ID do usuário é obrigatório' });
       return;
@@ -38,7 +38,7 @@ export async function toggleFollow(req: Request, res: Response): Promise<void> {
  */
 export async function getFollowers(req: Request, res: Response): Promise<void> {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     if (!userId) {
       res.status(400).json({ error: 'ID do usuário é obrigatório' });
       return;
@@ -61,7 +61,7 @@ export async function getFollowers(req: Request, res: Response): Promise<void> {
  */
 export async function getFollowing(req: Request, res: Response): Promise<void> {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     if (!userId) {
       res.status(400).json({ error: 'ID do usuário é obrigatório' });
       return;
@@ -90,7 +90,7 @@ export async function getFollowStatus(req: Request, res: Response): Promise<void
       return;
     }
 
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     if (!userId) {
       res.status(400).json({ error: 'ID do usuário é obrigatório' });
       return;
@@ -109,7 +109,7 @@ export async function getFollowStatus(req: Request, res: Response): Promise<void
  */
 export async function getFollowCounts(req: Request, res: Response): Promise<void> {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
     if (!userId) {
       res.status(400).json({ error: 'ID do usuário é obrigatório' });
       return;

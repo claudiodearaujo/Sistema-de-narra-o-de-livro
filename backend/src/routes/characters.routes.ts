@@ -12,7 +12,7 @@ router.post('/books/:bookId/characters',
   authenticate, 
   requireWriter,
   checkLimit('maxCharactersPerBook', async (req) => {
-    const { bookId } = req.params;
+    const bookId = req.params.bookId as string;
     return prisma.character.count({ where: { bookId } });
   }),
   charactersController.create

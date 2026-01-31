@@ -6,7 +6,7 @@ import { commentService } from '../services/comment.service';
  */
 export async function getComments(req: Request, res: Response): Promise<void> {
   try {
-    const { postId } = req.params;
+    const postId = req.params.postId as string;
     if (!postId) {
       res.status(400).json({ error: 'ID do post é obrigatório' });
       return;
@@ -35,7 +35,7 @@ export async function createComment(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const { postId } = req.params;
+    const postId = req.params.postId as string;
     if (!postId) {
       res.status(400).json({ error: 'ID do post é obrigatório' });
       return;
@@ -72,7 +72,7 @@ export async function createComment(req: Request, res: Response): Promise<void> 
  */
 export async function getReplies(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     if (!id) {
       res.status(400).json({ error: 'ID do comentário é obrigatório' });
       return;
@@ -105,7 +105,7 @@ export async function updateComment(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     if (!id) {
       res.status(400).json({ error: 'ID do comentário é obrigatório' });
       return;
@@ -149,7 +149,7 @@ export async function deleteComment(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     if (!id) {
       res.status(400).json({ error: 'ID do comentário é obrigatório' });
       return;
@@ -184,7 +184,7 @@ export async function toggleCommentLike(req: Request, res: Response): Promise<vo
       return;
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     if (!id) {
       res.status(400).json({ error: 'ID do comentário é obrigatório' });
       return;

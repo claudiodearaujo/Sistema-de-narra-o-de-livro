@@ -68,6 +68,8 @@ class TestRunner {
 async function runTests() {
     const runner = new TestRunner();
     let createdBookId;
+    let testUserId1;
+    let testUserId2;
     // Setup
     runner.addTest('Setup: Clean test data', async () => {
         // Clean up any existing test books
@@ -76,19 +78,46 @@ async function runTests() {
                 title: { startsWith: 'Test Book' }
             }
         });
+        // Create test users
+        const user1 = await prisma_1.default.user.upsert({
+            where: { email: 'testuser1@example.com' },
+            update: {},
+            create: {
+                email: 'testuser1@example.com',
+                username: 'testuser1',
+                name: 'Test User 1',
+                password: 'hashedpassword',
+                role: 'WRITER'
+            }
+        });
+        testUserId1 = user1.id;
+        const user2 = await prisma_1.default.user.upsert({
+            where: { email: 'testuser2@example.com' },
+            update: {},
+            create: {
+                email: 'testuser2@example.com',
+                username: 'testuser2',
+                name: 'Test User 2',
+                password: 'hashedpassword',
+                role: 'WRITER'
+            }
+        });
+        testUserId2 = user2.id;
     });
     // Test: Create book
     runner.addTest('create() should create a new book', async () => {
         const book = await books_service_1.booksService.create({
             title: 'Test Book Title',
             description: 'A test book description',
-            author: 'Test Author'
+            author: 'Test Author',
+            userId: testUserId1
         });
         createdBookId = book.id;
         runner.assertNotNull(book.id, 'Book should have an ID');
         runner.assertEqual(book.title, 'Test Book Title');
         runner.assertEqual(book.author, 'Test Author');
         runner.assertEqual(book.description, 'A test book description');
+        runner.assertEqual(book.userId, testUserId1);
     });
     // Test: Create book with validation error (short title)
     runner.addTest('create() should fail for short title', async () => {
@@ -137,28 +166,50 @@ async function runTests() {
         }
     });
     // Test: Update book
-    runner.addTest('update() should update book data', async () => {
+    runner.addTest('update() should update book data when user is owner', async () => {
         const updated = await books_service_1.booksService.update(createdBookId, {
             title: 'Test Book Updated Title',
             description: 'Updated description'
-        });
+        }, testUserId1);
         runner.assertEqual(updated.title, 'Test Book Updated Title');
         runner.assertEqual(updated.description, 'Updated description');
     });
+    // Test: Update book - unauthorized
+    runner.addTest('update() should fail when user is not owner', async () => {
+        try {
+            await books_service_1.booksService.update(createdBookId, {
+                title: 'Unauthorized Update'
+            }, testUserId2);
+            throw new Error('Should have thrown an error');
+        }
+        catch (error) {
+            runner.assertTrue(error.message.toLowerCase().includes('unauthorized') ||
+                error.message.toLowerCase().includes('own'), 'Should mention unauthorized access');
+        }
+    });
     // Test: Get all books with pagination
-    runner.addTest('getAll() should return paginated books', async () => {
-        const result = await books_service_1.booksService.getAll(1, 10);
+    runner.addTest('getAll() should return paginated books for specific user', async () => {
+        const result = await books_service_1.booksService.getAll(1, 10, undefined, undefined, testUserId1);
         runner.assertNotNull(result.data, 'Should return data array');
         runner.assertNotNull(result.total, 'Should return total count');
         runner.assertEqual(result.page, 1);
         runner.assertEqual(result.limit, 10);
         runner.assertNotNull(result.totalPages, 'Should return total pages');
+        runner.assertGreaterThan(result.data.length, 0, 'Should find at least one book for user');
+        runner.assertTrue(result.data.every((b) => b.userId === testUserId1), 'All books should belong to the user');
     });
     // Test: Get all books with title filter
-    runner.addTest('getAll() should filter by title', async () => {
-        const result = await books_service_1.booksService.getAll(1, 10, 'Test Book Updated');
+    runner.addTest('getAll() should filter by title and userId', async () => {
+        const result = await books_service_1.booksService.getAll(1, 10, 'Test Book Updated', undefined, testUserId1);
         runner.assertGreaterThan(result.data.length, 0, 'Should find at least one book');
-        runner.assertTrue(result.data.some(b => b.title.includes('Test Book')), 'Should find books with matching title');
+        runner.assertTrue(result.data.some((b) => b.title.includes('Test Book')), 'Should find books with matching title');
+        runner.assertTrue(result.data.every((b) => b.userId === testUserId1), 'All books should belong to the user');
+    });
+    // Test: Get all books for different user
+    runner.addTest('getAll() should return empty for user with no books', async () => {
+        const result = await books_service_1.booksService.getAll(1, 10, undefined, undefined, testUserId2);
+        runner.assertEqual(result.data.length, 0, 'Should return empty array for user with no books');
+        runner.assertEqual(result.total, 0, 'Total should be 0');
     });
     // Test: Get book stats
     runner.addTest('getStats() should return book statistics', async () => {
@@ -170,9 +221,20 @@ async function runTests() {
         runner.assertEqual(stats.totalSpeeches, 0);
         runner.assertEqual(stats.totalCharacters, 0);
     });
+    // Test: Delete book - unauthorized
+    runner.addTest('delete() should fail when user is not owner', async () => {
+        try {
+            await books_service_1.booksService.delete(createdBookId, testUserId2);
+            throw new Error('Should have thrown an error');
+        }
+        catch (error) {
+            runner.assertTrue(error.message.toLowerCase().includes('unauthorized') ||
+                error.message.toLowerCase().includes('own'), 'Should mention unauthorized access');
+        }
+    });
     // Test: Delete book
-    runner.addTest('delete() should remove the book', async () => {
-        const result = await books_service_1.booksService.delete(createdBookId);
+    runner.addTest('delete() should remove the book when user is owner', async () => {
+        const result = await books_service_1.booksService.delete(createdBookId, testUserId1);
         runner.assertNotNull(result.message, 'Should return success message');
         const deleted = await prisma_1.default.book.findUnique({
             where: { id: createdBookId }
@@ -182,7 +244,7 @@ async function runTests() {
     // Test: Delete non-existent book
     runner.addTest('delete() should throw for non-existent book', async () => {
         try {
-            await books_service_1.booksService.delete('non-existent-id');
+            await books_service_1.booksService.delete('non-existent-id', testUserId1);
             throw new Error('Should have thrown an error');
         }
         catch (error) {

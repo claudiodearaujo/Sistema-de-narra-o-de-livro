@@ -10,8 +10,9 @@ const middleware_2 = require("../middleware");
 const middleware_3 = require("../middleware");
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const router = (0, express_1.Router)();
-// Public routes (with optional auth for personalized data)
-router.get('/', middleware_1.optionalAuth, (req, res) => books_controller_1.booksController.getAll(req, res));
+// List books - require authentication to show only user's books
+router.get('/', middleware_1.authenticate, (req, res) => books_controller_1.booksController.getAll(req, res));
+// Public routes for viewing books
 router.get('/:id', middleware_1.optionalAuth, (req, res) => books_controller_1.booksController.getById(req, res));
 router.get('/:id/stats', middleware_1.optionalAuth, (req, res) => books_controller_1.booksController.getStats(req, res));
 // Protected routes - require authentication and WRITER role minimum
