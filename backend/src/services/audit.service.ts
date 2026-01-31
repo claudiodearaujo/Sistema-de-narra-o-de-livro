@@ -120,7 +120,16 @@ function sanitizeString(input: string): string {
 
 // ========== AUDIT SERVICE ==========
 
-class AuditService {
+export class AuditService {
+  private wsEmitter: ((userId: string, event: string, data: any) => void) | null = null;
+
+  /**
+   * Define o emissor de eventos WebSocket
+   */
+  setWebSocketEmitter(emitter: (userId: string, event: string, data: any) => void) {
+    this.wsEmitter = emitter;
+  }
+
   /**
    * Registra um evento de auditoria
    * Fire-and-forget: não bloqueia a execução
@@ -137,7 +146,7 @@ class AuditService {
         ? sanitizeString(input.description) 
         : undefined;
 
-      await prisma.auditLog.create({
+      const log = await prisma.auditLog.create({
         data: {
           userId: input.userId,
           userEmail: input.userEmail,
@@ -160,6 +169,13 @@ class AuditService {
           duration: input.duration,
         },
       });
+
+      // Emitir via WebSocket para admins em tempo real
+      if (this.wsEmitter) {
+        // Broadcast para 'admin' room (necessário implementar na inicialização do WS se quiser filtrado)
+        // Por enquanto, emitimos para broadcast e o front filtra ou apenas admins escutam
+        this.wsEmitter('broadcast', 'audit:new', log);
+      }
 
       // Disparar alertas se necessário
       this.checkAndTriggerAlert(input).catch(err => console.error('[AUDIT ALERT]', err));
