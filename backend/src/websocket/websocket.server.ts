@@ -1,27 +1,45 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import jwt from 'jsonwebtoken';
+import { PrismaClient, UserRole } from '@prisma/client';
 import { messageService } from '../services/message.service';
 import { notificationService } from '../services/notification.service';
 import { setNotificationWorkerEmitter } from '../queues/notification.worker';
 import { setLivraWebSocketEmitter } from '../services/livra.service';
 import { auditService } from '../services/audit.service';
 
+const prisma = new PrismaClient();
+
 export let io: Server;
 
 // Map of userId to socket ids (a user can have multiple connections)
 const userSockets = new Map<string, Set<string>>();
 
+interface SocketUser {
+  userId: string;
+  role: UserRole;
+}
+
 /**
- * Get user ID from socket authentication
+ * Get user data from socket authentication
  */
-function getUserIdFromSocket(socket: Socket): string | null {
+async function getUserFromSocket(socket: Socket): Promise<SocketUser | null> {
   const token = socket.handshake.auth?.token || socket.handshake.query?.token;
   if (!token) return null;
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    return decoded.userId;
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { id: true, role: true }
+    });
+    
+    if (!user) return null;
+    
+    return {
+      userId: user.id,
+      role: user.role
+    };
   } catch {
     return null;
   }
@@ -84,13 +102,15 @@ export const initializeWebSocket = (httpServer: HttpServer) => {
   setLivraWebSocketEmitter(websocketEmitter);
   auditService.setWebSocketEmitter(websocketEmitter);
 
-  io.on('connection', (socket) => {
+  io.on('connection', async (socket) => {
     console.log('Client connected:', socket.id);
 
-    const userId = getUserIdFromSocket(socket);
+    const user = await getUserFromSocket(socket);
 
     // Register user socket connection
-    if (userId) {
+    if (user) {
+      const { userId, role } = user;
+      
       if (!userSockets.has(userId)) {
         userSockets.set(userId, new Set());
       }
@@ -98,10 +118,16 @@ export const initializeWebSocket = (httpServer: HttpServer) => {
       
       // Mark user as online
       messageService.setUserOnline(userId);
-      console.log(`User ${userId} is now online (socket: ${socket.id})`);
+      console.log(`User ${userId} (${role}) is now online (socket: ${socket.id})`);
 
       // Join user's personal room for targeted messages
       socket.join(`user:${userId}`);
+      
+      // Join admin room if user is admin
+      if (role === UserRole.ADMIN) {
+        socket.join('admin-room');
+        console.log(`Admin ${userId} joined admin-room`);
+      }
     }
 
     // ===== Chapter Events (existing) =====
