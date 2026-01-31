@@ -1,4 +1,5 @@
 import { PrismaClient, AuditAction, AuditCategory, AuditSeverity, UserRole } from '@prisma/client';
+import { notificationService } from './notification.service';
 
 const prisma = new PrismaClient();
 
@@ -159,6 +160,9 @@ class AuditService {
           duration: input.duration,
         },
       });
+
+      // Disparar alertas se necessário
+      this.checkAndTriggerAlert(input).catch(err => console.error('[AUDIT ALERT]', err));
     } catch (error) {
       // Nunca deve falhar a operação principal
       console.error('[AUDIT] Falha ao gravar log:', error);
@@ -473,6 +477,53 @@ class AuditService {
   }
 
   /**
+   * Obtém um log específico por ID
+   */
+  async getById(id: string) {
+    return prisma.auditLog.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Obtém estatísticas rápidas dos logs
+   */
+  async getQuickStats() {
+    const now = new Date();
+    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const [total, last24hCount, severityStats, categoryStats] = await Promise.all([
+      prisma.auditLog.count(),
+      prisma.auditLog.count({ where: { createdAt: { gte: last24h } } }),
+      prisma.auditLog.groupBy({
+        by: ['severity'],
+        _count: { _all: true },
+      }),
+      prisma.auditLog.groupBy({
+        by: ['category'],
+        _count: { _all: true },
+      }),
+    ]);
+
+    return {
+      total,
+      last24h: last24hCount,
+      bySeverity: severityStats.reduce((acc, curr) => ({ ...acc, [curr.severity]: curr._count._all }), {}),
+      byCategory: categoryStats.reduce((acc, curr) => ({ ...acc, [curr.category]: curr._count._all }), {}),
+    };
+  }
+
+  /**
    * Exporta logs para CSV ou JSON
    */
   async export(filters: AuditQueryFilters, format: 'csv' | 'json'): Promise<Buffer> {
@@ -552,6 +603,61 @@ class AuditService {
     }
 
     return totalDeleted;
+  }
+
+  /**
+   * Verifica se um log exige alerta imediato e dispara as notificações
+   */
+  private async checkAndTriggerAlert(log: AuditLogInput): Promise<void> {
+    // 1. Alertas CRITICAL - Sempre notifica admins
+    if (log.severity === AuditSeverity.CRITICAL) {
+      await this.notifyAdmins(
+        `🚨 ALERTA CRÍTICO: ${log.action}`,
+        `Um evento crítico foi registrado por ${log.userEmail || 'sistema'}: ${log.description}`,
+        { action: log.action, category: log.category, resourceId: log.resourceId }
+      );
+      return;
+    }
+
+    // 2. Alertas HIGH de Segurança/Auth
+    if (log.severity === AuditSeverity.HIGH && (log.category === AuditCategory.AUTH || log.category === AuditCategory.SYSTEM)) {
+      // Exemplo: múltiplas falhas de login (isso seria melhor em um rate limiter, mas aqui registramos o alerta)
+      if (log.action === AuditAction.AUTH_LOGIN_FAILED || log.action === AuditAction.PERMISSION_DENIED) {
+        await this.notifyAdmins(
+          `🛡️ ALERTA DE SEGURANÇA: ${log.action}`,
+          `Atividade suspeita detectada para ${log.userEmail || 'IP ' + log.ipAddress}: ${log.description}`,
+          { action: log.action, ip: log.ipAddress }
+        );
+      }
+    }
+  }
+
+  /**
+   * Envia notificação para todos os administradores
+   */
+  private async notifyAdmins(title: string, message: string, data?: any): Promise<void> {
+    try {
+      const admins = await prisma.user.findMany({
+        where: { role: UserRole.ADMIN },
+        select: { id: true }
+      });
+
+      const adminIds = admins.map(a => a.id);
+      if (adminIds.length > 0) {
+        await notificationService.notifyBulk(
+          adminIds,
+          'SYSTEM',
+          title,
+          message,
+          data
+        );
+      }
+      
+      // Também loga no console para visibilidade imediata nos logs do container/server
+      console.warn(`[AUDIT ALERT] ${title}: ${message}`);
+    } catch (error) {
+      console.error('[AUDIT SERVICE] Erro ao notificar admins:', error);
+    }
   }
 
   /**

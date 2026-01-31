@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.auditService = void 0;
 const client_1 = require("@prisma/client");
+const notification_service_1 = require("./notification.service");
 const prisma = new client_1.PrismaClient();
 // ========== CONSTANTS ==========
 const SENSITIVE_FIELDS = [
@@ -91,6 +92,8 @@ class AuditService {
                     duration: input.duration,
                 },
             });
+            // Disparar alertas se necessário
+            this.checkAndTriggerAlert(input).catch(err => console.error('[AUDIT ALERT]', err));
         }
         catch (error) {
             // Nunca deve falhar a operação principal
@@ -347,6 +350,49 @@ class AuditService {
         };
     }
     /**
+     * Obtém um log específico por ID
+     */
+    async getById(id) {
+        return prisma.auditLog.findUnique({
+            where: { id },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        name: true,
+                        role: true,
+                    },
+                },
+            },
+        });
+    }
+    /**
+     * Obtém estatísticas rápidas dos logs
+     */
+    async getQuickStats() {
+        const now = new Date();
+        const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const [total, last24hCount, severityStats, categoryStats] = await Promise.all([
+            prisma.auditLog.count(),
+            prisma.auditLog.count({ where: { createdAt: { gte: last24h } } }),
+            prisma.auditLog.groupBy({
+                by: ['severity'],
+                _count: { _all: true },
+            }),
+            prisma.auditLog.groupBy({
+                by: ['category'],
+                _count: { _all: true },
+            }),
+        ]);
+        return {
+            total,
+            last24h: last24hCount,
+            bySeverity: severityStats.reduce((acc, curr) => ({ ...acc, [curr.severity]: curr._count._all }), {}),
+            byCategory: categoryStats.reduce((acc, curr) => ({ ...acc, [curr.category]: curr._count._all }), {}),
+        };
+    }
+    /**
      * Exporta logs para CSV ou JSON
      */
     async export(filters, format) {
@@ -413,6 +459,43 @@ class AuditService {
             console.log(`[AUDIT PURGE] Removidos ${result.count} logs ${rule.severity} anteriores a ${cutoff.toISOString()}`);
         }
         return totalDeleted;
+    }
+    /**
+     * Verifica se um log exige alerta imediato e dispara as notificações
+     */
+    async checkAndTriggerAlert(log) {
+        // 1. Alertas CRITICAL - Sempre notifica admins
+        if (log.severity === client_1.AuditSeverity.CRITICAL) {
+            await this.notifyAdmins(`🚨 ALERTA CRÍTICO: ${log.action}`, `Um evento crítico foi registrado por ${log.userEmail || 'sistema'}: ${log.description}`, { action: log.action, category: log.category, resourceId: log.resourceId });
+            return;
+        }
+        // 2. Alertas HIGH de Segurança/Auth
+        if (log.severity === client_1.AuditSeverity.HIGH && (log.category === client_1.AuditCategory.AUTH || log.category === client_1.AuditCategory.SYSTEM)) {
+            // Exemplo: múltiplas falhas de login (isso seria melhor em um rate limiter, mas aqui registramos o alerta)
+            if (log.action === client_1.AuditAction.AUTH_LOGIN_FAILED || log.action === client_1.AuditAction.PERMISSION_DENIED) {
+                await this.notifyAdmins(`🛡️ ALERTA DE SEGURANÇA: ${log.action}`, `Atividade suspeita detectada para ${log.userEmail || 'IP ' + log.ipAddress}: ${log.description}`, { action: log.action, ip: log.ipAddress });
+            }
+        }
+    }
+    /**
+     * Envia notificação para todos os administradores
+     */
+    async notifyAdmins(title, message, data) {
+        try {
+            const admins = await prisma.user.findMany({
+                where: { role: client_1.UserRole.ADMIN },
+                select: { id: true }
+            });
+            const adminIds = admins.map(a => a.id);
+            if (adminIds.length > 0) {
+                await notification_service_1.notificationService.notifyBulk(adminIds, 'SYSTEM', title, message, data);
+            }
+            // Também loga no console para visibilidade imediata nos logs do container/server
+            console.warn(`[AUDIT ALERT] ${title}: ${message}`);
+        }
+        catch (error) {
+            console.error('[AUDIT SERVICE] Erro ao notificar admins:', error);
+        }
     }
     /**
      * Anonimiza logs de um usuário (LGPD)

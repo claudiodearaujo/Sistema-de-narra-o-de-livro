@@ -27,6 +27,7 @@ import achievementRoutes from './routes/achievement.routes';
 import groupRoutes from './routes/group.routes';
 import campaignRoutes from './routes/campaign.routes';
 import storyRoutes from './routes/story.routes';
+import adminAuditRoutes from './routes/admin/audit.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 import { auditContext } from './middleware';
 // Initialize Redis queues (if enabled)
@@ -37,6 +38,7 @@ import './queues/notification.queue';
 import './queues/notification.worker';
 import './queues/subscription.worker';
 import './queues/story.worker';
+import './queues/audit.worker';
 
 dotenv.config();
 
@@ -121,6 +123,9 @@ app.use('/api/campaigns', campaignRoutes);         // Campaign management
 
 // Sprint 12: Stories routes
 app.use('/api/stories', storyRoutes);              // Stories (ephemeral content)
+
+// Admin Routes
+app.use('/api/admin/audit', adminAuditRoutes);     // Audit logging admin API
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

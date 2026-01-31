@@ -32,6 +32,7 @@ const achievement_routes_1 = __importDefault(require("./routes/achievement.route
 const group_routes_1 = __importDefault(require("./routes/group.routes"));
 const campaign_routes_1 = __importDefault(require("./routes/campaign.routes"));
 const story_routes_1 = __importDefault(require("./routes/story.routes"));
+const audit_routes_1 = __importDefault(require("./routes/admin/audit.routes"));
 const websocket_server_1 = require("./websocket/websocket.server");
 const middleware_1 = require("./middleware");
 // Initialize Redis queues (if enabled)
@@ -42,6 +43,7 @@ require("./queues/notification.queue");
 require("./queues/notification.worker");
 require("./queues/subscription.worker");
 require("./queues/story.worker");
+require("./queues/audit.worker");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);
@@ -109,6 +111,8 @@ app.use('/api/groups', group_routes_1.default); // Groups and group campaigns
 app.use('/api/campaigns', campaign_routes_1.default); // Campaign management
 // Sprint 12: Stories routes
 app.use('/api/stories', story_routes_1.default); // Stories (ephemeral content)
+// Admin Routes
+app.use('/api/admin/audit', audit_routes_1.default); // Audit logging admin API
 // Initialize WebSocket
 (0, websocket_server_1.initializeWebSocket)(httpServer);
 httpServer.listen(port, () => {
