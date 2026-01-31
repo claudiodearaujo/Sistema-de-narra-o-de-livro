@@ -43,6 +43,16 @@ export function requireRole(...allowedRoles: UserRole[]) {
 
     // Verifica se a role do usuário está na lista de roles permitidas
     if (!allowedRoles.includes(userRole)) {
+      // Audit log - permission denied
+      import('../services/audit.service').then(({ auditService }) => {
+        auditService.logPermissionDenied(
+          req.user!.id,
+          req.user!.email,
+          req.originalUrl,
+          `Required roles: ${allowedRoles.join(', ')}, User role: ${userRole}`
+        ).catch(err => console.error('[AUDIT]', err));
+      });
+      
       res.status(403).json({
         error: 'Acesso negado. Você não tem permissão para acessar este recurso.',
         code: 'INSUFFICIENT_ROLE',
@@ -82,6 +92,16 @@ export function requireMinimumRole(minimumRole: UserRole) {
     const requiredLevel = ROLE_HIERARCHY[minimumRole];
 
     if (userLevel < requiredLevel) {
+      // Audit log - permission denied
+      import('../services/audit.service').then(({ auditService }) => {
+        auditService.logPermissionDenied(
+          req.user!.id,
+          req.user!.email,
+          req.originalUrl,
+          `Required minimum role: ${minimumRole}, User role: ${userRole}`
+        ).catch(err => console.error('[AUDIT]', err));
+      });
+      
       res.status(403).json({
         error: 'Acesso negado. Você precisa de um nível de acesso maior.',
         code: 'INSUFFICIENT_ROLE_LEVEL',

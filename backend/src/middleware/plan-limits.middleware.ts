@@ -143,6 +143,15 @@ export function requireFeature(feature: keyof PlanLimits) {
       // Para features booleanas
       if (typeof featureValue === 'boolean') {
         if (!featureValue) {
+          // Audit log - plan limit reached
+          import('../services/audit.service').then(({ auditService }) => {
+            auditService.logPlanLimitReached(
+              req.user!.id,
+              req.user!.email,
+              `feature:${feature}`
+            ).catch(err => console.error('[AUDIT]', err));
+          });
+          
           res.status(403).json({
             error: `Seu plano não permite usar esta funcionalidade`,
             code: 'FEATURE_NOT_AVAILABLE',
@@ -205,6 +214,15 @@ export function checkLimit(
         const currentCount = await getCurrentCount(req);
 
         if (currentCount >= limit) {
+          // Audit log - plan limit reached
+          import('../services/audit.service').then(({ auditService }) => {
+            auditService.logPlanLimitReached(
+              req.user!.id,
+              req.user!.email,
+              `${limitKey}:${currentCount}/${limit}`
+            ).catch(err => console.error('[AUDIT]', err));
+          });
+          
           res.status(403).json({
             error: `Você atingiu o limite do seu plano`,
             code: 'LIMIT_REACHED',

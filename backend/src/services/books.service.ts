@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma';
 import { achievementService } from './achievement.service';
+import { auditService } from './audit.service';
 
 export interface CreateBookDto {
     title: string;
@@ -7,6 +8,7 @@ export interface CreateBookDto {
     description?: string;
     coverUrl?: string;
     userId?: string;
+    userEmail?: string; // For audit logging
 }
 
 export interface UpdateBookDto {
@@ -94,7 +96,7 @@ export class BooksService {
             throw new Error('Author is required');
         }
 
-        return await prisma.book.create({
+        const book = await prisma.book.create({
             data: {
                 title: data.title.trim(),
                 author: data.author.trim(),
@@ -102,22 +104,34 @@ export class BooksService {
                 coverUrl: data.coverUrl,
                 userId: data.userId,
             },
-        }).then(async (book) => {
-            // Sprint 10: Check achievements for books created
-            if (data.userId) {
-                setImmediate(async () => {
-                    try {
-                        await achievementService.checkAndUnlock(data.userId!, 'books_count');
-                    } catch (err) {
-                        console.error('Failed to check achievements:', err);
-                    }
-                });
-            }
-            return book;
         });
+
+        // Audit log - book created
+        if (data.userId && data.userEmail) {
+            auditService.logCreate(
+                data.userId,
+                data.userEmail,
+                'Book',
+                book.id,
+                { title: book.title, author: book.author }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
+        // Sprint 10: Check achievements for books created
+        if (data.userId) {
+            setImmediate(async () => {
+                try {
+                    await achievementService.checkAndUnlock(data.userId!, 'books_count');
+                } catch (err) {
+                    console.error('Failed to check achievements:', err);
+                }
+            });
+        }
+
+        return book;
     }
 
-    async update(id: string, data: UpdateBookDto, userId?: string) {
+    async update(id: string, data: UpdateBookDto, userId?: string, userEmail?: string) {
         // Validation
         if (data.title !== undefined && data.title.trim().length < 3) {
             throw new Error('Title must be at least 3 characters long');
@@ -136,7 +150,14 @@ export class BooksService {
             throw new Error('Unauthorized: You can only update your own books');
         }
 
-        return await prisma.book.update({
+        // Capture before state for audit
+        const before = {
+            title: book.title,
+            author: book.author,
+            description: book.description,
+        };
+
+        const updatedBook = await prisma.book.update({
             where: { id },
             data: {
                 ...(data.title && { title: data.title.trim() }),
@@ -145,9 +166,29 @@ export class BooksService {
                 ...(data.coverUrl !== undefined && { coverUrl: data.coverUrl }),
             },
         });
+
+        // Audit log - book updated
+        if (userId && userEmail) {
+            auditService.logUpdate(
+                userId,
+                userEmail,
+                'Book',
+                id,
+                {
+                    before,
+                    after: {
+                        title: updatedBook.title,
+                        author: updatedBook.author,
+                        description: updatedBook.description,
+                    }
+                }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
+        return updatedBook;
     }
 
-    async delete(id: string, userId?: string) {
+    async delete(id: string, userId?: string, userEmail?: string) {
         const book = await prisma.book.findUnique({ where: { id } });
         if (!book) {
             throw new Error('Book not found');
@@ -159,6 +200,18 @@ export class BooksService {
         }
 
         await prisma.book.delete({ where: { id } });
+
+        // Audit log - book deleted
+        if (userId && userEmail) {
+            auditService.logDelete(
+                userId,
+                userEmail,
+                'Book',
+                id,
+                { title: book.title, author: book.author }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
         return { message: 'Book deleted successfully' };
     }
 

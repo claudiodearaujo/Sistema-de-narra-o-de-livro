@@ -133,6 +133,15 @@ export function rateLimit(action: string) {
       });
       
       if (currentCount > config.maxRequests) {
+        // Audit log - rate limit exceeded
+        const { auditService } = await import('../services/audit.service');
+        auditService.logRateLimitExceeded(
+          userId,
+          user.email,
+          req.originalUrl,
+          req.auditContext?.ipAddress || 'unknown'
+        ).catch(err => console.error('[AUDIT]', err));
+        
         res.status(429).json({
           error: 'Limite de requisições excedido',
           message: `Você atingiu o limite de ${config.maxRequests} requisições. Tente novamente em ${ttl} segundos.`,

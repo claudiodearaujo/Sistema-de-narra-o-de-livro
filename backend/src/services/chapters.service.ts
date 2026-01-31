@@ -1,8 +1,11 @@
 import prisma from '../lib/prisma';
 import { achievementService } from './achievement.service';
+import { auditService } from './audit.service';
 
 export interface CreateChapterDto {
     title: string;
+    userId?: string;
+    userEmail?: string;
 }
 
 export interface UpdateChapterDto {
@@ -60,29 +63,41 @@ export class ChaptersService {
 
         const newOrderIndex = lastChapter ? lastChapter.orderIndex + 1 : 1;
 
-        return await prisma.chapter.create({
+        const chapter = await prisma.chapter.create({
             data: {
                 bookId,
                 title: data.title.trim(),
                 orderIndex: newOrderIndex,
                 status: 'draft',
             },
-        }).then(async (chapter) => {
-            // Sprint 10: Check achievements for chapters created
-            if (book.userId) {
-                setImmediate(async () => {
-                    try {
-                        await achievementService.checkAndUnlock(book.userId!, 'chapters_count');
-                    } catch (err) {
-                        console.error('Failed to check achievements:', err);
-                    }
-                });
-            }
-            return chapter;
         });
+
+        // Audit log - chapter created
+        if (data.userId && data.userEmail) {
+            auditService.logCreate(
+                data.userId,
+                data.userEmail,
+                'Chapter',
+                chapter.id,
+                { title: chapter.title, bookId, orderIndex: newOrderIndex }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
+        // Sprint 10: Check achievements for chapters created
+        if (book.userId) {
+            setImmediate(async () => {
+                try {
+                    await achievementService.checkAndUnlock(book.userId!, 'chapters_count');
+                } catch (err) {
+                    console.error('Failed to check achievements:', err);
+                }
+            });
+        }
+
+        return chapter;
     }
 
-    async update(id: string, data: UpdateChapterDto) {
+    async update(id: string, data: UpdateChapterDto, userId?: string, userEmail?: string) {
         if (data.title !== undefined && data.title.trim().length === 0) {
             throw new Error('Title is required');
         }
@@ -92,15 +107,30 @@ export class ChaptersService {
             throw new Error('Chapter not found');
         }
 
-        return await prisma.chapter.update({
+        const before = { title: chapter.title };
+
+        const updatedChapter = await prisma.chapter.update({
             where: { id },
             data: {
                 ...(data.title && { title: data.title.trim() }),
             },
         });
+
+        // Audit log - chapter updated
+        if (userId && userEmail) {
+            auditService.logUpdate(
+                userId,
+                userEmail,
+                'Chapter',
+                id,
+                { before, after: { title: updatedChapter.title } }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
+        return updatedChapter;
     }
 
-    async delete(id: string) {
+    async delete(id: string, userId?: string, userEmail?: string) {
         const chapter = await prisma.chapter.findUnique({
             where: { id },
             include: { narration: true }
@@ -115,10 +145,22 @@ export class ChaptersService {
         }
 
         await prisma.chapter.delete({ where: { id } });
+
+        // Audit log - chapter deleted
+        if (userId && userEmail) {
+            auditService.logDelete(
+                userId,
+                userEmail,
+                'Chapter',
+                id,
+                { title: chapter.title, bookId: chapter.bookId }
+            ).catch(err => console.error('[AUDIT]', err));
+        }
+
         return { message: 'Chapter deleted successfully' };
     }
 
-    async reorder(bookId: string, orderedIds: string[]) {
+    async reorder(bookId: string, orderedIds: string[], userId?: string, userEmail?: string) {
         const book = await prisma.book.findUnique({ where: { id: bookId } });
         if (!book) {
             throw new Error('Book not found');
@@ -145,6 +187,21 @@ export class ChaptersService {
                 })
             )
         );
+
+        // Audit log - chapters reordered
+        if (userId && userEmail) {
+            auditService.log({
+                userId,
+                userEmail,
+                action: 'CHAPTER_REORDER' as any,
+                category: 'CHAPTER' as any,
+                severity: 'LOW' as any,
+                resource: 'Chapter',
+                resourceId: bookId,
+                description: `Capítulos reordenados no livro ${bookId}`,
+                metadata: { orderedIds, count: orderedIds.length }
+            }).catch(err => console.error('[AUDIT]', err));
+        }
 
         return { message: 'Chapters reordered successfully' };
     }
