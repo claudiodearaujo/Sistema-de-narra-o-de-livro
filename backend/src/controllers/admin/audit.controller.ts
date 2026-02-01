@@ -108,6 +108,12 @@ export class AuditController {
 
       const result = await auditService.export(filters, format);
 
+      // Check if result is an error response
+      if ('error' in result) {
+        res.status(400).json(result);
+        return;
+      }
+
       res.setHeader('Content-Type', format === 'csv' ? 'text/csv' : 'application/json');
       res.setHeader('Content-Disposition', `attachment; filename=audit-logs-${new Date().toISOString()}.${format}`);
       res.send(result);

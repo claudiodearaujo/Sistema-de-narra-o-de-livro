@@ -67,11 +67,22 @@ export function emitToAll(event: string, data: any): void {
 }
 
 /**
+ * Emit event to all admins only
+ */
+export function emitToAdmins(event: string, data: any): void {
+  if (io) {
+    io.to('admin-room').emit(event, data);
+  }
+}
+
+/**
  * WebSocket emitter for services
  */
 function websocketEmitter(userId: string, event: string, data: any): void {
   if (userId === 'broadcast') {
     emitToAll(event, data);
+  } else if (userId === 'admin-room') {
+    emitToAdmins(event, data);
   } else {
     emitToUser(userId, event, data);
   }

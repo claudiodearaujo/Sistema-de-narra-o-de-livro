@@ -172,9 +172,8 @@ export class AuditService {
 
       // Emitir via WebSocket para admins em tempo real
       if (this.wsEmitter) {
-        // Broadcast para 'admin' room (necessário implementar na inicialização do WS se quiser filtrado)
-        // Por enquanto, emitimos para broadcast e o front filtra ou apenas admins escutam
-        this.wsEmitter('broadcast', 'audit:new', log);
+        // Emite apenas para sala de admins
+        this.wsEmitter('admin-room', 'audit:new', log);
       }
 
       // Disparar alertas se necessário
@@ -541,9 +540,24 @@ export class AuditService {
 
   /**
    * Exporta logs para CSV ou JSON
+   * Limitado a 100.000 registros para prevenir DoS
    */
-  async export(filters: AuditQueryFilters, format: 'csv' | 'json'): Promise<Buffer> {
-    const result = await this.query({ ...filters, limit: 10000 });
+  async export(filters: AuditQueryFilters, format: 'csv' | 'json'): Promise<Buffer | { error: string; maxRecords: number }> {
+    const MAX_EXPORT_RECORDS = 100000;
+    
+    // Primeiro, verifica quantos registros seriam exportados
+    const countResult = await this.query({ ...filters, limit: 1 });
+    const totalRecords = countResult.pagination.total;
+    
+    if (totalRecords > MAX_EXPORT_RECORDS) {
+      return {
+        error: `Exportação limitada a ${MAX_EXPORT_RECORDS} registros. Total encontrado: ${totalRecords}`,
+        maxRecords: MAX_EXPORT_RECORDS
+      };
+    }
+    
+    // Busca todos os registros (até o limite)
+    const result = await this.query({ ...filters, limit: totalRecords });
     
     if (format === 'json') {
       return Buffer.from(JSON.stringify(result.data, null, 2));
