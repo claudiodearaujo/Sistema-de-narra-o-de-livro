@@ -28,6 +28,7 @@ import groupRoutes from './routes/group.routes';
 import campaignRoutes from './routes/campaign.routes';
 import storyRoutes from './routes/story.routes';
 import adminAuditRoutes from './routes/admin/audit.routes';
+import aiApiRoutes from './routes/ai-api.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 import { auditContext } from './middleware';
 // Initialize Redis queues (if enabled)
@@ -123,6 +124,9 @@ app.use('/api/campaigns', campaignRoutes);         // Campaign management
 
 // Sprint 12: Stories routes
 app.use('/api/stories', storyRoutes);              // Stories (ephemeral content)
+
+// AI API Routes (unified AI gateway)
+app.use('/api/ai', aiApiRoutes);                    // AI operations (TTS, Text, Image) with token control
 
 // Admin Routes
 app.use('/api/admin/audit', adminAuditRoutes);     // Audit logging admin API

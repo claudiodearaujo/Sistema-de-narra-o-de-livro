@@ -28,6 +28,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.34.0",
     "@google/genai": "^1.38.0",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",

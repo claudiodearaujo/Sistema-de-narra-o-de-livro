@@ -51,3 +51,4 @@ export type {
 export { GeminiTextProvider } from './providers/gemini-text.provider';
 export { GeminiImageProvider } from './providers/gemini-image.provider';
 export { GeminiTTSProvider } from './providers/gemini-tts.provider';
+export { ElevenLabsTTSProvider } from './providers/elevenlabs-tts.provider';
