@@ -9,7 +9,7 @@
     "seed": "npx ts-node prisma/seed.ts",
     "postinstall": "npx prisma generate",
     "test": "npm run test:all",
-    "test:all": "npm run test:middleware && npm run test:redis && npm run test:services",
+    "test:all": "npm run test:middleware && npm run test:redis && npm run test:services && npm run test:ai",
     "test:middleware": "npx ts-node src/__tests__/middleware/role.middleware.test.ts && npx ts-node src/__tests__/middleware/plan-limits.middleware.test.ts",
     "test:middleware:role": "npx ts-node src/__tests__/middleware/role.middleware.test.ts",
     "test:middleware:plan": "npx ts-node src/__tests__/middleware/plan-limits.middleware.test.ts",
@@ -18,7 +18,11 @@
     "test:auth": "npx ts-node src/__tests__/services/auth.service.test.ts",
     "test:books": "npx ts-node src/__tests__/services/books.service.test.ts",
     "test:posts": "npx ts-node src/__tests__/services/post.service.test.ts",
-    "test:feed": "npx ts-node src/__tests__/services/feed.service.test.ts"
+    "test:feed": "npx ts-node src/__tests__/services/feed.service.test.ts",
+    "test:ai": "npm run test:ai:token && npm run test:ai:api && npm run test:ai:routes",
+    "test:ai:token": "npx ts-node src/__tests__/services/ai-token.service.test.ts",
+    "test:ai:api": "npx ts-node src/__tests__/services/ai-api.service.test.ts",
+    "test:ai:routes": "npx ts-node src/__tests__/routes/ai-api.routes.test.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
