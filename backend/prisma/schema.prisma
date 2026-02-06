@@ -166,9 +166,6 @@ model User {
   // Audit relations
   auditLogs         AuditLog[]
 
-  // AI Usage relations
-  aiUsageLogs       AIUsageLog[]
-
   @@map("users")
 }
 
@@ -977,107 +974,4 @@ model AuditLog {
   @@index([action, createdAt])
 
   @@map("audit_logs")
-}
-
-// ========== AI USAGE TRACKING MODELS ==========
-
-enum AIOperationType {
-  TTS_GENERATE
-  TTS_PREVIEW
-  TTS_VOICES_LIST
-  TEXT_GENERATE
-  TEXT_SPELLCHECK
-  TEXT_SUGGEST
-  TEXT_ENRICH
-  IMAGE_GENERATE
-  IMAGE_EMOTION
-  NARRATION_CHAPTER
-}
-
-enum AIProviderName {
-  GEMINI
-  ELEVENLABS
-  OPENAI
-  ANTHROPIC
-  STABILITY
-  AZURE
-}
-
-model AIUsageLog {
-  id            String          @id @default(uuid())
-
-  // Quem
-  userId        String          @map("user_id")
-  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // O que
-  operation     AIOperationType
-  provider      AIProviderName
-
-  // Contexto
-  resourceType  String?         @map("resource_type")  // "Chapter", "Speech", "Character", etc.
-  resourceId    String?         @map("resource_id")
-
-  // Métricas de uso
-  inputTokens   Int             @default(0) @map("input_tokens")   // Tokens/caracteres de entrada
-  outputTokens  Int             @default(0) @map("output_tokens")  // Tokens/caracteres de saída
-  inputChars    Int             @default(0) @map("input_chars")    // Caracteres de texto enviados
-  outputBytes   Int             @default(0) @map("output_bytes")   // Bytes de saída (áudio/imagem)
-  durationMs    Int             @default(0) @map("duration_ms")    // Duração da chamada em ms
-
-  // Custo
-  estimatedCost Float           @default(0) @map("estimated_cost") // Custo estimado em USD
-  livrasCost    Int             @default(0) @map("livras_cost")    // Custo em Livras cobrado
-
-  // Resultado
-  success       Boolean         @default(true)
-  errorMessage  String?         @map("error_message")
-
-  // Metadados
-  metadata      Json?           // Dados extras (modelo usado, voz, formato, etc.)
-
-  createdAt     DateTime        @default(now()) @map("created_at")
-
-  @@index([userId])
-  @@index([operation])
-  @@index([provider])
-  @@index([createdAt])
-  @@index([userId, createdAt])
-  @@index([userId, operation])
-  @@index([provider, createdAt])
-
-  @@map("ai_usage_logs")
-}
-
-// ========== AUDIO CACHE MODEL ==========
-
-model AudioCache {
-  id            String   @id @default(uuid())
-
-  // Cache key components
-  textHash      String   @unique @map("text_hash")  // SHA256 hash of text+voiceId+provider
-  text          String                              // Original text (for debugging)
-  voiceId       String   @map("voice_id")
-  provider      String                              // gemini, elevenlabs, etc.
-
-  // Cached audio
-  audioUrl      String   @map("audio_url")          // Path to cached audio file
-  audioDurationMs Int    @map("audio_duration_ms")  // Duration in milliseconds
-  audioSizeBytes Int     @map("audio_size_bytes")   // File size in bytes
-  format        String   @default("mp3")            // Audio format
-
-  // Usage tracking
-  hitCount      Int      @default(0) @map("hit_count")  // Number of cache hits
-  lastAccessedAt DateTime @default(now()) @map("last_accessed_at")
-
-  createdAt     DateTime @default(now()) @map("created_at")
-  expiresAt     DateTime? @map("expires_at")        // Optional expiration
-
-  @@index([textHash])
-  @@index([voiceId])
-  @@index([provider])
-  @@index([lastAccessedAt])
-  @@index([createdAt])
-
-  @@map("audio_cache")
 }
