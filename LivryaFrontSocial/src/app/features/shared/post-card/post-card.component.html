@@ -1,0 +1,139 @@
+<ng-container *transloco="let t">
+  <article class="post-card bg-surface-card rounded-xl shadow-sm border border-surface-border overflow-hidden">
+    <!-- Post Header -->
+    <header class="flex items-center justify-between p-4 pb-2">
+      <div class="flex items-center gap-3">
+        <a [routerLink]="['/social/profile', post().user.username || post().user.id]" class="shrink-0">
+          <p-avatar [image]="post().user.avatar || undefined" [label]="!post().user.avatar ? getInitials() : undefined"
+            size="large" shape="circle"
+            styleClass="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all" />
+        </a>
+        <div class="flex flex-col">
+          <a [routerLink]="['/social/profile', post().user.username || post().user.id]"
+            class="font-semibold text-primary-800 dark:text-primary-200 hover:underline">
+            {{ post().user.name || t('postCard.user') }}
+          </a>
+          <div class="flex items-center gap-2 text-sm text-secondary">
+            @if (post().user.username) {
+            <span>&#64;{{ post().user.username }}</span>
+            <span>•</span>
+            }
+            <span>{{ post().createdAt | timeAgo }}</span>
+          </div>
+        </div>
+      </div>
+
+      @if (showActions()) {
+      <button pButton type="button" icon="pi pi-ellipsis-h" class="p-button-text p-button-rounded p-button-plain"
+        (click)="menu.toggle($event)" [pTooltip]="t('postCard.moreOptions')" tooltipPosition="left"></button>
+      <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
+      }
+    </header>
+
+    <!-- Post Content -->
+    <div class="px-4 py-2">
+      <p class="text-primary-900 dark:text-primary-100 whitespace-pre-wrap break-word">{{ post().content }}</p>
+    </div>
+
+    <!-- Post Media -->
+    @if (post().mediaUrl) {
+    <div class="mt-2">
+      <img [src]="post().mediaUrl" [alt]="t('postCard.imageAlt', { name: post().user.name || t('postCard.user') })"
+        class="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+        (click)="openMedia()" />
+    </div>
+    }
+
+    <!-- Book/Chapter Preview - Use specialized cards based on post type -->
+    @if (post().type === 'BOOK_UPDATE' && post().book) {
+    <div class="mx-4 mt-3">
+      <app-book-update-card [book]="post().book" [description]="getBookDescription()" [isNewBook]="true" />
+    </div>
+    }
+
+    @if (post().type === 'CHAPTER_PREVIEW' && post().book && post().chapter) {
+    <div class="mx-4 mt-3">
+      <app-chapter-preview-card [book]="post().book" [chapter]="post().chapter" [excerpt]="getChapterExcerpt()" />
+    </div>
+    }
+
+    @if (post().type === 'AUDIO_PREVIEW' && post().book && post().chapter && post().mediaUrl) {
+    <div class="mx-4 mt-3">
+      <app-audio-preview-player [book]="post().book" [chapter]="post().chapter" [audioUrl]="post().mediaUrl || ''" />
+    </div>
+    }
+
+    <!-- Standard Book/Chapter Preview for other types -->
+    @if (post().book && !['BOOK_UPDATE', 'CHAPTER_PREVIEW', 'AUDIO_PREVIEW'].includes(post().type)) {
+    <div class="mx-4 mt-3 p-3 bg-secondary-50 dark:bg-secondary-800 rounded-lg border border-surface-border">
+      <div class="flex items-center gap-3">
+        @if (post().book?.coverUrl) {
+        <img [src]="post().book?.coverUrl" [alt]="post().book?.title" class="w-12 h-16 object-cover rounded" />
+        }
+        <div>
+          <p class="font-medium text-primary-800 dark:text-primary-200">{{ post().book?.title }}</p>
+          <p class="text-sm text-secondary">{{ t('postCard.by') }} {{ post().book?.author }}</p>
+          @if (post().chapter) {
+          <p class="text-sm text-primary-600">📖 {{ post().chapter?.title }}</p>
+          }
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Shared Post -->
+    @if (post().sharedPost && post().type === 'SHARED') {
+    <div class="mx-4 mt-3 p-3 bg-secondary-50 dark:bg-secondary-800 rounded-lg border border-surface-border">
+      <div class="flex items-center gap-2 mb-2">
+        <p-avatar [image]="post().sharedPost?.user?.avatar || undefined"
+          [label]="!post().sharedPost?.user?.avatar ? 'U' : undefined" shape="circle" size="normal" />
+        <span class="font-medium text-sm">{{ post().sharedPost?.user?.name }}</span>
+      </div>
+      <p class="text-sm text-primary-700 dark:text-primary-300 line-clamp-3">{{ post().sharedPost?.content }}</p>
+    </div>
+    }
+
+    <!-- Post Stats -->
+    @if (post().likeCount > 0 || post().commentCount > 0 || post().shareCount > 0) {
+    <div class="px-4 py-2 flex items-center gap-4 text-sm text-secondary border-t border-surface-border mt-2">
+      @if (post().likeCount > 0) {
+      <span class="flex items-center gap-1">
+        <i class="pi pi-heart-fill text-red-500"></i>
+        {{ post().likeCount }}
+      </span>
+      }
+      @if (post().commentCount > 0) {
+      <span>{{ post().commentCount }} {{ post().commentCount === 1 ? t('postCard.commentSingular') :
+        t('postCard.commentPlural') }}</span>
+      }
+      @if (post().shareCount > 0) {
+      <span>{{ post().shareCount }} {{ post().shareCount === 1 ? t('postCard.shareSingular') : t('postCard.sharePlural')
+        }}</span>
+      }
+    </div>
+    }
+
+    <!-- Action Buttons -->
+    @if (showActions()) {
+    <footer class="flex items-center justify-around py-2 px-4 border-t border-secondary-100 dark:border-secondary-700">
+      <!-- Like Button -->
+      <button pButton type="button" [icon]="isLiked() ? 'pi pi-heart-fill' : 'pi pi-heart'"
+        [class]="isLiked() ? 'p-button-text p-button-danger' : 'p-button-text p-button-secondary'"
+        [label]="likeButtonLabel()" (click)="onLikeClick()" [loading]="likeLoading()"
+        class="flex-1 justify-center"></button>
+
+      <!-- Comment Button -->
+      <button pButton type="button" icon="pi pi-comment" class="p-button-text p-button-secondary flex-1 justify-center"
+        [label]="commentButtonLabel()" (click)="onCommentClick()"></button>
+
+      <!-- Share Button -->
+      <button pButton type="button" icon="pi pi-share-alt"
+        class="p-button-text p-button-secondary flex-1 justify-center" [label]="shareButtonLabel()"
+        (click)="onShareClick()" [disabled]="post().type === 'SHARED'"></button>
+    </footer>
+    }
+  </article>
+
+  <!-- Share Modal -->
+  <app-share-modal [post]="post()" [(visible)]="shareModalVisible" (shared)="onPostShared($event)" />
+</ng-container>

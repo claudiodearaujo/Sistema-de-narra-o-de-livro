@@ -1,0 +1,91 @@
+<div class="legal-page">
+    <div class="page-container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-icon">
+                <i class="pi pi-building"></i>
+            </div>
+            <h1 class="page-title">Parcerias e Editoras</h1>
+            <p class="page-subtitle">Conectando autores a oportunidades</p>
+        </header>
+
+        <!-- Content -->
+        <article class="page-content">
+            <section class="content-section intro-section">
+                <p class="intro-text">
+                    A Livrya atua como ponte entre autores e oportunidades.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>O que oferecemos</h2>
+                <p>
+                    Oferecemos orientação, divulgação e apoio para escritores interessados em publicar seus livros por
+                    meio de editoras parceiras, respeitando sempre a decisão final do autor.
+                </p>
+                <div class="benefits-list">
+                    @for (benefit of benefits; track benefit) {
+                    <div class="benefit-item">
+                        <i class="pi pi-check-circle"></i>
+                        <span>{{ benefit }}</span>
+                    </div>
+                    }
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>Como funciona</h2>
+                <p>
+                    Quando uma obra atinge determinado nível de engajamento ou é indicada pela comunidade, nossa equipe
+                    entra em contato para oferecer orientação sobre os próximos passos.
+                </p>
+                <p>
+                    Você pode:
+                </p>
+                <ul>
+                    <li>Continuar publicando apenas na Livrya</li>
+                    <li>Buscar uma editora tradicional com nosso apoio</li>
+                    <li>Publicar de forma independente com nossas ferramentas</li>
+                </ul>
+                <p class="highlight">
+                    A escolha é sempre sua. Nunca intermediamos negociações sem seu consentimento.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Para Editoras</h2>
+                <p>
+                    Se você representa uma editora interessada em parceria com a Livrya:
+                </p>
+                <ul>
+                    <li>Acesse talentos promissores da comunidade</li>
+                    <li>Descubra obras já validadas por leitores</li>
+                    <li>Conecte-se diretamente com autores interessados</li>
+                </ul>
+                <p>
+                    Entre em contato através da nossa <a routerLink="/institutional/contact">página de contato</a>.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Editoras Parceiras</h2>
+                <p>
+                    Em breve divulgaremos nossa lista de editoras parceiras. Se você é autor e deseja ser notificado
+                    sobre oportunidades, mantenha seu perfil atualizado e ative as notificações.
+                </p>
+            </section>
+        </article>
+
+        <!-- Navigation -->
+        <nav class="page-nav">
+            <a routerLink="/institutional/publication" class="nav-link nav-prev">
+                <i class="pi pi-arrow-left"></i>
+                Publicação e Monetização
+            </a>
+            <a routerLink="/institutional/content-guidelines" class="nav-link">
+                <i class="pi pi-arrow-right"></i>
+                Diretrizes de Conteúdo
+            </a>
+        </nav>
+    </div>
+</div>

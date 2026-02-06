@@ -1,0 +1,59 @@
+<ng-container *transloco="let t">
+  <div class="narration-control p-4 border border-surface-border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 font-heading">{{ t('narration.title') }}</h3>
+      <div class="flex gap-2">
+        @if (!selectedSpeechHasAudio) {
+          <p-button [label]="t('narration.generateAudio')" icon="pi pi-play" (onClick)="startNarration()"
+            [disabled]="isGenerateDisabled" severity="success" />
+        }
+        @if (isProcessing) {
+          <p-button [label]="t('common.cancel')" icon="pi pi-times" (onClick)="cancelNarration()"
+            severity="danger" [outlined]="true" />
+        }
+      </div>
+    </div>
+
+    @if (!selectedSpeech()) {
+      <p class="text-xs text-secondary mb-3">
+        {{ t('narration.selectSpeechHint') }}
+      </p>
+    }
+
+    @if (selectedSpeech() && !selectedSpeechHasAudio && !isProcessing) {
+      <p class="text-xs text-primary-600 dark:text-primary-400 mb-3">
+        <i class="pi pi-info-circle mr-1"></i>
+        {{ t('narration.clickToGenerate') }}
+      </p>
+    }
+
+    <!-- Player para fala que já tem áudio -->
+    @if (selectedSpeechHasAudio) {
+      <div class="audio-section mb-3">
+        <div class="mb-2">
+          <span class="text-sm font-semibold text-green-600 dark:text-green-400">
+            <i class="pi pi-check-circle mr-1"></i>
+            {{ t('narration.audioAvailable') }}
+          </span>
+        </div>
+        <audio controls class="w-full">
+          <source [src]="getAudioUrl(selectedSpeech()?.audioUrl)" type="audio/mpeg">
+          {{ t('narration.browserNotSupported') }}
+        </audio>
+      </div>
+    }
+
+    <!-- Progresso da geração -->
+    @if (isProcessing) {
+      <div class="progress-section">
+        <div class="flex justify-between mb-1 text-sm text-gray-600 dark:text-gray-400">
+          <span>{{ t('narration.progress') }}: {{ progress }}%</span>
+          <span>{{ t('narration.generatingAudio') }}</span>
+        </div>
+        <p-progressBar [value]="progress" [showValue]="false" [style]="{'height': '10px'}" />
+      </div>
+    }
+
+    <p-toast />
+  </div>
+</ng-container>

@@ -1,0 +1,96 @@
+<div class="writer-page">
+    <!-- Hero Section -->
+    <section class="writer-hero">
+        <div class="hero-container">
+            <div class="hero-badge">
+                <i class="pi pi-pen-to-square"></i>
+                Para Escritores
+            </div>
+            <h1 class="hero-title">Área do Escritor</h1>
+            <p class="hero-subtitle">
+                A Livrya é um espaço de crescimento para autores independentes.
+            </p>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="section-container">
+            <h2 class="section-title">O que você pode fazer na Livrya</h2>
+            <div class="features-list">
+                @for (feature of features; track feature.title) {
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="pi" [ngClass]="feature.icon"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>{{ feature.title }}</h3>
+                        <p>{{ feature.description }}</p>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Authorship Section -->
+    <section class="authorship-section">
+        <div class="section-container">
+            <div class="authorship-card">
+                <div class="authorship-icon">
+                    <i class="pi pi-verified"></i>
+                </div>
+                <h2>A autoria da obra é sempre do escritor.</h2>
+                <p>
+                    Na Livrya, você mantém todos os direitos sobre suas criações.
+                    Nós apenas fornecemos as ferramentas e o palco para sua voz ser ouvida.
+                </p>
+                <a routerLink="/institutional/copyright" class="authorship-link">
+                    Saiba mais sobre Direitos Autorais
+                    <i class="pi pi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Pages -->
+    <section class="related-section">
+        <div class="section-container">
+            <h2 class="section-title">Mais para Escritores</h2>
+            <div class="related-grid">
+                <a routerLink="/institutional/copyright" class="related-card">
+                    <i class="pi pi-file-check"></i>
+                    <h3>Direitos Autorais</h3>
+                    <p>Entenda como protegemos seus direitos</p>
+                </a>
+                <a routerLink="/institutional/publication" class="related-card">
+                    <i class="pi pi-money-bill"></i>
+                    <h3>Publicação e Monetização</h3>
+                    <p>Formas de rentabilizar seu trabalho</p>
+                </a>
+                <a routerLink="/institutional/partners" class="related-card">
+                    <i class="pi pi-building"></i>
+                    <h3>Parcerias e Editoras</h3>
+                    <p>Conecte-se com oportunidades</p>
+                </a>
+                <a routerLink="/institutional/content-guidelines" class="related-card">
+                    <i class="pi pi-list-check"></i>
+                    <h3>Diretrizes de Conteúdo</h3>
+                    <p>O que pode ser publicado</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2>Pronto para começar?</h2>
+            <p>Crie sua conta gratuita e comece a publicar suas histórias hoje.</p>
+            <div class="cta-actions">
+                <a routerLink="/auth/signup" class="cta-btn-primary">Criar Conta Grátis</a>
+                <a routerLink="/writer" class="cta-btn-secondary">Acessar Área do Escritor</a>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,299 @@
+/* ==========================================================================
+   PUBLICATION PAGE
+   ========================================================================== */
+
+.publication-page {
+  animation: livrya-fade-in var(--duration-normal) var(--ease-standard);
+}
+
+/* ==========================================================================
+   HERO SECTION
+   ========================================================================== */
+
+.pub-hero {
+  padding: var(--space-16) var(--space-6);
+  background: linear-gradient(135deg, var(--color-secondary-50) 0%, var(--color-secondary-100) 100%);
+  text-align: center;
+}
+
+.hero-container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-6);
+  background: linear-gradient(135deg, var(--color-primary-100) 0%, var(--color-primary-200) 100%);
+  border-radius: var(--radius-2xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-icon i {
+  font-size: 2.5rem;
+  color: var(--color-primary-600);
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.hero-subtitle {
+  font-size: var(--text-xl);
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   METHODS SECTION
+   ========================================================================== */
+
+.section-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-16) var(--space-6);
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--space-10);
+}
+
+.methods-section {
+  background: white;
+}
+
+.methods-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+.method-card {
+  background: var(--color-secondary-50);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  text-align: center;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.method-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.method-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  background: linear-gradient(135deg, var(--color-livra), #FFD700);
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.method-icon i {
+  font-size: 1.75rem;
+  color: #3E352E;
+}
+
+.method-card h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.method-card p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ==========================================================================
+   LIVRAS SECTION
+   ========================================================================== */
+
+.livras-section {
+  background: var(--color-primary-700);
+}
+
+.livras-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: white;
+}
+
+.livras-icon {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--color-livra), #FFD700);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 4rem;
+  font-weight: var(--font-weight-bold);
+  color: #3E352E;
+}
+
+.livras-content h2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-4);
+}
+
+.livras-content p {
+  font-size: var(--text-md);
+  opacity: 0.9;
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-3);
+}
+
+.livras-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.livras-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==========================================================================
+   HOW IT WORKS SECTION
+   ========================================================================== */
+
+.how-section {
+  background: var(--color-secondary-50);
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.step-number {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  background: var(--color-primary-500);
+  color: white;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-content h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.step-content p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ==========================================================================
+   CTA SECTION
+   ========================================================================== */
+
+.cta-section {
+  background: white;
+  text-align: center;
+  border-top: 1px solid var(--surface-border);
+}
+
+.cta-section h2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.cta-section p {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+.cta-btn {
+  display: inline-block;
+  padding: var(--space-4) var(--space-8);
+  background: var(--color-primary-500);
+  color: white;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-md);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.cta-btn:hover {
+  background: var(--color-primary-600);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .methods-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .livras-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .section-container {
+    padding: var(--space-10) var(--space-4);
+  }
+}

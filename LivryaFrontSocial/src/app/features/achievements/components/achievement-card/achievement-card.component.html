@@ -1,0 +1,38 @@
+<div class="achievement-card" 
+     [class.unlocked]="isUnlocked"
+     [class.locked]="!isUnlocked"
+     [class.compact]="compact()"
+     [pTooltip]="achievement().description"
+     tooltipPosition="top">
+  <div class="achievement-icon" [class.grayscale]="!isUnlocked">
+    {{ achievement().icon }}
+  </div>
+  @if (!compact()) {
+    <div class="achievement-info">
+      <h4>{{ achievement().name }}</h4>
+      <p>{{ achievement().description }}</p>
+      @if (isUnlocked) {
+        <p-tag severity="success" value="Desbloqueada" icon="pi pi-check"/>
+        <span class="unlock-date">{{ formatDate(achievement().unlockedAt) }}</span>
+      } @else if (showProgress()) {
+        <div class="progress-section">
+          <p-progressBar 
+            [value]="progress" 
+            [showValue]="false"
+            styleClass="achievement-progress"/>
+          <span class="progress-text">
+            {{ achievement().progress || 0 }}/{{ achievement().progressTarget }}
+          </span>
+        </div>
+      }
+      @if (achievement().livraReward > 0 && showReward()) {
+        <div class="reward">
+          <span class="livra-icon">💎</span>
+          <span>+{{ achievement().livraReward }} Livras</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <span class="compact-name">{{ achievement().name }}</span>
+  }
+</div>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIVRIA - Offline</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .offline-container {
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 400px;
+    }
+
+    .offline-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+      opacity: 0.8;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .retry-button {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .retry-button:hover {
+      background: #5558e3;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .retry-button:active {
+      transform: translateY(0);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #6366f1;
+      margin-bottom: 40px;
+      letter-spacing: -0.5px;
+    }
+
+    .tips {
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .tips h3 {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tips ul {
+      list-style: none;
+      text-align: left;
+    }
+
+    .tips li {
+      padding: 8px 0;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tips li::before {
+      content: '•';
+      color: #6366f1;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="logo">📚 LIVRIA</div>
+    
+    <div class="offline-icon">📡</div>
+    
+    <h1>Você está offline</h1>
+    
+    <p>
+      Parece que você perdeu a conexão com a internet. 
+      Verifique sua conexão e tente novamente.
+    </p>
+    
+    <button class="retry-button" onclick="window.location.reload()">
+      <span>🔄</span>
+      Tentar novamente
+    </button>
+    
+    <div class="tips">
+      <h3>Dicas</h3>
+      <ul>
+        <li>Verifique se o Wi-Fi está conectado</li>
+        <li>Tente desativar e reativar o modo avião</li>
+        <li>Reinicie seu roteador se necessário</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Auto-retry when back online
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

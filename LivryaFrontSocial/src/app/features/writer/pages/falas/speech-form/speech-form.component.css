@@ -1,0 +1,152 @@
+.assistant-card {
+	border: 1px solid var(--surface-border, #e5e7eb);
+	border-radius: 1rem;
+	padding: 1.5rem;
+	background: var(--surface-card, #ffffff);
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.assistant-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.assistant-eyebrow {
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	margin: 0;
+	color: var(--color-primary-600);
+}
+
+.assistant-header h3 {
+	margin: 0.25rem 0 0 0;
+	font-size: 1.25rem;
+}
+
+.assistant-helper {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--text-secondary);
+}
+
+.assistant-actions {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 0.75rem;
+	margin-bottom: 1.25rem;
+}
+
+.context-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.85rem 1rem;
+	border-radius: 0.75rem;
+	background: var(--color-primary-50);
+	margin-bottom: 1rem;
+}
+
+.context-toggle label {
+	font-weight: 600;
+	font-size: 0.9rem;
+	margin: 0;
+}
+
+.assistant-result {
+	border: 1px solid var(--surface-border, #e2e8f0);
+	border-radius: 0.75rem;
+	padding: 1rem;
+	margin-top: 1rem;
+	background: rgba(15, 23, 42, 0.02);
+}
+
+.assistant-result pre {
+	white-space: pre-wrap;
+	word-break: break-word;
+	padding: 0.75rem;
+	border-radius: 0.5rem;
+	background: rgba(15, 23, 42, 0.04);
+	margin: 0.5rem 0;
+	font-size: 0.95rem;
+}
+
+.result-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.result-header h4 {
+	margin: 0;
+	font-size: 1rem;
+}
+
+.result-header p {
+	margin: 0.15rem 0 0 0;
+	color: #475569;
+	font-size: 0.85rem;
+}
+
+.result-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.result-list {
+	margin: 0.5rem 0 0 1rem;
+	padding: 0;
+	color: #1e293b;
+	font-size: 0.9rem;
+}
+
+.image-result img {
+	width: 100%;
+	border-radius: 0.75rem;
+	margin: 0.75rem 0;
+}
+
+.prompt-hint {
+	display: block;
+	font-size: 0.8rem;
+	color: #64748b;
+}
+
+.ssml-guide-card {
+	border: 1px dashed var(--surface-border, #cbd5f5);
+	border-radius: 0.75rem;
+	padding: 1rem;
+	background: rgba(79, 70, 229, 0.05);
+}
+
+.guide-toggle {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 600;
+	background: transparent;
+	border: none;
+	width: 100%;
+	text-align: left;
+	cursor: pointer;
+}
+
+.guide-body {
+	margin-top: 0.75rem;
+	font-size: 0.9rem;
+	color: #1f2937;
+}
+
+.guide-body ul {
+	padding-left: 1.25rem;
+	margin: 0.5rem 0 0 0;
+}
+
+.guide-body li {
+	margin-bottom: 0.35rem;
+}

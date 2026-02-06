@@ -1,0 +1,55 @@
+<ng-container *transloco="let t">
+  <div class="card">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 md:gap-0">
+      <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300 font-heading">{{ t('chapters.title') }}</h3>
+    </div>
+
+    <p-table [value]="chapters" [paginator]="false" [rows]="chapters.length || 0" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 60px;">#</th>
+          <th>{{ t('chapters.chapterTitle') }}</th>
+          <th>Status</th>
+          <th>{{ t('speeches.title') }}</th>
+          <th style="width: 180px;">{{ t('books.actions') }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-chapter>
+        <tr>
+          <td>
+            <span class="font-bold text-lg text-primary-600 dark:text-primary-400">{{ chapter.orderIndex }}.</span>
+          </td>
+          <td>
+            <span class="font-medium text-lg text-gray-900 dark:text-gray-100">{{ chapter.title }}</span>
+          </td>
+          <td>
+            <p-tag [value]="getStatusLabel(chapter.status)" [severity]="getStatusSeverity(chapter.status)" styleClass="text-sm" />
+          </td>
+          <td>
+            @if (chapter.speeches) {
+              <span class="text-sm text-gray-500 flex items-center gap-1">
+                <i class="pi pi-comments text-xs"></i>
+                {{ chapter.speeches.length }} {{ t('chapters.speeches') }}
+              </span>
+            }
+          </td>
+          <td>
+            <div class="flex gap-2 justify-end">
+              <button pButton icon="pi pi-spin pi-cog" class="p-button-text p-button-rounded p-button-lg md:p-button-md"
+              (click)="viewChapter(chapter)" [pTooltip]="t('chapters.manage')" tooltipPosition="top"></button>
+              <button pButton icon="pi pi-pencil"
+                class="p-button-text p-button-rounded p-button-lg md:p-button-md" (click)="editChapter(chapter)"
+              [pTooltip]="t('chapters.actions.edit')" tooltipPosition="top"></button>
+              <button pButton icon="pi pi-trash"
+                class="p-button-text p-button-rounded p-button-danger p-button-lg md:p-button-md"
+              (click)="deleteChapter(chapter)" [pTooltip]="t('chapters.actions.delete')" tooltipPosition="top"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <p-confirmDialog />
+  <p-toast />
+</ng-container>

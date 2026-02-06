@@ -1,0 +1,25 @@
+<a 
+  routerLink="/livras" 
+  class="livra-balance-container"
+  [pTooltip]="tooltipContent"
+  tooltipPosition="bottom"
+>
+  <div class="livra-icon" [class.pulse]="isAnimating">
+    <i class="pi pi-bolt"></i>
+  </div>
+  
+  <span class="balance-amount" [class.increase]="lastAmount > 0" [class.decrease]="lastAmount < 0">
+    {{ displayBalance | number }}
+  </span>
+  
+  <!-- Animation overlay -->
+  @if (isAnimating && lastAmount !== 0) {
+    <span 
+      class="amount-change" 
+      [class.positive]="lastAmount > 0" 
+      [class.negative]="lastAmount < 0"
+    >
+      {{ lastAmount > 0 ? '+' : '' }}{{ lastAmount }}
+    </span>
+  }
+</a>

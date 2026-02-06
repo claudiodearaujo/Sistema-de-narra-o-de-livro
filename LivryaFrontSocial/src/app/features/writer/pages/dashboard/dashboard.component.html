@@ -1,0 +1,127 @@
+<ng-container *transloco="let t">
+  <div class="dashboard-container md:p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-3xl font-heading font-bold text-primary-700 dark:text-primary-300">{{ t('dashboard.title') }}</h1>
+      <p class="text-secondary mt-2">{{ t('dashboard.welcome') }}</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <p-card class="stat-card">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-secondary">{{ t('dashboard.stats.totalBooks') }}</p>
+            <h3 class="text-3xl font-bold text-primary-700 dark:text-primary-300">{{ stats.totalBooks }}
+            </h3>
+          </div>
+          <i class="pi pi-book text-4xl text-primary-500"></i>
+        </div>
+      </p-card>
+
+      <p-card class="stat-card">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-secondary">{{ t('dashboard.stats.chapters') }}</p>
+            <h3 class="text-3xl font-bold text-primary-700 dark:text-primary-300">{{ stats.totalChapters
+            }}</h3>
+          </div>
+          <i class="pi pi-list text-4xl text-primary-400"></i>
+        </div>
+      </p-card>
+
+      <p-card class="stat-card">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-secondary">{{ t('dashboard.stats.completed') }}</p>
+            <h3 class="text-3xl font-bold text-primary-700 dark:text-primary-300">{{
+            stats.completedNarrations }}</h3>
+          </div>
+          <i class="pi pi-check-circle text-4xl text-green-500"></i>
+        </div>
+      </p-card>
+
+      <p-card class="stat-card">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-secondary">{{ t('dashboard.stats.inProgress') }}</p>
+            <h3 class="text-3xl font-bold text-primary-700 dark:text-primary-300">{{
+            stats.inProgressNarrations }}</h3>
+          </div>
+          <i class="pi pi-spinner text-4xl text-accent-500"></i>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Charts and Recent Books -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Chart -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="md:p-4 border-b border-surface-border">
+            <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">{{ t('dashboard.chart.title') }}
+            </h3>
+          </div>
+        </ng-template>
+        <div class="flex justify-center">
+          <p-chart type="doughnut" [data]="chartData" [options]="chartOptions"
+          [style]="{'width': '300px'}" />
+        </div>
+      </p-card>
+
+      <!-- Recent Books -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="md:p-4 border-b border-surface-border flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">{{ t('dashboard.recentBooks.title') }}</h3>
+            <p-button [label]="t('dashboard.recentBooks.viewAll')" icon="pi pi-arrow-right" [text]="true"
+            (onClick)="navigateToBooks()" />
+          </div>
+        </ng-template>
+        <div class="space-y-3">
+          @for (book of recentBooks; track book) {
+            <div
+              class="p-3 border border-surface-border rounded-lg hover:bg-secondary-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+              (click)="navigateToBook(book.id)">
+              <h4 class="font-semibold text-primary-700 dark:text-primary-300">{{ book.title }}</h4>
+              <p class="text-sm text-secondary">{{ book.author }}</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span
+                  class="text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-md">
+                  {{ book.chapters?.length || 0 }} {{ t('dashboard.recentBooks.chapters') }}
+                </span>
+              </div>
+            </div>
+          }
+          @if (recentBooks.length === 0) {
+            <div class="text-center py-8 text-secondary">
+              <i class="pi pi-inbox text-4xl mb-2"></i>
+              <p>{{ t('dashboard.recentBooks.empty') }}</p>
+              <p-button [label]="t('dashboard.recentBooks.createFirst')" icon="pi pi-plus" class="mt-3"
+              (onClick)="navigateToBooks()" />
+            </div>
+          }
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-6">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="md:p-4 border-b border-surface-border">
+            <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">{{ t('dashboard.quickActions.title') }}</h3>
+          </div>
+        </ng-template>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <p-button [label]="t('dashboard.quickActions.newBook')" icon="pi pi-plus" severity="success" [outlined]="true"
+            (onClick)="navigateToNewBook()" styleClass="w-full" />
+          <p-button [label]="t('dashboard.quickActions.viewCharacters')" icon="pi pi-users" severity="info" [outlined]="true"
+            (onClick)="navigateToCharacters()" styleClass="w-full" />
+          <p-button [label]="t('dashboard.quickActions.voices')" icon="pi pi-volume-up" severity="secondary" [outlined]="true"
+            (onClick)="navigateToVoices()" styleClass="w-full" />
+        </div>
+      </p-card>
+    </div>
+  </div>
+</ng-container>

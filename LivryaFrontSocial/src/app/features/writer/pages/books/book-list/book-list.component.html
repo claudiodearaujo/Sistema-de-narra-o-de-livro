@@ -1,0 +1,76 @@
+<ng-container *transloco="let t">
+  <div class="container mx-auto md:p-6">
+      <div class="mb-6">
+          <h1 class="text-3xl font-bold mb-2 font-heading text-primary-700 dark:text-primary-300">{{ t('books.title') }}</h1>
+          <p class="text-secondary">{{ t('books.subtitle') }}</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                  <label for="titleFilter" class="block text-sm font-medium mb-2">{{ t('books.bookTitle') }}</label>
+                  <input pInputText id="titleFilter" [(ngModel)]="titleFilter" [placeholder]="t('books.filterByTitle')"
+                      class="w-full" (keyup.enter)="applyFilters()" />
+              </div>
+              <div>
+                  <label for="authorFilter" class="block text-sm font-medium mb-2">{{ t('books.author') }}</label>
+                  <input pInputText id="authorFilter" [(ngModel)]="authorFilter" [placeholder]="t('books.filterByAuthor')"
+                      class="w-full" (keyup.enter)="applyFilters()" />
+              </div>
+              <div class="flex items-end gap-2">
+                  <button pButton [label]="t('common.actions.filter')" icon="pi pi-search" (click)="applyFilters()" class="flex-1"></button>
+                  <button pButton [label]="t('common.actions.clear')" icon="pi pi-times" (click)="clearFilters()" class="flex-1"
+                      severity="secondary"></button>
+              </div>
+          </div>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <div class="md:p-4 border-b border-surface-border flex justify-between items-center">
+              <h2 class="text-xl font-semibold font-heading text-primary-700 dark:text-primary-300">{{ t('books.list') }}</h2>
+              <button pButton [label]="t('books.newBook')" icon="pi pi-plus" (click)="createBook()" severity="success"></button>
+          </div>
+
+          <p-table [value]="books" [paginator]="true" [rows]="limit" [totalRecords]="totalRecords" [loading]="loading"
+              [rowsPerPageOptions]="[5, 10, 20, 50]" styleClass="p-datatable-striped">
+              <ng-template pTemplate="header">
+                  <tr>
+                      <th>{{ t('books.bookTitle') }}</th>
+                      <th>{{ t('books.author') }}</th>
+                      <th>{{ t('books.createdAt') }}</th>
+                      <th style="width: 200px;">{{ t('books.actions') }}</th>
+                  </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-book>
+                  <tr>
+                      <td>{{ book.title }}</td>
+                      <td>{{ book.author }}</td>
+                      <td>{{ book.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                      <td>
+                          <div class="flex gap-2">
+                              <button pButton icon="pi pi-spin pi-cog" class="p-button-rounded p-button-text"
+                                  (click)="viewBook(book.id)" [pTooltip]="t('books.view')" tooltipPosition="top"></button>
+                              <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                                  (click)="editBook(book.id)" [pTooltip]="t('books.edit')" tooltipPosition="top"></button>
+                              <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                                  (click)="deleteBook(book.id)" [pTooltip]="t('books.delete')" tooltipPosition="top"></button>
+                          </div>
+                      </td>
+                  </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                  <tr>
+                      <td colspan="4" class="text-center py-8 text-gray-500">
+                          {{ t('books.noBooks') }}
+                      </td>
+                  </tr>
+              </ng-template>
+          </p-table>
+      </div>
+
+      <p-confirmDialog />
+      <p-toast />
+  </div>
+</ng-container>

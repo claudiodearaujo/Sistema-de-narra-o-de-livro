@@ -1,0 +1,41 @@
+:host {
+	display: block;
+	min-height: 100vh;
+}
+
+.app-shell {
+	min-height: 100vh;
+	 background-image: url(../assets/backgroud.jpeg);
+	  background-repeat: no-repeat;
+	  background-size: 100vw 100vh;
+background-attachment: fixed;
+	color: var(--text-color, #1f2933);
+}
+
+.route-loading-backdrop {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	background: rgba(15, 23, 42, 0.55);
+	backdrop-filter: blur(4px);
+	z-index: 1200;
+	pointer-events: none;
+}
+
+.route-loading-spinner {
+	width: 3rem;
+	height: 3rem;
+	color: var(--primary-color, #2563eb);
+}
+
+.route-loading-label {
+	font-size: 0.85rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-weight: 600;
+	color: #ffffff;
+}

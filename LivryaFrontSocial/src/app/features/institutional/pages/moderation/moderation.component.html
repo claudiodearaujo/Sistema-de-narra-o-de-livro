@@ -1,0 +1,101 @@
+<div class="legal-page">
+    <div class="page-container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-icon">
+                <i class="pi pi-flag"></i>
+            </div>
+            <h1 class="page-title">Denúncias e Moderação</h1>
+            <p class="page-subtitle">Ajude-nos a manter a comunidade segura</p>
+        </header>
+
+        <!-- Content -->
+        <article class="page-content">
+            <section class="content-section intro-section">
+                <p class="intro-text">
+                    Usuários podem denunciar conteúdos ou comportamentos inadequados. Nossa equipe
+                    analisa cada caso com seriedade, buscando proteger a comunidade e a integridade da plataforma.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Como Denunciar</h2>
+                <ol>
+                    <li>Acesse o conteúdo ou perfil que deseja denunciar</li>
+                    <li>Clique no menu de opções (três pontos)</li>
+                    <li>Selecione "Denunciar"</li>
+                    <li>Escolha o motivo da denúncia</li>
+                    <li>Adicione detalhes, se necessário</li>
+                    <li>Confirme o envio</li>
+                </ol>
+            </section>
+
+            <section class="content-section">
+                <h2>Motivos para Denúncia</h2>
+                <div class="reasons-list">
+                    @for (reason of reportReasons; track reason) {
+                    <div class="reason-item">
+                        <i class="pi pi-angle-right"></i>
+                        <span>{{ reason }}</span>
+                    </div>
+                    }
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>O que acontece após a denúncia</h2>
+                <ul>
+                    <li>Sua denúncia é recebida e registrada</li>
+                    <li>Nossa equipe analisa o conteúdo em até 48 horas</li>
+                    <li>Se confirmada a violação, ações são tomadas</li>
+                    <li>Você pode receber uma notificação sobre o resultado</li>
+                </ul>
+                <p class="highlight">
+                    Todas as denúncias são tratadas com sigilo. A identidade do denunciante
+                    nunca é revelada ao denunciado.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Ações da Moderação</h2>
+                <p>Dependendo da gravidade, podemos:</p>
+                <ul>
+                    <li>Emitir um aviso ao usuário</li>
+                    <li>Remover o conteúdo</li>
+                    <li>Suspender a conta temporariamente</li>
+                    <li>Banir permanentemente o usuário</li>
+                    <li>Reportar às autoridades (em casos legais)</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>Apelação</h2>
+                <p>
+                    Se você recebeu uma punição e acredita que foi um erro, você pode
+                    apelar através do e-mail <strong>moderacao&#64;livrya.com.br</strong>
+                    em até 15 dias após a notificação.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Denúncias Falsas</h2>
+                <p>
+                    Denúncias falsas ou abusivas prejudicam a comunidade. Usuários que
+                    abusarem do sistema de denúncias podem ter suas contas suspensas.
+                </p>
+            </section>
+        </article>
+
+        <!-- Navigation -->
+        <nav class="page-nav">
+            <a routerLink="/institutional/content-guidelines" class="nav-link nav-prev">
+                <i class="pi pi-arrow-left"></i>
+                Diretrizes de Conteúdo
+            </a>
+            <a routerLink="/institutional/transparency" class="nav-link">
+                <i class="pi pi-arrow-right"></i>
+                Transparência e Valores
+            </a>
+        </nav>
+    </div>
+</div>

@@ -1,0 +1,181 @@
+<ng-container *transloco="let t">
+<div class="livras-page">
+  <!-- Header -->
+  <div class="page-header">
+    <h1><i class="pi pi-bolt mr-2"></i>{{ t('livrasPage.title') }}</h1>
+    <p class="text-color-secondary">{{ t('livrasPage.subtitle') }}</p>
+  </div>
+
+  <!-- Balance Cards -->
+  <div class="balance-cards">
+    <!-- Main Balance -->
+    <p-card styleClass="balance-main-card">
+      <div class="balance-main">
+        <div class="balance-icon">
+          <i class="pi pi-bolt"></i>
+        </div>
+        <div class="balance-info">
+          <span class="balance-label">{{ t('livrasPage.balance.current') }}</span>
+          <span class="balance-value">{{ balance()?.balance ?? 0 | number }}</span>
+          <span class="balance-sublabel">{{ t('livrasPage.balance.available') }}</span>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <p-card styleClass="stat-card earned">
+        <div class="stat-content">
+          <i class="pi pi-arrow-up stat-icon"></i>
+          <div class="stat-info">
+            <span class="stat-value">{{ balance()?.lifetime ?? 0 | number }}</span>
+            <span class="stat-label">{{ t('livrasPage.balance.totalEarned') }}</span>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card styleClass="stat-card spent">
+        <div class="stat-content">
+          <i class="pi pi-arrow-down stat-icon"></i>
+          <div class="stat-info">
+            <span class="stat-value">{{ balance()?.spent ?? 0 | number }}</span>
+            <span class="stat-label">{{ t('livrasPage.balance.totalSpent') }}</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- How to Earn Section -->
+  <p-card [header]="t('livrasPage.howToEarn.title')" styleClass="how-to-card">
+    <div class="how-to-grid">
+      <div class="how-to-item">
+        <i class="pi pi-heart-fill text-accent-500"></i>
+        <span class="how-to-label">{{ t('livrasPage.howToEarn.receiveLikes') }}</span>
+        <span class="how-to-amount">{{ t('livrasPage.howToEarn.perLike') }}</span>
+      </div>
+      <div class="how-to-item">
+        <i class="pi pi-comment text-primary-500"></i>
+        <span class="how-to-label">{{ t('livrasPage.howToEarn.receiveComments') }}</span>
+        <span class="how-to-amount">{{ t('livrasPage.howToEarn.perComment') }}</span>
+      </div>
+      <div class="how-to-item">
+        <i class="pi pi-user-plus text-primary-600"></i>
+        <span class="how-to-label">{{ t('livrasPage.howToEarn.gainFollowers') }}</span>
+        <span class="how-to-amount">{{ t('livrasPage.howToEarn.perFollower') }}</span>
+      </div>
+      <div class="how-to-item">
+        <i class="pi pi-pencil text-primary-700"></i>
+        <span class="how-to-label">{{ t('livrasPage.howToEarn.createPosts') }}</span>
+        <span class="how-to-amount">{{ t('livrasPage.howToEarn.perPost') }}</span>
+      </div>
+      <div class="how-to-item">
+        <i class="pi pi-trophy text-livra-500"></i>
+        <span class="how-to-label">{{ t('livrasPage.howToEarn.completeCampaigns') }}</span>
+        <span class="how-to-amount">{{ t('livrasPage.howToEarn.perCampaign') }}</span>
+      </div>
+      <div class="how-to-item">
+        <i class="pi pi-shield text-primary-500"></i>
+        <span class="how-to-label">{{ t('livrasPage.howToEarn.earnBadges') }}</span>
+        <span class="how-to-amount">{{ t('livrasPage.howToEarn.perBadge') }}</span>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Buy Livras Section (Sprint 9) -->
+  <p-card styleClass="buy-livras-card">
+    <app-livra-packages />
+  </p-card>
+
+  <!-- Transaction History -->
+  <p-card [header]="t('livrasPage.transactions.title')" styleClass="transactions-card">
+    <ng-template pTemplate="header">
+      <div class="transactions-header">
+        <h3><i class="pi pi-history mr-2"></i>{{ t('livrasPage.transactions.title') }}</h3>
+
+        <!-- Filters -->
+        <div class="filters">
+          <p-select [options]="typeOptions"
+            [(ngModel)]="selectedType"
+            [placeholder]="t('livrasPage.transactions.allTypes')"
+            [showClear]="true"
+            (onChange)="loadTransactions()"
+            styleClass="filter-dropdown"
+           />
+
+          <p-datepicker [(ngModel)]="dateRange"
+            selectionMode="range"
+            [showIcon]="true"
+            [placeholder]="t('livrasPage.transactions.period')"
+            dateFormat="dd/mm/yy"
+            (onSelect)="loadTransactions()"
+            [showClear]="true"
+            styleClass="filter-calendar"
+           />
+        </div>
+      </div>
+    </ng-template>
+
+    @if (loading()) {
+      <div class="loading-container">
+        <p-progressSpinner strokeWidth="4" />
+      </div>
+    } @else if (transactions().length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-inbox text-4xl text-color-secondary mb-3"></i>
+        <p class="text-color-secondary">{{ t('livrasPage.transactions.noTransactions') }}</p>
+      </div>
+    } @else {
+      <!-- Period Summary -->
+      <div class="period-summary">
+        <div class="summary-item earned">
+          <span class="summary-label">{{ t('livrasPage.transactions.earnedInPeriod') }}</span>
+          <span class="summary-value">+{{ periodTotals().earned | number }}</span>
+        </div>
+        <div class="summary-item spent">
+          <span class="summary-label">{{ t('livrasPage.transactions.spentInPeriod') }}</span>
+          <span class="summary-value">-{{ periodTotals().spent | number }}</span>
+        </div>
+      </div>
+
+      <!-- Transactions List -->
+      <div class="transactions-list">
+        @for (tx of transactions(); track tx.id) {
+          <div class="transaction-item" [class.earned]="tx.amount > 0" [class.spent]="tx.amount < 0">
+            <div class="tx-icon" [class]="getTypeInfo(tx.type).color">
+              <i class="pi" [class]="getTypeInfo(tx.type).icon"></i>
+            </div>
+
+            <div class="tx-info">
+              <span class="tx-label">{{ t(getTypeInfo(tx.type).labelKey) }}</span>
+              <span class="tx-date">{{ tx.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+
+            <div class="tx-amount" [class.positive]="tx.amount > 0" [class.negative]="tx.amount < 0">
+              {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | number }}
+            </div>
+
+            <div class="tx-balance">
+              <span class="balance-label">{{ t('livrasPage.transactions.balance') }}</span>
+              <span class="balance-value">{{ tx.balance | number }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Load More -->
+      @if (hasMore()) {
+        <div class="load-more">
+          <p-button
+            [label]="t('common.actions.loadMore')"
+            icon="pi pi-refresh"
+            [loading]="loadingMore()"
+            (onClick)="loadMore()"
+            [outlined]="true"
+          />
+        </div>
+      }
+    }
+  </p-card>
+</div>
+</ng-container>

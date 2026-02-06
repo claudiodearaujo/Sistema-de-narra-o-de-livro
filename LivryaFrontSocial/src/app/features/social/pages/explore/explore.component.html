@@ -1,0 +1,225 @@
+<div class="explore-container" *transloco="let t">
+  <!-- Toast for notifications -->
+  <p-toast />
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0">{{ t('social.explore.tabs.trending') }}</p-tab>
+      <p-tab value="1">{{ t('social.explore.tabs.posts') }}</p-tab>
+      <p-tab value="2">{{ t('social.explore.tabs.people') }}</p-tab>
+      <p-tab value="3">{{ t('social.explore.tabs.books') }}</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <!-- Trending Tab -->
+      <p-tabpanel value="0">
+        <!-- Trending Section - Sprint 7 -->
+        <div class="section mb-6">
+          <app-trending-section [limit]="5" />
+        </div>
+
+        @if (loading()) {
+          <div class="trending-skeleton">
+            @for (i of [1,2,3,4,5]; track i) {
+              <div class="trending-item-skeleton">
+                <p-skeleton width="100%" height="3rem" />
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="section">
+            <h3 class="section-title">{{ t('social.trending.trendingTopics') }}</h3>
+            <div class="trending-list">
+              @for (topic of trendingTopics(); track topic.tag) {
+                <a [routerLink]="['/social/search']" [queryParams]="{q: '#' + topic.tag}" class="trending-item">
+                  <span class="trending-tag">#{{ topic.tag }}</span>
+                  <span class="trending-count">{{ formatNumber(topic.posts) }} {{ t('social.trending.posts') }}</span>
+                </a>
+              }
+            </div>
+          </div>
+
+          <div class="section">
+            <h3 class="section-title">{{ t('social.trending.popularGenres') }}</h3>
+            <div class="genres-grid">
+              @for (genre of popularGenres(); track genre) {
+                <p-chip [label]="genre" styleClass="genre-chip" />
+              }
+            </div>
+          </div>
+        }
+      </p-tabpanel>
+
+      <!-- Posts Tab (NEW) -->
+      <p-tabpanel value="1">
+        @if (loadingPosts() && posts().length === 0) {
+          <div class="posts-skeleton">
+            @for (i of [1,2,3]; track i) {
+              <div class="post-skeleton">
+                <div class="skeleton-header">
+                  <p-skeleton shape="circle" size="3rem" />
+                  <div class="skeleton-info">
+                    <p-skeleton width="150px" height="1rem" />
+                    <p-skeleton width="100px" height="0.8rem" />
+                  </div>
+                </div>
+                <p-skeleton width="100%" height="4rem" styleClass="mt-3" />
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="section">
+            <h3 class="section-title">{{ t('social.explore.featuredPosts') }}</h3>
+
+            @for (post of posts(); track post.id) {
+              <div class="post-card">
+                <div class="post-header">
+                  <p-avatar [label]="getInitials(post.user.name)"
+                    [image]="post.user.avatar || ''"
+                    shape="circle"
+                    size="normal"
+                    (click)="goToProfile(post.user.username || post.user.id)" />
+                  <div class="post-user-info">
+                    <span class="user-name" (click)="goToProfile(post.user.username || post.user.id)">
+                      {{ post.user.name }}
+                    </span>
+                    <span class="post-time">{{ post.createdAt | timeAgo }}</span>
+                  </div>
+                </div>
+
+                <div class="post-content">
+                  <p>{{ post.content }}</p>
+                  @if (post.mediaUrl) {
+                    <img [src]="post.mediaUrl" alt="Post image" class="post-image">
+                  }
+                </div>
+
+                <div class="post-stats">
+                  <span>{{ post.likeCount }} {{ t('social.feed.likes') }}</span>
+                  <span>{{ post.commentCount }} {{ t('social.feed.comments') }}</span>
+                </div>
+
+                <div class="post-actions">
+                  <button
+                    pButton
+                    class="p-button-text"
+                    [icon]="post.isLiked ? 'pi pi-heart-fill' : 'pi pi-heart'"
+                    [class.liked]="post.isLiked"
+                    [label]="t('social.feed.like')"
+                    (click)="togglePostLike(post)">
+                  </button>
+                  <button
+                    pButton
+                    class="p-button-text"
+                    icon="pi pi-comment"
+                    [label]="t('social.feed.comment')"
+                    (click)="goToPost(post.id)">
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- Infinite Scroll -->
+            <div
+              appInfiniteScroll
+              (scrolled)="loadMorePosts()"
+              [disabled]="isScrollDisabled()"
+              class="sentinel">
+            </div>
+
+            @if (loadingMore()) {
+              <div class="loading-more">
+                <i class="pi pi-spin pi-spinner"></i>
+                <span>{{ t('common.loadingMore') }}</span>
+              </div>
+            }
+          </div>
+        }
+      </p-tabpanel>
+
+      <!-- People Tab -->
+      <p-tabpanel value="2">
+        @if (loading()) {
+          <div class="users-skeleton">
+            @for (i of [1,2,3]; track i) {
+              <div class="user-card-skeleton">
+                <p-skeleton shape="circle" size="4rem" />
+                <p-skeleton width="60%" height="1rem" class="mt-2" />
+                <p-skeleton width="40%" height="0.8rem" class="mt-1" />
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="section">
+            <h3 class="section-title">{{ t('social.explore.suggestionsForYou') }}</h3>
+            <div class="users-grid">
+              @for (user of suggestedUsers(); track user.id) {
+                <div class="user-card">
+                  <p-avatar [image]="user.avatar || undefined"
+                    [label]="user.avatar ? undefined : user.displayName.charAt(0)"
+                    size="xlarge"
+                    shape="circle" />
+                  <a [routerLink]="['/social/profile', user.username]" class="user-name">
+                    {{ user.displayName }}
+                  </a>
+                  <span class="user-username">&#64;{{ user.username }}</span>
+                  <span class="user-followers">{{ formatNumber(user.followersCount) }} {{ t('social.explore.followers') }}</span>
+                  @if (user.bio) {
+                    <p class="user-bio">{{ user.bio }}</p>
+                  }
+                  <p-button [label]="user.isFollowing ? t('social.profile.unfollow') : t('social.profile.follow')"
+                    [severity]="user.isFollowing ? 'secondary' : 'primary'"
+                    [outlined]="user.isFollowing"
+                    size="small"
+                    (onClick)="toggleFollow(user)" />
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </p-tabpanel>
+
+      <!-- Books Tab -->
+      <p-tabpanel value="3">
+        @if (loading()) {
+          <div class="books-skeleton">
+            @for (i of [1,2]; track i) {
+              <div class="book-card-skeleton">
+                <p-skeleton width="100px" height="150px" />
+                <p-skeleton width="80%" height="1rem" class="mt-2" />
+                <p-skeleton width="60%" height="0.8rem" class="mt-1" />
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="section">
+            <h3 class="section-title">{{ t('social.explore.featuredBooks') }}</h3>
+            <div class="books-grid">
+              @for (book of featuredBooks(); track book.id) {
+                <a [routerLink]="['/writer/books', book.id]" class="book-card">
+                  <div class="book-cover">
+                    @if (book.cover) {
+                      <img [src]="book.cover" [alt]="book.title">
+                    } @else {
+                      <div class="book-cover-placeholder">
+                        <i class="pi pi-book"></i>
+                      </div>
+                    }
+                  </div>
+                  <div class="book-info">
+                    <span class="book-title">{{ book.title }}</span>
+                    <span class="book-author">{{ book.author }}</span>
+                    <div class="book-rating">
+                      <i class="pi pi-star-fill"></i>
+                      <span>{{ book.rating }}</span>
+                      <span class="reviews-count">({{ book.reviewsCount }})</span>
+                    </div>
+                  </div>
+                </a>
+              }
+            </div>
+          </div>
+        }
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

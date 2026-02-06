@@ -1,0 +1,207 @@
+<ng-container *transloco="let t">
+  <div class="search-container">
+    <div class="search-header">
+      <div class="search-input-wrapper">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="searchQuery"
+          [placeholder]="t('social.search.placeholder')"
+          (input)="onSearchInput()"
+          (keyup.enter)="search()"
+          (focus)="showSuggestions.set(suggestions().users.length > 0 || suggestions().books.length > 0)"
+          autofocus>
+        @if (searchQuery) {
+          <button pButton class="p-button-text p-button-rounded clear-btn" icon="pi pi-times" (click)="clearSearch()"></button>
+        }
+
+        <!-- Suggestions Dropdown -->
+        @if (showSuggestions()) {
+          <div class="suggestions-dropdown">
+            @if (suggestions().users.length > 0) {
+              <div class="suggestion-group">
+                <span class="suggestion-label">{{ t('social.search.writers') }}</span>
+                @for (user of suggestions().users; track user) {
+                  <button class="suggestion-item" (click)="selectSuggestion(user)">
+                    <i class="pi pi-user"></i>
+                    {{ user }}
+                  </button>
+                }
+              </div>
+            }
+            @if (suggestions().books.length > 0) {
+              <div class="suggestion-group">
+                <span class="suggestion-label">{{ t('social.profile.books') }}</span>
+                @for (book of suggestions().books; track book) {
+                  <button class="suggestion-item" (click)="selectSuggestion(book)">
+                    <i class="pi pi-book"></i>
+                    {{ book }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (!hasSearched()) {
+      <!-- Trending / Suggestions -->
+      <div class="search-suggestions">
+        <h3>🔥 {{ t('social.search.trending') }}</h3>
+        @if (loadingTrending()) {
+          <div class="trending-skeleton">
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <p-skeleton width="80px" height="32px" styleClass="tag-skeleton" />
+            }
+          </div>
+        } @else {
+          <div class="suggestion-tags">
+            @for (tag of trendingTags(); track tag) {
+              <button pButton class="p-button-outlined p-button-sm tag-btn" [label]="tag" (click)="searchTag(tag)"></button>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Search Results -->
+      @if (loading()) {
+        <div class="loading">
+          <i class="pi pi-spin pi-spinner"></i>
+          {{ t('social.search.searching') }}
+        </div>
+      } @else {
+        <p-tabs value="0">
+          <p-tablist>
+            <p-tab value="0" (click)="onTabChange('users')">
+              {{ t('social.search.writers') }} ({{ totalUsers() }})
+            </p-tab>
+            <p-tab value="1" (click)="onTabChange('posts')">
+              {{ t('social.profile.posts') }} ({{ totalPosts() }})
+            </p-tab>
+            <p-tab value="2" (click)="onTabChange('books')">
+              {{ t('social.profile.books') }} ({{ totalBooks() }})
+            </p-tab>
+          </p-tablist>
+          <p-tabpanels>
+            <!-- Users Tab -->
+            <p-tabpanel value="0">
+              @if (users().length === 0) {
+                <div class="empty-results">
+                  <i class="pi pi-users"></i>
+                  <p>{{ t('social.search.noWritersFound') }}</p>
+                </div>
+              } @else {
+                <div class="users-list">
+                  @for (user of users(); track user.id) {
+                    <div class="user-item" (click)="goToProfile(user.username)">
+                      <p-avatar [image]="user.avatar || undefined"
+                        [label]="user.avatar ? undefined : user.name.charAt(0)"
+                        shape="circle"
+                        size="large" />
+                      <div class="user-info">
+                        <div class="user-name-row">
+                          <span class="user-name">{{ user.name }}</span>
+                          @if (user.isVerified) {
+                            <i class="pi pi-verified verified-badge"></i>
+                          }
+                        </div>
+                        @if (user.username) {
+                          <span class="user-username">&#64;{{ user.username }}</span>
+                        }
+                        @if (user.bio) {
+                          <p class="user-bio">{{ user.bio }}</p>
+                        }
+                      </div>
+                      <span class="user-followers">{{ formatNumber(user.followerCount) }} {{ t('social.search.followersCount') }}</span>
+                      <button
+                        pButton
+                        [label]="t('social.profile.follow')"
+                        class="p-button-outlined p-button-sm"
+                        [loading]="followingUsers().has(user.id)"
+                        (click)="toggleFollow(user, $event)">
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </p-tabpanel>
+
+            <!-- Posts Tab -->
+            <p-tabpanel value="1">
+              @if (posts().length === 0) {
+                <div class="empty-results">
+                  <i class="pi pi-file-edit"></i>
+                  <p>{{ t('social.search.noPostsFound') }}</p>
+                </div>
+              } @else {
+                <div class="posts-list">
+                  @for (post of posts(); track post.id) {
+                    <div class="post-item" (click)="goToPost(post.id)">
+                      <div class="post-header">
+                        <p-avatar [image]="post.user.avatar || undefined"
+                          [label]="post.user.avatar ? undefined : post.user.name.charAt(0)"
+                          shape="circle" />
+                        <div class="post-author-info">
+                          <span class="post-author">{{ post.user.name }}</span>
+                          @if (post.user.username) {
+                            <span class="post-author-username">&#64;{{ post.user.username }}</span>
+                          }
+                          <span class="post-time">· {{ formatDate(post.createdAt) }}</span>
+                        </div>
+                      </div>
+                      <p class="post-preview">{{ post.content }}</p>
+                      @if (post.mediaUrl) {
+                        <img [src]="post.mediaUrl" alt="Post media" class="post-media">
+                      }
+                      <div class="post-stats">
+                        <span><i class="pi pi-heart"></i> {{ post.likeCount }}</span>
+                        <span><i class="pi pi-comment"></i> {{ post.commentCount }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </p-tabpanel>
+
+            <!-- Books Tab -->
+            <p-tabpanel value="2">
+              @if (books().length === 0) {
+                <div class="empty-results">
+                  <i class="pi pi-book"></i>
+                  <p>{{ t('social.search.noBooksFound') }}</p>
+                </div>
+              } @else {
+                <div class="books-list">
+                  @for (book of books(); track book.id) {
+                    <div class="book-item" (click)="goToBook(book.id)">
+                      @if (book.coverUrl) {
+                        <img [src]="book.coverUrl" alt="Capa" class="book-cover">
+                      } @else {
+                        <div class="book-icon">📚</div>
+                      }
+                      <div class="book-info">
+                        <span class="book-title">{{ book.title }}</span>
+                        <div class="book-author-row">
+                          <span class="book-author">{{ t('social.search.by') }} {{ book.author.name }}</span>
+                          @if (book.genre) {
+                            <span class="book-genre">· {{ book.genre }}</span>
+                          }
+                        </div>
+                        @if (book.description) {
+                          <p class="book-description">{{ book.description }}</p>
+                        }
+                        <span class="book-chapters">{{ book.chapterCount }} {{ t('social.search.chapters') }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </p-tabpanel>
+          </p-tabpanels>
+        </p-tabs>
+      }
+    }
+  </div>
+</ng-container>

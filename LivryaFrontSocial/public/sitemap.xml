@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Pagina Principal -->
+  <url>
+    <loc>https://livrya.com.br/</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Paginas Institucionais - Site -->
+  <url>
+    <loc>https://livrya.com.br/institutional/about</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/terms</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/privacy</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/security</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/code-conduct</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/careers</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/contact</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Paginas Institucionais - Escritores -->
+  <url>
+    <loc>https://livrya.com.br/institutional/writer-area</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/copyright</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/publication</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/partners</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/content-guidelines</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Paginas Institucionais - Comunidade -->
+  <url>
+    <loc>https://livrya.com.br/institutional/community</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/moderation</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/institutional/transparency</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Paginas de Autenticacao (para SEO de marca) -->
+  <url>
+    <loc>https://livrya.com.br/auth/login</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://livrya.com.br/auth/signup</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+</urlset>

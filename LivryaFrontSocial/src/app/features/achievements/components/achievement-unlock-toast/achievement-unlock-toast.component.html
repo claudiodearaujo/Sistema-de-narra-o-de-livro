@@ -1,0 +1,31 @@
+@if (visible) {
+  <div class="achievement-toast" [@slideIn]>
+    <div class="toast-header">
+      <span class="confetti">🎉</span>
+      <h3>Conquista Desbloqueada!</h3>
+      <button class="close-btn" (click)="close()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="toast-body">
+      <div class="achievement-icon">{{ achievement().icon }}</div>
+      <div class="achievement-details">
+        <h4>{{ achievement().name }}</h4>
+        <p>{{ achievement().description }}</p>
+        @if (achievement().livraReward > 0) {
+          <div class="reward-earned">
+            <span class="livra-icon">💎</span>
+            <span>+{{ achievement().livraReward }} Livras!</span>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="toast-footer">
+      <button pButton 
+              label="Ver Conquistas" 
+              icon="pi pi-trophy" 
+              class="p-button-text"
+              (click)="viewAchievements.emit(); close()"></button>
+    </div>
+  </div>
+}

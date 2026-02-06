@@ -1,0 +1,121 @@
+<div class="achievements-page">
+  <!-- Header with Stats -->
+  <div class="achievements-header">
+    <h1>🏆 Conquistas</h1>
+    @if (stats()) {
+      <div class="stats-overview">
+        <div class="stat-card">
+          <span class="stat-value">{{ stats()!.unlocked }}</span>
+          <span class="stat-label">Desbloqueadas</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ stats()!.total }}</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-card progress-card">
+          <div class="progress-circle" [style.--progress]="stats()!.percentage">
+            <span>{{ stats()!.percentage }}%</span>
+          </div>
+          <span class="stat-label">Progresso</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Recent Unlocks -->
+  @if (stats()?.recentUnlocks?.length) {
+    <div class="recent-unlocks">
+      <h3>🎉 Conquistas Recentes</h3>
+      <div class="recent-list">
+        @for (ua of stats()!.recentUnlocks.slice(0, 3); track ua.id) {
+          <div class="recent-item">
+            <span class="achievement-icon">{{ ua.achievement.icon }}</span>
+            <div class="recent-info">
+              <span class="recent-name">{{ ua.achievement.name }}</span>
+              <span class="recent-date">{{ formatDate(ua.unlockedAt) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Category Tabs -->
+  <p-tabs value="all">
+    <p-tablist>
+      <p-tab value="all">Todas</p-tab>
+      @for (category of categories; track category) {
+        <p-tab [value]="category">{{ getCategoryLabel(category) }}</p-tab>
+      }
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="all">
+        @if (loading()) {
+          <div class="achievements-grid">
+            @for (i of [1,2,3,4,5,6]; track i) {
+              <div class="achievement-card skeleton">
+                <p-skeleton width="50px" height="50px" styleClass="achievement-icon-skeleton"/>
+                <p-skeleton width="80%" height="1.2rem"/>
+                <p-skeleton width="100%" height="0.9rem"/>
+                <p-skeleton width="100%" height="8px"/>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="achievements-grid">
+            @for (achievement of achievements(); track achievement.id) {
+              <ng-container *ngTemplateOutlet="achievementCard; context: { $implicit: achievement }"/>
+            }
+          </div>
+        }
+      </p-tabpanel>
+
+      @for (category of categories; track category) {
+        <p-tabpanel [value]="category">
+          <div class="achievements-grid">
+            @for (achievement of getAchievementsByCategory(category); track achievement.id) {
+              <ng-container *ngTemplateOutlet="achievementCard; context: { $implicit: achievement }"/>
+            } @empty {
+              <p-message severity="info" text="Nenhuma conquista nesta categoria ainda."/>
+            }
+          </div>
+        </p-tabpanel>
+      }
+    </p-tabpanels>
+  </p-tabs>
+
+  <!-- Achievement Card Template -->
+  <ng-template #achievementCard let-achievement>
+    <div class="achievement-card" 
+         [class.unlocked]="isUnlocked(achievement)"
+         [class.locked]="!isUnlocked(achievement)">
+      <div class="achievement-icon" [class.grayscale]="!isUnlocked(achievement)">
+        {{ achievement.icon }}
+      </div>
+      <div class="achievement-info">
+        <h4>{{ achievement.name }}</h4>
+        <p>{{ achievement.description }}</p>
+        @if (isUnlocked(achievement)) {
+          <p-tag severity="success" value="Desbloqueada" icon="pi pi-check"/>
+          <span class="unlock-date">{{ formatDate(achievement.unlockedAt) }}</span>
+        } @else {
+          <div class="progress-section">
+            <p-progressBar 
+              [value]="getProgress(achievement)" 
+              [showValue]="false"
+              styleClass="achievement-progress"/>
+            <span class="progress-text">
+              {{ achievement.progress || 0 }}/{{ achievement.progressTarget }}
+            </span>
+          </div>
+        }
+        @if (achievement.livraReward > 0) {
+          <div class="reward">
+            <span class="livra-icon">💎</span>
+            <span>+{{ achievement.livraReward }} Livras</span>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</div>

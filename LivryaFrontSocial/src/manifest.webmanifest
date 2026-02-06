@@ -1,0 +1,104 @@
+{
+  "name": "LIVRIA",
+  "short_name": "LIVRIA",
+  "description": "Rede social para escritores e leitores - Crie, compartilhe e descubra histórias",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#4F6F64",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "assets/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["books", "social", "entertainment"],
+  "shortcuts": [
+    {
+      "name": "Feed",
+      "short_name": "Feed",
+      "description": "Ver seu feed de posts",
+      "url": "/social/feed",
+      "icons": [{ "src": "assets/icons/feed-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Criar Post",
+      "short_name": "Post",
+      "description": "Criar um novo post",
+      "url": "/social/feed?action=compose",
+      "icons": [{ "src": "assets/icons/compose-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Meus Livros",
+      "short_name": "Livros",
+      "description": "Ver seus livros",
+      "url": "/dashboard",
+      "icons": [{ "src": "assets/icons/books-icon.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/feed.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Feed de posts"
+    },
+    {
+      "src": "assets/screenshots/dashboard.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard de livros"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

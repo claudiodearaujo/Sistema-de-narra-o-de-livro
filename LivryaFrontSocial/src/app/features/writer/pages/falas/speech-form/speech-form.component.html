@@ -1,0 +1,207 @@
+<ng-container *transloco="let t">
+  <div class="p-fluid">
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="field mb-4">
+        <label for="characterId"
+        class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('speeches.form.character') }}</label>
+        <p-select id="characterId" [options]="characters" formControlName="characterId" optionLabel="name"
+          optionValue="id" [placeholder]="t('speeches.form.selectCharacterPlaceholder')" [filter]="true" filterBy="name"
+          [showClear]="true" appendTo="body">
+          <ng-template pTemplate="selectedItem" let-selectedOption>
+            @if (selectedOption) {
+              <div class="flex align-items-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-xs">
+                  {{ selectedOption.name.charAt(0).toUpperCase() }}
+                </div>
+                <div>{{ selectedOption.name }}</div>
+              </div>
+            }
+          </ng-template>
+          <ng-template pTemplate="item" let-character>
+            <div class="flex align-items-center gap-2">
+              <div
+                class="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-xs">
+                {{ character.name.charAt(0).toUpperCase() }}
+              </div>
+              <div>{{ character.name }}</div>
+            </div>
+          </ng-template>
+        </p-select>
+        @if (form.get('characterId')?.invalid && form.get('characterId')?.touched) {
+          <small
+            class="p-error block mt-1">
+            {{ t('speeches.form.characterRequired') }}
+          </small>
+        }
+      </div>
+
+      <div class="ssml-guide-card mb-6">
+        <button type="button" class="guide-toggle" (click)="toggleSsmlGuide()">
+          <span class="pi" [ngClass]="ssmlGuideVisible ? 'pi-chevron-up' : 'pi-chevron-down'"></span>
+          <span>{{ t('speeches.form.ssmlGuide.title') }}</span>
+        </button>
+        @if (ssmlGuideVisible) {
+          <div class="guide-body">
+            <p>{{ t('speeches.form.ssmlGuide.intro') }}</p>
+            <ul>
+              <li><strong>&lt;speak&gt;</strong> {{ t('speeches.form.ssmlGuide.speak') }}</li>
+              <li><strong>&lt;break time="500ms"/&gt;</strong> {{ t('speeches.form.ssmlGuide.break') }}</li>
+              <li><strong>&lt;emphasis level="moderate"&gt;</strong> {{ t('speeches.form.ssmlGuide.emphasisModerate') }}</li>
+              <li><strong>&lt;emphasis level="strong"&gt;</strong> {{ t('speeches.form.ssmlGuide.emphasisStrong') }}</li>
+              <li><strong>&lt;prosody rate="slow"&gt;</strong> {{ t('speeches.form.ssmlGuide.prosodyRate') }} <strong>&lt;prosody rate="fast"&gt;</strong>
+            {{ t('speeches.form.ssmlGuide.controlRhythm') }}</li>
+            <li><strong>&lt;prosody rate="slow" pitch="-2st"&gt;</strong> {{ t('speeches.form.ssmlGuide.prosodySlowLow') }}
+          </li>
+          <li><strong>&lt;prosody pitch="+2st"&gt;</strong> {{ t('speeches.form.ssmlGuide.prosodyPitch') }} <strong>&lt;prosody pitch="-2st"&gt;</strong>
+        {{ t('speeches.form.ssmlGuide.adjustTone') }}</li>
+        <li><strong>&lt;say-as interpret-as="cardinal"&gt;</strong> {{ t('speeches.form.ssmlGuide.sayAs') }}</li>
+      </ul>
+      <p class="prompt-hint">{{ t('speeches.form.ssmlGuide.tips') }}</p>
+    </div>
+  }
+</div>
+<div class="field mb-6">
+  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('speeches.form.textSsml') }}</label>
+  <app-ssml-editor [content]="form.get('ssmlText')?.value || form.get('text')?.value"
+    (contentChange)="onSsmlChange($event)" />
+  @if (form.get('text')?.invalid && form.get('text')?.touched) {
+    <small class="p-error block mt-1">
+      {{ t('speeches.form.textRequired') }}
+    </small>
+  }
+</div>
+
+<div class="assistant-card mb-6">
+  <div class="assistant-header">
+    <div>
+      <p class="assistant-eyebrow">{{ t('speeches.form.smartShortcuts') }}</p>
+      <h3>{{ t('speeches.form.toolsForSpeech') }}</h3>
+    </div>
+    <p class="assistant-helper">{{ t('speeches.form.improveTextHint') }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <button pButton type="button" [label]="t('speeches.form.spellChecker')" icon="pi pi-check-square"
+    (click)="runSpellCheck()" [loading]="spellCheckLoading" class="w-full"></button>
+    <button pButton type="button" [label]="t('speeches.form.improvementSuggestions')" icon="pi pi-lightbulb"
+    (click)="runSuggestions()" [loading]="suggestionLoading" class="w-full"></button>
+    <button pButton type="button" [label]="t('speeches.form.detailCharacter')" icon="pi pi-user-edit"
+      (click)="runCharacterEnrichment()" [disabled]="!form.get('characterId')?.value"
+    [loading]="characterEnrichmentLoading" class="w-full"></button>
+    <button pButton type="button" [label]="t('speeches.form.emotionImage')" icon="pi pi-image"
+      class="p-button-help w-full" (click)="generateEmotionImage()"
+    [loading]="emotionImageLoading"></button>
+  </div>
+
+  <div class="context-toggle">
+    <label for="contextSwitch">{{ t('speeches.form.includeContext') }}</label>
+    <p-toggleSwitch inputId="contextSwitch" name="includeContextToggle" [(ngModel)]="includeContext"
+    [ngModelOptions]="{standalone: true}" />
+  </div>
+
+  @if (spellCheckResult) {
+    <div class="assistant-result">
+      <div class="result-header">
+        <div>
+          <h4>{{ t('speeches.form.suggestedCorrections') }}</h4>
+          <p>{{ t('speeches.form.confidence') }} {{ spellCheckResult.confidence | percent:'1.0-0' }}</p>
+        </div>
+        <div class="result-actions">
+          <button pButton type="button" [label]="t('speeches.form.apply')" class="p-button-sm"
+          (click)="applySpellCheck()"></button>
+          <button pButton type="button" [label]="t('speeches.form.discard')" class="p-button-text p-button-sm"
+          (click)="spellCheckResult = undefined"></button>
+        </div>
+      </div>
+      <pre>{{ spellCheckResult.correctedText }}</pre>
+      @if (spellCheckResult.notes.length) {
+        <ul class="result-list">
+          @for (note of spellCheckResult.notes; track note) {
+            <li>{{ note }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+
+  @if (suggestionResult) {
+    <div class="assistant-result">
+      <div class="result-header">
+        <div>
+          <h4>{{ t('speeches.form.newSpeechProposal') }}</h4>
+          <p>{{ suggestionResult.summary }}</p>
+        </div>
+        <div class="result-actions">
+          <button pButton type="button" [label]="t('speeches.form.apply')" class="p-button-sm"
+          (click)="applySuggestion()"></button>
+          <button pButton type="button" [label]="t('speeches.form.discard')" class="p-button-text p-button-sm"
+          (click)="suggestionResult = undefined"></button>
+        </div>
+      </div>
+      <pre>{{ suggestionResult.improvedText }}</pre>
+      @if (suggestionResult.suggestions.length) {
+        <ul class="result-list">
+          @for (tip of suggestionResult.suggestions; track tip) {
+            <li>{{ tip }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+
+  @if (characterEnrichmentResult) {
+    <div class="assistant-result">
+      <div class="result-header">
+        <div>
+          <h4>{{ t('speeches.form.characterDetails') }}</h4>
+          <p>{{ t('speeches.form.contentReadyToPaste') }}</p>
+        </div>
+        <div class="result-actions">
+          <button pButton type="button" [label]="t('speeches.form.apply')" class="p-button-sm"
+          (click)="applyCharacterEnrichment()"></button>
+          <button pButton type="button" [label]="t('speeches.form.discard')" class="p-button-text p-button-sm"
+          (click)="characterEnrichmentResult = undefined"></button>
+        </div>
+      </div>
+      <pre>{{ characterEnrichmentResult.enrichedText }}</pre>
+      @if (characterEnrichmentResult.highlights.length) {
+        <ul class="result-list">
+          @for (info of characterEnrichmentResult.highlights; track info) {
+            <li>{{ info }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+
+  @if (emotionImageResult) {
+    <div class="assistant-result image-result">
+      <div class="result-header">
+        <div>
+          <h4>{{ t('speeches.form.emotionVisual') }}</h4>
+          <p>{{ emotionImageResult.caption }} ({{ emotionImageResult.sentiment }})</p>
+        </div>
+        <div class="result-actions">
+          <button pButton type="button" [label]="t('common.actions.close')" class="p-button-text p-button-sm"
+          (click)="emotionImageResult = undefined"></button>
+        </div>
+      </div>
+      @if (emotionImageDataUrl) {
+        <img [src]="emotionImageDataUrl" [alt]="emotionImageResult.caption">
+      }
+      <small class="prompt-hint">{{ t('speeches.form.prompt') }}: {{ emotionImageResult.prompt }}</small>
+    </div>
+  }
+</div>
+
+
+<div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
+  <button pButton type="button" [label]="t('common.cancel')" class="p-button-text w-full sm:w-auto"
+  (click)="cancel()"></button>
+  <button pButton type="submit" [label]="t('common.save')" [disabled]="form.invalid || loading || validating"
+  [loading]="loading" class="w-full sm:w-auto"></button>
+</div>
+</form>
+</div>
+</ng-container>

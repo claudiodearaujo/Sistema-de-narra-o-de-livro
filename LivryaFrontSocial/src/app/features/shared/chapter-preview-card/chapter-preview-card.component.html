@@ -1,0 +1,46 @@
+<div class="chapter-preview-card bg-linear-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700">
+  <!-- Header -->
+  <div class="bg-secondary-100 dark:bg-secondary-800/50 px-4 py-2 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <i class="pi pi-book text-primary-600 dark:text-primary-400"></i>
+      <span class="text-sm font-medium text-primary-800 dark:text-primary-200 font-heading">
+        {{ book()?.title || 'Livro' }}
+      </span>
+    </div>
+    <p-tag value="Novo Capítulo 📖" severity="success" />
+  </div>
+
+  <!-- Content -->
+  <div class="p-4">
+    <h3 class="font-bold text-lg text-primary-800 dark:text-primary-200 mb-2 font-heading">
+      {{ chapter()?.title || 'Capítulo' }}
+    </h3>
+
+    @if (excerpt()) {
+      <div class="bg-white/60 dark:bg-secondary-800/60 rounded-lg p-3 mb-4">
+        <p class="text-primary-700 dark:text-primary-300 italic text-sm leading-relaxed line-clamp-4 font-body">
+          "{{ excerpt() }}"
+        </p>
+      </div>
+    }
+
+    <div class="flex items-center justify-between">
+      <div class="text-sm text-secondary">
+        <span>Capítulo {{ chapter()?.orderIndex || 1 }}</span>
+        @if (book()?.author) {
+          <span> • {{ book()!.author }}</span>
+        }
+      </div>
+
+      <a 
+        [routerLink]="['/books', book()?.id, 'chapter', chapter()?.id]"
+        pButton
+        type="button"
+        label="Ler capítulo"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        class="p-button-sm"
+      ></a>
+    </div>
+  </div>
+</div>

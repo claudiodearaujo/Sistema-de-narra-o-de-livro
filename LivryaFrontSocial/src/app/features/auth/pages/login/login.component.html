@@ -1,0 +1,79 @@
+<p-toast position="top-right" />
+
+@if (!translocoLoaded) {
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+  <div style="text-align: center;">
+    <p>Carregando traduções...</p>
+  </div>
+</div>
+}
+
+@if (translocoLoaded) {
+<div class="login-container">
+  <div class="login-card">
+    <!-- Language Selector -->
+    <div class="flex justify-end mb-4">
+      <app-language-selector />
+    </div>
+    <div class="login-logo">
+      <span class="logo-icon"><img src="assets/logosm.png" width="40px" alt="logo livrya"></span>
+      <img src="assets/logo.png" width="100px" alt="logo livrya">
+    </div>
+    <div class="login-header">
+      <h1>{{ 'auth.login.title' | transloco }}</h1>
+      <p>{{ 'auth.login.subtitle' | transloco }}</p>
+    </div>
+    @if (errorMessage) {
+    <p-message severity="error" [text]="errorMessage" styleClass="w-full mb-4" />
+    }
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit($event)" class="login-form" autocomplete="on">
+      <div class="field">
+        <label for="email">{{ 'auth.login.email' | transloco }}</label>
+        <input pInputText #emailInput id="email" type="email" name="email" formControlName="email"
+          [placeholder]="'auth.login.emailPlaceholder' | transloco" class="w-full" autocomplete="email"
+          (input)="onInputChange('email', $event)" [class.ng-invalid]="f['email'].invalid && f['email'].touched" />
+        @if (f['email'].invalid && f['email'].touched) {
+        <small class="p-error">
+          @if (f['email'].errors?.['required']) {
+          {{ 'validation.required' | transloco: { field: ('auth.login.email' | transloco) } }}
+          } @else if (f['email'].errors?.['email']) {
+          {{ 'validation.email' | transloco }}
+          }
+        </small>
+        }
+      </div>
+      <div class="field">
+        <label for="password">{{ 'auth.login.password' | transloco }}</label>
+        <input pInputText #passwordInput id="password" type="password" name="password" formControlName="password"
+          [placeholder]="'auth.login.passwordPlaceholder' | transloco" class="w-full password-input"
+          autocomplete="current-password" (input)="onInputChange('password', $event)"
+          [class.ng-invalid]="f['password'].invalid && f['password'].touched" />
+        @if (f['password'].invalid && f['password'].touched) {
+        <small class="p-error">
+          @if (f['password'].errors?.['required']) {
+          {{ 'validation.requiredFeminine' | transloco: { field: ('auth.login.password' | transloco) } }}
+          } @else if (f['password'].errors?.['minlength']) {
+          {{ 'validation.minLength' | transloco: { field: ('auth.login.password' | transloco), min: 6 } }}
+          }
+        </small>
+        }
+      </div>
+      <div class="field-checkbox">
+        <p-checkbox formControlName="rememberMe" [binary]="true" inputId="rememberMe" />
+        <label for="rememberMe" class="ml-2">{{ 'auth.login.rememberMe' | transloco }}</label>
+      </div>
+      <div class="forgot-password">
+        <a routerLink="/auth/forgot-password">{{ 'auth.login.forgotPassword' | transloco }}</a>
+      </div>
+      <p-button type="submit" [label]="'auth.login.submit' | transloco" styleClass="w-full" [loading]="isLoading"
+        [disabled]="loginForm.invalid || isLoading" />
+    </form>
+    <div class="login-footer">
+      <p>
+        {{ 'auth.login.noAccount' | transloco }}
+        <a routerLink="/auth/signup">{{ 'auth.login.signupLink' | transloco }}</a>
+      </p>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,68 @@
+# LIVRIA - robots.txt
+# https://livrya.com.br
+
+User-agent: *
+Allow: /
+Allow: /institutional/
+Allow: /institutional/about
+Allow: /institutional/terms
+Allow: /institutional/privacy
+Allow: /institutional/security
+Allow: /institutional/code-conduct
+Allow: /institutional/careers
+Allow: /institutional/contact
+Allow: /institutional/writer-area
+Allow: /institutional/copyright
+Allow: /institutional/publication
+Allow: /institutional/partners
+Allow: /institutional/content-guidelines
+Allow: /institutional/community
+Allow: /institutional/moderation
+Allow: /institutional/transparency
+Allow: /auth/login
+Allow: /auth/signup
+
+# Bloquear rotas protegidas
+Disallow: /writer/
+Disallow: /social/
+Disallow: /livras/
+Disallow: /subscription/
+Disallow: /achievements/
+Disallow: /dashboard/
+Disallow: /unauthorized
+Disallow: /api/
+Disallow: /auth/forgot-password
+
+# Sitemap
+Sitemap: https://livrya.com.br/sitemap.xml
+
+# Crawl-delay (recomendado)
+Crawl-delay: 1
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Googlebot para imagens
+User-agent: Googlebot-Image
+Allow: /assets/
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+
+# Facebook
+User-agent: facebookexternalhit
+Allow: /
+
+# Twitter
+User-agent: Twitterbot
+Allow: /
+
+# LinkedIn
+User-agent: LinkedInBot
+Allow: /
+
+# WhatsApp
+User-agent: WhatsApp
+Allow: /

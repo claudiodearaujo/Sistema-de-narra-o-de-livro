@@ -1,0 +1,152 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+   background: color-mix(in srgb, var(--surface-ground) 35%, transparent);
+
+    padding: 1rem;
+}
+
+.login-card {
+  background: var(--surface-card);
+  border-radius: 1rem;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.login-logo .logo-icon {
+  display: flex;
+  align-items: center;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary-700);
+  font-family: var(--font-heading);
+  margin: 0 0 0.5rem 0;
+}
+
+.login-header p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.login-form .field {
+  margin-bottom: 1.25rem;
+}
+
+.login-form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.field-checkbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.field-checkbox label {
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.forgot-password {
+  text-align: right;
+  margin-bottom: 1.5rem;
+}
+
+.forgot-password a {
+  color: var(--color-primary-600);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+
+.forgot-password a:hover {
+  color: var(--color-primary-700);
+  text-decoration: underline;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.login-footer p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.login-footer a {
+  color: var(--color-primary-600);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-footer a:hover {
+  color: var(--color-primary-700);
+  text-decoration: underline;
+}
+
+/* Error message styling */
+.p-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+}
+
+/* Password input styling */
+.password-input {
+  padding-right: 2.5rem;
+}
+
+/* Toast customization */
+::ng-deep .p-toast {
+  z-index: 10000 !important;
+}
+
+::ng-deep .p-toast .p-toast-message {
+  margin-bottom: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+::ng-deep .p-toast .p-toast-message.p-toast-message-error {
+  background: var(--red-50);
+  border: 1px solid var(--red-200);
+  border-left: 4px solid var(--red-500);
+}
+
+::ng-deep .p-toast .p-toast-message.p-toast-message-warn {
+  background: var(--yellow-50);
+  border: 1px solid var(--yellow-200);
+  border-left: 4px solid var(--yellow-500);
+}
+
+::ng-deep .p-toast .p-toast-message.p-toast-message-success {
+  background: var(--green-50);
+  border: 1px solid var(--green-200);
+  border-left: 4px solid var(--green-500);
+}

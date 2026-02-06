@@ -1,0 +1,204 @@
+<ng-container *transloco="let t">
+  <div class="post-detail-container">
+    <!-- Header -->
+    <div class="detail-header">
+      <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()" />
+      <h2>{{ t('social.postDetail.title') }}</h2>
+    </div>
+
+    @if (loading()) {
+      <div class="post-skeleton">
+        <div class="skeleton-header">
+          <p-skeleton shape="circle" size="3rem" />
+          <div class="skeleton-info">
+            <p-skeleton width="150px" height="1rem" />
+            <p-skeleton width="100px" height="0.8rem" class="mt-1" />
+          </div>
+        </div>
+        <p-skeleton width="100%" height="100px" class="mt-3" />
+        <div class="skeleton-actions mt-3">
+          <p-skeleton width="60px" height="1.5rem" />
+          <p-skeleton width="60px" height="1.5rem" />
+          <p-skeleton width="60px" height="1.5rem" />
+        </div>
+      </div>
+    } @else if (post(); as p) {
+      <!-- Post Content -->
+      <div class="post-card">
+        <div class="post-header">
+          <p-avatar [image]="p.user.avatar || undefined"
+            [label]="p.user.avatar ? undefined : p.user.name.charAt(0)"
+            size="large"
+            shape="circle" />
+          <div class="post-user-info">
+            <a [routerLink]="['/social/profile', p.user.username]" class="user-name">
+              {{ p.user.name }}
+            </a>
+            <span class="user-handle">&#64;{{ p.user.username }}</span>
+          </div>
+          <p-button icon="pi pi-ellipsis-h" [text]="true" severity="secondary" (onClick)="menu.toggle($event)" />
+          <p-menu #menu [model]="menuItems()" [popup]="true" />
+        </div>
+
+        <div class="post-content">
+          <p>{{ p.content }}</p>
+          @if (p.mediaUrl) {
+            <img [src]="p.mediaUrl" [alt]="t('social.postDetail.postImage')" class="post-image">
+          }
+        </div>
+
+        <div class="post-timestamp">
+          {{ p.createdAt | date:'HH:mm' }} · {{ p.createdAt | date:'d MMM yyyy' }}
+        </div>
+
+        <div class="post-metrics">
+          <span><strong>{{ p.likeCount }}</strong> {{ t('social.feed.likes') }}</span>
+          <span><strong>{{ p.commentCount }}</strong> {{ t('social.feed.comments') }}</span>
+          <span><strong>{{ p.shareCount }}</strong> {{ t('social.postDetail.shares') }}</span>
+        </div>
+
+        <div class="post-actions">
+          <p-button icon="pi pi-comment"
+            [text]="true"
+            severity="secondary" />
+          <p-button [icon]="p.isLiked ? 'pi pi-heart-fill' : 'pi pi-heart'"
+            [text]="true"
+            [severity]="p.isLiked ? 'danger' : 'secondary'"
+            [loading]="likingPost()"
+            (onClick)="toggleLike()" />
+          <p-button icon="pi pi-share-alt"
+            [text]="true"
+            severity="secondary"
+            (onClick)="sharePost()" />
+          <p-button [icon]="p.isBookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+            [text]="true"
+            [severity]="p.isBookmarked ? 'primary' : 'secondary'"
+            (onClick)="toggleBookmark()" />
+        </div>
+      </div>
+
+      <!-- Comment Composer -->
+      <div class="comment-composer">
+        <p-avatar label="E"
+          size="normal"
+          shape="circle" />
+        <div class="composer-input-wrapper">
+          <textarea
+            pInputTextarea
+            [(ngModel)]="commentText"
+            [placeholder]="replyingTo() ? t('social.postDetail.writeReply') : t('social.postDetail.writeComment')"
+            [autoResize]="true"
+            rows="1">
+          </textarea>
+          @if (replyingTo()) {
+            <button class="cancel-reply" (click)="cancelReply()">
+              <i class="pi pi-times"></i>
+            </button>
+          }
+        </div>
+        <p-button icon="pi pi-send"
+          [disabled]="!commentText().trim()"
+          [loading]="submittingComment()"
+          (onClick)="submitComment()" />
+      </div>
+
+      <!-- Comments List -->
+      <div class="comments-section">
+        <h3>{{ t('social.comments.title') }}</h3>
+
+        @for (comment of comments(); track comment.id) {
+          <div class="comment-card">
+            <p-avatar [image]="comment.user.avatar || undefined"
+              [label]="comment.user.avatar ? undefined : comment.user.name.charAt(0)"
+              shape="circle" />
+
+            <div class="comment-body">
+              <div class="comment-header">
+                <a [routerLink]="['/social/profile', comment.user.username]" class="comment-author">
+                  {{ comment.user.name }}
+                </a>
+                <span class="comment-time">{{ formatTimeAgo(comment.createdAt) }}</span>
+              </div>
+
+              <p class="comment-text">{{ comment.content }}</p>
+
+              <div class="comment-actions">
+                <button
+                  class="action-btn"
+                  [class.liked]="comment.isLiked"
+                  [disabled]="likingComments().has(comment.id)"
+                  (click)="toggleCommentLike(comment)">
+                  <i [class]="comment.isLiked ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+                  {{ comment.likeCount }}
+                </button>
+                <button class="action-btn" (click)="startReply(comment.id)">
+                  <i class="pi pi-reply"></i>
+                  {{ t('social.comments.reply') }}
+                </button>
+              </div>
+
+              <!-- Reply Input -->
+              @if (replyingTo() === comment.id) {
+                <div class="reply-composer">
+                  <textarea
+                    pInputTextarea
+                    [(ngModel)]="replyText"
+                    [placeholder]="t('social.postDetail.writeReply')"
+                    [autoResize]="true"
+                    rows="1">
+                  </textarea>
+                  <div class="reply-actions">
+                    <p-button [label]="t('common.actions.cancel')" [text]="true" severity="secondary" (onClick)="cancelReply()" />
+                    <p-button [label]="t('social.comments.reply')"
+                      [disabled]="!replyText().trim()"
+                      [loading]="submittingComment()"
+                      (onClick)="submitReply(comment.id)" />
+                  </div>
+                </div>
+              }
+
+              <!-- Replies -->
+              @if (comment.replies && comment.replies.length > 0) {
+                <div class="replies-list">
+                  @for (reply of comment.replies; track reply.id) {
+                    <div class="reply-card">
+                      <p-avatar [image]="reply.user.avatar || undefined"
+                        [label]="reply.user.avatar ? undefined : reply.user.name.charAt(0)"
+                        size="normal"
+                        shape="circle" />
+
+                      <div class="reply-body">
+                        <div class="comment-header">
+                          <a [routerLink]="['/social/profile', reply.user.username]" class="comment-author">
+                            {{ reply.user.name }}
+                          </a>
+                          <span class="comment-time">{{ formatTimeAgo(reply.createdAt) }}</span>
+                        </div>
+                        <p class="comment-text">{{ reply.content }}</p>
+                        <div class="comment-actions">
+                          <button
+                            class="action-btn"
+                            [class.liked]="reply.isLiked"
+                            [disabled]="likingComments().has(reply.id)"
+                            (click)="toggleCommentLike(reply)">
+                            <i [class]="reply.isLiked ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+                            {{ reply.likeCount }}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        } @empty {
+          <div class="no-comments">
+            <i class="pi pi-comments"></i>
+            <p>{{ t('social.postDetail.beFirstToComment') }}</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ng-container>

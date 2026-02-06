@@ -1,0 +1,171 @@
+<ng-container *transloco="let t">
+  <div class="signup-container">
+    <div class="signup-card">
+      <!-- Language Selector -->
+      <div class="flex justify-end mb-4">
+        <app-language-selector />
+      </div>
+
+      <div class="signup-logo">
+        <span class="logo-icon"><img src="assets/logosm.png" width="40px" alt="logo livrya"></span>
+        <img src="assets/logo.png" width="100px" alt="logo livrya">
+      </div>
+      <div class="signup-header">
+        <h1>{{ t('auth.signup.title') }}</h1>
+        <p>{{ t('auth.signup.subtitle') }}</p>
+      </div>
+
+      @if (errorMessage) {
+        <p-message severity="error" [text]="errorMessage" styleClass="w-full mb-4" />
+      }
+
+      @if (successMessage) {
+        <p-message severity="success" [text]="successMessage" styleClass="w-full mb-4" />
+      }
+
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
+        <div class="field">
+          <label for="name">{{ t('auth.signup.name') }}</label>
+          <input
+            pInputText
+            id="name"
+            type="text"
+            formControlName="name"
+            [placeholder]="t('auth.signup.namePlaceholder')"
+            class="w-full"
+          />
+          @if (f['name'].invalid && f['name'].touched) {
+            <small class="p-error">
+              @if (f['name'].errors?.['required']) {
+                {{ t('validation.required', { field: t('auth.signup.name') }) }}
+              } @else if (f['name'].errors?.['minlength']) {
+                {{ t('validation.minLength', { field: t('auth.signup.name'), min: 2 }) }}
+              }
+            </small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="email">{{ t('auth.signup.email') }}</label>
+          <input
+            pInputText
+            id="email"
+            type="email"
+            formControlName="email"
+            [placeholder]="t('auth.signup.emailPlaceholder')"
+            class="w-full"
+          />
+          @if (f['email'].invalid && f['email'].touched) {
+            <small class="p-error">
+              @if (f['email'].errors?.['required']) {
+                {{ t('validation.required', { field: t('auth.signup.email') }) }}
+              } @else if (f['email'].errors?.['email']) {
+                {{ t('validation.email') }}
+              }
+            </small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="username">{{ t('auth.signup.username') }} <span class="optional">{{ t('auth.signup.usernameOptional') }}</span></label>
+          <input
+            pInputText
+            id="username"
+            type="text"
+            formControlName="username"
+            [placeholder]="t('auth.signup.usernamePlaceholder')"
+            class="w-full"
+          />
+          @if (f['username'].invalid && f['username'].touched) {
+            <small class="p-error">
+              @if (f['username'].errors?.['minlength']) {
+                {{ t('validation.minLength', { field: t('auth.signup.username'), min: 3 }) }}
+              } @else if (f['username'].errors?.['pattern']) {
+                {{ t('validation.onlyLettersNumbersUnderscore') }}
+              }
+            </small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">{{ t('auth.signup.password') }}</label>
+          <p-password
+            id="password"
+            formControlName="password"
+            [toggleMask]="true"
+            [placeholder]="t('auth.signup.passwordPlaceholder')"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+            [promptLabel]="t('auth.signup.passwordStrength.prompt')"
+            [weakLabel]="t('auth.signup.passwordStrength.weak')"
+            [mediumLabel]="t('auth.signup.passwordStrength.medium')"
+            [strongLabel]="t('auth.signup.passwordStrength.strong')"
+          />
+          @if (f['password'].invalid && f['password'].touched) {
+            <small class="p-error">
+              @if (f['password'].errors?.['required']) {
+                {{ t('validation.requiredFeminine', { field: t('auth.signup.password') }) }}
+              } @else if (f['password'].errors?.['minlength']) {
+                {{ t('validation.minLength', { field: t('auth.signup.password'), min: 8 }) }}
+              } @else if (f['password'].errors?.['passwordStrength']) {
+                {{ t('validation.passwordStrength') }}
+              }
+            </small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="confirmPassword">{{ t('auth.signup.confirmPassword') }}</label>
+          <p-password
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            [feedback]="false"
+            [toggleMask]="true"
+            [placeholder]="t('auth.signup.confirmPasswordPlaceholder')"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          @if (f['confirmPassword'].invalid && f['confirmPassword'].touched) {
+            <small class="p-error">
+              @if (f['confirmPassword'].errors?.['required']) {
+                {{ t('validation.requiredFeminine', { field: t('auth.signup.confirmPassword') }) }}
+              } @else if (f['confirmPassword'].errors?.['passwordMismatch']) {
+                {{ t('validation.passwordMismatch') }}
+              }
+            </small>
+          }
+        </div>
+
+        <div class="field-checkbox">
+          <p-checkbox
+            formControlName="acceptTerms"
+            [binary]="true"
+            inputId="acceptTerms"
+          />
+          <label for="acceptTerms" class="ml-2">
+            {{ t('auth.signup.acceptTerms') }} <a href="/terms" target="_blank">{{ t('auth.signup.termsLink') }}</a> {{ t('auth.signup.andText') }}
+            <a href="/privacy" target="_blank">{{ t('auth.signup.privacyLink') }}</a>
+          </label>
+        </div>
+        @if (f['acceptTerms'].invalid && f['acceptTerms'].touched) {
+          <small class="p-error">{{ t('validation.acceptTerms') }}</small>
+        }
+
+        <p-button
+          type="submit"
+          [label]="t('auth.signup.submit')"
+          styleClass="w-full mt-4"
+          [loading]="isLoading"
+          [disabled]="signupForm.invalid || isLoading"
+        />
+      </form>
+
+      <div class="signup-footer">
+        <p>
+          {{ t('auth.signup.hasAccount') }}
+          <a routerLink="/auth/login">{{ t('auth.signup.loginLink') }}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</ng-container>

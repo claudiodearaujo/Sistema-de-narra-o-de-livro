@@ -1,0 +1,337 @@
+<ng-container *transloco="let t">
+  <div class="profile-container">
+    @if (loading()) {
+      <!-- Skeleton -->
+      <div class="profile-skeleton">
+        <p-skeleton width="100%" height="200px" />
+        <div class="profile-info-skeleton">
+          <p-skeleton shape="circle" size="8rem" />
+          <p-skeleton width="200px" height="2rem" class="mt-3" />
+          <p-skeleton width="150px" height="1rem" class="mt-2" />
+        </div>
+      </div>
+    } @else if (error(); as errorMessage) {
+      <!-- Error State -->
+      <div class="error-container">
+        <div class="error-content">
+          @if (notFound()) {
+            <i class="pi pi-user-minus error-icon"></i>
+            <h2>{{ t('social.profile.userNotFound') }}</h2>
+            <p>{{ t('social.profile.userNotFoundMessage') }}</p>
+          } @else {
+            <i class="pi pi-exclamation-triangle error-icon"></i>
+            <h2>{{ t('social.profile.errorTitle') }}</h2>
+            <p>{{ errorMessage }}</p>
+          }
+          <p-button [label]="t('common.actions.back')"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            routerLink="/social/feed" />
+        </div>
+      </div>
+    } @else if (profile(); as p) {
+      <!-- Banner -->
+      <div class="profile-banner">
+        @if (p.bannerUrl) {
+          <img [src]="p.bannerUrl" alt="Banner">
+        }
+      </div>
+
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="avatar-section">
+          <p-avatar [image]="p.avatar || undefined"
+            [label]="p.avatar ? undefined : p.name.charAt(0)"
+            size="xlarge"
+            shape="circle"
+            styleClass="profile-avatar" />
+          @if (p.isVerified) {
+            <i class="pi pi-verified verified-badge" [title]="t('social.profile.verified')"></i>
+          }
+        </div>
+
+        <div class="profile-actions">
+          @if (isOwnProfile()) {
+            <p-button [label]="t('social.profile.editProfile')" severity="secondary" outlined="true" routerLink="/settings/profile" />
+          } @else {
+            <p-button [label]="isFollowing() ? t('social.profile.following') : t('social.profile.follow')"
+              [severity]="isFollowing() ? 'secondary' : 'primary'"
+              [outlined]="isFollowing()"
+              [loading]="loadingFollow()"
+              (onClick)="toggleFollow()" />
+            <p-button icon="pi pi-envelope" severity="secondary" outlined="true" [routerLink]="['/social/messages']" />
+          }
+        </div>
+      </div>
+
+      <!-- Profile Info -->
+      <div class="profile-info">
+        <h1 class="display-name">{{ p.name }}</h1>
+        @if (p.username) {
+          <span class="username">&#64;{{ p.username }}</span>
+        }
+
+        @if (p.bio) {
+          <p class="bio">{{ p.bio }}</p>
+        }
+
+        <div class="meta-info">
+          @if (p.location) {
+            <span class="meta-item">
+              <i class="pi pi-map-marker"></i>
+              {{ p.location }}
+            </span>
+          }
+          @if (p.website) {
+            <a [href]="p.website" target="_blank" class="meta-item link">
+              <i class="pi pi-link"></i>
+              {{ p.website }}
+            </a>
+          }
+          <span class="meta-item">
+            <i class="pi pi-calendar"></i>
+            {{ t('social.profile.joinedIn') }} {{ formatDate(p.createdAt) }}
+          </span>
+        </div>
+
+        <div class="stats">
+          <button class="stat-item" (click)="openFollowers()">
+            <strong>{{ formatNumber(p.stats.followers) }}</strong>
+            <span>{{ t('social.profile.followers') }}</span>
+          </button>
+          <button class="stat-item" (click)="openFollowing()">
+            <strong>{{ formatNumber(p.stats.following) }}</strong>
+            <span>{{ t('social.profile.following') }}</span>
+          </button>
+          <span class="stat-item">
+            <strong>{{ p.stats.posts }}</strong>
+            <span>{{ t('social.profile.posts') }}</span>
+          </span>
+          <span class="stat-item">
+            <strong>{{ p.stats.books }}</strong>
+            <span>{{ t('social.profile.books') }}</span>
+          </span>
+        </div>
+
+        <!-- Gamification (Sprint 8) -->
+        @if (p.stats.level) {
+          <div class="gamification-section">
+            <div class="level-badge">
+              <span class="level-number">{{ p.stats.level }}</span>
+              <span class="level-label">{{ t('social.profile.level') }}</span>
+            </div>
+            <div class="xp-bar">
+              <div class="xp-progress" [style.width.%]="xpProgress()"></div>
+            </div>
+            @if (p.stats.livraBalance !== undefined) {
+              <div class="livra-balance">
+                <i class="pi pi-wallet"></i>
+                <span>{{ formatNumber(p.stats.livraBalance!) }} LIVRA</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Achievements (Sprint 10) -->
+        @if (achievements().length > 0) {
+          <div class="achievements-section">
+            <div class="section-header">
+              <h3>🏆 {{ t('social.profile.achievements') }}</h3>
+              <a routerLink="/achievements" class="see-all">{{ t('social.profile.seeAll') }}</a>
+            </div>
+            <div class="achievements-grid">
+              @for (ua of achievements(); track ua.id) {
+                <div class="achievement-badge"
+                     [pTooltip]="ua.achievement.name + ': ' + ua.achievement.description"
+                     tooltipPosition="top">
+                  <span class="achievement-icon">{{ ua.achievement.icon }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Tabs -->
+      <p-tabs value="0">
+        <p-tablist>
+          <p-tab value="0" (click)="onTabChange('posts')">{{ t('social.profile.posts') }}</p-tab>
+          <p-tab value="1" (click)="onTabChange('books')">{{ t('social.profile.books') }}</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel value="0">
+            <div class="posts-list">
+              @for (post of posts(); track post.id) {
+                <a [routerLink]="['/social/post', post.id]" class="post-item">
+                  <p class="post-content">{{ post.content }}</p>
+                  @if (post.mediaUrl) {
+                    <img [src]="post.mediaUrl" alt="Post media" class="post-media">
+                  }
+                  <div class="post-stats">
+                    <span><i class="pi pi-heart"></i> {{ post.likeCount }}</span>
+                    <span><i class="pi pi-comment"></i> {{ post.commentCount }}</span>
+                  </div>
+                </a>
+              } @empty {
+                @if (!loadingPosts()) {
+                  <div class="empty-posts">
+                    <p>{{ t('social.profile.noPosts') }}</p>
+                  </div>
+                }
+              }
+
+              @if (loadingPosts()) {
+                <div class="loading-more">
+                  <i class="pi pi-spin pi-spinner"></i>
+                  {{ t('common.loading') }}
+                </div>
+              }
+
+              @if (hasMorePosts() && !loadingPosts() && posts().length > 0) {
+                <button class="load-more-btn" pButton [label]="t('common.actions.loadMore')" (click)="loadMorePosts()"></button>
+              }
+            </div>
+          </p-tabpanel>
+
+          <p-tabpanel value="1">
+            <div class="books-list">
+              @for (book of books(); track book.id) {
+                <a [routerLink]="['/writer/books', book.id]" class="book-item">
+                  @if (book.coverUrl) {
+                    <img [src]="book.coverUrl" alt="Capa" class="book-cover">
+                  } @else {
+                    <div class="book-cover-placeholder">
+                      <i class="pi pi-book"></i>
+                    </div>
+                  }
+                  <div class="book-info">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    @if (book.genre) {
+                      <span class="book-genre">{{ book.genre }}</span>
+                    }
+                    @if (book.description) {
+                      <p class="book-description">{{ book.description }}</p>
+                    }
+                    <span class="book-chapters">{{ book.chapterCount }} {{ t('social.profile.chapters') }}</span>
+                  </div>
+                </a>
+              } @empty {
+                @if (!loadingBooks()) {
+                  <div class="empty-books">
+                    <i class="pi pi-book"></i>
+                    <p>{{ t('social.profile.noBooks') }}</p>
+                  </div>
+                }
+              }
+
+              @if (loadingBooks()) {
+                <div class="loading-more">
+                  <i class="pi pi-spin pi-spinner"></i>
+                  {{ t('common.loading') }}
+                </div>
+              }
+
+              @if (hasMoreBooks() && !loadingBooks() && books().length > 0) {
+                <button class="load-more-btn" pButton [label]="t('common.actions.loadMore')" (click)="loadMoreBooks()"></button>
+              }
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    }
+  </div>
+
+  <!-- Followers Dialog -->
+  <p-dialog
+    [header]="t('social.profile.followers')"
+    [visible]="showFollowersDialog()"
+    [modal]="true"
+    [closable]="true"
+    (visibleChange)="showFollowersDialog.set($event)"
+    [style]="{width: '400px', maxHeight: '70vh'}">
+    @if (loadingFollowers()) {
+      <div class="flex flex-col gap-3">
+        @for (_ of [1,2,3]; track $index) {
+          <div class="flex items-center gap-3">
+            <p-skeleton shape="circle" size="40px" />
+            <div class="flex flex-col gap-1 flex-1">
+              <p-skeleton width="120px" height="16px" />
+              <p-skeleton width="80px" height="12px" />
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (followers().length === 0) {
+      <div class="text-center py-4 text-gray-500">
+        <i class="pi pi-users text-2xl mb-2"></i>
+        <p>{{ t('social.profile.noFollowers') }}</p>
+      </div>
+    } @else {
+      <div class="flex flex-col gap-3 max-h-96 overflow-y-auto">
+        @for (user of followers(); track user.id) {
+          <a [routerLink]="['/social/profile', user.username || user.id]"
+             class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">
+            @if (user.avatar) {
+              <p-avatar [image]="user.avatar" shape="circle" size="normal" />
+            } @else {
+              <p-avatar [label]="user.name[0]" shape="circle" size="normal" />
+            }
+            <div class="flex flex-col">
+              <span class="font-medium">{{ user.name }}</span>
+              @if (user.username) {
+                <span class="text-sm text-gray-500">@{{ user.username }}</span>
+              }
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </p-dialog>
+
+  <!-- Following Dialog -->
+  <p-dialog
+    [header]="t('social.profile.following')"
+    [visible]="showFollowingDialog()"
+    [modal]="true"
+    [closable]="true"
+    (visibleChange)="showFollowingDialog.set($event)"
+    [style]="{width: '400px', maxHeight: '70vh'}">
+    @if (loadingFollowing()) {
+      <div class="flex flex-col gap-3">
+        @for (_ of [1,2,3]; track $index) {
+          <div class="flex items-center gap-3">
+            <p-skeleton shape="circle" size="40px" />
+            <div class="flex flex-col gap-1 flex-1">
+              <p-skeleton width="120px" height="16px" />
+              <p-skeleton width="80px" height="12px" />
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (following().length === 0) {
+      <div class="text-center py-4 text-gray-500">
+        <i class="pi pi-users text-2xl mb-2"></i>
+        <p>{{ t('social.profile.noFollowing') }}</p>
+      </div>
+    } @else {
+      <div class="flex flex-col gap-3 max-h-96 overflow-y-auto">
+        @for (user of following(); track user.id) {
+          <a [routerLink]="['/social/profile', user.username || user.id]"
+             class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">
+            @if (user.avatar) {
+              <p-avatar [image]="user.avatar" shape="circle" size="normal" />
+            } @else {
+              <p-avatar [label]="user.name[0]" shape="circle" size="normal" />
+            }
+            <div class="flex flex-col">
+              <span class="font-medium">{{ user.name }}</span>
+              @if (user.username) {
+                <span class="text-sm text-gray-500">@{{ user.username }}</span>
+              }
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </p-dialog>
+</ng-container>

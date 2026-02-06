@@ -1,0 +1,1647 @@
+{
+  "common": {
+    "select": "Selecione",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "actions": {
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "edit": "Editar",
+      "create": "Criar",
+      "filter": "Filtrar",
+      "clear": "Limpar",
+      "submit": "Enviar",
+      "publish": "Publicar",
+      "share": "Compartilhar",
+      "close": "Fechar",
+      "confirm": "Confirmar",
+      "back": "Voltar",
+      "next": "Avançar",
+      "tryAgain": "Tentar novamente",
+      "explore": "Explorar",
+      "loadMore": "Carregar mais"
+    },
+    "nav": {
+      "writerArea": "Área do Escritor",
+      "socialNetwork": "Rede Social",
+      "dashboard": "Dashboard",
+      "myBooks": "Meus Livros",
+      "characters": "Personagens",
+      "voices": "Vozes",
+      "feed": "Feed",
+      "explore": "Explorar",
+      "messages": "Mensagens",
+      "myProfile": "Meu Perfil",
+      "settings": "Configurações",
+      "logout": "Sair"
+    },
+    "footer": {
+      "copyright": "LIVRIA {{year}} | Sua biblioteca literária social"
+    },
+    "time": {
+      "now": "agora",
+      "soon": "em breve",
+      "justNow": "agora mesmo",
+      "minutesAgo": "há {{count}} minuto",
+      "minutesAgo_plural": "há {{count}} minutos",
+      "hoursAgo": "há {{count}} hora",
+      "hoursAgo_plural": "há {{count}} horas",
+      "daysAgo": "há {{count}} dia",
+      "daysAgo_plural": "há {{count}} dias",
+      "weeksAgo": "há {{count}} semana",
+      "weeksAgo_plural": "há {{count}} semanas",
+      "monthsAgo": "há {{count}} mês",
+      "monthsAgo_plural": "há {{count}} meses",
+      "yearsAgo": "há {{count}} ano",
+      "yearsAgo_plural": "há {{count}} anos",
+      "min": "min",
+      "hour": "h",
+      "day": "d",
+      "week": "sem",
+      "month": "mês",
+      "months": "meses",
+      "year": "ano",
+      "years": "anos"
+    },
+    "pagination": {
+      "showing": "Mostrando {{current}} de {{total}}",
+      "noResults": "Nenhum resultado encontrado"
+    },
+    "loading": "Carregando...",
+    "loadingMore": "Carregando mais...",
+    "loadingInterface": "Carregando interface..."
+  },
+  "auth": {
+    "login": {
+      "title": "Bem-vindo de volta!",
+      "subtitle": "Entre na sua conta para continuar",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Sua senha",
+      "rememberMe": "Lembrar-me",
+      "forgotPassword": "Esqueceu sua senha?",
+      "submit": "Entrar",
+      "noAccount": "Não tem uma conta?",
+      "signupLink": "Cadastre-se",
+      "success": "Login realizado!",
+      "welcomeBack": "Bem-vindo de volta!",
+      "errorTitle": "Erro no login",
+      "invalidFields": "Campos inválidos",
+      "defaultError": "Não foi possível realizar o login. Verifique suas credenciais."
+    },
+    "signup": {
+      "title": "Criar sua conta",
+      "subtitle": "Junte-se à nossa comunidade de escritores",
+      "name": "Nome completo",
+      "namePlaceholder": "Seu nome",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "username": "Nome de usuário",
+      "usernameOptional": "(opcional)",
+      "usernamePlaceholder": "seu_username",
+      "password": "Senha",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "confirmPassword": "Confirmar senha",
+      "confirmPasswordPlaceholder": "Repita a senha",
+      "acceptTerms": "Li e aceito os",
+      "termsLink": "Termos de Uso",
+      "andText": "e",
+      "privacyLink": "Política de Privacidade",
+      "submit": "Criar conta",
+      "hasAccount": "Já tem uma conta?",
+      "loginLink": "Entrar",
+      "passwordStrength": {
+        "prompt": "Digite uma senha",
+        "weak": "Fraca",
+        "medium": "Média",
+        "strong": "Forte"
+      }
+    },
+    "forgotPassword": {
+      "title": "Esqueceu sua senha?",
+      "subtitle": "Não se preocupe! Digite seu e-mail e enviaremos instruções para recuperar sua senha.",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "submit": "Enviar instruções",
+      "backToLogin": "Voltar ao login",
+      "successTitle": "E-mail enviado!",
+      "successMessage": "E-mail de recuperação enviado com sucesso!",
+      "checkInbox": "Verifique sua caixa de entrada e spam.",
+      "resend": "Enviar novamente"
+    },
+    "profile": {
+      "title": "Meu Perfil",
+      "back": "Voltar",
+      "loading": "Carregando perfil...",
+      "tabs": {
+        "info": "Informações",
+        "security": "Segurança"
+      },
+      "avatar": {
+        "change": "Alterar foto",
+        "hint": "JPG, PNG ou GIF. Máx 5MB"
+      },
+      "fields": {
+        "name": "Nome completo",
+        "email": "E-mail",
+        "emailHint": "O e-mail não pode ser alterado",
+        "username": "Nome de usuário",
+        "usernamePlaceholder": "seu_username",
+        "bio": "Biografia",
+        "bioPlaceholder": "Conte um pouco sobre você...",
+        "characters": "caracteres"
+      },
+      "save": "Salvar alterações",
+      "success": "Perfil atualizado com sucesso!",
+      "error": "Erro ao carregar perfil",
+      "changePassword": "Alterar senha",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha",
+      "confirmNewPassword": "Confirmar nova senha",
+      "passwordSuccess": "Senha alterada com sucesso!",
+      "changePasswordBtn": "Alterar senha"
+    },
+    "unauthorized": {
+      "title": "Acesso Negado",
+      "message": "Você não tem permissão para acessar esta página.",
+      "backHome": "Voltar ao início"
+    }
+  },
+  "validation": {
+    "required": "Campo obrigatório",
+    "requiredField": "{{field}} é obrigatório",
+    "requiredFeminine": "{{field}} é obrigatória",
+    "email": "E-mail inválido",
+    "minLength": "Mínimo de {{count}} caracteres",
+    "minLengthField": "{{field}} deve ter no mínimo {{min}} caracteres",
+    "maxLength": "{{field}} deve ter no máximo {{max}} caracteres",
+    "passwordStrength": "Senha deve conter maiúscula, minúscula e número",
+    "passwordMismatch": "As senhas não coincidem",
+    "invalidPattern": "Formato inválido",
+    "acceptTerms": "Você deve aceitar os termos",
+    "onlyLettersNumbersUnderscore": "Apenas letras, números e underscore",
+    "fillAllFields": "Por favor, preencha todos os campos corretamente"
+  },
+  "errors": {
+    "unexpected": "Ocorreu um erro inesperado",
+    "invalidData": "Dados inválidos",
+    "invalidCredentials": "Credenciais inválidas",
+    "unauthorized": "Acesso não autorizado",
+    "notFound": "Recurso não encontrado",
+    "conflict": "Conflito - recurso já existe",
+    "invalidInput": "Dados de entrada inválidos",
+    "tooManyRequests": "Muitas tentativas. Aguarde um momento.",
+    "serverError": "Erro interno do servidor",
+    "connectionError": "Erro de conexão"
+  },
+  "books": {
+    "title": "Livros",
+    "subtitle": "Gerencie seus livros para narração",
+    "list": "Lista de Livros",
+    "newBook": "Novo Livro",
+    "editBook": "Editar Livro",
+    "bookTitle": "Título",
+    "author": "Autor",
+    "description": "Descrição",
+    "coverUrl": "URL da Capa",
+    "coverUrlPlaceholder": "https://exemplo.com/capa.jpg",
+    "coverUrlHint": "Cole a URL de uma imagem para a capa do livro",
+    "createdAt": "Criado em",
+    "actions": "Ações",
+    "filterByTitle": "Filtrar por título",
+    "filterByAuthor": "Filtrar por autor",
+    "noBooks": "Nenhum livro encontrado",
+    "view": "Visualizar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "confirmDelete": "Tem certeza que deseja excluir este livro?",
+    "deleteSuccess": "Livro excluído com sucesso",
+    "saveSuccess": "Livro salvo com sucesso",
+    "createSuccess": "Livro criado com sucesso",
+    "updateSuccess": "Livro atualizado com sucesso",
+    "loadError": "Falha ao carregar livro",
+    "createError": "Falha ao criar livro",
+    "updateError": "Falha ao atualizar livro",
+    "detail": {
+      "title": "Detalhes do Livro",
+      "aboutBook": "Sobre o Livro",
+      "noDescription": "Nenhuma descrição disponível",
+      "statistics": "Estatísticas",
+      "quickActions": "Ações Rápidas",
+      "viewCharacters": "Ver Personagens",
+      "newChapter": "Novo Capítulo"
+    },
+    "form": {
+      "titleLabel": "Título",
+      "titlePlaceholder": "Digite o título do livro",
+      "authorLabel": "Autor",
+      "authorPlaceholder": "Digite o nome do autor",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Digite uma descrição para o livro...",
+      "createSubtitle": "Cadastre um novo livro para narração",
+      "editSubtitle": "Atualize as informações do livro",
+      "create": "Criar",
+      "update": "Atualizar"
+    },
+    "stats": {
+      "chapters": "Capítulos",
+      "characters": "Personagens",
+      "speeches": "Falas"
+    }
+  },
+  "chapters": {
+    "title": "Capítulos",
+    "subtitle": "Gerencie os capítulos do seu livro",
+    "list": "Lista de Capítulos",
+    "newChapter": "Novo Capítulo",
+    "editChapter": "Editar Capítulo",
+    "chapterTitle": "Título do Capítulo",
+    "form": {
+      "titlePlaceholder": "Digite o título do capítulo",
+      "titleRequired": "Título é obrigatório"
+    },
+    "detail": {
+      "title": "Detalhes do Capítulo",
+      "breadcrumb": "Livro > Capítulo {{index}}",
+      "createdAt": "Criado em",
+      "updatedAt": "Atualizado em",
+      "actions": "Ações",
+      "addSpeechesHint": "Adicione falas para gerar a narração."
+    },
+    "content": "Conteúdo",
+    "order": "Ordem",
+    "noChapters": "Nenhum capítulo encontrado",
+    "narration": "Narração",
+    "generateAudio": "Gerar Áudio",
+    "exportOptions": "Opções de Exportação",
+    "speeches": "falas",
+    "manage": "Gerenciar",
+    "status": {
+      "completed": "Concluído",
+      "inProgress": "Em Progresso",
+      "draft": "Rascunho"
+    },
+    "messages": {
+      "loadError": "Falha ao carregar capítulos",
+      "reorderSuccess": "Ordem atualizada",
+      "reorderError": "Falha ao reordenar capítulos",
+      "updateSuccess": "Capítulo atualizado",
+      "deleteSuccess": "Capítulo excluído",
+      "deleteError": "Falha ao excluir capítulo",
+      "createSuccess": "Capítulo criado",
+      "confirmDelete": "Tem certeza que deseja excluir o capítulo \"{{title}}\"?",
+      "confirmation": "Confirmação"
+    },
+    "actions": {
+      "edit": "Editar",
+      "delete": "Excluir"
+    }
+  },
+  "characters": {
+    "title": "Personagens",
+    "subtitle": "Gerencie os personagens dos seus livros",
+    "list": "Lista de Personagens",
+    "newCharacter": "Novo Personagem",
+    "editCharacter": "Editar Personagem",
+    "characterName": "Nome do Personagem",
+    "description": "Descrição",
+    "voice": "Voz",
+    "noCharacters": "Nenhum personagem encontrado",
+    "noCharactersForBook": "Nenhum personagem cadastrado para este livro.",
+    "selectVoice": "Selecionar voz",
+    "filterByBook": "Filtrar por livro",
+    "voiceNotDefined": "Voz não definida",
+    "noVoiceDescription": "Sem descrição da voz.",
+    "characterCreated": "Personagem criado",
+    "characterUpdated": "Personagem atualizado",
+    "characterDeleted": "Personagem excluído",
+    "confirmDelete": "Tem certeza que deseja excluir {{name}}?",
+    "confirmDeleteTitle": "Confirmar Exclusão",
+    "updateError": "Falha ao atualizar personagem",
+    "createError": "Falha ao criar personagem",
+    "loadError": "Erro ao carregar personagens",
+    "deleteError": "Erro ao excluir personagem",
+    "form": {
+      "characterSheet": "Ficha do Personagem",
+      "complete": "completo",
+      "namePlaceholder": "Ex: Maria Silva",
+      "nameRequired": "Nome é obrigatório (mínimo 2 caracteres).",
+      "book": "Livro",
+      "selectBook": "Selecione um livro",
+      "bookRequired": "Selecione um livro.",
+      "voiceRequired": "Selecione uma voz.",
+      "testVoice": "Testar Voz",
+      "voiceDescription": "Descrição da Voz",
+      "voiceDescPlaceholder": "Ex: Tom grave, sotaque nordestino...",
+      "defaultVoiceText": "Olá, eu sou um personagem"
+    },
+    "tabs": {
+      "basic": "Básico",
+      "identity": "Identidade",
+      "physique": "Físico",
+      "face": "Rosto",
+      "eyes": "Olhos",
+      "hair": "Cabelo",
+      "wardrobe": "Vestuário"
+    },
+    "identity": {
+      "gender": "Gênero",
+      "age": "Idade",
+      "agePlaceholder": "Ex: 27",
+      "nationality": "Nacionalidade",
+      "nationalityPlaceholder": "Ex: Brasileira",
+      "occupation": "Ocupação",
+      "occupationPlaceholder": "Ex: Advogada",
+      "birthDate": "Data de Nascimento",
+      "birthDatePlaceholder": "Ex: 15/03/1998",
+      "birthPlace": "Local de Nascimento",
+      "birthPlacePlaceholder": "Ex: São Paulo, SP",
+      "personality": "Personalidade",
+      "personalityPlaceholder": "Ex: Determinada, carismática, impaciente...",
+      "background": "História de Fundo",
+      "backgroundPlaceholder": "Breve história do personagem..."
+    },
+    "physique": {
+      "height": "Altura",
+      "heightPlaceholder": "Ex: 1,70 m",
+      "weight": "Peso",
+      "weightPlaceholder": "Ex: 60 kg",
+      "bodyType": "Tipo de Corpo",
+      "waist": "Cintura",
+      "waistPlaceholder": "Ex: Fina e definida",
+      "posture": "Postura",
+      "skinTone": "Tom de Pele",
+      "skinTonePlaceholder": "Ex: Branco claro, porcelana",
+      "skinTexture": "Textura da Pele",
+      "skinTexturePlaceholder": "Ex: Lisa, brilho sutil",
+      "scars": "Cicatrizes",
+      "scarsPlaceholder": "Ex: Nenhuma",
+      "tattoos": "Tatuagens",
+      "tattoosPlaceholder": "Ex: Nenhuma",
+      "birthmarks": "Marcas de Nascença",
+      "birthmarksPlaceholder": "Ex: Nenhuma",
+      "nonePlaceholder": "Ex: Nenhuma"
+    },
+    "face": {
+      "faceShape": "Formato do Rosto",
+      "forehead": "Testa",
+      "foreheadPlaceholder": "Ex: Alta, lisa",
+      "cheekbones": "Maçãs do Rosto",
+      "cheekbonesPlaceholder": "Ex: Suaves e levemente salientes",
+      "chin": "Queixo",
+      "chinPlaceholder": "Ex: Levemente afinado",
+      "jaw": "Mandíbula",
+      "jawPlaceholder": "Ex: Fina e afunilada",
+      "nose": "Nariz",
+      "nosePlaceholder": "Ex: Pequeno, fino e delicado",
+      "lips": "Lábios",
+      "lipsPlaceholder": "Ex: Cheios e simétricos",
+      "expression": "Expressão Habitual",
+      "expressionPlaceholder": "Ex: Suave, gentil",
+      "beard": "Barba",
+      "beardPlaceholder": "Ex: Nenhuma",
+      "mustache": "Bigode",
+      "mustachePlaceholder": "Ex: Nenhum",
+      "wrinkles": "Rugas",
+      "wrinklesPlaceholder": "Ex: Nenhuma",
+      "dimples": "Covinhas",
+      "dimplesPlaceholder": "Ex: Nas bochechas",
+      "freckles": "Sardas",
+      "frecklesPlaceholder": "Ex: Nenhuma"
+    },
+    "eyes": {
+      "size": "Tamanho",
+      "sizePlaceholder": "Ex: Grandes",
+      "shape": "Formato",
+      "color": "Cor",
+      "spacing": "Espaçamento",
+      "spacingPlaceholder": "Ex: Levemente afastados",
+      "eyelashes": "Cílios",
+      "eyelashesPlaceholder": "Ex: Longos e naturais",
+      "eyebrowShape": "Formato das Sobrancelhas",
+      "eyebrowShapePlaceholder": "Ex: Arqueadas sutilmente",
+      "eyebrowColor": "Cor das Sobrancelhas",
+      "eyebrowColorPlaceholder": "Ex: Castanho claro dourado",
+      "eyebrowThickness": "Espessura das Sobrancelhas",
+      "eyebrowThicknessPlaceholder": "Ex: Fina a média",
+      "glasses": "Óculos",
+      "glassesPlaceholder": "Ex: Nenhum",
+      "makeup": "Maquiagem",
+      "makeupPlaceholder": "Ex: Delineador fino e discreto"
+    },
+    "hair": {
+      "cut": "Corte",
+      "cutPlaceholder": "Ex: Long blunt bob",
+      "haircut": "Corte",
+      "haircutPlaceholder": "Ex: Long blunt bob",
+      "length": "Comprimento",
+      "color": "Cor",
+      "texture": "Textura",
+      "volume": "Volume",
+      "volumePlaceholder": "Ex: Leve volume natural",
+      "style": "Estilo/Penteado",
+      "stylePlaceholder": "Ex: Escovado com movimento suave",
+      "part": "Risco",
+      "partPlaceholder": "Ex: Central perfeitamente simétrico",
+      "shine": "Brilho",
+      "shinePlaceholder": "Ex: Brilho sutil, bem cuidado",
+      "dyedColor": "Cor Tingida",
+      "dyedColorPlaceholder": "Ex: Nenhuma (cor natural)",
+      "highlights": "Mechas",
+      "highlightsPlaceholder": "Ex: Nenhuma"
+    },
+    "wardrobe": {
+      "generalStyle": "Estilo Geral",
+      "topSection": "Parte de Cima",
+      "topwear": "Parte de Cima",
+      "bottomSection": "Parte de Baixo",
+      "bottomwear": "Parte de Baixo",
+      "dressSection": "Vestido (alternativa)",
+      "dress": "Vestido (alternativa)",
+      "footwearSection": "Calçados",
+      "footwear": "Calçados",
+      "accessoriesSection": "Acessórios",
+      "accessories": "Acessórios",
+      "finalDetails": "Detalhes Finais",
+      "piece": "Peça",
+      "color": "Cor",
+      "brand": "Marca",
+      "model": "Modelo",
+      "type": "Tipo",
+      "colorPlaceholderWhite": "Ex: Branco",
+      "colorPlaceholderBlack": "Ex: Preto",
+      "topwearPlaceholder": "Ex: Blusa de seda",
+      "topwearColorPlaceholder": "Ex: Branco",
+      "topwearBrandPlaceholder": "Ex: Zara",
+      "bottomwearPlaceholder": "Ex: Calça social",
+      "bottomwearColorPlaceholder": "Ex: Preto",
+      "bottomwearBrandPlaceholder": "Ex: Hugo Boss",
+      "dressModel": "Modelo",
+      "dressPlaceholder": "Ex: Draped Jersey Mini Dress",
+      "dressColorPlaceholder": "Ex: Preto sólido",
+      "dressBrandPlaceholder": "Ex: Alexandre Vauthier",
+      "footwearType": "Tipo",
+      "footwearPlaceholder": "Ex: Pumps",
+      "footwearColorPlaceholder": "Ex: Preto brilhante",
+      "footwearBrandPlaceholder": "Ex: Saint Laurent",
+      "heelHeight": "Altura do Salto",
+      "heelHeightPlaceholder": "Ex: 10 cm",
+      "earrings": "Brincos",
+      "earringsPlaceholder": "Ex: Argolas prateadas 25mm",
+      "necklace": "Colares",
+      "necklacePlaceholder": "Ex: Nenhum",
+      "rings": "Anéis",
+      "ringsPlaceholder": "Ex: Prateado, indicador direito",
+      "bracelets": "Pulseiras",
+      "braceletsPlaceholder": "Ex: Nenhuma",
+      "watch": "Relógio",
+      "watchPlaceholder": "Ex: Nenhum",
+      "bag": "Bolsa",
+      "bagPlaceholder": "Ex: Clutch preta",
+      "hat": "Chapéu/Boné",
+      "hatCap": "Chapéu/Boné",
+      "hatPlaceholder": "Ex: Nenhum",
+      "scarf": "Cachecol/Lenço",
+      "scarfKerchief": "Cachecol/Lenço",
+      "scarfPlaceholder": "Ex: Nenhum",
+      "nails": "Unhas",
+      "nailsPlaceholder": "Ex: Longas, esmalte nude",
+      "perfume": "Perfume",
+      "perfumePlaceholder": "Ex: Chanel N°5"
+    },
+    "options": {
+      "select": "Selecione",
+      "gender": {
+        "male": "Masculino",
+        "female": "Feminino",
+        "other": "Outro"
+      },
+      "bodyType": {
+        "slim": "Magra",
+        "athletic": "Atlética",
+        "average": "Média",
+        "robust": "Robusta",
+        "muscular": "Musculosa"
+      },
+      "posture": {
+        "upright": "Erguida/Elegante",
+        "relaxed": "Relaxada",
+        "curved": "Curvada",
+        "rigid": "Rígida"
+      },
+      "faceShape": {
+        "oval": "Oval",
+        "round": "Redondo",
+        "square": "Quadrado",
+        "rectangular": "Retangular",
+        "heart": "Coração",
+        "diamond": "Diamante"
+      },
+      "eyeColor": {
+        "brown": "Castanho",
+        "green": "Verde",
+        "blue": "Azul",
+        "hazel": "Mel",
+        "gray": "Cinza",
+        "black": "Preto"
+      },
+      "eyeShape": {
+        "almond": "Amendoado",
+        "round": "Redondo",
+        "downturned": "Caído",
+        "upturned": "Rasgado",
+        "prominent": "Saltado"
+      },
+      "hairColor": {
+        "black": "Preto",
+        "darkBrown": "Castanho Escuro",
+        "lightBrown": "Castanho Claro",
+        "blonde": "Loiro",
+        "red": "Ruivo",
+        "gray": "Grisalho",
+        "white": "Branco"
+      },
+      "hairTexture": {
+        "straight": "Liso",
+        "wavy": "Ondulado",
+        "curly": "Cacheado",
+        "coily": "Crespo"
+      },
+      "hairLength": {
+        "bald": "Careca",
+        "veryShort": "Muito Curto",
+        "short": "Curto",
+        "medium": "Médio",
+        "long": "Longo",
+        "veryLong": "Muito Longo"
+      },
+      "clothingStyle": {
+        "casual": "Casual",
+        "formal": "Formal",
+        "sporty": "Esportivo",
+        "elegant": "Elegante",
+        "boho": "Boho",
+        "streetwear": "Streetwear",
+        "classic": "Clássico"
+      }
+    }
+  },
+  "voices": {
+    "title": "Vozes",
+    "subtitle": "Gerencie as vozes disponíveis para narração",
+    "list": "Lista de Vozes",
+    "newVoice": "Nova Voz",
+    "voiceName": "Nome da Voz",
+    "noVoices": "Nenhuma voz encontrada",
+    "playPreview": "Reproduzir prévia",
+    "preview": {
+      "warning": "Atenção",
+      "selectVoice": "Selecione uma voz para testar.",
+      "cache": "Cache",
+      "usingCachedAudio": "Usando áudio salvo anteriormente.",
+      "generateError": "Falha ao gerar preview da voz.",
+      "playbackError": "Erro ao reproduzir áudio.",
+      "startPlaybackError": "Falha ao iniciar reprodução do áudio.",
+      "createAudioError": "Erro ao criar elemento de áudio.",
+      "defaultText": "Olá! Esta é uma prévia da voz {{name}}. Como você está hoje?",
+      "characterNameOptional": "Nome do personagem (opcional)"
+    }
+  },
+  "social": {
+    "feed": {
+      "title": "Feed",
+      "empty": "Seu feed está vazio",
+      "emptySubtitle": "Siga escritores para ver seus posts aqui",
+      "whatAreYouThinking": "No que você está pensando?",
+      "addImage": "Adicionar imagem",
+      "likes": "curtidas",
+      "comments": "comentários",
+      "like": "Curtir",
+      "comment": "Comentar",
+      "share": "Compartilhar",
+      "loadError": "Erro ao carregar o feed",
+      "loadMoreError": "Erro ao carregar mais posts",
+      "likeError": "Erro ao curtir o post"
+    },
+    "trending": {
+      "title": "Em Alta",
+      "subtitle": "Posts mais populares das últimas 24 horas",
+      "postsInTrending": "Posts em alta",
+      "totalLikes": "Curtidas totais",
+      "totalComments": "Comentários",
+      "noTrending": "Nenhum post em alta",
+      "noTrendingSubtitle": "Os posts mais populares das últimas 24 horas aparecerão aqui",
+      "trendingTopics": "Tópicos em Alta",
+      "popularGenres": "Gêneros Populares",
+      "posts": "posts"
+    },
+    "search": {
+      "placeholder": "Buscar escritores, livros, posts...",
+      "writers": "Escritores",
+      "searching": "Buscando...",
+      "trending": "Em alta",
+      "noWritersFound": "Nenhum escritor encontrado",
+      "noPostsFound": "Nenhum post encontrado",
+      "noBooksFound": "Nenhum livro encontrado",
+      "followersCount": "seguidores",
+      "by": "por",
+      "chapters": "capítulos"
+    },
+    "explore": {
+      "title": "Explorar",
+      "search": "Buscar",
+      "searchPlaceholder": "Buscar escritores, livros...",
+      "trending": "Em Alta",
+      "recommended": "Recomendados",
+      "tabs": {
+        "trending": "Em Alta",
+        "posts": "Posts",
+        "people": "Pessoas",
+        "books": "Livros"
+      },
+      "featuredPosts": "Posts em Destaque",
+      "suggestionsForYou": "Sugestões para Você",
+      "featuredBooks": "Livros em Destaque",
+      "followers": "seguidores",
+      "loadPostsError": "Não foi possível carregar os posts em destaque",
+      "following": "Seguindo",
+      "unfollowed": "Deixou de seguir",
+      "startedFollowing": "Você começou a seguir {{name}}",
+      "stoppedFollowing": "Você deixou de seguir {{name}}",
+      "followError": "Não foi possível processar a solicitação"
+    },
+    "profile": {
+      "title": "Perfil",
+      "followers": "Seguidores",
+      "following": "Seguindo",
+      "posts": "Posts",
+      "books": "Livros",
+      "follow": "Seguir",
+      "unfollow": "Deixar de seguir",
+      "editProfile": "Editar Perfil",
+      "verified": "Verificado",
+      "joinedIn": "Entrou em",
+      "level": "Nível",
+      "achievements": "Conquistas",
+      "seeAll": "Ver todas",
+      "chapters": "capítulos",
+      "noPosts": "Nenhum post ainda.",
+      "noBooks": "Nenhum livro ainda.",
+      "noFollowers": "Nenhum seguidor ainda",
+      "noFollowing": "Não segue ninguém ainda",
+      "userNotFound": "Usuário não encontrado",
+      "userNotFoundMessage": "O perfil que você está procurando não existe ou foi removido.",
+      "errorTitle": "Ops! Algo deu errado",
+      "loginRequired": "Você precisa estar logado para ver seu perfil.",
+      "loadError": "Erro ao carregar perfil. Tente novamente.",
+      "connectionError": "Erro de conexão. Verifique sua internet.",
+      "profileOf": "Perfil de {{name}} na LIVRIA",
+      "authorAt": "Autor na plataforma LIVRIA"
+    },
+    "messages": {
+      "title": "Mensagens",
+      "newMessage": "Nova Mensagem",
+      "noMessages": "Nenhuma mensagem",
+      "typePlaceholder": "Digite sua mensagem...",
+      "searchConversations": "Buscar conversas...",
+      "searchUsers": "Buscar usuário...",
+      "searching": "Buscando...",
+      "noResults": "Nenhum resultado",
+      "noResultsFor": "Não encontramos conversas com \"{{query}}\"",
+      "startConversation": "Comece uma conversa com alguém!",
+      "noUserFound": "Nenhum usuário encontrado",
+      "minChars": "Digite pelo menos 2 caracteres para buscar",
+      "you": "Você:",
+      "tryAgain": "Tentar novamente"
+    },
+    "stories": {
+      "createStory": "Criar Story",
+      "yourStory": "Seu story",
+      "create": "Criar",
+      "noStoriesAvailable": "Nenhum story disponível",
+      "types": {
+        "text": "Texto",
+        "quote": "Citação",
+        "image": "Imagem"
+      },
+      "placeholders": {
+        "quote": "Digite uma citação inspiradora...",
+        "text": "O que você está pensando?",
+        "caption": "Adicione uma legenda..."
+      },
+      "characters": "caracteres",
+      "clickToSelectImage": "Clique para selecionar uma imagem",
+      "imageHint": "JPG, PNG, GIF ou WebP (máx. 5MB)",
+      "orPasteUrl": "ou cole uma URL",
+      "captionOptional": "Legenda (opcional)",
+      "uploadingImage": "Enviando imagem...",
+      "publishStory": "Publicar Story",
+      "errors": {
+        "invalidImage": "Por favor, selecione uma imagem válida (JPG, PNG, GIF)",
+        "imageTooLarge": "A imagem deve ter no máximo 5MB",
+        "processError": "Erro ao processar a imagem. Tente novamente.",
+        "createError": "Erro ao criar story. Tente novamente."
+      },
+      "publishSuccess": "Story publicado com sucesso!"
+    },
+    "notifications": {
+      "title": "Notificações",
+      "noNotifications": "Nenhuma notificação",
+      "noNotificationsYet": "Você não tem notificações ainda.",
+      "markAllAsRead": "Marcar todas como lidas",
+      "showIndividually": "Exibir individualmente",
+      "groupSimilar": "Agrupar similares",
+      "tabs": {
+        "all": "Todas",
+        "unread": "Não lidas"
+      },
+      "allRead": "Tudo lido!",
+      "allReadMessage": "Você não tem notificações não lidas.",
+      "filters": {
+        "all": "Todas",
+        "likes": "Curtidas",
+        "comments": "Comentários",
+        "followers": "Seguidores",
+        "mentions": "Menções",
+        "achievements": "Conquistas"
+      }
+    },
+    "groups": {
+      "title": "Grupos Literários",
+      "subtitle": "Descubra comunidades de leitores e escritores",
+      "createGroup": "Criar Grupo",
+      "noGroups": "Nenhum grupo encontrado",
+      "members": "membros",
+      "campaigns": "campanhas",
+      "createdBy": "Criado por",
+      "join": "Participar",
+      "joining": "Entrando...",
+      "leave": "Sair",
+      "tabs": {
+        "discover": "Descobrir",
+        "myGroups": "Meus Grupos"
+      },
+      "searchGroups": "Buscar grupos...",
+      "noGroupsInMyGroups": "Você ainda não participa de nenhum grupo",
+      "discoverGroups": "Descubra grupos para participar!",
+      "tryOtherTerm": "Tente buscar por outro termo",
+      "discoverGroupsBtn": "Descobrir Grupos",
+      "roles": {
+        "owner": "Dono",
+        "admin": "Admin",
+        "moderator": "Moderador",
+        "member": "Membro"
+      },
+      "privacy": {
+        "public": "Público",
+        "private": "Privado",
+        "inviteOnly": "Apenas convite",
+        "publicDesc": "Qualquer pessoa pode ver e entrar no grupo",
+        "privateDesc": "Apenas membros podem ver o conteúdo",
+        "inviteOnlyDesc": "Novos membros precisam ser convidados"
+      },
+      "status": {
+        "draft": "Rascunho",
+        "active": "Ativa",
+        "completed": "Concluída",
+        "cancelled": "Cancelada"
+      },
+      "detail": {
+        "leaveGroup": "Sair do grupo",
+        "joining": "Entrando...",
+        "participate": "Participar",
+        "campaignsTab": "Campanhas",
+        "membersTab": "Membros",
+        "createNewCampaign": "Criar Nova Campanha",
+        "noCampaignsYet": "Nenhuma campanha ainda",
+        "createFirstCampaign": "Crie a primeira campanha de leitura do grupo!",
+        "noGroupCampaigns": "Este grupo ainda não tem campanhas de leitura.",
+        "books": "livros",
+        "participants": "participantes",
+        "since": "Desde",
+        "promoteToAdmin": "Promover a Admin",
+        "makeModerator": "Tornar Moderador",
+        "demoteToMember": "Rebaixar a Membro",
+        "removeFromGroup": "Remover do Grupo",
+        "groupNotFound": "Grupo não encontrado",
+        "groupNotFoundMessage": "O grupo que você procura não existe ou foi removido.",
+        "backToGroups": "Voltar para grupos",
+        "createdBy": "Criado por",
+        "confirmLeave": "Tem certeza que deseja sair deste grupo?",
+        "confirmRemove": "Tem certeza que deseja remover {{name}} do grupo?"
+      },
+      "create": {
+        "title": "Criar Grupo",
+        "groupName": "Nome do grupo",
+        "groupNamePlaceholder": "Ex: Clube do Livro de Fantasia",
+        "description": "Descrição",
+        "descriptionPlaceholder": "Descreva o propósito do seu grupo...",
+        "coverUrl": "URL da capa (opcional)",
+        "privacyLabel": "Privacidade",
+        "creating": "Criando...",
+        "createGroup": "Criar Grupo",
+        "createError": "Erro ao criar grupo"
+      }
+    },
+    "campaigns": {
+      "title": "Campanhas de Leitura",
+      "createTitle": "Nova Campanha de Leitura",
+      "createError": "Erro ao criar campanha",
+      "form": {
+        "campaignName": "Nome da campanha",
+        "campaignNamePlaceholder": "Ex: Maratona de Fantasia 2025",
+        "description": "Descrição",
+        "descriptionPlaceholder": "Descreva o objetivo da campanha...",
+        "startDate": "Data de início",
+        "endDate": "Data de término",
+        "livraReward": "Recompensa em Livras",
+        "livraRewardHelp": "Livras que os membros ganham ao completar a campanha",
+        "campaignBooks": "Livros da campanha",
+        "searchBooks": "Buscar livros...",
+        "booksSelected": "{{count}} livro(s) selecionado(s)",
+        "loadingBooks": "Carregando livros...",
+        "noBooksFound": "Nenhum livro encontrado. Crie livros primeiro.",
+        "creating": "Criando...",
+        "createCampaign": "Criar Campanha"
+      }
+    },
+    "posts": {
+      "createPost": "Criar Post",
+      "whatAreYouThinking": "No que você está pensando?",
+      "charactersRemaining": "caracteres restantes",
+      "postTypes": {
+        "text": "Texto",
+        "image": "Imagem",
+        "bookUpdate": "Atualização de Livro"
+      },
+      "success": "Sucesso",
+      "postPublished": "Post publicado com sucesso!",
+      "error": "Erro",
+      "postError": "Não foi possível publicar o post"
+    },
+    "comments": {
+      "title": "Comentários",
+      "writeComment": "Escreva um comentário...",
+      "noComments": "Nenhum comentário ainda",
+      "reply": "Responder",
+      "viewReplies": "Ver respostas"
+    },
+    "share": {
+      "title": "Compartilhar",
+      "copyLink": "Copiar link",
+      "linkCopied": "Link copiado!",
+      "shareOn": "Compartilhar em"
+    },
+    "conversation": {
+      "typing": "digitando...",
+      "online": "Online",
+      "offline": "Offline",
+      "loading": "Carregando mensagens...",
+      "loadPrevious": "Carregar anteriores",
+      "noMessages": "Nenhuma mensagem ainda.",
+      "startConversation": "Envie uma mensagem para começar a conversa!",
+      "placeholder": "Digite uma mensagem...",
+      "read": "Lida",
+      "loadError": "Não foi possível carregar a conversa. Tente novamente."
+    },
+    "postDetail": {
+      "title": "Post",
+      "report": "Denunciar",
+      "bookmark": "Salvar",
+      "shares": "compartilhamentos",
+      "writeComment": "Escreva um comentário...",
+      "writeReply": "Escreva sua resposta...",
+      "beFirstToComment": "Seja o primeiro a comentar!",
+      "postImage": "Imagem do post",
+      "postBy": "Post de"
+    },
+    "layout": {
+      "searchPlaceholder": "Buscar escritores, livros, posts...",
+      "notifications": "Notificações",
+      "messages": "Mensagens",
+      "menu": "Menu",
+      "feed": "Feed",
+      "explore": "Explorar",
+      "groups": "Grupos",
+      "search": "Buscar",
+      "profile": "Perfil",
+      "newPost": "Novo Post",
+      "writerArea": "Área do Escritor",
+      "myProfile": "Meu Perfil",
+      "settings": "Configurações",
+      "logout": "Sair",
+      "trending": "Em Alta",
+      "suggestions": "Sugestões",
+      "user": "Usuário"
+    }
+  },
+  "postCard": {
+    "user": "Usuário",
+    "moreOptions": "Mais opções",
+    "imageAlt": "Imagem do post de {{name}}",
+    "by": "por",
+    "like": "Curtir",
+    "comment": "Comentar",
+    "share": "Compartilhar",
+    "commentSingular": "comentário",
+    "commentPlural": "comentários",
+    "shareSingular": "compartilhamento",
+    "sharePlural": "compartilhamentos",
+    "menu": {
+      "edit": "Editar",
+      "delete": "Excluir",
+      "copyLink": "Copiar link",
+      "report": "Denunciar"
+    }
+  },
+  "commentList": {
+    "writeCommentPlaceholder": "Escreva um comentário...",
+    "writeReplyPlaceholder": "Escreva uma resposta...",
+    "replyingTo": "Respondendo a",
+    "commentButton": "Comentar",
+    "noComments": "Nenhum comentário ainda.",
+    "beFirstToComment": "Seja o primeiro a comentar!",
+    "like": "Curtir",
+    "reply": "Responder",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "viewReplies": "Ver {{count}} resposta(s)",
+    "loadMore": "Carregar mais comentários",
+    "deleteConfirm": "Tem certeza que deseja excluir este comentário?"
+  },
+  "installPrompt": {
+    "title": "Instalar LIVRIA",
+    "subtitle": "Tenha acesso rápido ao app na sua tela inicial",
+    "notNow": "Agora não",
+    "install": "Instalar"
+  },
+  "postComposer": {
+    "title": "Criar Post",
+    "you": "Você",
+    "placeholder": "No que você está pensando?",
+    "charactersRemaining": "caracteres restantes",
+    "imageUrlPlaceholder": "Cole a URL da imagem...",
+    "addImage": "Adicionar imagem",
+    "publish": "Publicar"
+  },
+  "livraTransactions": {
+    "earnedLike": "Curtida recebida",
+    "earnedComment": "Comentário recebido",
+    "earnedFollow": "Novo seguidor",
+    "earnedPost": "Post criado",
+    "earnedCampaign": "Campanha completada",
+    "earnedPlan": "Bônus mensal",
+    "earnedAchievement": "Conquista desbloqueada",
+    "earnedPurchase": "Compra de Livras",
+    "spentTts": "Geração de áudio",
+    "spentImage": "Geração de imagem",
+    "spentCharacter": "Criação de personagem",
+    "spentBoost": "Impulsionar post",
+    "expired": "Expirado",
+    "adminAdjustment": "Ajuste administrativo"
+  },
+  "shareModal": {
+    "title": "Compartilhar post",
+    "addCommentPlaceholder": "Adicione um comentário (opcional)...",
+    "share": "Compartilhar",
+    "notAllowed": "Ação não permitida",
+    "cannotShareShared": "Não é possível compartilhar um post que já é compartilhamento",
+    "shared": "Compartilhado!",
+    "sharedSuccess": "Post compartilhado com sucesso",
+    "shareError": "Não foi possível compartilhar o post"
+  },
+  "subscription": {
+    "title": "Assinaturas",
+    "plans": "Planos",
+    "currentPlan": "Plano Atual",
+    "upgradePlan": "Fazer Upgrade",
+    "features": "Recursos",
+    "price": "Preço",
+    "monthly": "mensal",
+    "yearly": "anual",
+    "subscribe": "Assinar",
+    "cancel": "Cancelar assinatura",
+    "success": {
+      "title": "Assinatura realizada!",
+      "message": "Bem-vindo ao plano {{plan}}!"
+    },
+    "livras": {
+      "title": "Livras",
+      "balance": "Saldo de Livras",
+      "buy": "Comprar Livras",
+      "history": "Histórico"
+    }
+  },
+  "achievements": {
+    "title": "Conquistas",
+    "unlocked": "Desbloqueada!",
+    "progress": "Progresso",
+    "locked": "Bloqueada"
+  },
+  "institutional": {
+    "home": {
+      "heroLabel": "Sobre a",
+      "heroTitle": "Histórias que ganham voz, forma e caminho.",
+      "heroDescription": "Conectamos escritores e leitores em um espaço onde palavras ganham vida.",
+      "startNow": "Começar Agora",
+      "learnMore": "Saiba mais",
+      "platformTitle": "Uma plataforma literária brasileira para dar vida às histórias.",
+      "platformSubtitle": "Na Livrya, você pode:",
+      "beliefsTitle": "Acreditamos no poder das histórias:",
+      "ctaTitle": "Pronto para começar sua jornada literária?",
+      "ctaSubtitle": "Junte-se a milhares de escritores e leitores.",
+      "ctaButton": "Criar Conta Grátis",
+      "login": "Entrar",
+      "downloadApp": "Baixe o app"
+    },
+    "features": {
+      "write": {
+        "title": "Escrever e publicar",
+        "description": "Crie e compartilhe suas histórias com o mundo"
+      },
+      "read": {
+        "title": "Ler e descobrir",
+        "description": "Explore milhares de histórias de diversos gêneros"
+      },
+      "narrate": {
+        "title": "Narrar com IA",
+        "description": "Transforme seus textos em audiobooks com vozes realistas"
+      },
+      "connect": {
+        "title": "Conectar-se",
+        "description": "Faça parte de uma comunidade de escritores e leitores"
+      }
+    },
+    "beliefs": {
+      "transform": "Histórias transformam vidas",
+      "voice": "Toda voz merece ser ouvida",
+      "community": "A comunidade fortalece criadores",
+      "technology": "Tecnologia democratiza a criação"
+    },
+    "about": {
+      "title": "Sobre Nós",
+      "subtitle": "Conheça a Livrya"
+    },
+    "terms": {
+      "title": "Termos de Uso",
+      "subtitle": "Leia nossos termos"
+    },
+    "privacy": {
+      "title": "Política de Privacidade",
+      "subtitle": "Como protegemos seus dados"
+    },
+    "contact": {
+      "title": "Contato",
+      "subtitle": "Fale conosco"
+    },
+    "careers": {
+      "title": "Carreiras",
+      "subtitle": "Trabalhe conosco"
+    },
+    "security": {
+      "title": "Segurança",
+      "subtitle": "Como mantemos você seguro"
+    },
+    "community": {
+      "title": "Comunidade",
+      "subtitle": "Nossa comunidade de escritores"
+    },
+    "writerArea": {
+      "title": "Área do Escritor",
+      "subtitle": "Ferramentas para escritores"
+    },
+    "transparency": {
+      "title": "Transparência",
+      "subtitle": "Nossos compromissos"
+    },
+    "moderation": {
+      "title": "Moderação",
+      "subtitle": "Políticas de moderação"
+    },
+    "contentGuidelines": {
+      "title": "Diretrizes de Conteúdo",
+      "subtitle": "O que pode e não pode ser publicado"
+    },
+    "copyright": {
+      "title": "Direitos Autorais",
+      "subtitle": "Proteção de conteúdo"
+    },
+    "publication": {
+      "title": "Publicação",
+      "subtitle": "Como publicar na Livrya"
+    },
+    "partners": {
+      "title": "Parceiros",
+      "subtitle": "Nossos parceiros"
+    },
+    "codeOfConduct": {
+      "title": "Código de Conduta",
+      "subtitle": "Nossas regras de convivência"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Bem-vindo ao LIVRIA - Sua biblioteca literária social",
+    "overview": "Visão Geral",
+    "recentActivity": "Atividade Recente",
+    "statistics": "Estatísticas",
+    "stats": {
+      "totalBooks": "Total de Livros",
+      "chapters": "Capítulos",
+      "completed": "Concluídos",
+      "inProgress": "Em Progresso"
+    },
+    "chart": {
+      "title": "Status das Narrações",
+      "completed": "Concluídos",
+      "inProgress": "Em Progresso",
+      "draft": "Rascunho"
+    },
+    "recentBooks": {
+      "title": "Livros Recentes",
+      "viewAll": "Ver Todos",
+      "chapters": "capítulos",
+      "empty": "Nenhum livro encontrado",
+      "createFirst": "Criar Primeiro Livro"
+    },
+    "quickActions": {
+      "title": "Ações Rápidas",
+      "newBook": "Novo Livro",
+      "viewCharacters": "Ver Personagens",
+      "voices": "Vozes"
+    }
+  },
+  "speeches": {
+    "title": "Falas",
+    "subtitle": "Gerencie as falas dos personagens",
+    "newSpeech": "Nova Fala",
+    "bulkImport": "Importação em Massa",
+    "ssmlEditor": "Editor SSML",
+    "list": {
+      "chapterSpeeches": "Falas do Capítulo",
+      "filterByText": "Filtrar por texto",
+      "avatar": "Avatar",
+      "character": "Personagem",
+      "speech": "Fala",
+      "actions": "Ações",
+      "noSpeeches": "Nenhuma fala cadastrada. Adicione uma nova fala ou importe em massa.",
+      "loadError": "Erro ao carregar falas.",
+      "success": "Sucesso",
+      "speechCreated": "Fala criada",
+      "speechUpdated": "Fala atualizada",
+      "speechDeleted": "Fala excluída",
+      "editSpeech": "Editar Fala",
+      "confirmDelete": "Tem certeza que deseja excluir esta fala?",
+      "confirmDeleteTitle": "Confirmar Exclusão",
+      "deleteError": "Erro ao excluir fala."
+    },
+    "form": {
+      "character": "Personagem",
+      "selectCharacterPlaceholder": "Selecione um personagem",
+      "characterRequired": "Personagem é obrigatório.",
+      "textSsml": "Texto / SSML",
+      "textRequired": "Texto é obrigatório.",
+      "smartShortcuts": "Atalhos inteligentes",
+      "toolsForSpeech": "Ferramentas para esta fala",
+      "improveTextHint": "Aperfeiçoe o texto sem sair da tela.",
+      "spellChecker": "Corretor ortográfico",
+      "improvementSuggestions": "Sugestões de melhoria",
+      "detailCharacter": "Detalhar personagem",
+      "emotionImage": "Imagem do sentimento",
+      "includeContext": "Incluir contexto do capítulo e personagem",
+      "suggestedCorrections": "Correções sugeridas",
+      "confidence": "Confiança",
+      "apply": "Aplicar",
+      "discard": "Descartar",
+      "newSpeechProposal": "Nova proposta de fala",
+      "characterDetails": "Detalhes do personagem",
+      "contentReadyToPaste": "Conteúdo pronto para colar na fala.",
+      "emotionVisual": "Visual do sentimento",
+      "prompt": "Prompt",
+      "warning": "Atenção",
+      "writeTextFirst": "Escreva um texto antes de usar o corretor.",
+      "correctionReady": "Correção pronta",
+      "reviewAndApply": "Revise e aplique se fizer sentido.",
+      "spellCheckError": "Falha ao corrigir texto.",
+      "textUpdated": "Texto atualizado",
+      "correctionsApplied": "Correções aplicadas.",
+      "writeForSuggestions": "Escreva algo para receber sugestões.",
+      "suggestionsError": "Falha ao gerar sugestões.",
+      "suggestionApplied": "Sugestão aplicada.",
+      "selectCharacter": "Selecione um personagem",
+      "chooseCharacterForDetails": "Escolha o personagem para gerar detalhes.",
+      "enrichmentError": "Falha ao enriquecer a fala.",
+      "characterDetailsIncluded": "Detalhes do personagem incluídos.",
+      "textRequired": "Texto obrigatório",
+      "writeSpeechForImage": "Escreva a fala para gerar a imagem.",
+      "imageGenerationError": "Não foi possível gerar a imagem.",
+      "ssmlError": "Erro SSML",
+      "ssmlValidationError": "Erro ao validar SSML.",
+      "updateError": "Erro ao atualizar fala.",
+      "createError": "Erro ao criar fala.",
+      "ssmlGuide": {
+        "title": "Como usar SSML sem complicação",
+        "intro": "SSML é como um roteiro com marcações simples e os atalhos acima inserem as tags prontas para você:",
+        "speak": "envolve toda a fala para evitar erros de validação.",
+        "break": "cria pausas rápidas entre frases.",
+        "emphasisModerate": "realça trechos com naturalidade.",
+        "emphasisStrong": "dá destaque máximo a palavras-chave.",
+        "prosodyRate": "e",
+        "controlRhythm": "controlam o ritmo.",
+        "prosodySlowLow": "deixa a fala lenta e com tom grave.",
+        "prosodyPitch": "e",
+        "adjustTone": "ajustam somente o tom.",
+        "sayAs": "garante que números sejam lidos como algarismos naturais.",
+        "tips": "Dicas rápidas: teste partes pequenas, combine tags com moderação e troque o trecho específico se algo soar estranho."
+      }
+    }
+  },
+  "export": {
+    "title": "Processamento de Áudio",
+    "description": "Gera o arquivo final unindo todas as falas, normalizando o volume e exportando para MP3.",
+    "processAudio": "Processar Áudio Final",
+    "viewStatus": "Ver Status",
+    "statusLabel": "Status",
+    "processingStarted": "Processamento Iniciado",
+    "audioGeneratingBackground": "O áudio está sendo gerado em segundo plano.",
+    "startError": "Falha ao iniciar processamento.",
+    "audioGeneratedSuccess": "Áudio final gerado com sucesso!",
+    "processingError": "Erro no processamento.",
+    "status": {
+      "idle": "Aguardando",
+      "starting": "Iniciando...",
+      "processing": "Processando...",
+      "completed": "Concluído",
+      "failed": "Falha",
+      "errorStarting": "Erro ao iniciar"
+    }
+  },
+  "narration": {
+    "title": "Narração da Fala",
+    "generateAudio": "Gerar Áudio",
+    "selectSpeechHint": "Selecione uma fala na lista para visualizar ou gerar o áudio.",
+    "clickToGenerate": "Clique em \"Gerar Áudio\" para criar a narração desta fala.",
+    "audioAvailable": "Áudio disponível",
+    "browserNotSupported": "Seu navegador não suporta o elemento de áudio.",
+    "progress": "Progresso",
+    "generatingAudio": "Gerando áudio da fala...",
+    "success": "Sucesso",
+    "audioGeneratedSuccess": "Áudio gerado com sucesso!",
+    "narrationFailed": "Falha na narração",
+    "warning": "Atenção",
+    "addSpeechesFirst": "Adicione falas ao capítulo primeiro.",
+    "selectSpeech": "Selecione uma fala",
+    "chooseSpeechForAudio": "Escolha uma fala para gerar o áudio.",
+    "audioExists": "Áudio já existe",
+    "speechHasAudio": "Esta fala já possui áudio gerado.",
+    "started": "Iniciado",
+    "audioGenerationStarted": "A geração de áudio foi iniciada.",
+    "startError": "Não foi possível iniciar a narração.",
+    "cancelled": "Cancelado",
+    "narrationCancelled": "A narração foi cancelada.",
+    "cancelError": "Não foi possível cancelar a narração."
+  },
+  "mySubscription": {
+    "title": "Minha Assinatura",
+    "plan": "Plano",
+    "status": {
+      "active": "Ativo",
+      "cancelled": "Cancelado",
+      "pastDue": "Pagamento Pendente"
+    },
+    "cancelsAtEnd": "Cancela ao final do período",
+    "upgrade": "Fazer Upgrade",
+    "manage": "Gerenciar",
+    "willCancelOn": "Sua assinatura será cancelada em",
+    "keepSubscription": "Manter Assinatura",
+    "nextBillingOn": "Próxima cobrança em",
+    "yourResources": "Seus Recursos",
+    "features": {
+      "books": "Livros",
+      "charactersPerBook": "Personagens por Livro",
+      "speechesPerChapter": "Falas por Capítulo",
+      "ttsMinutes": "Minutos TTS/mês",
+      "premiumVoices": "Vozes Premium",
+      "monthlyLivras": "Livras Mensais"
+    },
+    "unlimited": "Ilimitado",
+    "minutes": "minutos",
+    "yes": "Sim",
+    "no": "Não",
+    "livraBalance": "Saldo de Livras",
+    "buyLivras": "Comprar Livras",
+    "available": "Disponíveis",
+    "totalEarned": "Total Ganho",
+    "totalSpent": "Total Gasto",
+    "cancelSubscription": "Cancelar Assinatura",
+    "confirmCancelMessage": "Tem certeza que deseja cancelar sua assinatura? Você manterá o acesso até o final do período pago.",
+    "yesCancel": "Sim, cancelar",
+    "success": "Sucesso",
+    "cancelledAtEnd": "Assinatura será cancelada ao final do período",
+    "cancelError": "Não foi possível cancelar a assinatura",
+    "subscriptionReactivated": "Assinatura reativada com sucesso",
+    "reactivateError": "Não foi possível reativar a assinatura",
+    "portalError": "Não foi possível abrir o portal"
+  },
+  "plansPage": {
+    "title": "Escolha seu Plano",
+    "subtitle": "Desbloqueie todo o potencial do Livrya com nossos planos premium. Mais livros, mais vozes, mais possibilidades.",
+    "saveUpTo": "Economize até 17%!",
+    "mostPopular": "Mais Popular",
+    "livrasPerMonth": "Livras/mês",
+    "billing": {
+      "monthly": "Mensal",
+      "yearly": "Anual"
+    },
+    "period": {
+      "month": "mês",
+      "year": "ano"
+    },
+    "buttons": {
+      "currentPlan": "Plano Atual",
+      "basicPlan": "Plano Básico",
+      "startWith": "Começar com {{name}}",
+      "upgrade": "Fazer Upgrade",
+      "changeTo": "Mudar para {{name}}",
+      "manageSubscription": "Gerenciar Assinatura"
+    },
+    "faq": {
+      "title": "Perguntas Frequentes",
+      "cancel": {
+        "question": "Posso cancelar a qualquer momento?",
+        "answer": "Sim! Você pode cancelar sua assinatura a qualquer momento. O acesso continua até o final do período pago."
+      },
+      "livras": {
+        "question": "O que são Livras?",
+        "answer": "Livras é nossa moeda virtual. Você ganha ao interagir na comunidade e pode usar para desbloquear recursos premium como geração de áudio TTS."
+      },
+      "changePlan": {
+        "question": "Posso mudar de plano depois?",
+        "answer": "Sim! Você pode fazer upgrade ou downgrade a qualquer momento. O valor será calculado proporcionalmente."
+      }
+    },
+    "errors": {
+      "loadPlans": "Não foi possível carregar os planos",
+      "checkout": "Não foi possível iniciar o checkout",
+      "portal": "Não foi possível abrir o portal"
+    }
+  },
+  "successPage": {
+    "title": "Assinatura Ativada!",
+    "message": "Parabéns! Você agora é um assinante {{plan}}. Aproveite todos os benefícios do seu novo plano!",
+    "confirmingPayment": "Confirmando seu pagamento...",
+    "whatYouGot": "O que você ganhou:",
+    "benefits": {
+      "moreBooks": "Mais livros e personagens",
+      "moreTTS": "Mais minutos de áudio TTS",
+      "freeLivras": "Livras mensais grátis",
+      "prioritySupport": "Suporte prioritário"
+    },
+    "startWriting": "Começar a Escrever",
+    "viewSubscription": "Ver Minha Assinatura"
+  },
+  "upgradePrompt": {
+    "limitReached": "Limite Atingido",
+    "currentPlan": "Seu plano atual",
+    "withUpgrade": "Com upgrade",
+    "upgradeAdvantages": "Vantagens do upgrade:",
+    "benefits": {
+      "moreBooks": "Mais livros e personagens",
+      "moreTTS": "Mais minutos de áudio TTS",
+      "freeLivras": "Livras mensais grátis",
+      "premiumVoices": "Vozes premium"
+    },
+    "viewPlans": "Ver Planos",
+    "maybeLater": "Talvez Depois"
+  },
+  "livraPackages": {
+    "title": "Comprar Livras",
+    "subtitle": "Precisa de mais Livras? Compre pacotes para desbloquear recursos premium.",
+    "bestValue": "Melhor Valor",
+    "livras": "Livras",
+    "livra": "Livra",
+    "buy": "Comprar",
+    "loadError": "Não foi possível carregar os pacotes",
+    "purchaseError": "Não foi possível iniciar a compra"
+  },
+  "bulkImport": {
+    "defaultCharacter": "Personagem Padrão",
+    "selectCharacter": "Selecione um personagem",
+    "characterRequired": "Personagem padrão é obrigatório.",
+    "splitStrategy": "Estratégia de Divisão",
+    "strategies": {
+      "paragraph": "Por Parágrafo (Quebra de linha dupla)",
+      "sentence": "Por Frase (Ponto final, exclamação, interrogação)",
+      "dialog": "Por Diálogo (Quebra de linha simples)"
+    },
+    "fullText": "Texto Completo",
+    "textPlaceholder": "Cole o texto do capítulo aqui...",
+    "textRequired": "Texto é obrigatório.",
+    "import": "Importar",
+    "loadCharactersError": "Erro ao carregar personagens.",
+    "importError": "Erro ao importar falas."
+  },
+  "voiceList": {
+    "title": "Vozes Gemini TTS",
+    "subtitle": "30 vozes disponíveis para narração",
+    "pagination": "Mostrando {first} a {last} de {totalRecords} vozes",
+    "columns": {
+      "name": "Nome",
+      "gender": "Gênero",
+      "description": "Descrição / Característica",
+      "preview": "Preview"
+    },
+    "gender": {
+      "male": "Masculino",
+      "female": "Feminino",
+      "neutral": "Neutro"
+    },
+    "listen": "Ouvir",
+    "stop": "Parar",
+    "noVoices": "Nenhuma voz disponível",
+    "sampleText": "Olá! Meu nome é {{name}}. Esta é uma demonstração da minha voz.",
+    "previewError": "Erro ao reproduzir preview da voz",
+    "info": {
+      "geminiVoices": "Vozes Gemini TTS",
+      "description": "Estas são as 30 vozes fixas disponíveis na API do Google Gemini.",
+      "uniqueCharacteristics": "Cada voz possui características únicas. Clique em \"Play\" para ouvir uma prévia.",
+      "viewDocs": "Ver documentação oficial"
+    }
+  },
+  "voiceForm": {
+    "newTitle": "Nova Voz Customizada",
+    "editTitle": "Editar Voz",
+    "newSubtitle": "Cadastre uma nova voz para usar na narração de personagens",
+    "editSubtitle": "Atualize os dados da voz customizada",
+    "fields": {
+      "name": "Nome da Voz",
+      "voiceId": "ID da Voz",
+      "gender": "Gênero",
+      "language": "Idioma",
+      "description": "Descrição"
+    },
+    "placeholders": {
+      "name": "Ex: Narrador Épico",
+      "voiceId": "Ex: narrator-epic-001",
+      "gender": "Selecione o gênero",
+      "language": "Selecione o idioma",
+      "description": "Ex: Voz profunda e marcante, ideal para narrações épicas"
+    },
+    "hints": {
+      "voiceId": "Identificador único usado internamente",
+      "description": "Descreva as características da voz (opcional)"
+    },
+    "gender": {
+      "male": "Masculino",
+      "female": "Feminino",
+      "neutral": "Neutro"
+    },
+    "language": {
+      "ptBR": "Português (Brasil)",
+      "enUS": "Inglês (EUA)",
+      "esES": "Espanhol",
+      "frFR": "Francês",
+      "deDE": "Alemão",
+      "itIT": "Italiano"
+    },
+    "buttons": {
+      "createVoice": "Cadastrar Voz",
+      "saveChanges": "Salvar Alterações"
+    },
+    "footerInfo": "As vozes customizadas aparecerão na lista junto com as vozes do Gemini.",
+    "errors": {
+      "loadVoice": "Erro ao carregar voz",
+      "createVoice": "Erro ao cadastrar voz",
+      "updateVoice": "Erro ao atualizar voz"
+    }
+  },
+  "livrasPage": {
+    "title": "Minhas Livras",
+    "subtitle": "Gerencie seu saldo e veja seu histórico de transações",
+    "balance": {
+      "current": "Saldo Atual",
+      "available": "Livras disponíveis",
+      "totalEarned": "Total Ganho",
+      "totalSpent": "Total Gasto"
+    },
+    "howToEarn": {
+      "title": "Como ganhar Livras",
+      "receiveLikes": "Receber curtidas",
+      "perLike": "+2 por curtida",
+      "receiveComments": "Receber comentários",
+      "perComment": "+3 por comentário",
+      "gainFollowers": "Ganhar seguidores",
+      "perFollower": "+5 por seguidor",
+      "createPosts": "Criar posts",
+      "perPost": "+1 por post",
+      "completeCampaigns": "Completar campanhas",
+      "perCampaign": "+50 por campanha",
+      "earnBadges": "Conquistar medalhas",
+      "perBadge": "+10 ou mais"
+    },
+    "transactions": {
+      "title": "Histórico de Transações",
+      "allTypes": "Todos os tipos",
+      "period": "Período",
+      "noTransactions": "Nenhuma transação encontrada",
+      "earnedInPeriod": "Ganho no período",
+      "spentInPeriod": "Gasto no período",
+      "balance": "Saldo:"
+    }
+  },
+  "primeng": {
+    "startsWith": "Começa com",
+    "contains": "Contém",
+    "notContains": "Não contém",
+    "endsWith": "Termina com",
+    "equals": "Igual",
+    "notEquals": "Diferente",
+    "noFilter": "Sem filtro",
+    "lt": "Menor que",
+    "lte": "Menor ou igual",
+    "gt": "Maior que",
+    "gte": "Maior ou igual",
+    "dateIs": "Data é",
+    "dateIsNot": "Data não é",
+    "dateBefore": "Data antes de",
+    "dateAfter": "Data depois de",
+    "clear": "Limpar",
+    "apply": "Aplicar",
+    "matchAll": "Corresponder tudo",
+    "matchAny": "Corresponder qualquer",
+    "addRule": "Adicionar regra",
+    "removeRule": "Remover regra",
+    "accept": "Sim",
+    "reject": "Não",
+    "choose": "Escolher",
+    "upload": "Enviar",
+    "cancel": "Cancelar",
+    "dayNames": [
+      "Domingo",
+      "Segunda",
+      "Terça",
+      "Quarta",
+      "Quinta",
+      "Sexta",
+      "Sábado"
+    ],
+    "dayNamesShort": [
+      "Dom",
+      "Seg",
+      "Ter",
+      "Qua",
+      "Qui",
+      "Sex",
+      "Sáb"
+    ],
+    "dayNamesMin": [
+      "D",
+      "S",
+      "T",
+      "Q",
+      "Q",
+      "S",
+      "S"
+    ],
+    "monthNames": [
+      "Janeiro",
+      "Fevereiro",
+      "Março",
+      "Abril",
+      "Maio",
+      "Junho",
+      "Julho",
+      "Agosto",
+      "Setembro",
+      "Outubro",
+      "Novembro",
+      "Dezembro"
+    ],
+    "monthNamesShort": [
+      "Jan",
+      "Fev",
+      "Mar",
+      "Abr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Set",
+      "Out",
+      "Nov",
+      "Dez"
+    ],
+    "today": "Hoje",
+    "weekHeader": "Sem",
+    "firstDayOfWeek": 0,
+    "dateFormat": "dd/mm/yy",
+    "weak": "Fraca",
+    "medium": "Média",
+    "strong": "Forte",
+    "passwordPrompt": "Digite uma senha",
+    "emptyMessage": "Nenhum resultado encontrado",
+    "emptyFilterMessage": "Nenhum resultado encontrado"
+  }
+}

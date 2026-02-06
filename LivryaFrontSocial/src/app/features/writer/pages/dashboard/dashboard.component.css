@@ -1,0 +1,14 @@
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: var(--radius-xl);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}

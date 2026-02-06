@@ -1,0 +1,12 @@
+<ng-container *transloco="let t">
+  <div class="app-shell" appScrollTracker>
+    <router-outlet />
+
+    @if (routeLoading.isNavigating()) {
+      <div class="route-loading-backdrop" role="status" aria-live="polite">
+        <p-progressSpinner styleClass="route-loading-spinner" strokeWidth="3" [ariaLabel]="t('common.loading')" />
+        <p class="route-loading-label">{{ t('common.loadingInterface') }}</p>
+      </div>
+    }
+  </div>
+</ng-container>

@@ -1,0 +1,60 @@
+<div class="layout-wrapper min-h-screen bg-secondary-50/70 dark:bg-gray-900/70">
+  <!-- Top Menu -->
+  <div class="layout-topbar bg-surface-card/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-sm">
+    <p-menubar [model]="menuItems" styleClass="border-none">
+      <ng-template pTemplate="start">
+        <div class="flex items-center">
+                  <img src="../../../../assets/logosm.png" class="logo-icon "  alt="logo livrya">
+                <img src="../../../../assets/logo.png" class="logo-icon-2" alt="logo livrya">
+    
+       </div>
+      </ng-template>
+      <ng-template pTemplate="end">
+        <div class="flex items-center gap-3 px-3">
+          <!-- Language Selector -->
+          <app-language-selector />
+
+          <!-- Livra Balance (Sprint 8) -->
+          <app-livra-balance />
+
+          <p-button icon="pi pi-bell" [text]="true" [rounded]="true" severity="secondary" />
+
+          <!-- User Menu -->
+          <div class="user-menu">
+            @if (currentUser()?.avatar) {
+              <p-avatar 
+                [image]="currentUser()!.avatar!" 
+                shape="circle"
+                styleClass="cursor-pointer"
+                (click)="userMenu.toggle($event)"
+              />
+            } @else {
+              <p-avatar 
+                [label]="getInitials()" 
+                styleClass="bg-primary-500 text-white cursor-pointer" 
+                shape="circle"
+                (click)="userMenu.toggle($event)"
+              />
+            }
+            <p-menu #userMenu [model]="userMenuItems" [popup]="true" appendTo="body" />
+          </div>
+        </div>
+      </ng-template>
+    </p-menubar>
+  </div>
+
+  <!-- Beta Banner -->
+  <app-beta-banner />
+
+  <!-- Main Content -->
+  <div class="layout-main">
+    <router-outlet />
+  </div>
+
+  <!-- Footer -->
+  <div class="layout-footer bg-surface-card/90 dark:bg-gray-800/90 border-t border-surface-border py-4 px-6 text-center">
+    <p class="text-sm text-secondary">
+      {{ 'common.footer.copyright' | transloco:{ year: currentYear } }}
+    </p>
+  </div>
+</div>

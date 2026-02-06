@@ -1,0 +1,84 @@
+<ng-container *transloco="let t">
+  <div class="p-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+      <h3 class="text-xl font-bold font-heading text-primary-700 dark:text-primary-300">{{ t('speeches.list.chapterSpeeches') }}</h3>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <button pButton (click)="openBulkImport()" severity="secondary" [outlined]="true"
+          class="flex-1 sm:flex-none p-button-sm sm:p-button-md justify-center">
+          <i class="pi pi-upload"></i>
+          <span class="ml-2 hidden sm:inline">{{ t('speeches.bulkImport') }}</span>
+        </button>
+        <button pButton [label]="t('speeches.newSpeech')" icon="pi pi-plus" (click)="openNew()" severity="success"
+        class="flex-1 sm:flex-none p-button-sm sm:p-button-md"></button>
+      </div>
+    </div>
+
+    <p-table #dt [value]="speeches"
+      [scrollable]="true" scrollHeight="60vh" styleClass="w-full"
+      [globalFilterFields]="['text', 'ssmlText', 'character.name']">
+      <ng-template pTemplate="caption">
+        <div class="flex justify-between items-center">
+          <span class="text-xl font-bold">{{ t('speeches.title') }}</span>
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="onGlobalFilter($event)" [placeholder]="t('speeches.list.filterByText')" class="p-inputtext-sm" />
+          </span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem">{{ t('speeches.list.avatar') }}</th>
+          <th>{{ t('speeches.list.character') }}</th>
+          <th>{{ t('speeches.list.speech') }}</th>
+          <th style="width: 8rem">{{ t('speeches.list.actions') }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-speech let-index="rowIndex">
+            <tr [ngClass]="{
+                    'bg-primary-50 dark:bg-primary-900/40': selectedSpeechId === speech.id
+                }" (click)="selectSpeech(speech)" class="cursor-pointer">
+          <td>
+            @if (speech.character) {
+              <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-sm"
+                pTooltip="{{speech.character.name}}">
+                {{ speech.character.name.charAt(0).toUpperCase() }}
+              </div>
+            }
+          </td>
+          <td>
+            <span class="font-medium text-sm text-gray-700 dark:text-gray-300">{{ speech.character?.name }}</span>
+          </td>
+          <td>
+            <div>
+              <p class="text-gray-900 dark:text-gray-100 text-base wrap-break-word mb-1"
+                [innerHTML]="speech.ssmlText ? (speech.ssmlText | slice:0:150) + (speech.ssmlText.length > 150 ? '...' : '') : speech.text">
+              </p>
+              @if (speech.ssmlText) {
+                <span class="text-xs text-accent-500 font-mono">SSML</span>
+              }
+            </div>
+          </td>
+          <td>
+            <div class="flex gap-1">
+              <button pButton icon="pi pi-pencil" type="button"
+                class="p-button-text p-button-rounded p-button-sm text-primary-500"
+              (click)="editSpeech(speech); $event.stopPropagation()"></button>
+              <button pButton icon="pi pi-trash" type="button"
+                class="p-button-text p-button-rounded p-button-sm text-red-500"
+              (click)="deleteSpeech(speech); $event.stopPropagation()"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    @if (speeches.length === 0) {
+      <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+        <p>{{ t('speeches.list.noSpeeches') }}</p>
+      </div>
+    }
+  </div>
+
+  <p-confirmDialog [style]="{width: '450px'}" />
+  <p-toast />
+</ng-container>

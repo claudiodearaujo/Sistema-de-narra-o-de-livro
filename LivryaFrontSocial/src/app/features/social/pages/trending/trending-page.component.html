@@ -1,0 +1,100 @@
+<div class="trending-page max-w-3xl mx-auto p-4" *transloco="let t">
+  <!-- Header -->
+  <header class="mb-6">
+    <div class="flex items-center gap-3 mb-2">
+      <i class="pi pi-chart-line text-3xl text-accent-500"></i>
+      <h1 class="text-2xl font-heading font-bold text-primary-700 dark:text-primary-300">{{ t('social.trending.title') }}</h1>
+    </div>
+    <p class="text-secondary">
+      {{ t('social.trending.subtitle') }}
+    </p>
+  </header>
+
+  <!-- Stats Bar -->
+  <div class="bg-linear-to-r from-accent-50 to-accent-100 dark:from-accent-900/20 dark:to-accent-900/40 rounded-lg p-4 mb-6 flex items-center justify-around">
+    <div class="text-center">
+      <div class="text-2xl font-bold text-accent-600 dark:text-accent-400">{{ totalPosts() }}</div>
+      <div class="text-sm text-secondary">{{ t('social.trending.postsInTrending') }}</div>
+    </div>
+    <div class="text-center">
+      <div class="text-2xl font-bold text-accent-700 dark:text-accent-500">{{ totalLikes() }}</div>
+      <div class="text-sm text-secondary">{{ t('social.trending.totalLikes') }}</div>
+    </div>
+    <div class="text-center">
+      <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ totalComments() }}</div>
+      <div class="text-sm text-secondary">{{ t('social.trending.totalComments') }}</div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="space-y-4">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="bg-surface-card rounded-xl p-4 border border-surface-border">
+          <div class="flex items-center gap-3 mb-4">
+            <p-skeleton shape="circle" size="3rem" />
+            <div class="flex-1">
+              <p-skeleton width="40%" height="1rem" styleClass="mb-2" />
+              <p-skeleton width="20%" height="0.75rem" />
+            </div>
+          </div>
+          <p-skeleton width="100%" height="4rem" />
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Posts List -->
+  @if (!loading() && posts().length > 0) {
+    <div class="space-y-4">
+      @for (post of posts(); track post.id; let i = $index) {
+        <div class="relative">
+          <!-- Rank Badge -->
+          <div class="absolute -left-3 -top-3 z-10 w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-lg"
+            [class]="getRankClass(i)">
+            {{ i + 1 }}
+          </div>
+
+          <!-- Post Card -->
+          <app-post-card
+            [post]="post"
+            (shared)="onPostShared()"
+          />
+
+          <!-- Engagement Score Badge -->
+          <div class="absolute -right-2 top-4 bg-primary-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow">
+            {{ post.engagementScore }}
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Load More -->
+    @if (hasMore()) {
+      <div class="text-center mt-6">
+        <button
+          pButton
+          type="button"
+          [label]="t('common.actions.loadMore')"
+          icon="pi pi-arrow-down"
+          class="p-button-outlined"
+          (click)="loadMore()"
+          [loading]="loadingMore()"
+        ></button>
+      </div>
+    }
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && posts().length === 0) {
+    <div class="text-center py-16 bg-secondary-50 dark:bg-secondary-900/20 rounded-xl">
+      <i class="pi pi-chart-line text-6xl text-secondary-300 mb-4"></i>
+      <h2 class="text-xl font-heading font-semibold text-primary-700 dark:text-primary-300 mb-2">
+        {{ t('social.trending.noTrending') }}
+      </h2>
+      <p class="text-secondary">
+        {{ t('social.trending.noTrendingSubtitle') }}
+      </p>
+    </div>
+  }
+</div>

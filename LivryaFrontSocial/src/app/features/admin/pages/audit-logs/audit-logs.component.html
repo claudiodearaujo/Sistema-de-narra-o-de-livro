@@ -1,0 +1,250 @@
+<p-toast></p-toast>
+<div class="p-4 md:p-6 lg:p-8 animate-fade-in">
+  <!-- Header & Stats -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+        <i class="pi pi-history text-primary text-2xl"></i>
+        Logs de Auditoria
+      </h1>
+      <p class="text-gray-500 dark:text-gray-400">Rastreabilidade completa de todas as ações do sistema</p>
+    </div>
+    <div class="flex gap-2">
+      <p-button label="JSON" icon="pi pi-download" (onClick)="export('json')"
+        styleClass="p-button-outlined p-button-secondary"></p-button>
+      <p-button label="CSV" icon="pi pi-file-excel" (onClick)="export('csv')"
+        styleClass="p-button-outlined p-button-success"></p-button>
+      <p-button label="Atualizar" icon="pi pi-refresh" (onClick)="loadLogs()" [loading]="loading"></p-button>
+    </div>
+  </div>
+
+  <!-- Quick Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" *ngIf="stats">
+    <p-card styleClass="stat-card shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-sm text-gray-500 uppercase font-semibold">Total Geral</span>
+          <div class="text-2xl font-bold">{{ stats.total | number }}</div>
+        </div>
+        <div class="bg-primary-100 p-3 rounded-full">
+          <i class="pi pi-database text-primary text-xl"></i>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-sm text-gray-500 uppercase font-semibold">Últimas 24h</span>
+          <div class="text-2xl font-bold">{{ stats.last24h | number }}</div>
+        </div>
+        <div class="bg-blue-100 p-3 rounded-full">
+          <i class="pi pi-clock text-blue-500 text-xl"></i>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-sm text-gray-500 uppercase font-semibold">Alertas Críticos</span>
+          <div class="text-2xl font-bold text-red-500">{{ stats.bySeverity['CRITICAL'] || 0 }}</div>
+        </div>
+        <div class="bg-red-100 p-3 rounded-full">
+          <i class="pi pi-exclamation-triangle text-red-500 text-xl"></i>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-sm text-gray-500 uppercase font-semibold">Erros Sistema</span>
+          <div class="text-2xl font-bold">{{ stats.byCategory['SYSTEM'] || 0 }}</div>
+        </div>
+        <div class="bg-orange-100 p-3 rounded-full">
+          <i class="pi pi-cog text-orange-500 text-xl"></i>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Filters Section -->
+  <p-card styleClass="mb-6 shadow-sm border-0 bg-gray-50 dark:bg-gray-800">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase text-gray-500">Busca Rápida</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input type="text" pInputText placeholder="Email, ID ou Descrição..." class="w-full"
+            [(ngModel)]="filters.search" (input)="onSearchInput($any($event.target).value)">
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase text-gray-500">Severidade</label>
+        <p-select [options]="severities" [(ngModel)]="filters.severity" styleClass="w-full" placeholder="Selecione..."
+          (onChange)="onFilter()" optionLabel="label" optionValue="value"></p-select>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase text-gray-500">Categoria</label>
+        <p-select [options]="categories" [(ngModel)]="filters.category" styleClass="w-full" placeholder="Selecione..."
+          (onChange)="onFilter()" optionLabel="label" optionValue="value"></p-select>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase text-gray-500">Período</label>
+        <p-datepicker [(ngModel)]="dateRange" selectionMode="range" [showIcon]="true" placeholder="Data Inicial - Final"
+          styleClass="w-full" (onSelect)="onFilter()" (onClearClick)="onFilter()" [showClear]="true"></p-datepicker>
+      </div>
+    </div>
+    <div class="flex justify-end mt-4">
+      <p-button label="Limpar Filtros" icon="pi pi-filter-slash" styleClass="p-button-text p-button-secondary"
+        (onClick)="clearFilters()"></p-button>
+    </div>
+  </p-card>
+
+  <!-- Data Table -->
+  <p-card styleClass="shadow-sm overflow-hidden">
+    <p-table [value]="logs" [lazy]="true" (onLazyLoad)="loadLogs($event)" [paginator]="true" [rows]="10"
+      [totalRecords]="totalRecords" [loading]="loading" [rowsPerPageOptions]="[10, 25, 50, 100]"
+      styleClass="p-datatable-sm p-datatable-striped" [responsiveLayout]="'scroll'" [sortField]="filters.sortBy"
+      [sortOrder]="-1">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 13rem" pSortableColumn="createdAt">Data <p-sortIcon field="createdAt"></p-sortIcon></th>
+          <th style="width: 15rem">Usuário</th>
+          <th pSortableColumn="action">Ação <p-sortIcon field="action"></p-sortIcon></th>
+          <th style="width: 8rem">Severidade</th>
+          <th style="width: 10rem">Recurso</th>
+          <th>Descrição</th>
+          <th style="width: 5rem"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-log>
+        <tr class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition" (click)="showDetail(log)">
+          <td class="text-sm font-medium">
+            {{ log.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}
+            <div class="text-xs text-gray-400">{{ log.createdAt | date:'(zzz)' }}</div>
+          </td>
+          <td>
+            <div class="flex items-center gap-2">
+              <div
+                class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary font-bold text-xs"
+                *ngIf="log.user">
+                {{ log.user.name | slice:0:1 }}
+              </div>
+              <div>
+                <div class="text-sm font-semibold">{{ log.userEmail || 'Anônimo' }}</div>
+                <div class="text-xs text-gray-500">{{ log.ipAddress }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="flex items-center gap-1">
+              <i [class]="getCategoryIcon(log.category)" class="text-xs opacity-60"></i>
+              <span class="text-xs font-mono font-bold">{{ log.action }}</span>
+            </div>
+          </td>
+          <td>
+            <p-tag [severity]="getSeverityTag(log.severity)" [value]="log.severity"></p-tag>
+          </td>
+          <td>
+            <span class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded" *ngIf="log.resource">
+              {{ log.resource }}
+            </span>
+          </td>
+          <td class="text-sm">
+            <div class="truncate w-64 md:w-auto" [pTooltip]="log.description" tooltipPosition="top">
+              {{ log.description }}
+            </div>
+          </td>
+          <td>
+            <p-button icon="pi pi-eye" styleClass="p-button-text p-button-rounded"
+              (onClick)="showDetail(log); $event.stopPropagation()"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-8">
+            <div class="flex flex-col items-center gap-2 text-gray-400">
+              <i class="pi pi-inbox text-4xl"></i>
+              <span>Nenhum log encontrado para os filtros selecionados</span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Log Detail Dialog -->
+<p-dialog [(visible)]="displayDetail" [header]="'Detalhes do Log: ' + selectedLog?.action" [modal]="true"
+  [style]="{width: '90vw', maxWidth: '800px'}" [draggable]="false" [resizable]="false">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-gray-100 dark:border-gray-700"
+    *ngIf="selectedLog">
+    <div>
+      <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Informações Básicas</h3>
+      <ul class="space-y-2 text-sm">
+        <li class="flex justify-between"><strong>ID:</strong> {{ selectedLog.id }}</li>
+        <li class="flex justify-between"><strong>Timestamp:</strong> {{ selectedLog.createdAt | date:'dd/MM/yyyy
+          HH:mm:ss' }}</li>
+        <li class="flex justify-between"><strong>Ação:</strong> <span class="font-mono">{{ selectedLog.action }}</span>
+        </li>
+        <li class="flex justify-between"><strong>Categoria:</strong> {{ selectedLog.category }}</li>
+        <li class="flex justify-between">
+          <strong>Severidade:</strong>
+          <p-tag [severity]="getSeverityTag(selectedLog.severity)" [value]="selectedLog.severity"></p-tag>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Contexto</h3>
+      <ul class="space-y-2 text-sm">
+        <li class="flex justify-between"><strong>Usuário:</strong> {{ selectedLog.user?.name || 'Sistema' }}</li>
+        <li class="flex justify-between"><strong>Email:</strong> {{ selectedLog.userEmail || 'N/A' }}</li>
+        <li class="flex justify-between"><strong>IP:</strong> {{ selectedLog.ipAddress || 'Não registrado' }}</li>
+        <li class="flex justify-between"><strong>Resultado:</strong>
+          <span [class]="selectedLog.success ? 'text-green-500' : 'text-red-500'">
+            {{ selectedLog.success ? 'Sucesso' : 'Falha' }}
+          </span>
+        </li>
+        <li class="flex justify-between" *ngIf="selectedLog.duration"><strong>Duração:</strong> {{ selectedLog.duration
+          }}ms</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4" *ngIf="selectedLog">
+    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Requisição</h3>
+    <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-sm mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="font-bold text-primary">{{ selectedLog.method }}</span>
+        <span class="font-mono">{{ selectedLog.endpoint }}</span>
+        <span class="ml-auto px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-xs font-bold">{{ selectedLog.statusCode
+          }}</span>
+      </div>
+    </div>
+
+    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Metadata / Payload</h3>
+    <pre
+      class="bg-gray-900 text-green-400 p-4 rounded text-xs overflow-auto max-h-64 leading-relaxed custom-scrollbar">{{ formatMetadata(selectedLog.metadata) }}</pre>
+
+    <div *ngIf="selectedLog.errorMessage" class="mt-4">
+      <h3 class="text-xs uppercase text-red-400 font-bold mb-2">Mensagem de Erro</h3>
+      <div
+        class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded text-sm border-l-4 border-red-500">
+        {{ selectedLog.errorMessage }}
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Fechar" icon="pi pi-times" (onClick)="displayDetail = false" styleClass="p-button-text"></p-button>
+  </ng-template>
+</p-dialog>

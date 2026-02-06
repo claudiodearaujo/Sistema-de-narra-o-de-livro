@@ -1,0 +1,17 @@
+.audio-preview-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.audio-preview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+:host ::ng-deep .p-slider .p-slider-handle {
+  width: 16px;
+  height: 16px;
+}
+
+:host ::ng-deep .p-slider .p-slider-range {
+  background: var(--color-primary-500);
+}

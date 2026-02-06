@@ -13,6 +13,10 @@
       "path": "ai-service"
     },
     {
+      "name": "Livrya Front Social",
+      "path": "LivryaFrontSocial"
+    },
+    {
       "name": "Root",
       "path": "."
     }
@@ -21,11 +25,13 @@
     "files.exclude": {
       "**/node_modules": true,
       "**/dist": true,
-      "**/.git": true
+      "**/.git": true,
+      "**/.angular": true
     },
     "search.exclude": {
       "**/node_modules": true,
-      "**/dist": true
+      "**/dist": true,
+      "**/.angular": true
     },
     "typescript.preferences.importModuleSpecifier": "relative",
     "editor.formatOnSave": true,
@@ -39,7 +45,8 @@
       "esbenp.prettier-vscode",
       "prisma.prisma",
       "bradlc.vscode-tailwindcss",
-      "ms-vscode.vscode-typescript-next"
+      "ms-vscode.vscode-typescript-next",
+      "angular.ng-template"
     ]
   },
   "launch": {
@@ -71,12 +78,23 @@
         "request": "launch",
         "url": "http://localhost:5173",
         "webRoot": "${workspaceFolder:Frontend}/src"
+      },
+      {
+        "name": "Livrya Front Social: Debug",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:4200",
+        "webRoot": "${workspaceFolder:Livrya Front Social}/src"
       }
     ],
     "compounds": [
       {
         "name": "Full Stack",
         "configurations": ["Backend: Debug", "AI Service: Debug", "Frontend: Debug"]
+      },
+      {
+        "name": "Full Stack + Livrya",
+        "configurations": ["Backend: Debug", "AI Service: Debug", "Livrya Front Social: Debug"]
       }
     ]
   },
@@ -135,8 +153,25 @@
         "isBackground": true
       },
       {
+        "label": "Livrya Front Social: Install",
+        "type": "shell",
+        "command": "npm install",
+        "options": {
+          "cwd": "${workspaceFolder:Livrya Front Social}"
+        }
+      },
+      {
+        "label": "Livrya Front Social: Dev",
+        "type": "shell",
+        "command": "npm start",
+        "options": {
+          "cwd": "${workspaceFolder:Livrya Front Social}"
+        },
+        "isBackground": true
+      },
+      {
         "label": "Install All",
-        "dependsOn": ["Backend: Install", "AI Service: Install", "Frontend: Install"]
+        "dependsOn": ["Backend: Install", "AI Service: Install", "Frontend: Install", "Livrya Front Social: Install"]
       },
       {
         "label": "Dev All",

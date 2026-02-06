@@ -1,0 +1,53 @@
+<div class="story-bar" *transloco="let t">
+  <!-- Create Story Button -->
+  <div class="story-item create-story" (click)="onCreateClick()">
+    <div class="story-avatar create">
+      <i class="pi pi-plus"></i>
+    </div>
+    <span class="story-name">{{ t('social.stories.create') }}</span>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="story-item">
+        <p-skeleton shape="circle" size="64px" />
+        <p-skeleton width="50px" height="12px" styleClass="mt-2" />
+      </div>
+    }
+  }
+
+  <!-- Stories List -->
+  @for (userStory of userStories(); track userStory.userId) {
+    <div
+      class="story-item"
+      [class.has-unviewed]="userStory.hasUnviewed"
+      (click)="onStoryClick(userStory)"
+    >
+      <div class="story-avatar-wrapper" [class.viewed]="!userStory.hasUnviewed">
+        @if (userStory.userAvatar) {
+          <p-avatar
+            [image]="userStory.userAvatar"
+            shape="circle"
+            size="large"
+          />
+        } @else {
+          <p-avatar
+            [label]="getInitials(userStory.userName)"
+            shape="circle"
+            size="large"
+            styleClass="bg-primary"
+          />
+        }
+      </div>
+      <span class="story-name">{{ getFirstName(userStory.userName) }}</span>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && userStories().length === 0) {
+    <div class="empty-stories">
+      <span class="text-500">{{ t('social.stories.noStoriesAvailable') }}</span>
+    </div>
+  }
+</div>

@@ -1,0 +1,99 @@
+<div class="transparency-page">
+    <!-- Hero Section -->
+    <section class="transparency-hero">
+        <div class="hero-container">
+            <div class="hero-icon">
+                <i class="pi pi-spin pi-cog"></i>
+            </div>
+            <h1 class="hero-title">Transparência e Valores</h1>
+            <p class="hero-subtitle">
+                Acreditamos que confiança se constrói com clareza
+            </p>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="section-container">
+            <h2 class="section-title">Nossos Valores</h2>
+            <div class="values-grid">
+                @for (value of values; track value.title) {
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="pi" [ngClass]="value.icon"></i>
+                    </div>
+                    <h3>{{ value.title }}</h3>
+                    <p>{{ value.description }}</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Commitment Section -->
+    <section class="commitment-section">
+        <div class="section-container">
+            <h2 class="section-title">Nossos Compromissos</h2>
+            <div class="commitment-list">
+                <div class="commitment-item">
+                    <div class="commitment-number">1</div>
+                    <div class="commitment-content">
+                        <h3>Comunicação Clara</h3>
+                        <p>Mantemos você informado sobre mudanças na plataforma, políticas e termos.</p>
+                    </div>
+                </div>
+                <div class="commitment-item">
+                    <div class="commitment-number">2</div>
+                    <div class="commitment-content">
+                        <h3>Dados Transparentes</h3>
+                        <p>Você tem direito de saber quais dados coletamos e como são usados.</p>
+                    </div>
+                </div>
+                <div class="commitment-item">
+                    <div class="commitment-number">3</div>
+                    <div class="commitment-content">
+                        <h3>Feedback Aberto</h3>
+                        <p>Ouvimos a comunidade e implementamos melhorias baseadas em sugestões.</p>
+                    </div>
+                </div>
+                <div class="commitment-item">
+                    <div class="commitment-number">4</div>
+                    <div class="commitment-content">
+                        <h3>Relatórios de Moderação</h3>
+                        <p>Publicamos periodicamente estatísticas sobre moderação e segurança.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section">
+        <div class="section-container">
+            <div class="mission-card">
+                <h2>Nossa Missão</h2>
+                <p class="mission-text">
+                    Democratizar o acesso à literatura, dando voz a autores de todos os cantos
+                    do Brasil e conectando-os a leitores que buscam histórias autênticas e diversas.
+                </p>
+                <div class="mission-quote">
+                    <blockquote>
+                        "Por trás de toda plataforma, existem pessoas."
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="section-container">
+            <h2 class="section-title">Fale Conosco</h2>
+            <p>Dúvidas, sugestões ou preocupações? Estamos prontos para ouvir.</p>
+            <a routerLink="/institutional/contact" class="contact-btn">
+                <i class="pi pi-envelope"></i>
+                Ir para Contato
+            </a>
+        </div>
+    </section>
+</div>

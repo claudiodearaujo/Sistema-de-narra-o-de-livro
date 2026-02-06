@@ -1,0 +1,206 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center md:p-4" *transloco="let t">
+  <!-- Backdrop -->
+  <div
+    class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+    (click)="close.emit()">
+  </div>
+
+  <!-- Modal -->
+  <div class="relative bg-surface-card rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between md:p-4 border-b border-surface-border">
+      <h2 class="text-xl font-heading font-bold text-primary-800 dark:text-primary-200">{{ t('social.campaigns.createTitle') }}</h2>
+      <button
+        (click)="close.emit()"
+        class="p-2 text-secondary hover:text-primary-700 dark:hover:text-primary-300 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-800">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()" class="md:p-4 space-y-4">
+      <!-- Name -->
+      <div>
+        <label class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+          {{ t('social.campaigns.form.campaignName') }} *
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="name"
+          name="name"
+          required
+          maxlength="100"
+          [placeholder]="t('social.campaigns.form.campaignNamePlaceholder')"
+          class="w-full px-4 py-3 bg-surface-card border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+          {{ t('social.campaigns.form.description') }}
+        </label>
+        <textarea
+          [(ngModel)]="description"
+          name="description"
+          rows="2"
+          maxlength="500"
+          [placeholder]="t('social.campaigns.form.descriptionPlaceholder')"
+          class="w-full px-4 py-3 bg-surface-card border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none">
+        </textarea>
+      </div>
+
+      <!-- Dates -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+            {{ t('social.campaigns.form.startDate') }}
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="startDate"
+            name="startDate"
+            class="w-full px-4 py-3 bg-surface-card border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+            {{ t('social.campaigns.form.endDate') }}
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="endDate"
+            name="endDate"
+            class="w-full px-4 py-3 bg-surface-card border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+        </div>
+      </div>
+
+      <!-- Livra Reward -->
+      <div>
+        <label class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+          {{ t('social.campaigns.form.livraReward') }}
+        </label>
+        <div class="relative">
+          <input
+            type="number"
+            [(ngModel)]="livraReward"
+            name="livraReward"
+            min="0"
+            max="1000"
+            class="w-full px-4 py-3 bg-surface-card border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+          <span class="absolute right-4 top-1/2 -translate-y-1/2 text-secondary text-sm">Livras</span>
+        </div>
+        <p class="text-xs text-secondary mt-1">{{ t('social.campaigns.form.livraRewardHelp') }}</p>
+      </div>
+
+      <!-- Books Selection -->
+      <div>
+        <label class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-2">
+          {{ t('social.campaigns.form.campaignBooks') }} *
+        </label>
+
+        <!-- Search books -->
+        <div class="relative mb-3">
+          <input
+            type="text"
+            [(ngModel)]="bookSearch"
+            name="bookSearch"
+            (input)="searchBooks()"
+            [placeholder]="t('social.campaigns.form.searchBooks')"
+            class="w-full px-4 py-2 bg-surface-card border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+        </div>
+
+        <!-- Selected books -->
+        @if (selectedBooks().length > 0) {
+          <div class="mb-3 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+            <p class="text-sm font-medium text-primary-700 dark:text-primary-400 mb-2">
+              {{ t('social.campaigns.form.booksSelected', { count: selectedBooks().length }) }}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              @for (book of selectedBooks(); track book.id) {
+                <span class="flex items-center gap-1 px-2 py-1 bg-white dark:bg-secondary-800 rounded-md text-sm">
+                  {{ book.title }}
+                  <button
+                    type="button"
+                    (click)="toggleBook(book)"
+                    class="text-secondary hover:text-red-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Available books -->
+        @if (booksLoading()) {
+          <div class="text-center py-4 text-secondary">{{ t('social.campaigns.form.loadingBooks') }}</div>
+        } @else if (availableBooks().length > 0) {
+          <div class="max-h-48 overflow-y-auto space-y-2 border border-surface-border rounded-lg p-2">
+            @for (book of availableBooks(); track book.id) {
+              <label
+                class="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors"
+                [class]="book.selected ? 'bg-primary-50 dark:bg-primary-900/20' : 'hover:bg-secondary-50 dark:hover:bg-secondary-800/50'">
+                <input
+                  type="checkbox"
+                  [checked]="book.selected"
+                  (change)="toggleBook(book)"
+                  class="rounded border-secondary-300 text-primary-600 focus:ring-primary-500" />
+                @if (book.coverUrl) {
+                  <img [src]="book.coverUrl" class="w-8 h-12 rounded object-cover" />
+                } @else {
+                  <div class="w-8 h-12 rounded bg-linear-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+                    <span class="text-white text-xs font-bold">{{ book.title.charAt(0) }}</span>
+                  </div>
+                }
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-primary-800 dark:text-primary-200 text-sm truncate">{{ book.title }}</p>
+                  <p class="text-xs text-secondary">{{ book.author }}</p>
+                </div>
+              </label>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-4 text-secondary text-sm">
+            {{ t('social.campaigns.form.noBooksFound') }}
+          </div>
+        }
+      </div>
+
+      <!-- Error -->
+      @if (error()) {
+        <div class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p class="text-sm text-red-600 dark:text-red-400">{{ error() }}</p>
+        </div>
+      }
+
+      <!-- Actions -->
+      <div class="flex gap-3 pt-4">
+        <button
+          type="button"
+          (click)="close.emit()"
+          class="flex-1 px-4 py-3 text-primary-700 dark:text-primary-300 bg-secondary-100 dark:bg-secondary-800 hover:bg-secondary-200 dark:hover:bg-secondary-700 rounded-lg font-medium transition-colors">
+          {{ t('common.actions.cancel') }}
+        </button>
+        <button
+          type="submit"
+          [disabled]="loading() || !name.trim() || selectedBooks().length === 0"
+          class="flex-1 px-4 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white rounded-lg font-medium transition-colors">
+          @if (loading()) {
+            <span class="flex items-center justify-center gap-2">
+              <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ t('social.campaigns.form.creating') }}
+            </span>
+          } @else {
+            {{ t('social.campaigns.form.createCampaign') }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

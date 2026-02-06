@@ -1,0 +1,79 @@
+<ng-container *transloco="let t">
+  <div class="p-fluid">
+    <form [formGroup]="form" (ngSubmit)="import()">
+      <div class="field mb-4">
+        <label for="defaultCharacterId"
+        class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('bulkImport.defaultCharacter') }}</label>
+        <p-select id="defaultCharacterId" [options]="characters" formControlName="defaultCharacterId"
+          optionLabel="name" optionValue="id" [placeholder]="t('bulkImport.selectCharacter')" [filter]="true"
+          filterBy="name" [showClear]="true" appendTo="body">
+          <ng-template pTemplate="selectedItem" let-selectedOption>
+            @if (selectedOption) {
+              <div class="flex align-items-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-xs">
+                  {{ selectedOption.name.charAt(0).toUpperCase() }}
+                </div>
+                <div>{{ selectedOption.name }}</div>
+              </div>
+            }
+          </ng-template>
+          <ng-template pTemplate="item" let-character>
+            <div class="flex align-items-center gap-2">
+              <div
+                class="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-xs">
+                {{ character.name.charAt(0).toUpperCase() }}
+              </div>
+              <div>{{ character.name }}</div>
+            </div>
+          </ng-template>
+        </p-select>
+        @if (form.get('defaultCharacterId')?.invalid && form.get('defaultCharacterId')?.touched) {
+          <small
+            class="p-error block mt-1">
+            {{ t('bulkImport.characterRequired') }}
+          </small>
+        }
+      </div>
+
+      <div class="field mb-4">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{{ t('bulkImport.splitStrategy') }}</label>
+        <div class="flex flex-col gap-2">
+          <div class="flex align-items-center">
+            <p-radioButton name="strategy" value="paragraph" formControlName="strategy"
+            inputId="strategy1" />
+            <label for="strategy1" class="ml-2">{{ t('bulkImport.strategies.paragraph') }}</label>
+          </div>
+          <div class="flex align-items-center">
+            <p-radioButton name="strategy" value="sentence" formControlName="strategy"
+            inputId="strategy2" />
+            <label for="strategy2" class="ml-2">{{ t('bulkImport.strategies.sentence') }}</label>
+          </div>
+          <div class="flex align-items-center">
+            <p-radioButton name="strategy" value="dialog" formControlName="strategy"
+            inputId="strategy3" />
+            <label for="strategy3" class="ml-2">{{ t('bulkImport.strategies.dialog') }}</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field mb-6">
+        <label for="text" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('bulkImport.fullText') }}</label>
+        <textarea id="text" pTextarea formControlName="text" rows="10"
+          [placeholder]="t('bulkImport.textPlaceholder')" class="w-full">
+        </textarea>
+        @if (form.get('text')?.invalid && form.get('text')?.touched) {
+          <small class="p-error block mt-1">
+            {{ t('bulkImport.textRequired') }}
+          </small>
+        }
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button pButton type="button" [label]="t('common.cancel')" class="p-button-text" (click)="cancel()"></button>
+        <button pButton type="submit" [label]="t('bulkImport.import')" [disabled]="form.invalid || loading"
+        [loading]="loading"></button>
+      </div>
+    </form>
+  </div>
+</ng-container>

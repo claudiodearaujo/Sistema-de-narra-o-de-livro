@@ -1,0 +1,24 @@
+@if (isVisible()) {
+  <div class="beta-banner">
+    <div class="beta-banner-content">
+      <div class="beta-badge">
+        <i class="pi pi-flask"></i>
+        <span>BETA</span>
+      </div>
+      <div class="beta-message">
+        <p class="beta-text">
+          <strong>Versao Beta</strong> - O sistema de pagamento ainda nao esta operando.
+          Em breve, lancamento oficial para todo o Brasil e o mundo!
+        </p>
+      </div>
+      <button
+        class="beta-close"
+        (click)="dismiss()"
+        aria-label="Fechar aviso"
+        title="Fechar aviso"
+      >
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </div>
+}

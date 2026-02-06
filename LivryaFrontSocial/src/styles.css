@@ -1,0 +1,260 @@
+/* ==========================================================================
+   LIVRIA — Global Styles
+   ========================================================================== */
+
+/* Design Tokens */
+@import "./design-tokens.css";
+
+/* PrimeNG Icons */
+@import "primeicons/primeicons.css";
+
+/* Tailwind CSS */
+@import "tailwindcss";
+
+/* Tailwind PrimeUI Plugin */
+@plugin "tailwindcss-primeui";
+
+/* Dark mode variant */
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   Tailwind Theme Extension (CSS-first approach)
+   ========================================================================== */
+@theme {
+  /* Primary colors mapped to CSS vars */
+  --color-primary-50: var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-800: var(--color-primary-800);
+  --color-primary-900: var(--color-primary-900);
+
+  /* Accent colors */
+  --color-accent-50: var(--color-accent-50);
+  --color-accent-100: var(--color-accent-100);
+  --color-accent-200: var(--color-accent-200);
+  --color-accent-300: var(--color-accent-300);
+  --color-accent-400: var(--color-accent-400);
+  --color-accent-500: var(--color-accent-500);
+  --color-accent-600: var(--color-accent-600);
+  --color-accent-700: var(--color-accent-700);
+  --color-accent-800: var(--color-accent-800);
+  --color-accent-900: var(--color-accent-900);
+
+  /* Semantic shortcuts */
+  --color-primary: var(--color-primary-500);
+  --color-accent: var(--color-accent-500);
+  --color-success: var(--color-success-500);
+  --color-warning: var(--color-warning-500);
+  --color-error: var(--color-error-500);
+  --color-info: var(--color-info-500);
+
+  /* Border radius */
+  --radius-card: var(--radius-xl);
+  --radius-button: var(--radius-lg);
+  --radius-input: var(--radius-lg);
+
+  /* Shadows */
+  --shadow-card: var(--shadow-sm);
+  --shadow-elevated: var(--shadow-md);
+  --shadow-modal: var(--shadow-lg);
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+html {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--surface-ground);
+
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color var(--duration-normal) var(--ease-standard),
+              color var(--duration-normal) var(--ease-standard);
+}
+
+/* Headings use editorial font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+}
+
+/* Links */
+a {
+  color: var(--link);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary-200);
+  color: var(--color-primary-900);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-subtle);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--surface-inset);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-600);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-500);
+}
+
+/* ==========================================================================
+   Typography Utilities
+   ========================================================================== */
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================================
+   PrimeNG Overrides (via CSS vars)
+   ========================================================================== */
+
+/* Ensure PrimeNG uses our tokens */
+.p-component {
+  font-family: var(--font-body);
+}
+
+/* Toast positioning */
+.p-toast {
+  z-index: var(--z-toast);
+}
+
+/* Dialog/Modal */
+.p-dialog {
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.p-dialog-mask {
+  background: var(--surface-overlay);
+}
+
+/* Buttons */
+.p-button {
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--duration-normal) var(--ease-standard);
+}
+
+/* Inputs */
+.p-inputtext,
+.p-textarea,
+.p-dropdown,
+.p-multiselect,
+.p-select {
+  border-radius: var(--radius-lg);
+  border-color: var(--surface-border);
+}
+
+.p-inputtext:focus,
+.p-textarea:focus {
+  box-shadow: var(--focus-ring);
+  border-color: var(--color-primary-500);
+}
+
+/* Cards */
+.p-card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: var(--border-width) solid var(--surface-border);
+}
+
+/* Tabs */
+.p-tabview-nav-link {
+  transition: all var(--duration-normal) var(--ease-standard);
+}
+
+/* Avatar */
+.p-avatar {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Badge */
+.p-badge {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Tooltip */
+.p-tooltip {
+  z-index: var(--z-tooltip);
+}
+
+/* Menu/Dropdown */
+.p-menu,
+.p-tieredmenu,
+.p-contextmenu {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-dropdown);
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

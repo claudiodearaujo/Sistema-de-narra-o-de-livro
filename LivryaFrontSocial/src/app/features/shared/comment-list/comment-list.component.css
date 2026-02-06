@@ -1,0 +1,8 @@
+.comment-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+:host ::ng-deep .p-inputtextarea {
+  resize: none;
+}

@@ -1,0 +1,28 @@
+<ng-container *transloco="let t">
+  <div class="export-options p-4 border border-surface-border rounded-lg bg-white dark:bg-secondary-800 shadow-sm mt-4">
+    <h3 class="text-lg font-semibold mb-3 text-primary-700 dark:text-primary-300 font-heading">{{ t('export.title') }}
+    </h3>
+
+    <div class="flex flex-col gap-3">
+      <p class="text-sm text-secondary">
+        {{ t('export.description') }}
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-2">
+        <p-button [label]="t('export.processAudio')" icon="pi pi-cog" (onClick)="processAudio()" [loading]="processing"
+          [disabled]="processing || !canProcess()" severity="help" styleClass="w-full sm:w-auto" />
+
+        @if (processing) {
+          <p-button [label]="t('export.viewStatus')" icon="pi pi-refresh" (onClick)="checkStatus()"
+            [outlined]="true" severity="secondary" styleClass="w-full sm:w-auto" />
+        }
+      </div>
+
+      @if (status) {
+        <div class="text-sm mt-2">
+          {{ t('export.statusLabel') }}: <span class="font-semibold">{{ status }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</ng-container>

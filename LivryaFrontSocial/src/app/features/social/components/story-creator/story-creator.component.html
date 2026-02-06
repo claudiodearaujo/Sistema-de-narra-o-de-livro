@@ -1,0 +1,133 @@
+<ng-container *transloco="let t">
+  <p-dialog
+    [header]="t('social.stories.createStory')"
+    [(visible)]="visible"
+    [modal]="true"
+    [style]="{ width: '90vw', maxWidth: '500px' }"
+    [closable]="!creating()"
+    (onHide)="onClose()"
+  >
+    <!-- Story Type Selection -->
+    <div class="type-selection mb-4">
+      <p-selectbutton
+        [options]="storyTypes()"
+        [(ngModel)]="selectedType"
+        optionLabel="label"
+        optionValue="value"
+        [disabled]="creating()"
+      />
+    </div>
+
+    <!-- Text Story -->
+    @if (selectedType === 'TEXT' || selectedType === 'QUOTE') {
+      <div class="text-content mb-4">
+        <label class="block mb-2 font-medium">
+          {{ selectedType === 'QUOTE' ? t('social.stories.types.quote') : t('social.stories.types.text') }}
+        </label>
+        <textarea
+          pInputTextarea
+          [(ngModel)]="content"
+          [rows]="5"
+          [placeholder]="selectedType === 'QUOTE' ? t('social.stories.placeholders.quote') : t('social.stories.placeholders.text')"
+          class="w-full"
+          [maxlength]="500"
+          [disabled]="creating()"
+        ></textarea>
+        <small class="text-500">{{ content.length }}/500 {{ t('social.stories.characters') }}</small>
+      </div>
+    }
+
+    <!-- Image Story -->
+    @if (selectedType === 'IMAGE') {
+      <div class="image-content mb-4">
+        <!-- Hidden file input -->
+        <input
+          type="file"
+          #fileInput
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          (change)="onFileSelected($event)"
+          class="hidden-input"
+        />
+
+        @if (!imagePreview() && !imageUrl) {
+          <div class="upload-area">
+            <div class="upload-zone" (click)="triggerFileInput()">
+              <i class="pi pi-cloud-upload upload-icon"></i>
+              <p class="upload-text">{{ t('social.stories.clickToSelectImage') }}</p>
+              <small class="text-500">{{ t('social.stories.imageHint') }}</small>
+            </div>
+
+            <div class="url-divider">
+              <span>{{ t('social.stories.orPasteUrl') }}</span>
+            </div>
+
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="imageUrl"
+              placeholder="https://exemplo.com/imagem.jpg"
+              class="w-full"
+              [disabled]="creating()"
+            />
+          </div>
+        } @else {
+          <div class="image-preview">
+            <img [src]="imagePreview() || imageUrl" alt="Preview" class="preview-image" />
+            <p-button
+              icon="pi pi-times"
+              [rounded]="true"
+              severity="danger"
+              size="small"
+              (onClick)="removeImage()"
+              styleClass="remove-image-btn"
+              [disabled]="creating()"
+            />
+          </div>
+
+          <!-- Upload Progress -->
+          @if (creating() && uploadProgress() > 0) {
+            <div class="upload-progress mt-2">
+              <p-progressBar [value]="uploadProgress()" [showValue]="false" />
+              <small class="text-500">{{ t('social.stories.uploadingImage') }}</small>
+            </div>
+          }
+        }
+
+        <div class="caption-input mt-3">
+          <label class="block mb-2 font-medium">{{ t('social.stories.captionOptional') }}</label>
+          <textarea
+            pInputTextarea
+            [(ngModel)]="content"
+            [rows]="2"
+            [placeholder]="t('social.stories.placeholders.caption')"
+            class="w-full"
+            [maxlength]="200"
+            [disabled]="creating()"
+          ></textarea>
+        </div>
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (error()) {
+      <p-message severity="error" [text]="error()!" styleClass="mb-3 w-full" />
+    }
+
+    <!-- Footer Actions -->
+    <ng-template pTemplate="footer">
+      <p-button
+        [label]="t('common.actions.cancel')"
+        [text]="true"
+        (onClick)="onClose()"
+        [disabled]="creating()"
+      />
+      <p-button
+        [label]="t('social.stories.publishStory')"
+        icon="pi pi-send"
+        (onClick)="createStory()"
+        [loading]="creating()"
+        [disabled]="!isValid()"
+      />
+    </ng-template>
+  </p-dialog>
+</ng-container>

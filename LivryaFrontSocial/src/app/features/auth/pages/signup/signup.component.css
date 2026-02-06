@@ -1,0 +1,121 @@
+.signup-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+   background: color-mix(in srgb, var(--surface-ground) 35%, transparent);
+
+     padding: 1rem;
+}
+
+.signup-card {
+  background: var(--surface-card);
+  border-radius: 1rem;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.signup-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.signup-logo .logo-icon {
+  display: flex;
+  align-items: center;
+}
+
+.signup-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.signup-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary-700);
+  font-family: var(--font-heading);
+  margin: 0 0 0.5rem 0;
+}
+
+.signup-header p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.signup-form .field {
+  margin-bottom: 1.25rem;
+}
+
+.signup-form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.signup-form .optional {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.field-checkbox {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.field-checkbox label {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.field-checkbox a {
+  color: var(--color-primary-600);
+  text-decoration: none;
+}
+
+.field-checkbox a:hover {
+  text-decoration: underline;
+}
+
+.signup-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.signup-footer p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.signup-footer a {
+  color: var(--color-primary-600);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.signup-footer a:hover {
+  color: var(--color-primary-700);
+  text-decoration: underline;
+}
+
+.p-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+}

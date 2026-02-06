@@ -1,0 +1,83 @@
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+Application bundle generation failed. [18.545 seconds] - 2026-01-31T14:51:47.055Z
+
+Ôû▓ [WARNING] Expected identifier but found "-" [css-syntax-error]
+
+    src/styles.css:3212:4:
+      3212 Ôöé     -: |;
+           ÔòÁ     ^
+
+
+X [ERROR] TS2307: Cannot find module 'primeng/dropdown' or its corresponding type declarations. [plugin angular-compiler]
+
+    src/app/features/admin/pages/audit-logs/audit-logs.component.ts:7:31:
+      7 Ôöé import { DropdownModule } from 'primeng/dropdown';
+        ÔòÁ                                ~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2307: Cannot find module 'primeng/calendar' or its corresponding type declarations. [plugin angular-compiler]
+
+    src/app/features/admin/pages/audit-logs/audit-logs.component.ts:8:31:
+      8 Ôöé import { CalendarModule } from 'primeng/calendar';
+        ÔòÁ                                ~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1010: 'imports' must be an array of components, directives, pipes, or NgModules.
+  Value could not be determined statically. [plugin angular-compiler]
+
+    src/app/features/admin/pages/audit-logs/audit-logs.component.ts:27:4:
+      27 Ôöé     DropdownModule,
+         ÔòÁ     ~~~~~~~~~~~~~~
+
+  Unknown reference.
+
+    src/app/features/admin/pages/audit-logs/audit-logs.component.ts:27:4:
+      27 Ôöé     DropdownModule,
+         ÔòÁ     ~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1010: 'imports' must be an array of components, directives, pipes, or NgModules.
+  Value could not be determined statically. [plugin angular-compiler]
+
+    src/app/features/admin/pages/audit-logs/audit-logs.component.ts:28:4:
+      28 Ôöé     CalendarModule,
+         ÔòÁ     ~~~~~~~~~~~~~~
+
+  Unknown reference.
+
+    src/app/features/admin/pages/audit-logs/audit-logs.component.ts:28:4:
+      28 Ôöé     CalendarModule,
+         ÔòÁ     ~~~~~~~~~~~~~~
+
+
+X [ERROR] Could not resolve "primeng/dropdown"
+
+    src/app/features/admin/pages/audit-logs/audit-logs.component.ts:7:31:
+      7 Ôöé import { DropdownModule } from 'primeng/dropdown';
+        ÔòÁ                                ~~~~~~~~~~~~~~~~~~
+
+  The path "./dropdown" is not exported by package "primeng":
+
+    node_modules/primeng/package.json:47:13:
+      47 Ôöé   "exports": {
+         ÔòÁ              ^
+
+  You can mark the path "primeng/dropdown" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+X [ERROR] Could not resolve "primeng/calendar"
+
+    src/app/features/admin/pages/audit-logs/audit-logs.component.ts:8:31:
+      8 Ôöé import { CalendarModule } from 'primeng/calendar';
+        ÔòÁ                                ~~~~~~~~~~~~~~~~~~
+
+  The path "./calendar" is not exported by package "primeng":
+
+    node_modules/primeng/package.json:47:13:
+      47 Ôöé   "exports": {
+         ÔòÁ              ^
+
+  You can mark the path "primeng/calendar" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+

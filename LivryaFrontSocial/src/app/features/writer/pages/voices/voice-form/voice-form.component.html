@@ -1,0 +1,116 @@
+<ng-container *transloco="let t">
+  <div class="container mx-auto p-6 max-w-4xl">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="p-4">
+          <h2 class="text-2xl font-bold font-heading text-primary-700 dark:text-primary-300">
+            {{ isEditMode ? t('voiceForm.editTitle') : t('voiceForm.newTitle') }}
+          </h2>
+          <p class="text-secondary mt-2">
+            {{ isEditMode ? t('voiceForm.editSubtitle') : t('voiceForm.newSubtitle') }}
+          </p>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="voiceForm" (ngSubmit)="onSubmit()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Nome -->
+          <div class="flex flex-col gap-2">
+            <label for="name" class="font-semibold text-primary-700 dark:text-primary-300">
+              {{ t('voiceForm.fields.name') }} <span class="text-accent-500">*</span>
+            </label>
+            <input pInputText id="name" formControlName="name" [placeholder]="t('voiceForm.placeholders.name')"
+              [class.ng-invalid]="isFieldInvalid('name')" [class.ng-dirty]="isFieldInvalid('name')" />
+              @if (isFieldInvalid('name')) {
+                <small class="text-red-500">
+                  {{ getFieldError('name') }}
+                </small>
+              }
+            </div>
+
+            <!-- Voice ID -->
+            <div class="flex flex-col gap-2">
+              <label for="voiceId" class="font-semibold text-primary-700 dark:text-primary-300">
+                {{ t('voiceForm.fields.voiceId') }} <span class="text-accent-500">*</span>
+              </label>
+              <input pInputText id="voiceId" formControlName="voiceId" [placeholder]="t('voiceForm.placeholders.voiceId')"
+                [class.ng-invalid]="isFieldInvalid('voiceId')" [class.ng-dirty]="isFieldInvalid('voiceId')" />
+                @if (isFieldInvalid('voiceId')) {
+                  <small class="text-red-500">
+                    {{ getFieldError('voiceId') }}
+                  </small>
+                }
+                <small class="text-gray-500">
+                  {{ t('voiceForm.hints.voiceId') }}
+                </small>
+              </div>
+
+              <!-- Gênero -->
+              <div class="flex flex-col gap-2">
+                <label for="gender" class="font-semibold text-primary-700 dark:text-primary-300">
+                  {{ t('voiceForm.fields.gender') }} <span class="text-accent-500">*</span>
+                </label>
+                <p-select id="gender" formControlName="gender" [options]="genderOptions"
+                  [placeholder]="t('voiceForm.placeholders.gender')" optionLabel="label" optionValue="value"
+                  [class.ng-invalid]="isFieldInvalid('gender')"
+                [class.ng-dirty]="isFieldInvalid('gender')" />
+                @if (isFieldInvalid('gender')) {
+                  <small class="text-red-500">
+                    {{ getFieldError('gender') }}
+                  </small>
+                }
+              </div>
+
+              <!-- Idioma -->
+              <div class="flex flex-col gap-2">
+                <label for="languageCode" class="font-semibold text-primary-700 dark:text-primary-300">
+                  {{ t('voiceForm.fields.language') }} <span class="text-accent-500">*</span>
+                </label>
+                <p-select id="languageCode" formControlName="languageCode" [options]="languageOptions"
+                  [placeholder]="t('voiceForm.placeholders.language')" optionLabel="label" optionValue="value"
+                  [class.ng-invalid]="isFieldInvalid('languageCode')"
+                [class.ng-dirty]="isFieldInvalid('languageCode')" />
+                @if (isFieldInvalid('languageCode')) {
+                  <small class="text-red-500">
+                    {{ getFieldError('languageCode') }}
+                  </small>
+                }
+              </div>
+
+              <!-- Descrição -->
+              <div class="flex flex-col gap-2 md:col-span-2">
+                <label for="description" class="font-semibold text-primary-700 dark:text-primary-300">
+                  {{ t('voiceForm.fields.description') }}
+                </label>
+                <textarea pTextarea id="description" formControlName="description" rows="3"
+                [placeholder]="t('voiceForm.placeholders.description')"></textarea>
+                <small class="text-gray-500">
+                  {{ t('voiceForm.hints.description') }}
+                </small>
+              </div>
+            </div>
+
+            <!-- Mensagem de erro -->
+            @if (errorMessage) {
+              <p-message severity="error" [text]="errorMessage" styleClass="mt-4 w-full" />
+            }
+
+            <!-- Botões -->
+            <div class="flex flex-col-reverse md:flex-row justify-end gap-3 mt-6">
+              <button pButton [label]="t('common.cancel')" severity="secondary" (click)="onCancel()" [disabled]="loading"
+              class="w-full md:w-auto"></button>
+              <button pButton [label]="isEditMode ? t('voiceForm.buttons.saveChanges') : t('voiceForm.buttons.createVoice')" icon="pi pi-check"
+                type="submit" [loading]="loading" class="w-full md:w-auto">
+              </button>
+            </div>
+          </form>
+
+          <ng-template pTemplate="footer">
+            <div class="text-sm text-gray-600 p-2">
+              <i class="pi pi-info-circle mr-2"></i>
+              {{ t('voiceForm.footerInfo') }}
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+    </ng-container>

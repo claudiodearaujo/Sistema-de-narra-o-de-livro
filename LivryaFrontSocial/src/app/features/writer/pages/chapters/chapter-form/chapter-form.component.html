@@ -1,0 +1,25 @@
+<ng-container *transloco="let t">
+  <div class="md:p-4">
+    <form [formGroup]="chapterForm" (ngSubmit)="onSubmit()">
+      <div class="mb-4">
+        <label for="title" class="block text-sm font-medium mb-2">
+          {{ t('chapters.chapterTitle') }} <span class="text-red-500">*</span>
+        </label>
+        <input pInputText id="title" formControlName="title" [placeholder]="t('chapters.form.titlePlaceholder')"
+          class="w-full" [class.ng-invalid]="title?.invalid && title?.touched" autofocus />
+          @if (title?.invalid && title?.touched) {
+            <small class="text-red-500 block mt-1">
+              {{ t('chapters.form.titleRequired') }}
+            </small>
+          }
+        </div>
+
+        <div class="flex flex-col-reverse md:flex-row justify-end gap-3 mt-6">
+          <button pButton type="button" [label]="t('common.cancel')" icon="pi pi-times" (click)="cancel()" severity="secondary"
+          [disabled]="submitting" class="w-full md:w-auto"></button>
+          <button pButton type="submit" [label]="isEditMode ? t('common.actions.save') : t('common.actions.create')" icon="pi pi-check"
+          [loading]="submitting" [disabled]="chapterForm.invalid || submitting" class="w-full md:w-auto"></button>
+        </div>
+      </form>
+    </div>
+  </ng-container>

@@ -1,0 +1,110 @@
+<ng-container *transloco="let t">
+  <div class="conversation-container">
+    <!-- Header -->
+    <div class="conversation-header">
+      <button pButton class="p-button-text p-button-rounded" icon="pi pi-arrow-left" (click)="goBack()"></button>
+
+      @if (participant()) {
+        <div class="user-info" (click)="goToProfile()">
+          <p-avatar [image]="participant()?.avatar || undefined"
+            [label]="participant()?.avatar ? undefined : getInitials(participant()?.name)"
+            shape="circle" />
+          <div class="user-details">
+            <span class="user-name">{{ participant()?.name }}</span>
+            <span class="user-status" [class.online]="isOnline()" [class.typing]="isTyping()">
+              @if (isTyping()) {
+                {{ t('social.conversation.typing') }}
+              } @else if (isOnline()) {
+                {{ t('social.conversation.online') }}
+              } @else {
+                {{ t('social.conversation.offline') }}
+              }
+            </span>
+          </div>
+        </div>
+      }
+
+      <button pButton class="p-button-text p-button-rounded" icon="pi pi-ellipsis-v"></button>
+    </div>
+
+    <!-- Error State -->
+    @if (error()) {
+      <div class="error-container">
+        <p-message severity="error" [text]="error()!" styleClass="w-full mb-3" />
+        <p-button [label]="t('common.actions.tryAgain')" icon="pi pi-refresh" (onClick)="retry()" />
+      </div>
+    } @else {
+      <!-- Messages -->
+      <div class="messages-container" #messagesContainer>
+        @if (loading()) {
+          <div class="loading">
+            <i class="pi pi-spin pi-spinner"></i>
+            {{ t('social.conversation.loading') }}
+          </div>
+        } @else {
+          <!-- Load More Button -->
+          @if (hasMore()) {
+            <div class="load-more-top">
+              <p-button [label]="t('social.conversation.loadPrevious')"
+                [loading]="loadingMore()"
+                [text]="true"
+                size="small"
+                (onClick)="loadMore()" />
+            </div>
+          }
+
+          <div class="messages-list">
+            @for (message of displayMessages(); track message.id) {
+              <div class="message" [class.mine]="message.isMe" [class.theirs]="!message.isMe">
+                <div class="message-bubble">
+                  <p>{{ message.content }}</p>
+                  <div class="message-meta">
+                    <span class="message-time">{{ message.time }}</span>
+                    @if (message.isMe && message.isRead) {
+                      <i class="pi pi-check-circle read-indicator" [title]="t('social.conversation.read')"></i>
+                    }
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-messages">
+                <i class="pi pi-comments"></i>
+                <p>{{ t('social.conversation.noMessages') }}</p>
+                <p class="hint">{{ t('social.conversation.startConversation') }}</p>
+              </div>
+            }
+          </div>
+
+          <!-- Typing Indicator -->
+          @if (isTyping()) {
+            <div class="typing-indicator">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Input -->
+      <div class="message-input">
+        <button pButton class="p-button-text p-button-rounded" icon="pi pi-image"></button>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="newMessage"
+          [placeholder]="t('social.conversation.placeholder')"
+          (keyup.enter)="sendMessage()"
+          (input)="onTyping()">
+        <button
+          pButton
+          class="p-button-rounded send-btn"
+          icon="pi pi-send"
+          [disabled]="!newMessage.trim() || sending()"
+          [loading]="sending()"
+          (click)="sendMessage()">
+        </button>
+      </div>
+    }
+  </div>
+</ng-container>

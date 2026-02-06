@@ -1,0 +1,13 @@
+@if (!isSelf()) {
+  <button 
+    pButton 
+    type="button"
+    [label]="buttonLabel()"
+    [icon]="buttonIcon()"
+    [class]="buttonClass()"
+    [loading]="loading()"
+    (click)="onFollowClick()"
+    (mouseenter)="hovering.set(true)"
+    (mouseleave)="hovering.set(false)"
+  ></button>
+}

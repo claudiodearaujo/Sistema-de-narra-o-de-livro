@@ -1,0 +1,131 @@
+<ng-container *transloco="let t">
+  <!-- Mobile-first Book Details Page -->
+  <div class="book-details-page">
+    <!-- Fixed Header -->
+    <header class="book-header">
+      <button
+        class="header-btn header-btn-back"
+        (click)="backToList()"
+        [attr.aria-label]="t('common.actions.back')">
+        <i class="pi pi-arrow-left"></i> {{ t('common.actions.back') }}
+      </button>
+      <h1 class="header-title">{{ t('books.detail.title') }}</h1>
+      <button
+        class="header-btn header-btn-edit"
+        (click)="editBook()"
+        [attr.aria-label]="t('common.actions.edit')">
+        <i class="pi pi-pencil"></i>
+      </button>
+    </header>
+
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="loading-container">
+        <i class="pi pi-spin pi-spinner loading-spinner"></i>
+        <p class="loading-text">{{ t('common.loading') }}</p>
+      </div>
+    }
+
+    <!-- Content -->
+    @if (!loading && book) {
+      <div class="book-content">
+        <!-- Main Book Card -->
+        <div class="book-main-card">
+          <!-- Cover Image -->
+          <div class="book-cover-container">
+            @if (book.coverUrl) {
+              <div class="book-cover">
+                <img [src]="book.coverUrl" [alt]="book.title" class="book-cover-image" />
+              </div>
+            }
+            @if (!book.coverUrl) {
+              <div class="book-cover book-cover-placeholder">
+                <i class="pi pi-book placeholder-icon"></i>
+              </div>
+            }
+          </div>
+          <!-- Book Info -->
+          <div class="book-info">
+            <h2 class="book-title">{{ book.title }}</h2>
+            <p class="book-author">
+              <i class="pi pi-user author-icon"></i>
+              {{ book.author }}
+            </p>
+          </div>
+        </div>
+        <!-- Description Card -->
+        <div class="description-card">
+          <h3 class="section-title">{{ t('books.detail.aboutBook') }}</h3>
+          @if (book.description) {
+            <div
+              [innerHTML]="book.description"
+              class="description-text">
+            </div>
+          }
+          @if (!book.description) {
+            <p class="description-empty">
+              {{ t('books.detail.noDescription') }}
+            </p>
+          }
+        </div>
+        <!-- Statistics Section -->
+        <div class="stats-section">
+          <h3 class="section-title">{{ t('books.detail.statistics') }}</h3>
+          @if (stats) {
+            <div class="stats-grid">
+              <!-- Chapters Stat -->
+              <div class="stat-card stat-card-primary">
+                <div class="stat-icon-container">
+                  <i class="pi pi-book stat-icon"></i>
+                </div>
+                <p class="stat-label">{{ t('books.stats.chapters') }}</p>
+                <p class="stat-value">{{ stats.totalChapters }}</p>
+              </div>
+              <!-- Characters Stat -->
+              <div class="stat-card stat-card-accent">
+                <div class="stat-icon-container">
+                  <i class="pi pi-users stat-icon"></i>
+                </div>
+                <p class="stat-label">{{ t('books.stats.characters') }}</p>
+                <p class="stat-value">{{ stats.totalCharacters }}</p>
+              </div>
+              <!-- Speeches Stat -->
+              <div class="stat-card stat-card-success">
+                <div class="stat-icon-container">
+                  <i class="pi pi-comment stat-icon"></i>
+                </div>
+                <p class="stat-label">{{ t('books.stats.speeches') }}</p>
+                <p class="stat-value">{{ stats.totalSpeeches }}</p>
+              </div>
+            </div>
+          }
+          @if (!stats) {
+            <div class="stats-loading">
+              <i class="pi pi-spin pi-spinner"></i>
+            </div>
+          }
+        </div>
+        <!-- Quick Actions Section -->
+        <div class="actions-section">
+          <h3 class="section-title">{{ t('books.detail.quickActions') }}</h3>
+          <div class="actions-grid">
+            <button class="action-btn action-btn-primary" (click)="viewCharacters()">
+              <i class="pi pi-users action-btn-icon"></i>
+              <span>{{ t('books.detail.viewCharacters') }}</span>
+            </button>
+            <button class="action-btn action-btn-secondary" (click)="newChapter()">
+              <i class="pi pi-plus action-btn-icon"></i>
+              <span>{{ t('books.detail.newChapter') }}</span>
+            </button>
+          </div>
+        </div>
+        <!-- Tabs Section -->
+        <div class="tabs-section p-4">
+          <app-chapter-list [bookId]="book.id" (chapterChanged)="loadStats()" />
+        </div>
+      </div>
+    }
+
+    <p-toast />
+  </div>
+</ng-container>

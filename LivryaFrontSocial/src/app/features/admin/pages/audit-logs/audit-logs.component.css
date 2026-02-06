@@ -1,0 +1,64 @@
+:host {
+    display: block;
+}
+
+.stat-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+pre {
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.5);
+}
+
+/* PrimeNG Overrides for dark mode support if applicable */
+::ng-deep .p-datatable.p-datatable-sm .p-datatable-thead > tr > th {
+    background-color: transparent;
+    border-bottom: 2px solid rgba(0,0,0,0.05);
+}
+
+::ng-deep .dark .p-datatable.p-datatable-sm .p-datatable-thead > tr > th {
+    border-bottom: 2px solid rgba(255,255,255,0.05);
+}
+
+::ng-deep .p-tag.p-tag-info {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+::ng-deep .p-tag.p-tag-success {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+::ng-deep .p-tag.p-tag-warning {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+::ng-deep .p-tag.p-tag-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}

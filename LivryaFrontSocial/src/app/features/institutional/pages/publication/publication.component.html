@@ -1,0 +1,105 @@
+<div class="publication-page">
+    <!-- Hero Section -->
+    <section class="pub-hero">
+        <div class="hero-container">
+            <div class="hero-icon">
+                <i class="pi pi-money-bill"></i>
+            </div>
+            <h1 class="hero-title">Publicação e Monetização</h1>
+            <p class="hero-subtitle">
+                Transforme sua paixão por escrever em uma fonte de renda
+            </p>
+        </div>
+    </section>
+
+    <!-- Monetization Methods -->
+    <section class="methods-section">
+        <div class="section-container">
+            <h2 class="section-title">Formas de Monetização</h2>
+            <div class="methods-grid">
+                @for (method of monetizationMethods; track method.title) {
+                <div class="method-card">
+                    <div class="method-icon">
+                        <i class="pi" [ngClass]="method.icon"></i>
+                    </div>
+                    <h3>{{ method.title }}</h3>
+                    <p>{{ method.description }}</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Livras Section -->
+    <section class="livras-section">
+        <div class="section-container">
+            <div class="livras-card">
+                <div class="livras-icon">
+                    <span>£</span>
+                </div>
+                <div class="livras-content">
+                    <h2>O que são Livras?</h2>
+                    <p>
+                        Livras são a moeda virtual da Livrya. Leitores podem usar Livras para
+                        apoiar seus autores favoritos, desbloquear conteúdo premium e participar
+                        de campanhas especiais.
+                    </p>
+                    <p>
+                        Escritores podem converter Livras em dinheiro real após atingir o mínimo
+                        de saque.
+                    </p>
+                    <a routerLink="/livras" class="livras-btn">
+                        Saiba mais sobre Livras
+                        <i class="pi pi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works -->
+    <section class="how-section">
+        <div class="section-container">
+            <h2 class="section-title">Como Funciona</h2>
+            <div class="steps-list">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Publique suas obras</h3>
+                        <p>Crie e publique suas histórias na plataforma gratuitamente.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Construa sua audiência</h3>
+                        <p>Conecte-se com leitores e construa uma base de fãs engajada.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Receba apoio</h3>
+                        <p>Leitores podem apoiar você com Livras e assinaturas.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Converta em dinheiro</h3>
+                        <p>Saque seus ganhos para sua conta bancária.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2>Comece a monetizar hoje</h2>
+            <p>Cadastre-se e configure sua conta para receber apoio dos leitores.</p>
+            <a routerLink="/auth/signup" class="cta-btn">Criar Conta Grátis</a>
+        </div>
+    </section>
+</div>
