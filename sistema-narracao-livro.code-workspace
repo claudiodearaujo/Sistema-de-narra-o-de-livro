@@ -6,7 +6,7 @@
     },
     {
       "name": "Writer Center Front",
-      "path": "WriterCenterFront"
+      "path": "Frontend/WriterCenterFront"
     },
     {
       "name": "AI Service",
@@ -14,7 +14,7 @@
     },
     {
       "name": "Livrya Front Social",
-      "path": "LivryaFrontSocial"
+      "path": "Frontend/LivryaFrontSocial"
     },
     {
       "name": "Root",
