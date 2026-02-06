@@ -4,6 +4,7 @@ import { aiConfig, TTSProviderType } from '../ai/ai.config';
 import { TTSProvider, Voice, AudioResult } from '../ai/interfaces/tts-provider.interface';
 import { aiService } from '../ai/ai.service';
 import { aiTokenService, TrackUsageParams } from './ai-token.service';
+import { audioCacheService } from './audio-cache.service';
 import prisma from '../lib/prisma';
 import { io } from '../websocket/websocket.server';
 
@@ -27,6 +28,7 @@ export interface TTSGenerateRequest {
     voiceId: string;
     outputFormat?: 'mp3' | 'wav' | 'ogg' | 'aac';
     provider?: TTSProviderType;
+    useCache?: boolean; // Default true - use cache if available
 }
 
 export interface TTSPreviewRequest {
@@ -99,16 +101,64 @@ class AIApiService {
     // ========== TTS Operations ==========
 
     /**
-     * Gera áudio a partir de texto
+     * Gera áudio a partir de texto (com cache automático)
      */
     async generateAudio(
         userId: string,
         request: TTSGenerateRequest
-    ): Promise<AIOperationResult<{ buffer: Buffer; format: string; audioBase64: string }>> {
+    ): Promise<AIOperationResult<{ buffer: Buffer; format: string; audioBase64: string; fromCache?: boolean }>> {
         const { provider, name } = this.getTTSProvider(request.provider);
+        const providerName = request.provider || aiConfig.defaultTTSProvider;
         const startTime = Date.now();
+        const useCache = request.useCache !== false; // Default true
 
-        // Verificar se pode executar
+        // Verificar cache primeiro (se habilitado)
+        if (useCache) {
+            const cached = await audioCacheService.get(request.text, request.voiceId, providerName);
+            if (cached) {
+                console.log(`[AI-API] Cache hit para áudio: ${cached.cacheHits} hits`);
+
+                // Ler o arquivo do cache
+                const fs = await import('fs');
+                const path = await import('path');
+                const filePath = path.join(__dirname, '../../uploads', cached.audioUrl.replace('/uploads/', ''));
+                const buffer = fs.readFileSync(filePath);
+
+                // Registrar uso com custo zero (cache hit)
+                await aiTokenService.trackUsage({
+                    userId,
+                    operation: 'TTS_GENERATE',
+                    provider: name,
+                    inputChars: request.text.length,
+                    outputBytes: buffer.length,
+                    durationMs: Date.now() - startTime,
+                    success: true,
+                    metadata: {
+                        voiceId: request.voiceId,
+                        format: cached.format,
+                        fromCache: true,
+                        cacheHits: cached.cacheHits,
+                    },
+                });
+
+                return {
+                    data: {
+                        buffer,
+                        format: cached.format,
+                        audioBase64: buffer.toString('base64'),
+                        fromCache: true,
+                    },
+                    usage: {
+                        operation: 'TTS_GENERATE',
+                        provider: provider.name,
+                        livrasCost: 0, // Cache hit = custo zero
+                        durationMs: Date.now() - startTime,
+                    },
+                };
+            }
+        }
+
+        // Verificar se pode executar (tem saldo)
         const canExec = await aiTokenService.canExecute(userId, 'TTS_GENERATE');
         if (!canExec.allowed) {
             throw new Error(canExec.reason);
@@ -126,6 +176,23 @@ class AIApiService {
 
             const durationMs = Date.now() - startTime;
 
+            // Salvar no cache
+            if (useCache) {
+                try {
+                    await audioCacheService.set(
+                        request.text,
+                        request.voiceId,
+                        providerName,
+                        result.buffer,
+                        0, // Duration será calculado se necessário
+                        result.format,
+                        90 // Expirar em 90 dias
+                    );
+                } catch (cacheError: any) {
+                    console.error('[AI-API] Erro ao salvar no cache:', cacheError.message);
+                }
+            }
+
             // Registrar uso
             const { livrasCost } = await aiTokenService.trackUsage({
                 userId,
@@ -139,6 +206,7 @@ class AIApiService {
                     voiceId: request.voiceId,
                     format: result.format,
                     providerName: provider.name,
+                    fromCache: false,
                 },
             });
 

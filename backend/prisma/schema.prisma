@@ -1048,3 +1048,36 @@ model AIUsageLog {
 
   @@map("ai_usage_logs")
 }
+
+// ========== AUDIO CACHE MODEL ==========
+
+model AudioCache {
+  id            String   @id @default(uuid())
+
+  // Cache key components
+  textHash      String   @unique @map("text_hash")  // SHA256 hash of text+voiceId+provider
+  text          String                              // Original text (for debugging)
+  voiceId       String   @map("voice_id")
+  provider      String                              // gemini, elevenlabs, etc.
+
+  // Cached audio
+  audioUrl      String   @map("audio_url")          // Path to cached audio file
+  audioDurationMs Int    @map("audio_duration_ms")  // Duration in milliseconds
+  audioSizeBytes Int     @map("audio_size_bytes")   // File size in bytes
+  format        String   @default("mp3")            // Audio format
+
+  // Usage tracking
+  hitCount      Int      @default(0) @map("hit_count")  // Number of cache hits
+  lastAccessedAt DateTime @default(now()) @map("last_accessed_at")
+
+  createdAt     DateTime @default(now()) @map("created_at")
+  expiresAt     DateTime? @map("expires_at")        // Optional expiration
+
+  @@index([textHash])
+  @@index([voiceId])
+  @@index([provider])
+  @@index([lastAccessedAt])
+  @@index([createdAt])
+
+  @@map("audio_cache")
+}

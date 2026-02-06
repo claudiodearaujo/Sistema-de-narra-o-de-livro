@@ -302,6 +302,196 @@ class AITokenService {
                 return 'SPENT_TTS';
         }
     }
+
+    // ========== Admin Methods ==========
+
+    /**
+     * Atualiza o custo em Livras de uma operação (Admin only)
+     */
+    async updateOperationCost(
+        operation: AIOperationType,
+        livrasCost: number
+    ): Promise<{ operation: string; oldCost: number; newCost: number }> {
+        const configKey = LIVRA_COSTS[operation];
+        if (!configKey) {
+            throw new Error(`Operação desconhecida: ${operation}`);
+        }
+
+        const oldCost = await this.getLivraCost(operation);
+        await livraService.setConfigValue(configKey, livrasCost, `Custo em Livras para ${operation}`);
+
+        return { operation, oldCost, newCost: livrasCost };
+    }
+
+    /**
+     * Obtém estatísticas gerais de uso da plataforma (Admin only)
+     */
+    async getPlatformStats(period: 'day' | 'week' | 'month' = 'month'): Promise<{
+        totalOperations: number;
+        totalUsers: number;
+        totalInputChars: number;
+        totalOutputBytes: number;
+        totalEstimatedCostUsd: number;
+        totalLivrasSpent: number;
+        successRate: number;
+        byOperation: Record<string, { count: number; livras: number; usd: number }>;
+        byProvider: Record<string, { count: number; livras: number; usd: number }>;
+        topUsers: Array<{ userId: string; operations: number; livrasSpent: number }>;
+    }> {
+        const now = new Date();
+        let startDate: Date;
+
+        switch (period) {
+            case 'day':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                break;
+            case 'week':
+                startDate = new Date(now);
+                startDate.setDate(startDate.getDate() - 7);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                break;
+        }
+
+        const logs = await prisma.aIUsageLog.findMany({
+            where: {
+                createdAt: { gte: startDate },
+            },
+        });
+
+        const successLogs = logs.filter(l => l.success);
+        const failedLogs = logs.filter(l => !l.success);
+
+        // Aggregate by operation
+        const byOperation: Record<string, { count: number; livras: number; usd: number }> = {};
+        const byProvider: Record<string, { count: number; livras: number; usd: number }> = {};
+        const userStats: Record<string, { operations: number; livrasSpent: number }> = {};
+
+        let totalInputChars = 0;
+        let totalOutputBytes = 0;
+        let totalEstimatedCostUsd = 0;
+        let totalLivrasSpent = 0;
+
+        for (const log of successLogs) {
+            totalInputChars += log.inputChars;
+            totalOutputBytes += log.outputBytes;
+            totalEstimatedCostUsd += log.estimatedCost;
+            totalLivrasSpent += log.livrasCost;
+
+            // By operation
+            const opKey = log.operation;
+            if (!byOperation[opKey]) {
+                byOperation[opKey] = { count: 0, livras: 0, usd: 0 };
+            }
+            byOperation[opKey].count++;
+            byOperation[opKey].livras += log.livrasCost;
+            byOperation[opKey].usd += log.estimatedCost;
+
+            // By provider
+            const provKey = log.provider;
+            if (!byProvider[provKey]) {
+                byProvider[provKey] = { count: 0, livras: 0, usd: 0 };
+            }
+            byProvider[provKey].count++;
+            byProvider[provKey].livras += log.livrasCost;
+            byProvider[provKey].usd += log.estimatedCost;
+
+            // By user
+            if (!userStats[log.userId]) {
+                userStats[log.userId] = { operations: 0, livrasSpent: 0 };
+            }
+            userStats[log.userId].operations++;
+            userStats[log.userId].livrasSpent += log.livrasCost;
+        }
+
+        // Get unique users count
+        const uniqueUsers = new Set(logs.map(l => l.userId));
+
+        // Get top 10 users by operations
+        const topUsers = Object.entries(userStats)
+            .map(([userId, stats]) => ({ userId, ...stats }))
+            .sort((a, b) => b.operations - a.operations)
+            .slice(0, 10);
+
+        return {
+            totalOperations: logs.length,
+            totalUsers: uniqueUsers.size,
+            totalInputChars,
+            totalOutputBytes,
+            totalEstimatedCostUsd,
+            totalLivrasSpent,
+            successRate: logs.length > 0 ? (successLogs.length / logs.length) * 100 : 100,
+            byOperation,
+            byProvider,
+            topUsers,
+        };
+    }
+
+    /**
+     * Obtém histórico de uso por dia (Admin only)
+     */
+    async getUsageHistory(days: number = 30): Promise<Array<{
+        date: string;
+        operations: number;
+        livrasSpent: number;
+        estimatedUsd: number;
+    }>> {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - days);
+
+        const logs = await prisma.aIUsageLog.findMany({
+            where: {
+                createdAt: { gte: startDate },
+                success: true,
+            },
+            select: {
+                createdAt: true,
+                livrasCost: true,
+                estimatedCost: true,
+            },
+        });
+
+        // Group by date
+        const byDate: Record<string, { operations: number; livrasSpent: number; estimatedUsd: number }> = {};
+
+        for (const log of logs) {
+            const dateKey = log.createdAt.toISOString().split('T')[0];
+            if (!byDate[dateKey]) {
+                byDate[dateKey] = { operations: 0, livrasSpent: 0, estimatedUsd: 0 };
+            }
+            byDate[dateKey].operations++;
+            byDate[dateKey].livrasSpent += log.livrasCost;
+            byDate[dateKey].estimatedUsd += log.estimatedCost;
+        }
+
+        // Fill in missing days
+        const result: Array<{ date: string; operations: number; livrasSpent: number; estimatedUsd: number }> = [];
+        const currentDate = new Date(startDate);
+        const today = new Date();
+
+        while (currentDate <= today) {
+            const dateKey = currentDate.toISOString().split('T')[0];
+            result.push({
+                date: dateKey,
+                ...byDate[dateKey] || { operations: 0, livrasSpent: 0, estimatedUsd: 0 },
+            });
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return result;
+    }
+
+    /**
+     * Lista todas as configurações de custo disponíveis
+     */
+    getAllCostConfigs(): { operation: string; configKey: string; defaultValue: number }[] {
+        return Object.entries(LIVRA_COSTS).map(([operation, configKey]) => ({
+            operation,
+            configKey,
+            defaultValue: DEFAULT_LIVRA_COSTS[configKey] || 0,
+        }));
+    }
 }
 
 export const aiTokenService = new AITokenService();

@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import { AIOperationType } from '@prisma/client';
 import { aiApiService } from '../services/ai-api.service';
 import { aiTokenService } from '../services/ai-token.service';
 import { chapterSyncService } from '../services/chapter-sync.service';
+import { audioCacheService } from '../services/audio-cache.service';
 import {
     addChapterSyncJob,
     getChapterSyncJobStatus,
@@ -524,6 +526,146 @@ export class AIApiController {
             res.json({ message: 'Job cancelado com sucesso', jobId });
         } catch (error: any) {
             console.error('Erro ao cancelar job:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // ========== Admin Endpoints ==========
+
+    /**
+     * GET /api/ai/admin/stats
+     * Estatísticas gerais de uso da plataforma (Admin only)
+     */
+    async getPlatformStats(req: Request, res: Response) {
+        try {
+            const period = (req.query.period as 'day' | 'week' | 'month') || 'month';
+
+            const stats = await aiTokenService.getPlatformStats(period);
+
+            res.json({
+                period,
+                ...stats,
+            });
+        } catch (error: any) {
+            console.error('Erro ao buscar estatísticas:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * GET /api/ai/admin/history
+     * Histórico de uso por dia (Admin only)
+     */
+    async getUsageHistory(req: Request, res: Response) {
+        try {
+            const days = parseInt(req.query.days as string) || 30;
+
+            const history = await aiTokenService.getUsageHistory(days);
+
+            res.json({
+                days,
+                history,
+            });
+        } catch (error: any) {
+            console.error('Erro ao buscar histórico:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * GET /api/ai/admin/costs
+     * Lista todas as configurações de custo (Admin only)
+     */
+    async getAdminCosts(req: Request, res: Response) {
+        try {
+            const configs = aiTokenService.getAllCostConfigs();
+            const currentCosts = await aiTokenService.getAllCosts();
+
+            const result = configs.map(config => ({
+                ...config,
+                currentValue: currentCosts[config.operation]?.livras || config.defaultValue,
+                estimatedUsd: currentCosts[config.operation]?.estimatedUsd || 0,
+            }));
+
+            res.json({ costs: result });
+        } catch (error: any) {
+            console.error('Erro ao buscar configurações de custo:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * PUT /api/ai/admin/costs/:operation
+     * Atualiza o custo em Livras de uma operação (Admin only)
+     */
+    async updateOperationCost(req: Request, res: Response) {
+        try {
+            const operation = req.params.operation as AIOperationType;
+            const { livrasCost } = req.body;
+
+            if (livrasCost === undefined || livrasCost < 0) {
+                return res.status(400).json({ error: 'Custo em Livras deve ser um número não negativo' });
+            }
+
+            const result = await aiTokenService.updateOperationCost(operation, livrasCost);
+
+            res.json({
+                message: 'Custo atualizado com sucesso',
+                ...result,
+            });
+        } catch (error: any) {
+            console.error('Erro ao atualizar custo:', error);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    /**
+     * GET /api/ai/admin/cache/stats
+     * Estatísticas do cache de áudio (Admin only)
+     */
+    async getCacheStats(req: Request, res: Response) {
+        try {
+            const stats = await audioCacheService.getStats();
+
+            res.json({
+                ...stats,
+                totalSizeMB: (stats.totalSizeBytes / (1024 * 1024)).toFixed(2),
+            });
+        } catch (error: any) {
+            console.error('Erro ao buscar estatísticas do cache:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * POST /api/ai/admin/cache/clean
+     * Limpa entradas expiradas ou não utilizadas do cache (Admin only)
+     */
+    async cleanCache(req: Request, res: Response) {
+        try {
+            const { type, daysUnused } = req.body;
+
+            let removedCount = 0;
+
+            if (type === 'expired') {
+                removedCount = await audioCacheService.cleanExpired();
+            } else if (type === 'unused') {
+                removedCount = await audioCacheService.cleanUnused(daysUnused || 30);
+            } else if (type === 'all') {
+                removedCount = await audioCacheService.clearAll();
+            } else {
+                return res.status(400).json({
+                    error: 'Tipo de limpeza inválido. Use: expired, unused, ou all',
+                });
+            }
+
+            res.json({
+                message: `Cache limpo com sucesso`,
+                type,
+                removedCount,
+            });
+        } catch (error: any) {
+            console.error('Erro ao limpar cache:', error);
             res.status(500).json({ error: error.message });
         }
     }
