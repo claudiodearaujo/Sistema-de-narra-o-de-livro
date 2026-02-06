@@ -40,6 +40,7 @@ import './queues/notification.worker';
 import './queues/subscription.worker';
 import './queues/story.worker';
 import './queues/audit.worker';
+import './queues/chapter-sync.worker';
 
 dotenv.config();
 

@@ -385,6 +385,12 @@ model Speech {
   ssmlText    String?  @map("ssml_text")
   orderIndex  Int      @map("order_index")
   audioUrl    String?  @map("audio_url")
+
+  // Timeline/sync fields (in milliseconds)
+  audioDurationMs Int?     @map("audio_duration_ms")  // Duration of this speech audio
+  startTimeMs     Int?     @map("start_time_ms")      // Start time in concatenated chapter audio
+  endTimeMs       Int?     @map("end_time_ms")        // End time in concatenated chapter audio
+
   chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
@@ -397,7 +403,21 @@ model Narration {
   status      String   // pending, processing, completed, failed
   outputUrl   String?  @map("output_url")
   driveFileId String?  @map("drive_file_id")
+
+  // Sync/timeline fields
+  totalDurationMs  Int?     @map("total_duration_ms")  // Total duration of chapter audio
+  totalSpeeches    Int?     @map("total_speeches")     // Number of speeches processed
+  completedSpeeches Int?    @map("completed_speeches") // Number successfully generated
+  failedSpeeches   Int?     @map("failed_speeches")    // Number that failed
+  timelineJson     Json?    @map("timeline_json")      // Full timeline with all speech timestamps
+  provider         String?  // TTS provider used (gemini, elevenlabs, etc.)
+  errorMessage     String?  @map("error_message")      // Error details if failed
+
   createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  startedAt   DateTime? @map("started_at")             // When processing started
+  completedAt DateTime? @map("completed_at")           // When processing completed
+
   chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@map("narrations")

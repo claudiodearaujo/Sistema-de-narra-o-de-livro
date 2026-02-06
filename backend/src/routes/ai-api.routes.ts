@@ -93,4 +93,47 @@ router.get('/providers',
     aiApiController.getProviders.bind(aiApiController)
 );
 
+// ========== Chapter Sync Routes ==========
+
+// Sincronizar capítulo - requer writer + TTS habilitado
+router.post('/sync/chapter',
+    authenticate,
+    requireWriter,
+    requireFeature('canUseTTS'),
+    aiApiController.syncChapter.bind(aiApiController)
+);
+
+// Status de sincronização do capítulo - requer autenticação
+router.get('/sync/chapter/:chapterId/status',
+    authenticate,
+    aiApiController.getSyncStatus.bind(aiApiController)
+);
+
+// Timeline do capítulo - requer autenticação
+router.get('/sync/chapter/:chapterId/timeline',
+    authenticate,
+    aiApiController.getChapterTimeline.bind(aiApiController)
+);
+
+// Regenerar áudio de uma fala - requer writer + TTS habilitado
+router.post('/sync/speech/:speechId/regenerate',
+    authenticate,
+    requireWriter,
+    requireFeature('canUseTTS'),
+    aiApiController.regenerateSpeech.bind(aiApiController)
+);
+
+// Status de job na fila - requer autenticação
+router.get('/sync/job/:jobId',
+    authenticate,
+    aiApiController.getSyncJobStatus.bind(aiApiController)
+);
+
+// Cancelar job na fila - requer writer
+router.delete('/sync/job/:jobId',
+    authenticate,
+    requireWriter,
+    aiApiController.cancelSyncJob.bind(aiApiController)
+);
+
 export default router;

@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import { aiApiService } from '../services/ai-api.service';
 import { aiTokenService } from '../services/ai-token.service';
+import { chapterSyncService } from '../services/chapter-sync.service';
+import {
+    addChapterSyncJob,
+    getChapterSyncJobStatus,
+    cancelChapterSyncJob,
+} from '../queues/chapter-sync.worker';
 
 /**
  * Controller da API de Inteligência Artificial
@@ -334,6 +340,190 @@ export class AIApiController {
             res.json(info);
         } catch (error: any) {
             console.error('Erro ao buscar providers:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // ========== Chapter Sync Endpoints ==========
+
+    /**
+     * POST /api/ai/sync/chapter
+     * Sincroniza um capítulo: gera áudios, concatena e cria timeline
+     * Executa em background se Redis estiver habilitado
+     */
+    async syncChapter(req: Request, res: Response) {
+        try {
+            const userId = req.user!.userId;
+            const { chapterId, provider, background, priority } = req.body;
+
+            if (!chapterId?.trim()) {
+                return res.status(400).json({ error: 'ID do capítulo é obrigatório' });
+            }
+
+            // Se background=true, adicionar à fila
+            if (background) {
+                const { jobId, queued } = await addChapterSyncJob({
+                    chapterId,
+                    userId,
+                    provider,
+                    priority,
+                });
+
+                return res.json({
+                    message: queued ? 'Sincronização adicionada à fila' : 'Sincronização iniciada',
+                    jobId,
+                    queued,
+                    chapterId,
+                });
+            }
+
+            // Executar síncronamente
+            const result = await chapterSyncService.syncChapter(userId, chapterId, provider);
+
+            res.json({
+                success: result.success,
+                narrationId: result.narrationId,
+                outputUrl: result.outputUrl,
+                totalDurationMs: result.totalDurationMs,
+                completedSpeeches: result.completedSpeeches,
+                failedSpeeches: result.failedSpeeches,
+                errors: result.errors,
+                timeline: result.timeline,
+            });
+        } catch (error: any) {
+            console.error('Erro na sincronização:', error);
+            const status = error.message.includes('Saldo insuficiente') ? 402 : 400;
+            res.status(status).json({ error: error.message });
+        }
+    }
+
+    /**
+     * GET /api/ai/sync/chapter/:chapterId/status
+     * Obtém o status de sincronização de um capítulo
+     */
+    async getSyncStatus(req: Request, res: Response) {
+        try {
+            const chapterId = req.params.chapterId as string;
+
+            if (!chapterId?.trim()) {
+                return res.status(400).json({ error: 'ID do capítulo é obrigatório' });
+            }
+
+            const status = await chapterSyncService.getSyncStatus(chapterId);
+
+            if (!status) {
+                return res.status(404).json({ error: 'Nenhuma sincronização encontrada para este capítulo' });
+            }
+
+            res.json(status);
+        } catch (error: any) {
+            console.error('Erro ao buscar status:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * GET /api/ai/sync/chapter/:chapterId/timeline
+     * Obtém a timeline completa de um capítulo sincronizado
+     */
+    async getChapterTimeline(req: Request, res: Response) {
+        try {
+            const chapterId = req.params.chapterId as string;
+
+            if (!chapterId?.trim()) {
+                return res.status(400).json({ error: 'ID do capítulo é obrigatório' });
+            }
+
+            const timeline = await chapterSyncService.getChapterTimeline(chapterId);
+
+            if (!timeline) {
+                return res.status(404).json({ error: 'Timeline não encontrada. O capítulo pode não estar sincronizado.' });
+            }
+
+            res.json(timeline);
+        } catch (error: any) {
+            console.error('Erro ao buscar timeline:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * POST /api/ai/sync/speech/:speechId/regenerate
+     * Regenera o áudio de uma fala específica
+     */
+    async regenerateSpeech(req: Request, res: Response) {
+        try {
+            const userId = req.user!.userId;
+            const speechId = req.params.speechId as string;
+            const { provider } = req.body;
+
+            if (!speechId?.trim()) {
+                return res.status(400).json({ error: 'ID da fala é obrigatório' });
+            }
+
+            const result = await chapterSyncService.regenerateSpeech(userId, speechId, provider);
+
+            res.json({
+                speechId,
+                audioUrl: result.audioUrl,
+                durationMs: result.durationMs,
+                message: 'Áudio regenerado. O capítulo precisa ser re-sincronizado para atualizar a timeline.',
+            });
+        } catch (error: any) {
+            console.error('Erro ao regenerar fala:', error);
+            const status = error.message.includes('Saldo insuficiente') ? 402 : 400;
+            res.status(status).json({ error: error.message });
+        }
+    }
+
+    /**
+     * GET /api/ai/sync/job/:jobId
+     * Obtém o status de um job de sincronização na fila
+     */
+    async getSyncJobStatus(req: Request, res: Response) {
+        try {
+            const jobId = req.params.jobId as string;
+
+            if (!jobId?.trim()) {
+                return res.status(400).json({ error: 'ID do job é obrigatório' });
+            }
+
+            const status = await getChapterSyncJobStatus(jobId);
+
+            if (!status) {
+                return res.status(404).json({ error: 'Job não encontrado' });
+            }
+
+            res.json(status);
+        } catch (error: any) {
+            console.error('Erro ao buscar status do job:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    /**
+     * DELETE /api/ai/sync/job/:jobId
+     * Cancela um job de sincronização pendente
+     */
+    async cancelSyncJob(req: Request, res: Response) {
+        try {
+            const jobId = req.params.jobId as string;
+
+            if (!jobId?.trim()) {
+                return res.status(400).json({ error: 'ID do job é obrigatório' });
+            }
+
+            const cancelled = await cancelChapterSyncJob(jobId);
+
+            if (!cancelled) {
+                return res.status(400).json({
+                    error: 'Não foi possível cancelar o job. Ele pode já estar em execução ou concluído.',
+                });
+            }
+
+            res.json({ message: 'Job cancelado com sucesso', jobId });
+        } catch (error: any) {
+            console.error('Erro ao cancelar job:', error);
             res.status(500).json({ error: error.message });
         }
     }
