@@ -5,8 +5,8 @@
       "path": "backend"
     },
     {
-      "name": "Frontend",
-      "path": "frontend"
+      "name": "Writer Center Front",
+      "path": "WriterCenterFront"
     },
     {
       "name": "AI Service",
@@ -73,11 +73,11 @@
         "skipFiles": ["<node_internals>/**"]
       },
       {
-        "name": "Frontend: Debug",
+        "name": "Writer Center Front: Debug",
         "type": "chrome",
         "request": "launch",
         "url": "http://localhost:5173",
-        "webRoot": "${workspaceFolder:Frontend}/src"
+        "webRoot": "${workspaceFolder:Writer Center Front}/src"
       },
       {
         "name": "Livrya Front Social: Debug",
@@ -90,7 +90,7 @@
     "compounds": [
       {
         "name": "Full Stack",
-        "configurations": ["Backend: Debug", "AI Service: Debug", "Frontend: Debug"]
+        "configurations": ["Backend: Debug", "AI Service: Debug", "Writer Center Front: Debug"]
       },
       {
         "name": "Full Stack + Livrya",
@@ -136,19 +136,19 @@
         "isBackground": true
       },
       {
-        "label": "Frontend: Install",
+        "label": "Writer Center Front: Install",
         "type": "shell",
         "command": "npm install",
         "options": {
-          "cwd": "${workspaceFolder:Frontend}"
+          "cwd": "${workspaceFolder:Writer Center Front}"
         }
       },
       {
-        "label": "Frontend: Dev",
+        "label": "Writer Center Front: Dev",
         "type": "shell",
         "command": "npm run dev",
         "options": {
-          "cwd": "${workspaceFolder:Frontend}"
+          "cwd": "${workspaceFolder:Writer Center Front}"
         },
         "isBackground": true
       },
@@ -171,11 +171,11 @@
       },
       {
         "label": "Install All",
-        "dependsOn": ["Backend: Install", "AI Service: Install", "Frontend: Install", "Livrya Front Social: Install"]
+        "dependsOn": ["Backend: Install", "AI Service: Install", "Writer Center Front: Install", "Livrya Front Social: Install"]
       },
       {
         "label": "Dev All",
-        "dependsOn": ["Backend: Dev", "AI Service: Dev", "Frontend: Dev"]
+        "dependsOn": ["Backend: Dev", "AI Service: Dev", "Writer Center Front: Dev"]
       }
     ]
   }
