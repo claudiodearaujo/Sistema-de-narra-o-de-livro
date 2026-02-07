@@ -1,4 +1,4 @@
-# Livrya Writer's Studio
+8# Livrya Writer's Studio
 
 A modern React-based writing studio for creating and managing book narrations with AI-powered tools.
 
