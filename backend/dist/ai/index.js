@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GeminiTTSProvider = exports.GeminiImageProvider = exports.GeminiTextProvider = exports.aiConfig = exports.AIFactory = exports.AIService = exports.aiService = void 0;
+exports.ElevenLabsTTSProvider = exports.GeminiTTSProvider = exports.GeminiImageProvider = exports.GeminiTextProvider = exports.aiConfig = exports.AIFactory = exports.AIService = exports.aiService = void 0;
 // Re-export main service
 var ai_service_1 = require("./ai.service");
 Object.defineProperty(exports, "aiService", { enumerable: true, get: function () { return ai_service_1.aiService; } });
@@ -18,3 +18,5 @@ var gemini_image_provider_1 = require("./providers/gemini-image.provider");
 Object.defineProperty(exports, "GeminiImageProvider", { enumerable: true, get: function () { return gemini_image_provider_1.GeminiImageProvider; } });
 var gemini_tts_provider_1 = require("./providers/gemini-tts.provider");
 Object.defineProperty(exports, "GeminiTTSProvider", { enumerable: true, get: function () { return gemini_tts_provider_1.GeminiTTSProvider; } });
+var elevenlabs_tts_provider_1 = require("./providers/elevenlabs-tts.provider");
+Object.defineProperty(exports, "ElevenLabsTTSProvider", { enumerable: true, get: function () { return elevenlabs_tts_provider_1.ElevenLabsTTSProvider; } });

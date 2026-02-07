@@ -300,6 +300,30 @@ async function main() {
   // Seed achievements first
   await seedAchievements();
 
+  // Seed OAuth clients
+  console.log('🔐 Seeding OAuth clients...');
+  await prisma.oAuthClient.upsert({
+    where: { clientId: 'livrya-writer-studio' },
+    update: {
+      allowedRedirectUris: [
+        'http://localhost:5173/auth/callback',
+        'https://writer.livrya.com/auth/callback'
+      ],
+      allowedScopes: ['openid', 'profile', 'books', 'chapters', 'characters', 'speeches']
+    },
+    create: {
+      clientId: 'livrya-writer-studio',
+      name: 'Writer Studio',
+      allowedRedirectUris: [
+        'http://localhost:5173/auth/callback',
+        'https://writer.livrya.com/auth/callback'
+      ],
+      allowedScopes: ['openid', 'profile', 'books', 'chapters', 'characters', 'speeches'],
+      isActive: true
+    }
+  });
+  console.log('✅ OAuth client "livrya-writer-studio" created');
+
   // Create admin user: sophia@livria.com.br
   const sophiaPassword = await bcrypt.hash('Livria@2024!', 12);
   

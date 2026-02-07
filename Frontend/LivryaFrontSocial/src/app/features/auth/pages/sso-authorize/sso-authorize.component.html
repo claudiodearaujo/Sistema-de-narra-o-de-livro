@@ -1,0 +1,71 @@
+<div class="sso-container">
+    <div class="sso-card">
+        <!-- Error State -->
+        @if (error) {
+        <div class="error-state">
+            <i class="pi pi-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+            <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Erro na Autorização</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">{{ error }}</p>
+            <p-button label="Voltar ao Início" icon="pi pi-home" routerLink="/" styleClass="p-button-secondary">
+            </p-button>
+        </div>
+        }
+
+        <!-- Authorization Screen -->
+        @if (!error && params) {
+        <div class="auth-content">
+            <!-- Header with App Icon -->
+            <div class="app-header">
+                <div class="app-icon">
+                    <i class="pi pi-desktop"></i>
+                </div>
+                <h1 class="app-name">{{ clientName }}</h1>
+                <p class="subtitle">quer acessar sua conta Livrya</p>
+            </div>
+
+            <!-- User Info -->
+            <div class="user-info">
+                <span class="user-label">Logado como:</span>
+                <span class="user-email">{{ authService.currentUser()?.email }}</span>
+            </div>
+
+            <!-- Scopes Section -->
+            <div class="scopes-section">
+                <h2 class="scopes-title">Esta aplicação terá acesso a:</h2>
+                <ul class="scopes-list">
+                    @for (scope of scopes; track scope) {
+                    <li class="scope-item">
+                        <i [class]="getScopeIcon(scope)"></i>
+                        <span>{{ getScopeDescription(scope) }}</span>
+                    </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="security-notice">
+                <i class="pi pi-shield"></i>
+                <span>Esta aplicação não terá acesso à sua senha</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <p-button label="Autorizar" icon="pi pi-check" [loading]="isAuthorizing" (onClick)="authorize()"
+                    styleClass="w-full p-button-success p-button-lg">
+                </p-button>
+                <p-button label="Negar" icon="pi pi-times" [disabled]="isAuthorizing" (onClick)="deny()"
+                    styleClass="w-full p-button-outlined p-button-secondary mt-3">
+                </p-button>
+            </div>
+        </div>
+        }
+
+        <!-- Loading State -->
+        @if (!error && !params) {
+        <div class="loading-state">
+            <i class="pi pi-spin pi-spinner text-4xl text-primary-500 mb-4"></i>
+            <p class="text-gray-600 dark:text-gray-400">Carregando...</p>
+        </div>
+        }
+    </div>
+</div>

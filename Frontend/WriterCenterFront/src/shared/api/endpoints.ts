@@ -2,13 +2,13 @@
  * API endpoint constants
  */
 export const endpoints = {
-  // Auth
+  // Auth (OAuth endpoints)
   auth: {
-    ssoAuthorize: '/auth/sso/authorize',
-    token: '/auth/token',
-    tokenRefresh: '/auth/token/refresh',
-    logout: '/auth/logout',
-    userInfo: '/auth/userinfo',
+    ssoAuthorize: '/oauth/authorize',
+    token: '/oauth/token',
+    tokenRefresh: '/api/auth/refresh',
+    logout: '/api/auth/logout',
+    userInfo: '/oauth/userinfo',
   },
 
   // Books
