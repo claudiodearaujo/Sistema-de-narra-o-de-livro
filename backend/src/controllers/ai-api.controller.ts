@@ -196,7 +196,7 @@ export class AIApiController {
      */
     async updateOperationCost(req: Request, res: Response) {
         try {
-            const operation = req.params.operation;
+            const operation = req.params.operation as string;
             const { credits } = req.body;
 
             if (credits === undefined || credits < 0) {
