@@ -27,6 +27,12 @@ export const AUTH_ROUTES: Routes = [
     redirectTo: '/social/profile',
     pathMatch: 'full'
   },
+  // SSO OAuth2 authorization endpoint
+  {
+    path: 'sso/authorize',
+    loadComponent: () => import('./pages/sso-authorize/sso-authorize.component').then(m => m.SsoAuthorizeComponent),
+    title: 'Autorizar Aplicação | Livrya'
+  },
   {
     path: '',
     redirectTo: 'login',

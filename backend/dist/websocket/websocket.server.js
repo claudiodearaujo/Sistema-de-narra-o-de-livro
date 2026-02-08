@@ -6,24 +6,37 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.initializeWebSocket = exports.io = void 0;
 exports.emitToUser = emitToUser;
 exports.emitToAll = emitToAll;
+exports.emitToAdmins = emitToAdmins;
 const socket_io_1 = require("socket.io");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const client_1 = require("@prisma/client");
 const message_service_1 = require("../services/message.service");
 const notification_service_1 = require("../services/notification.service");
 const notification_worker_1 = require("../queues/notification.worker");
 const livra_service_1 = require("../services/livra.service");
+const audit_service_1 = require("../services/audit.service");
+const prisma = new client_1.PrismaClient();
 // Map of userId to socket ids (a user can have multiple connections)
 const userSockets = new Map();
 /**
- * Get user ID from socket authentication
+ * Get user data from socket authentication
  */
-function getUserIdFromSocket(socket) {
+async function getUserFromSocket(socket) {
     const token = socket.handshake.auth?.token || socket.handshake.query?.token;
     if (!token)
         return null;
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        return decoded.userId;
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.userId },
+            select: { id: true, role: true }
+        });
+        if (!user)
+            return null;
+        return {
+            userId: user.id,
+            role: user.role
+        };
     }
     catch {
         return null;
@@ -49,11 +62,22 @@ function emitToAll(event, data) {
     }
 }
 /**
+ * Emit event to all admins only
+ */
+function emitToAdmins(event, data) {
+    if (exports.io) {
+        exports.io.to('admin-room').emit(event, data);
+    }
+}
+/**
  * WebSocket emitter for services
  */
 function websocketEmitter(userId, event, data) {
     if (userId === 'broadcast') {
         emitToAll(event, data);
+    }
+    else if (userId === 'admin-room') {
+        emitToAdmins(event, data);
     }
     else {
         emitToUser(userId, event, data);
@@ -80,20 +104,27 @@ const initializeWebSocket = (httpServer) => {
     notification_service_1.notificationService.setWebSocketEmitter(websocketEmitter);
     (0, notification_worker_1.setNotificationWorkerEmitter)(websocketEmitter);
     (0, livra_service_1.setLivraWebSocketEmitter)(websocketEmitter);
-    exports.io.on('connection', (socket) => {
+    audit_service_1.auditService.setWebSocketEmitter(websocketEmitter);
+    exports.io.on('connection', async (socket) => {
         console.log('Client connected:', socket.id);
-        const userId = getUserIdFromSocket(socket);
+        const user = await getUserFromSocket(socket);
         // Register user socket connection
-        if (userId) {
+        if (user) {
+            const { userId, role } = user;
             if (!userSockets.has(userId)) {
                 userSockets.set(userId, new Set());
             }
             userSockets.get(userId).add(socket.id);
             // Mark user as online
             message_service_1.messageService.setUserOnline(userId);
-            console.log(`User ${userId} is now online (socket: ${socket.id})`);
+            console.log(`User ${userId} (${role}) is now online (socket: ${socket.id})`);
             // Join user's personal room for targeted messages
             socket.join(`user:${userId}`);
+            // Join admin room if user is admin
+            if (role === client_1.UserRole.ADMIN) {
+                socket.join('admin-room');
+                console.log(`Admin ${userId} joined admin-room`);
+            }
         }
         // ===== Chapter Events (existing) =====
         socket.on('join:chapter', (chapterId) => {
