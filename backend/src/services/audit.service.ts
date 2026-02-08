@@ -1,7 +1,6 @@
-import { PrismaClient, AuditAction, AuditCategory, AuditSeverity, UserRole } from '@prisma/client';
+import { AuditAction, AuditCategory, AuditSeverity, UserRole } from '@prisma/client';
+import prisma from '../lib/prisma';
 import { notificationService } from './notification.service';
-
-const prisma = new PrismaClient();
 
 // ========== INTERFACES ==========
 

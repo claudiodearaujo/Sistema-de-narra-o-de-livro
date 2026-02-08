@@ -6,6 +6,7 @@
 
 import { Queue, Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
+import prisma from '../lib/prisma';
 import { subscriptionService } from '../services/subscription.service';
 import dotenv from 'dotenv';
 import { getRedisConfig, isRedisEnabled } from '../config/redis.config';
@@ -193,52 +194,45 @@ async function processMonthlyLivraCredits(): Promise<{ processed: number; errors
 async function checkExpiredSubscriptions(): Promise<{ checked: number; expired: number }> {
   console.log('Checking for expired subscriptions...');
   
-  const { PrismaClient } = require('@prisma/client');
-  const prisma = new PrismaClient();
+  // Find subscriptions that should have expired
+  const expiredSubscriptions = await prisma.subscription.findMany({
+    where: {
+      status: 'ACTIVE',
+      plan: { not: 'FREE' },
+      currentPeriodEnd: { lt: new Date() },
+      cancelAtPeriodEnd: true,
+    },
+  });
 
-  try {
-    // Find subscriptions that should have expired
-    const expiredSubscriptions = await prisma.subscription.findMany({
-      where: {
-        status: 'ACTIVE',
-        plan: { not: 'FREE' },
-        currentPeriodEnd: { lt: new Date() },
-        cancelAtPeriodEnd: true,
-      },
-    });
+  let expiredCount = 0;
 
-    let expiredCount = 0;
+  for (const sub of expiredSubscriptions) {
+    try {
+      await prisma.subscription.update({
+        where: { id: sub.id },
+        data: {
+          plan: 'FREE',
+          status: 'CANCELLED',
+          stripeSubscriptionId: null,
+          stripePriceId: null,
+          cancelAtPeriodEnd: false,
+        },
+      });
 
-    for (const sub of expiredSubscriptions) {
-      try {
-        await prisma.subscription.update({
-          where: { id: sub.id },
-          data: {
-            plan: 'FREE',
-            status: 'CANCELLED',
-            stripeSubscriptionId: null,
-            stripePriceId: null,
-            cancelAtPeriodEnd: false,
-          },
-        });
+      await prisma.user.update({
+        where: { id: sub.userId },
+        data: { role: 'USER' },
+      });
 
-        await prisma.user.update({
-          where: { id: sub.userId },
-          data: { role: 'USER' },
-        });
-
-        expiredCount++;
-      } catch (error) {
-        console.error(`Error expiring subscription ${sub.id}:`, error);
-      }
+      expiredCount++;
+    } catch (error) {
+      console.error(`Error expiring subscription ${sub.id}:`, error);
     }
-
-    console.log(`Checked ${expiredSubscriptions.length} subscriptions, ${expiredCount} expired`);
-
-    return { checked: expiredSubscriptions.length, expired: expiredCount };
-  } finally {
-    await prisma.$disconnect();
   }
+
+  console.log(`Checked ${expiredSubscriptions.length} subscriptions, ${expiredCount} expired`);
+
+  return { checked: expiredSubscriptions.length, expired: expiredCount };
 }
 
 /**
