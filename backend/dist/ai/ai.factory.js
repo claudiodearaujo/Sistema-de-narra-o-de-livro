@@ -4,6 +4,7 @@ exports.AIFactory = void 0;
 const gemini_text_provider_1 = require("./providers/gemini-text.provider");
 const gemini_image_provider_1 = require("./providers/gemini-image.provider");
 const gemini_tts_provider_1 = require("./providers/gemini-tts.provider");
+const elevenlabs_tts_provider_1 = require("./providers/elevenlabs-tts.provider");
 const ai_config_1 = require("./ai.config");
 class AIFactory {
     /**
@@ -45,11 +46,8 @@ class AIFactory {
         switch (providerName) {
             case 'gemini':
                 return new gemini_tts_provider_1.GeminiTTSProvider();
-            // Adicione novos provedores aqui:
-            // case 'elevenlabs':
-            //     return new ElevenLabsTTSProvider();
-            // case 'azure':
-            //     return new AzureTTSProvider();
+            case 'elevenlabs':
+                return new elevenlabs_tts_provider_1.ElevenLabsTTSProvider();
             default:
                 throw new Error(`TTS Provider '${providerName}' not supported`);
         }

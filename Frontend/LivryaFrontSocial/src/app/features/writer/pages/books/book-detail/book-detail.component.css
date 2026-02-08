@@ -1,0 +1,531 @@
+/* ============================================
+   BOOK DETAILS - MOBILE-FIRST DESIGN
+   Modern, clean, elegant interface
+   ============================================ */
+
+/* ============================================
+   CSS Variables
+   ============================================ */
+:host {
+    /* Colors */
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-bg: #eef2ff;
+
+    --accent-color: #f59e0b;
+    --accent-dark: #d97706;
+    --accent-light: #fbbf24;
+    --accent-bg: #fef3c7;
+
+    --success-color: #10b981;
+    --success-dark: #059669;
+    --success-bg: #d1fae5;
+
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-light: #9ca3af;
+
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+
+    --border-color: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+
+    /* Border Radius */
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+
+    /* Typography */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+}
+
+/* ============================================
+   Page Container
+   ============================================ */
+.book-details-page {
+    min-height: 100vh;
+
+    padding-bottom: var(--spacing-sm);
+}
+
+/* ============================================
+   Fixed Header
+   ============================================ */
+.book-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-lg);
+
+}
+
+.header-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+    text-align: center;
+}
+
+.header-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: var(--font-size-lg);
+}
+
+.header-btn:hover {
+    background: var(--bg-tertiary);
+}
+
+.header-btn:active {
+    transform: scale(0.95);
+}
+
+/* ============================================
+   Loading State
+   ============================================ */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl) var(--spacing-md);
+    gap: var(--spacing-md);
+}
+
+.loading-spinner {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.loading-text {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+}
+
+/* ============================================
+   Content Container
+   ============================================ */
+.book-content {
+    padding: var(--spacing-sm) var(--spacing-xs);
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* ============================================
+   Main Book Card
+   ============================================ */
+.book-main-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.book-cover-container {
+    width: 100%;
+
+}
+
+.book-cover {
+    width: 100%;
+    aspect-ratio: 2/3;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.book-cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.book-cover-placeholder {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.placeholder-icon {
+    font-size: 4rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.book-info {
+    text-align: center;
+    width: 100%;
+}
+
+.book-title {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+    line-height: 1.2;
+}
+
+.book-author {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+}
+
+.author-icon {
+    font-size: var(--font-size-base);
+}
+
+/* ============================================
+   Description Card
+   ============================================ */
+.description-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-md);
+}
+
+.section-title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.description-text {
+    font-size: var(--font-size-base);
+    line-height: 1.7;
+    color: var(--text-secondary);
+    text-align: justify;
+}
+
+.description-text p {
+    margin: 0 0 var(--spacing-md) 0;
+}
+
+.description-text p:last-child {
+    margin-bottom: 0;
+}
+
+.description-empty {
+    font-size: var(--font-size-base);
+    color: var(--text-light);
+    font-style: italic;
+    margin: 0;
+}
+
+/* ============================================
+   Statistics Section
+   ============================================ */
+.stats-section {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-sm);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+}
+
+.stat-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:active {
+    transform: translateY(2px);
+}
+
+.stat-icon-container {
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon {
+    font-size: var(--font-size-xl);
+}
+
+/* Stat Card Variants */
+.stat-card-primary .stat-icon-container {
+    background: var(--primary-bg);
+}
+
+.stat-card-primary .stat-icon {
+    color: var(--primary-color);
+}
+
+.stat-card-accent .stat-icon-container {
+    background: var(--accent-bg);
+}
+
+.stat-card-accent .stat-icon {
+    color: var(--accent-color);
+}
+
+.stat-card-success .stat-icon-container {
+    background: var(--success-bg);
+}
+
+.stat-card-success .stat-icon {
+    color: var(--success-color);
+}
+
+.stat-label {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.stats-loading {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--primary-color);
+}
+
+/* ============================================
+   Quick Actions Section
+   ============================================ */
+.actions-section {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-lg);
+}
+
+.actions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    min-height: 3.5rem;
+}
+
+.action-btn:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}
+
+.action-btn-icon {
+    font-size: var(--font-size-lg);
+}
+
+.action-btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.action-btn-secondary {
+    background: var(--accent-color);
+    color: white;
+}
+
+.action-btn-secondary:hover {
+    background: var(--accent-dark);
+}
+
+/* ============================================
+   Tabs Section
+   ============================================ */
+.tabs-section {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+    .book-content {
+        padding: var(--spacing-sm) var(--spacing-sm);
+    }
+
+    .book-main-card {
+        padding: var(--spacing-sm) var(--spacing-sm);
+    }
+
+
+    .book-title {
+        font-size: 2.25rem;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .book-content {
+        max-width: 720px;
+        gap: var(--spacing-xl);
+    }
+
+    .header-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .actions-grid {
+        flex-direction: row;
+    }
+
+    .action-btn {
+        flex: 1;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-md);
+    }
+
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .book-content {
+        max-width: 900px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-lg);
+    }
+
+    .stat-card {
+        padding: var(--spacing-lg);
+    }
+
+    .stat-icon-container {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+}
+
+/* ============================================
+   Dark Mode Support
+   ============================================ */
+/* @media (prefers-color-scheme: dark) {
+    :host {
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --text-light: #9ca3af;
+
+        --bg-primary: #1f2937;
+        --bg-secondary: #111827;
+        --bg-tertiary: #374151;
+
+        --border-color: #374151;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+
+        --primary-bg: rgba(99, 102, 241, 0.15);
+        --accent-bg: rgba(245, 158, 11, 0.15);
+        --success-bg: rgba(16, 185, 129, 0.15);
+    }
+} */
+
+/* ============================================
+   Accessibility
+   ============================================ */
+.header-btn:focus-visible,
+.action-btn:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

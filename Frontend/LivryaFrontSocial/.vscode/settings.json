@@ -1,0 +1,16 @@
+{
+  "css.customData": [],
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.includeLanguages": {
+    "html": "html",
+    "typescript": "javascript"
+  },
+  "tailwindCSS.emmetCompletions": true
+}

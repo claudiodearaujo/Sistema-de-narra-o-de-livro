@@ -1,0 +1,649 @@
+<ng-container *transloco="let t">
+  <div class="p-fluid">
+    <!-- Barra de Progresso do Preenchimento -->
+    <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
+          {{ t('characters.form.characterSheet') }}
+        </span>
+        <span class="text-sm font-bold" [class.text-red-500]="completionPercentage < 30"
+          [class.text-yellow-500]="completionPercentage >= 30 && completionPercentage < 70"
+          [class.text-green-500]="completionPercentage >= 70">
+          {{ completionPercentage }}% {{ t('characters.form.complete') }}
+        </span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+        <div class="h-2.5 rounded-full transition-all duration-300" [style.width.%]="completionPercentage"
+          [class.bg-red-500]="completionPercentage < 30"
+          [class.bg-yellow-500]="completionPercentage >= 30 && completionPercentage < 70"
+          [class.bg-green-500]="completionPercentage >= 70">
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <p-tabs value="0">
+        <p-tablist>
+          <p-tab value="0"><i class="pi pi-user mr-2"></i>{{ t('characters.tabs.basic') }}</p-tab>
+          <p-tab value="1"><i class="pi pi-id-card mr-2"></i>{{ t('characters.tabs.identity') }}</p-tab>
+          <p-tab value="2"><i class="pi pi-heart mr-2"></i>{{ t('characters.tabs.physique') }}</p-tab>
+          <p-tab value="3"><i class="pi pi-face-smile mr-2"></i>{{ t('characters.tabs.face') }}</p-tab>
+          <p-tab value="4"><i class="pi pi-spin pi-cog mr-2"></i>{{ t('characters.tabs.eyes') }}</p-tab>
+          <p-tab value="5"><i class="pi pi-sparkles mr-2"></i>{{ t('characters.tabs.hair') }}</p-tab>
+          <p-tab value="6"><i class="pi pi-shopping-bag mr-2"></i>{{ t('characters.tabs.wardrobe') }}</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <!-- Tab Básico -->
+          <p-tabpanel value="0">
+            <div class="grid grid-cols-1 gap-4 pt-4">
+              <div class="field">
+                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  {{ t('characters.characterName') }} *
+                </label>
+                <input id="name" type="text" class="w-full" pInputText formControlName="name"
+                  [placeholder]="t('characters.form.namePlaceholder')" />
+                  @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                    <small
+                      class="p-error block mt-1">
+                      {{ t('characters.form.nameRequired') }}
+                    </small>
+                  }
+                </div>
+
+                <div class="field">
+                  <label for="bookId" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    {{ t('characters.form.book') }} *
+                  </label>
+                  <p-select id="bookId" class="w-full" [options]="books" formControlName="bookId"
+                    optionLabel="title" optionValue="id" [placeholder]="t('characters.form.selectBook')" [filter]="true"
+                    filterBy="title,author" [showClear]="true" appendTo="body" />
+                  @if (form.get('bookId')?.invalid && form.get('bookId')?.touched) {
+                    <small
+                      class="p-error block mt-1">
+                      {{ t('characters.form.bookRequired') }}
+                    </small>
+                  }
+                </div>
+
+                <div class="field">
+                  <label for="voiceId"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    {{ t('characters.voice') }} *
+                  </label>
+                  <p-select id="voiceId" class="w-full" [options]="voices" formControlName="voiceId"
+                    optionLabel="name" optionValue="id" [placeholder]="t('characters.selectVoice')" [filter]="true"
+                    filterBy="name" [showClear]="true" appendTo="body" />
+                  @if (form.get('voiceId')?.invalid && form.get('voiceId')?.touched) {
+                    <small
+                      class="p-error block mt-1">
+                      {{ t('characters.form.voiceRequired') }}
+                    </small>
+                  }
+                </div>
+
+                @if (form.get('voiceId')?.value) {
+                  <div class="field">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                      {{ t('characters.form.testVoice') }}
+                    </label>
+                    <app-voice-preview [voiceId]="form.get('voiceId')?.value"
+                      [text]="form.get('name')?.value || t('characters.form.defaultVoiceText')" />
+                  </div>
+                }
+
+                <div class="field">
+                  <label for="voiceDescription"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    {{ t('characters.form.voiceDescription') }}
+                  </label>
+                  <textarea id="voiceDescription" class="w-full" pInputTextarea
+                    formControlName="voiceDescription" rows="2"
+                  [placeholder]="t('characters.form.voiceDescPlaceholder')"></textarea>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Tab Identidade -->
+            <p-tabpanel value="1" formGroupName="identity">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <div class="field">
+                  <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.identity.gender') }}</label>
+                  <p-select [options]="genderOptions()" formControlName="gender" optionLabel="label"
+                    optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                    class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.identity.age') }}</label>
+                  <p-inputNumber formControlName="age" [min]="0" [max]="200" [placeholder]="t('characters.identity.agePlaceholder')"
+                  class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.identity.nationality') }}</label>
+                  <input type="text" pInputText formControlName="nationality" [placeholder]="t('characters.identity.nationalityPlaceholder')"
+                    class="w-full" />
+                  </div>
+
+                  <div class="field">
+                    <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.identity.occupation') }}</label>
+                    <input type="text" pInputText formControlName="occupation" [placeholder]="t('characters.identity.occupationPlaceholder')"
+                      class="w-full" />
+                    </div>
+
+                    <div class="field">
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.identity.birthDate') }}</label>
+                      <input type="text" pInputText formControlName="birthDate" [placeholder]="t('characters.identity.birthDatePlaceholder')"
+                        class="w-full" />
+                      </div>
+
+                      <div class="field">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.identity.birthPlace') }}</label>
+                        <input type="text" pInputText formControlName="birthPlace" [placeholder]="t('characters.identity.birthPlacePlaceholder')"
+                          class="w-full" />
+                        </div>
+
+                        <div class="field md:col-span-2">
+                          <label
+                          class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.identity.personality') }}</label>
+                          <textarea pInputTextarea formControlName="personality" rows="2"
+                          [placeholder]="t('characters.identity.personalityPlaceholder')" class="w-full"></textarea>
+                        </div>
+
+                        <div class="field md:col-span-2">
+                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.identity.background') }}</label>
+                          <textarea pInputTextarea formControlName="background" rows="3"
+                          [placeholder]="t('characters.identity.backgroundPlaceholder')" class="w-full"></textarea>
+                        </div>
+                      </div>
+                    </p-tabpanel>
+
+                    <!-- Tab Físico -->
+                    <p-tabpanel value="2" formGroupName="physique">
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                        <div class="field">
+                          <label
+                          class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.height') }}</label>
+                          <input type="text" pInputText formControlName="height" [placeholder]="t('characters.physique.heightPlaceholder')"
+                            class="w-full" />
+                          </div>
+
+                          <div class="field">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.weight') }}</label>
+                            <input type="text" pInputText formControlName="weight" [placeholder]="t('characters.physique.weightPlaceholder')"
+                              class="w-full" />
+                            </div>
+
+                            <div class="field">
+                              <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.bodyType') }}</label>
+                              <p-select [options]="bodyTypeOptions()" formControlName="bodyType" optionLabel="label"
+                                optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                                class="w-full" />
+                            </div>
+
+                            <div class="field">
+                              <label
+                              class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.waist') }}</label>
+                              <input type="text" pInputText formControlName="waist" [placeholder]="t('characters.physique.waistPlaceholder')"
+                                class="w-full" />
+                              </div>
+
+                              <div class="field">
+                                <label
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.posture') }}</label>
+                                <p-select [options]="postureOptions()" formControlName="posture" optionLabel="label"
+                                  optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                                  class="w-full" />
+                              </div>
+
+                              <div class="field">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.skinTone') }}</label>
+                                <input type="text" pInputText formControlName="skinTone"
+                                  [placeholder]="t('characters.physique.skinTonePlaceholder')" class="w-full" />
+                                </div>
+
+                                <div class="field">
+                                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.skinTexture') }}</label>
+                                  <input type="text" pInputText formControlName="skinTexture"
+                                    [placeholder]="t('characters.physique.skinTexturePlaceholder')" class="w-full" />
+                                  </div>
+
+                                  <div class="field">
+                                    <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.scars') }}</label>
+                                    <input type="text" pInputText formControlName="scars" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                      class="w-full" />
+                                    </div>
+
+                                    <div class="field">
+                                      <label
+                                      class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.tattoos') }}</label>
+                                      <input type="text" pInputText formControlName="tattoos" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                        class="w-full" />
+                                      </div>
+
+                                      <div class="field">
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.physique.birthmarks') }}</label>
+                                        <input type="text" pInputText formControlName="birthmarks" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                          class="w-full" />
+                                        </div>
+                                      </div>
+                                    </p-tabpanel>
+
+                                    <!-- Tab Rosto -->
+                                    <p-tabpanel value="3" formGroupName="face">
+                                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                                        <div class="field">
+                                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.faceShape') }}</label>
+                                          <p-select [options]="faceShapeOptions()" formControlName="faceShape" optionLabel="label"
+                                            optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                                            class="w-full" />
+                                        </div>
+
+                                        <div class="field">
+                                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.forehead') }}</label>
+                                          <input type="text" pInputText formControlName="forehead" [placeholder]="t('characters.face.foreheadPlaceholder')"
+                                            class="w-full" />
+                                          </div>
+
+                                          <div class="field">
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.cheekbones') }}</label>
+                                            <input type="text" pInputText formControlName="cheekbones"
+                                              [placeholder]="t('characters.face.cheekbonesPlaceholder')" class="w-full" />
+                                            </div>
+
+                                            <div class="field">
+                                              <label
+                                              class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.chin') }}</label>
+                                              <input type="text" pInputText formControlName="chin" [placeholder]="t('characters.face.chinPlaceholder')"
+                                                class="w-full" />
+                                              </div>
+
+                                              <div class="field">
+                                                <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.jaw') }}</label>
+                                                <input type="text" pInputText formControlName="jaw" [placeholder]="t('characters.face.jawPlaceholder')"
+                                                  class="w-full" />
+                                                </div>
+
+                                                <div class="field">
+                                                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.nose') }}</label>
+                                                  <input type="text" pInputText formControlName="nose"
+                                                    [placeholder]="t('characters.face.nosePlaceholder')" class="w-full" />
+                                                  </div>
+
+                                                  <div class="field">
+                                                    <label
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.lips') }}</label>
+                                                    <input type="text" pInputText formControlName="lips" [placeholder]="t('characters.face.lipsPlaceholder')"
+                                                      class="w-full" />
+                                                    </div>
+
+                                                    <div class="field">
+                                                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.expression') }}</label>
+                                                      <input type="text" pInputText formControlName="expression" [placeholder]="t('characters.face.expressionPlaceholder')"
+                                                        class="w-full" />
+                                                      </div>
+
+                                                      <div class="field">
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.beard') }}</label>
+                                                        <input type="text" pInputText formControlName="beard" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                          class="w-full" />
+                                                        </div>
+
+                                                        <div class="field">
+                                                          <label
+                                                          class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.mustache') }}</label>
+                                                          <input type="text" pInputText formControlName="mustache" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                            class="w-full" />
+                                                          </div>
+
+                                                          <div class="field">
+                                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.wrinkles') }}</label>
+                                                            <input type="text" pInputText formControlName="wrinkles" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                              class="w-full" />
+                                                            </div>
+
+                                                            <div class="field">
+                                                              <label
+                                                              class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.dimples') }}</label>
+                                                              <input type="text" pInputText formControlName="dimples" [placeholder]="t('characters.face.dimplesPlaceholder')"
+                                                                class="w-full" />
+                                                              </div>
+
+                                                              <div class="field md:col-span-2">
+                                                                <label
+                                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.face.freckles') }}</label>
+                                                                <input type="text" pInputText formControlName="freckles" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                                  class="w-full" />
+                                                                </div>
+                                                              </div>
+                                                            </p-tabpanel>
+
+                                                            <!-- Tab Olhos -->
+                                                            <p-tabpanel value="4" formGroupName="eyes">
+                                                              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                                                                <div class="field">
+                                                                  <label
+                                                                  class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.size') }}</label>
+                                                                  <input type="text" pInputText formControlName="eyeSize" [placeholder]="t('characters.eyes.sizePlaceholder')"
+                                                                    class="w-full" />
+                                                                  </div>
+
+                                                                  <div class="field">
+                                                                    <label
+                                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.shape') }}</label>
+                                                                    <p-select [options]="eyeShapeOptions()" formControlName="eyeShape" optionLabel="label"
+                                                                      optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                                                                      class="w-full" />
+                                                                  </div>
+
+                                                                  <div class="field">
+                                                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.color') }}</label>
+                                                                    <p-select [options]="eyeColorOptions()" formControlName="eyeColor" optionLabel="label"
+                                                                      optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                                                                      class="w-full" />
+                                                                  </div>
+
+                                                                  <div class="field">
+                                                                    <label
+                                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.spacing') }}</label>
+                                                                    <input type="text" pInputText formControlName="eyeSpacing"
+                                                                      [placeholder]="t('characters.eyes.spacingPlaceholder')" class="w-full" />
+                                                                    </div>
+
+                                                                    <div class="field">
+                                                                      <label
+                                                                      class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.eyelashes') }}</label>
+                                                                      <input type="text" pInputText formControlName="eyelashes"
+                                                                        [placeholder]="t('characters.eyes.eyelashesPlaceholder')" class="w-full" />
+                                                                      </div>
+
+                                                                      <div class="field">
+                                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.eyebrowShape') }}</label>
+                                                                        <input type="text" pInputText formControlName="eyebrowShape"
+                                                                          [placeholder]="t('characters.eyes.eyebrowShapePlaceholder')" class="w-full" />
+                                                                        </div>
+
+                                                                        <div class="field">
+                                                                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.eyebrowColor') }}</label>
+                                                                          <input type="text" pInputText formControlName="eyebrowColor"
+                                                                            [placeholder]="t('characters.eyes.eyebrowColorPlaceholder')" class="w-full" />
+                                                                          </div>
+
+                                                                          <div class="field">
+                                                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.eyebrowThickness') }}</label>
+                                                                            <input type="text" pInputText formControlName="eyebrowThickness"
+                                                                              [placeholder]="t('characters.eyes.eyebrowThicknessPlaceholder')" class="w-full" />
+                                                                            </div>
+
+                                                                            <div class="field">
+                                                                              <label
+                                                                              class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.glasses') }}</label>
+                                                                              <input type="text" pInputText formControlName="glasses" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                                                class="w-full" />
+                                                                              </div>
+
+                                                                              <div class="field">
+                                                                                <label
+                                                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.eyes.makeup') }}</label>
+                                                                                <input type="text" pInputText formControlName="makeup"
+                                                                                  [placeholder]="t('characters.eyes.makeupPlaceholder')" class="w-full" />
+                                                                                </div>
+                                                                              </div>
+                                                                            </p-tabpanel>
+
+                                                                            <!-- Tab Cabelo -->
+                                                                            <p-tabpanel value="5" formGroupName="hair">
+                                                                              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                                                                                <div class="field">
+                                                                                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.haircut') }}</label>
+                                                                                  <input type="text" pInputText formControlName="haircut" [placeholder]="t('characters.hair.haircutPlaceholder')"
+                                                                                    class="w-full" />
+                                                                                  </div>
+
+                                                                                  <div class="field">
+                                                                                    <label
+                                                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.length') }}</label>
+                                                                                    <p-select [options]="hairLengthOptions()" formControlName="hairLength" optionLabel="label"
+                                                                                      optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                                                                                      class="w-full" />
+                                                                                  </div>
+
+                                                                                  <div class="field">
+                                                                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.color') }}</label>
+                                                                                    <p-select [options]="hairColorOptions()" formControlName="hairColor" optionLabel="label"
+                                                                                      optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                                                                                      class="w-full" />
+                                                                                  </div>
+
+                                                                                  <div class="field">
+                                                                                    <label
+                                                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.texture') }}</label>
+                                                                                    <p-select [options]="hairTextureOptions()" formControlName="hairTexture" optionLabel="label"
+                                                                                      optionValue="value" [placeholder]="t('common.select')" [showClear]="true" appendTo="body"
+                                                                                      class="w-full" />
+                                                                                  </div>
+
+                                                                                  <div class="field">
+                                                                                    <label
+                                                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.volume') }}</label>
+                                                                                    <input type="text" pInputText formControlName="hairVolume"
+                                                                                      [placeholder]="t('characters.hair.volumePlaceholder')" class="w-full" />
+                                                                                    </div>
+
+                                                                                    <div class="field">
+                                                                                      <label
+                                                                                      class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.style') }}</label>
+                                                                                      <input type="text" pInputText formControlName="hairStyle"
+                                                                                        [placeholder]="t('characters.hair.stylePlaceholder')" class="w-full" />
+                                                                                      </div>
+
+                                                                                      <div class="field">
+                                                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.part') }}</label>
+                                                                                        <input type="text" pInputText formControlName="hairPart"
+                                                                                          [placeholder]="t('characters.hair.partPlaceholder')" class="w-full" />
+                                                                                        </div>
+
+                                                                                        <div class="field">
+                                                                                          <label
+                                                                                          class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.shine') }}</label>
+                                                                                          <input type="text" pInputText formControlName="hairShine"
+                                                                                            [placeholder]="t('characters.hair.shinePlaceholder')" class="w-full" />
+                                                                                          </div>
+
+                                                                                          <div class="field">
+                                                                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.dyedColor') }}</label>
+                                                                                            <input type="text" pInputText formControlName="dyedColor"
+                                                                                              [placeholder]="t('characters.hair.dyedColorPlaceholder')" class="w-full" />
+                                                                                            </div>
+
+                                                                                            <div class="field">
+                                                                                              <label
+                                                                                              class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.hair.highlights') }}</label>
+                                                                                              <input type="text" pInputText formControlName="highlights" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                                                                class="w-full" />
+                                                                                              </div>
+                                                                                            </div>
+                                                                                          </p-tabpanel>
+
+                                                                                          <!-- Tab Vestuário -->
+                                                                                          <p-tabpanel value="6" formGroupName="wardrobe">
+                                                                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
+                                                                                              <!-- Estilo Geral -->
+                                                                                              <div class="field lg:col-span-3">
+                                                                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.generalStyle') }}</label>
+                                                                                                <p-select [options]="clothingStyleOptions()" formControlName="clothingStyle"
+                                                                                                  optionLabel="label" optionValue="value" [placeholder]="t('common.select')" [showClear]="true"
+                                                                                                  appendTo="body" class="w-full" />
+                                                                                              </div>
+
+                                                                                              <!-- Parte de Cima -->
+                                                                                              <div class="lg:col-span-3 mt-2">
+                                                                                                <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 border-b pb-1">{{ t('characters.wardrobe.topwear') }}</h4>
+                                                                                              </div>
+                                                                                              <div class="field">
+                                                                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.piece') }}</label>
+                                                                                                <input type="text" pInputText formControlName="topwear" [placeholder]="t('characters.wardrobe.topwearPlaceholder')"
+                                                                                                  class="w-full" />
+                                                                                                </div>
+                                                                                                <div class="field">
+                                                                                                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.color') }}</label>
+                                                                                                  <input type="text" pInputText formControlName="topwearColor" [placeholder]="t('characters.wardrobe.colorPlaceholderWhite')"
+                                                                                                    class="w-full" />
+                                                                                                  </div>
+                                                                                                  <div class="field">
+                                                                                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.brand') }}</label>
+                                                                                                    <input type="text" pInputText formControlName="topwearBrand" placeholder="Ex: Zara"
+                                                                                                      class="w-full" />
+                                                                                                    </div>
+
+                                                                                                    <!-- Parte de Baixo -->
+                                                                                                    <div class="lg:col-span-3 mt-2">
+                                                                                                      <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 border-b pb-1">{{ t('characters.wardrobe.bottomwear') }}</h4>
+                                                                                                    </div>
+                                                                                                    <div class="field">
+                                                                                                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.piece') }}</label>
+                                                                                                      <input type="text" pInputText formControlName="bottomwear" [placeholder]="t('characters.wardrobe.bottomwearPlaceholder')"
+                                                                                                        class="w-full" />
+                                                                                                      </div>
+                                                                                                      <div class="field">
+                                                                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.color') }}</label>
+                                                                                                        <input type="text" pInputText formControlName="bottomwearColor" [placeholder]="t('characters.wardrobe.colorPlaceholderBlack')"
+                                                                                                          class="w-full" />
+                                                                                                        </div>
+                                                                                                        <div class="field">
+                                                                                                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.brand') }}</label>
+                                                                                                          <input type="text" pInputText formControlName="bottomwearBrand" placeholder="Ex: Hugo Boss"
+                                                                                                            class="w-full" />
+                                                                                                          </div>
+
+                                                                                                          <!-- Vestido (alternativa) -->
+                                                                                                          <div class="lg:col-span-3 mt-2">
+                                                                                                            <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 border-b pb-1">{{ t('characters.wardrobe.dress') }}</h4>
+                                                                                                          </div>
+                                                                                                          <div class="field">
+                                                                                                            <label
+                                                                                                            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.model') }}</label>
+                                                                                                            <input type="text" pInputText formControlName="dress"
+                                                                                                              [placeholder]="t('characters.wardrobe.dressPlaceholder')" class="w-full" />
+                                                                                                            </div>
+                                                                                                            <div class="field">
+                                                                                                              <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.color') }}</label>
+                                                                                                              <input type="text" pInputText formControlName="dressColor" [placeholder]="t('characters.wardrobe.dressColorPlaceholder')"
+                                                                                                                class="w-full" />
+                                                                                                              </div>
+                                                                                                              <div class="field">
+                                                                                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.brand') }}</label>
+                                                                                                                <input type="text" pInputText formControlName="dressBrand"
+                                                                                                                  placeholder="Ex: Alexandre Vauthier" class="w-full" />
+                                                                                                                </div>
+
+                                                                                                                <!-- Calçados -->
+                                                                                                                <div class="lg:col-span-3 mt-2">
+                                                                                                                  <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 border-b pb-1">{{ t('characters.wardrobe.footwear') }}</h4>
+                                                                                                                </div>
+                                                                                                                <div class="field">
+                                                                                                                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.type') }}</label>
+                                                                                                                  <input type="text" pInputText formControlName="footwear" placeholder="Ex: Pumps"
+                                                                                                                    class="w-full" />
+                                                                                                                  </div>
+                                                                                                                  <div class="field">
+                                                                                                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.color') }}</label>
+                                                                                                                    <input type="text" pInputText formControlName="footwearColor"
+                                                                                                                      [placeholder]="t('characters.wardrobe.footwearColorPlaceholder')" class="w-full" />
+                                                                                                                    </div>
+                                                                                                                    <div class="field">
+                                                                                                                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.brand') }}</label>
+                                                                                                                      <input type="text" pInputText formControlName="footwearBrand"
+                                                                                                                        placeholder="Ex: Saint Laurent" class="w-full" />
+                                                                                                                      </div>
+                                                                                                                      <div class="field">
+                                                                                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.heelHeight') }}</label>
+                                                                                                                        <input type="text" pInputText formControlName="heelHeight" placeholder="Ex: 10 cm"
+                                                                                                                          class="w-full" />
+                                                                                                                        </div>
+
+                                                                                                                        <!-- Acessórios -->
+                                                                                                                        <div class="lg:col-span-3 mt-2">
+                                                                                                                          <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 border-b pb-1">{{ t('characters.wardrobe.accessories') }}</h4>
+                                                                                                                        </div>
+                                                                                                                        <div class="field">
+                                                                                                                          <label
+                                                                                                                          class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.earrings') }}</label>
+                                                                                                                          <input type="text" pInputText formControlName="earrings"
+                                                                                                                            [placeholder]="t('characters.wardrobe.earringsPlaceholder')" class="w-full" />
+                                                                                                                          </div>
+                                                                                                                          <div class="field">
+                                                                                                                            <label
+                                                                                                                            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.necklace') }}</label>
+                                                                                                                            <input type="text" pInputText formControlName="necklace" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                                                                                              class="w-full" />
+                                                                                                                            </div>
+                                                                                                                            <div class="field">
+                                                                                                                              <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.rings') }}</label>
+                                                                                                                              <input type="text" pInputText formControlName="rings"
+                                                                                                                                [placeholder]="t('characters.wardrobe.ringsPlaceholder')" class="w-full" />
+                                                                                                                              </div>
+                                                                                                                              <div class="field">
+                                                                                                                                <label
+                                                                                                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.bracelets') }}</label>
+                                                                                                                                <input type="text" pInputText formControlName="bracelets" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                                                                                                  class="w-full" />
+                                                                                                                                </div>
+                                                                                                                                <div class="field">
+                                                                                                                                  <label
+                                                                                                                                  class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.watch') }}</label>
+                                                                                                                                  <input type="text" pInputText formControlName="watch" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                                                                                                    class="w-full" />
+                                                                                                                                  </div>
+                                                                                                                                  <div class="field">
+                                                                                                                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.bag') }}</label>
+                                                                                                                                    <input type="text" pInputText formControlName="bag" [placeholder]="t('characters.wardrobe.bagPlaceholder')"
+                                                                                                                                      class="w-full" />
+                                                                                                                                    </div>
+                                                                                                                                    <div class="field">
+                                                                                                                                      <label
+                                                                                                                                      class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.hatCap') }}</label>
+                                                                                                                                      <input type="text" pInputText formControlName="hat" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                                                                                                        class="w-full" />
+                                                                                                                                      </div>
+                                                                                                                                      <div class="field">
+                                                                                                                                        <label
+                                                                                                                                        class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.scarfKerchief') }}</label>
+                                                                                                                                        <input type="text" pInputText formControlName="scarf" [placeholder]="t('characters.physique.nonePlaceholder')"
+                                                                                                                                          class="w-full" />
+                                                                                                                                        </div>
+
+                                                                                                                                        <!-- Detalhes Finais -->
+                                                                                                                                        <div class="lg:col-span-3 mt-2">
+                                                                                                                                          <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 border-b pb-1">{{ t('characters.wardrobe.finalDetails') }}</h4>
+                                                                                                                                        </div>
+                                                                                                                                        <div class="field">
+                                                                                                                                          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.nails') }}</label>
+                                                                                                                                          <input type="text" pInputText formControlName="nails" [placeholder]="t('characters.wardrobe.nailsPlaceholder')"
+                                                                                                                                            class="w-full" />
+                                                                                                                                          </div>
+                                                                                                                                          <div class="field">
+                                                                                                                                            <label
+                                                                                                                                            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ t('characters.wardrobe.perfume') }}</label>
+                                                                                                                                            <input type="text" pInputText formControlName="perfume" placeholder="Ex: Chanel N°5"
+                                                                                                                                              class="w-full" />
+                                                                                                                                            </div>
+                                                                                                                                          </div>
+                                                                                                                                        </p-tabpanel>
+                                                                                                                                      </p-tabpanels>
+                                                                                                                                    </p-tabs>
+
+                                                                                                                                    <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6 pt-4 border-t">
+                                                                                                                                      <button pButton type="button" [label]="t('common.cancel')" class="p-button-text w-full sm:w-auto"
+                                                                                                                                      (click)="cancel()"></button>
+                                                                                                                                      <button pButton type="submit" [label]="t('common.save')" [disabled]="!isBasicFieldsValid() || loading" [loading]="loading"
+                                                                                                                                      class="w-full sm:w-auto"></button>
+                                                                                                                                    </div>
+                                                                                                                                  </form>
+                                                                                                                                </div>
+                                                                                                                              </ng-container>

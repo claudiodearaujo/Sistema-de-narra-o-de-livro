@@ -1,0 +1,108 @@
+<div class="home-page">
+    <!-- Header -->
+    <header class="home-header">
+        <div class="header-container">
+           
+
+            <nav class="main-nav">
+                @for (link of navLinks; track link.path) {
+                <a [routerLink]="link.path" class="nav-link">{{ link.label }}</a>
+                }
+            </nav>
+ <a routerLink="/" class="logo">
+                <img src="assets/logosm.png" alt="Livrya" class="logo-icon">
+                <img src="assets/logo.png" alt="Livrya" class="logo-icon-2">
+            </a>
+            <div class="header-actions">
+                <a routerLink="/auth/login" class="login-btn">Entrar</a>
+                <a routerLink="/auth/signup" class="download-btn">Baixe o app</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <div class="hero-container">
+            <div class="hero-content">
+                <p class="hero-label">Sobre a <span class="brand">Livrya</span></p>
+                <h1 class="hero-title">
+                    Histórias que ganham voz,<br>forma e caminho.
+                </h1>
+                <p class="hero-description">
+                    Conectamos escritores e leitores em um espaço onde palavras ganham vida.
+                </p>
+                <div class="hero-actions">
+                    <a routerLink="/auth/signup" class="btn-primary">Começar Agora</a>
+                    <a routerLink="/institutional/about" class="btn-secondary">Saiba mais</a>
+                </div>
+            </div>
+
+            <div class="hero-illustration">
+                <img src="assets/images/hero-illustration.png" alt="Ilustração de escritores e leitores da Livrya"
+                    class="hero-image">
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Section -->
+    <section class="platform-section">
+        <div class="section-container">
+            <h2 class="section-title">
+                Uma plataforma literária brasileira<br>para dar vida às histórias.
+            </h2>
+            <p class="section-subtitle">Na Livrya, você pode:</p>
+
+            <div class="features-grid">
+                @for (feature of features; track feature.title) {
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="pi" [ngClass]="feature.icon"></i>
+                    </div>
+                    <h3 class="feature-title">{{ feature.title }}</h3>
+                    <p class="feature-description">{{ feature.description }}</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Beliefs Section -->
+    <section class="beliefs-section">
+        <div class="section-container">
+            <h2 class="beliefs-title">Acreditamos no poder das histórias:</h2>
+            <div class="beliefs-grid">
+                @for (belief of beliefs; track belief.text) {
+                <div class="belief-item">
+                    <i class="pi" [ngClass]="belief.icon"></i>
+                    <span>{{ belief.text }}</span>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2>Pronto para começar sua jornada literária?</h2>
+            <p>Junte-se a milhares de escritores e leitores.</p>
+            <a routerLink="/auth/signup" class="cta-btn">Criar Conta Grátis</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="home-footer">
+        <div class="footer-divider">
+            <div class="divider-line"></div>
+            <span class="divider-dot"></span>
+            <div class="divider-line"></div>
+        </div>
+        <p class="footer-url">www.livrya.com.br</p>
+    </footer>
+</div>

@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+.best-value-card {
+  border: 2px solid var(--color-primary-500);
+}

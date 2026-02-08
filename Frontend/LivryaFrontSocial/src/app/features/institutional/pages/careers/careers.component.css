@@ -1,0 +1,275 @@
+/* ==========================================================================
+   CAREERS PAGE
+   ========================================================================== */
+
+.careers-page {
+  animation: livrya-fade-in var(--duration-normal) var(--ease-standard);
+}
+
+/* ==========================================================================
+   HERO SECTION
+   ========================================================================== */
+
+.careers-hero {
+  padding: var(--space-20) var(--space-6);
+  background: linear-gradient(135deg, var(--color-accent-50) 0%, var(--color-secondary-100) 100%);
+  text-align: center;
+}
+
+.hero-container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent-500);
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-6);
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.hero-subtitle {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-style: italic;
+  color: var(--color-accent-600);
+  margin-bottom: var(--space-4);
+}
+
+.hero-description {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* ==========================================================================
+   VALUES SECTION
+   ========================================================================== */
+
+.section-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-16) var(--space-6);
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--space-10);
+}
+
+.values-section {
+  background: white;
+}
+
+.values-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.value-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  background: var(--color-secondary-50);
+  border-radius: var(--radius-full);
+}
+
+.value-item i {
+  font-size: 1.25rem;
+  color: var(--color-accent-500);
+}
+
+.value-item span {
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   AREAS SECTION
+   ========================================================================== */
+
+.areas-section {
+  background: var(--color-secondary-50);
+}
+
+.areas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+.area-card {
+  text-align: center;
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.area-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.area-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--space-4);
+  background: linear-gradient(135deg, var(--color-accent-100) 0%, var(--color-accent-200) 100%);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.area-icon i {
+  font-size: 1.5rem;
+  color: var(--color-accent-600);
+}
+
+.area-card h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.area-card p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ==========================================================================
+   JOBS SECTION
+   ========================================================================== */
+
+.jobs-section {
+  background: white;
+}
+
+.jobs-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10);
+}
+
+.jobs-empty {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.jobs-empty i {
+  font-size: 4rem;
+  margin-bottom: var(--space-4);
+  opacity: 0.5;
+}
+
+.jobs-empty h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.jobs-empty p {
+  font-size: var(--text-md);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: var(--leading-relaxed);
+}
+
+/* ==========================================================================
+   CTA SECTION
+   ========================================================================== */
+
+.cta-section {
+  background: var(--color-accent-600);
+  text-align: center;
+  color: white;
+}
+
+.cta-section h2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-4);
+}
+
+.cta-section p {
+  font-size: var(--text-lg);
+  opacity: 0.9;
+  margin-bottom: var(--space-6);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-email {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-8);
+  background: white;
+  color: var(--color-accent-600);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-lg);
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.cta-email:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .areas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .areas-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .values-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .section-container {
+    padding: var(--space-10) var(--space-4);
+  }
+}

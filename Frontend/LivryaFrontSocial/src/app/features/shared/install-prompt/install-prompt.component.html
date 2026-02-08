@@ -1,0 +1,27 @@
+<ng-container *transloco="let t">
+@if (showPrompt()) {
+  <div class="install-prompt">
+    <div class="prompt-content">
+      <div class="prompt-icon">📚</div>
+      <div class="prompt-text">
+        <h4>{{ t('installPrompt.title') }}</h4>
+        <p>{{ t('installPrompt.subtitle') }}</p>
+      </div>
+    </div>
+    <div class="prompt-actions">
+      <p-button
+        [label]="t('installPrompt.notNow')"
+        [text]="true"
+        size="small"
+        (onClick)="dismiss()"
+      />
+      <p-button
+        [label]="t('installPrompt.install')"
+        icon="pi pi-download"
+        size="small"
+        (onClick)="install()"
+      />
+    </div>
+  </div>
+}
+</ng-container>

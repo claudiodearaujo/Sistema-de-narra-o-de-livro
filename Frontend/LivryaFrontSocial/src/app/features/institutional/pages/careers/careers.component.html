@@ -1,0 +1,84 @@
+<div class="careers-page">
+    <!-- Hero Section -->
+    <section class="careers-hero">
+        <div class="hero-container">
+            <div class="hero-badge">
+                <i class="pi pi-briefcase"></i>
+                Carreiras
+            </div>
+            <h1 class="hero-title">Trabalhe Conosco</h1>
+            <p class="hero-subtitle">
+                Quer fazer parte da Livrya?
+            </p>
+            <p class="hero-description">
+                Buscamos pessoas apaixonadas por literatura, tecnologia, arte e comunidade.
+                Valorizamos diversidade, criatividade e empatia.
+            </p>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="section-container">
+            <h2 class="section-title">O que valorizamos</h2>
+            <div class="values-grid">
+                @for (value of values; track value.title) {
+                <div class="value-item">
+                    <i class="pi" [ngClass]="value.icon"></i>
+                    <span>{{ value.title }}</span>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Areas Section -->
+    <section class="areas-section">
+        <div class="section-container">
+            <h2 class="section-title">Áreas de Atuação</h2>
+            <div class="areas-grid">
+                @for (area of areas; track area.title) {
+                <div class="area-card">
+                    <div class="area-icon">
+                        <i class="pi" [ngClass]="area.icon"></i>
+                    </div>
+                    <h3>{{ area.title }}</h3>
+                    <p>{{ area.description }}</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Jobs Section -->
+    <section class="jobs-section">
+        <div class="section-container">
+            <h2 class="section-title">Vagas Abertas</h2>
+            <div class="jobs-card">
+                <div class="jobs-empty">
+                    <i class="pi pi-inbox"></i>
+                    <h3>Nenhuma vaga aberta no momento</h3>
+                    <p>
+                        Acompanhe nossas redes sociais para ficar por dentro de novas oportunidades.
+                        Você também pode enviar seu currículo para nosso banco de talentos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2>Envie seu interesse</h2>
+            <p>
+                Mesmo sem vagas abertas, adoramos conhecer pessoas talentosas.
+                Envie seu currículo e portfólio para:
+            </p>
+            <a href="mailto:carreiras@livrya.com.br" class="cta-email">
+                <i class="pi pi-envelope"></i>
+                carreiras&#64;livrya.com.br
+            </a>
+        </div>
+    </section>
+</div>

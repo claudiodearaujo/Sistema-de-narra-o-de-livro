@@ -1,0 +1,190 @@
+<ng-container *transloco="let t">
+<p-toast />
+<p-confirmDialog />
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <h1 class="text-2xl font-bold mb-6">{{ t('mySubscription.title') }}</h1>
+
+  <!-- Current Plan Card -->
+  <p-card styleClass="mb-6">
+    <ng-template pTemplate="content">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+            <i [class]="getPlanIcon(subscription()?.plan || 'FREE') + ' text-2xl text-primary-500'"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold">
+              {{ t('mySubscription.plan') }} {{ getPlanDisplayName(subscription()?.plan || 'FREE') }}
+            </h2>
+            <div class="flex items-center gap-2 mt-1">
+              @if (subscription()?.status === 'ACTIVE') {
+                <p-tag [value]="t('mySubscription.status.active')" severity="success" />
+              } @else if (subscription()?.status === 'CANCELLED') {
+                <p-tag [value]="t('mySubscription.status.cancelled')" severity="danger" />
+              } @else if (subscription()?.status === 'PAST_DUE') {
+                <p-tag [value]="t('mySubscription.status.pastDue')" severity="warn" />
+              }
+              @if (subscription()?.cancelAtPeriodEnd) {
+                <p-tag [value]="t('mySubscription.cancelsAtEnd')" severity="warn" />
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          @if (subscription()?.plan === 'FREE') {
+            <button
+              pButton
+              [label]="t('mySubscription.upgrade')"
+              icon="pi pi-arrow-up"
+              (click)="goToPlans()"
+            ></button>
+          } @else {
+            <button
+              pButton
+              [label]="t('mySubscription.manage')"
+              icon="pi pi-cog"
+              severity="secondary"
+              (click)="openPortal()"
+            ></button>
+          }
+        </div>
+      </div>
+
+      @if (subscription()?.currentPeriodEnd) {
+        <p-divider />
+        <div class="text-sm text-secondary">
+          @if (subscription()?.cancelAtPeriodEnd) {
+            <p>
+              {{ t('mySubscription.willCancelOn') }}
+              <strong>{{ formatDate(subscription()!.currentPeriodEnd) }}</strong>
+            </p>
+            <button
+              pButton
+              [label]="t('mySubscription.keepSubscription')"
+              severity="success"
+              size="small"
+              class="mt-2"
+              (click)="resumeSubscription()"
+            ></button>
+          } @else {
+            <p>
+              {{ t('mySubscription.nextBillingOn') }}
+              <strong>{{ formatDate(subscription()!.currentPeriodEnd) }}</strong>
+            </p>
+          }
+        </div>
+      }
+    </ng-template>
+  </p-card>
+
+  <!-- Features Card -->
+  <p-card styleClass="mb-6">
+    <ng-template pTemplate="header">
+      <div class="px-4 pt-4">
+        <h3 class="text-lg font-semibold">{{ t('mySubscription.yourResources') }}</h3>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @if (features(); as f) {
+          <div class="p-3 bg-secondary-50 dark:bg-secondary-800 rounded-lg">
+            <div class="text-sm text-secondary">{{ t('mySubscription.features.books') }}</div>
+            <div class="text-lg font-semibold">
+              {{ f.maxBooks === -1 ? t('mySubscription.unlimited') : f.maxBooks }}
+            </div>
+          </div>
+          <div class="p-3 bg-secondary-50 dark:bg-secondary-800 rounded-lg">
+            <div class="text-sm text-secondary">{{ t('mySubscription.features.charactersPerBook') }}</div>
+            <div class="text-lg font-semibold">
+              {{ f.maxCharactersPerBook === -1 ? t('mySubscription.unlimited') : f.maxCharactersPerBook }}
+            </div>
+          </div>
+          <div class="p-3 bg-secondary-50 dark:bg-secondary-800 rounded-lg">
+            <div class="text-sm text-secondary">{{ t('mySubscription.features.speechesPerChapter') }}</div>
+            <div class="text-lg font-semibold">
+              {{ f.maxSpeechesPerChapter === -1 ? t('mySubscription.unlimited') : f.maxSpeechesPerChapter }}
+            </div>
+          </div>
+          <div class="p-3 bg-secondary-50 dark:bg-secondary-800 rounded-lg">
+            <div class="text-sm text-secondary">{{ t('mySubscription.features.ttsMinutes') }}</div>
+            <div class="text-lg font-semibold">
+              {{ f.ttsMinutesPerMonth }} {{ t('mySubscription.minutes') }}
+            </div>
+          </div>
+          <div class="p-3 bg-secondary-50 dark:bg-secondary-800 rounded-lg">
+            <div class="text-sm text-secondary">{{ t('mySubscription.features.premiumVoices') }}</div>
+            <div class="text-lg font-semibold">
+              {{ f.canUsePremiumVoices ? t('mySubscription.yes') : t('mySubscription.no') }}
+            </div>
+          </div>
+          <div class="p-3 bg-secondary-50 dark:bg-secondary-800 rounded-lg">
+            <div class="text-sm text-secondary">{{ t('mySubscription.features.monthlyLivras') }}</div>
+            <div class="text-lg font-semibold">
+              {{ f.monthlyLivras }}
+            </div>
+          </div>
+        }
+      </div>
+    </ng-template>
+  </p-card>
+
+  <!-- Livra Balance Card -->
+  <p-card styleClass="mb-6">
+    <ng-template pTemplate="header">
+      <div class="px-4 pt-4 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">{{ t('mySubscription.livraBalance') }}</h3>
+        <button
+          pButton
+          [label]="t('mySubscription.buyLivras')"
+          icon="pi pi-plus"
+          size="small"
+          (click)="goToLivras()"
+        ></button>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      @if (livraBalance(); as balance) {
+        <div class="flex items-center gap-6">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-primary-500">
+              {{ balance.balance }}
+            </div>
+            <div class="text-sm text-secondary">{{ t('mySubscription.available') }}</div>
+          </div>
+          <p-divider layout="vertical" />
+          <div class="text-center">
+            <div class="text-xl font-semibold text-green-500">
+              {{ balance.lifetime }}
+            </div>
+            <div class="text-sm text-secondary">{{ t('mySubscription.totalEarned') }}</div>
+          </div>
+          <p-divider layout="vertical" />
+          <div class="text-center">
+            <div class="text-xl font-semibold text-orange-500">
+              {{ balance.spent }}
+            </div>
+            <div class="text-sm text-secondary">{{ t('mySubscription.totalSpent') }}</div>
+          </div>
+        </div>
+      }
+    </ng-template>
+  </p-card>
+
+  <!-- Cancel Subscription (only for paid plans) -->
+  @if (subscription()?.plan !== 'FREE' && !subscription()?.cancelAtPeriodEnd) {
+    <div class="text-center mt-8">
+      <button
+        pButton
+        [label]="t('mySubscription.cancelSubscription')"
+        severity="danger"
+        [text]="true"
+        (click)="confirmCancel()"
+      ></button>
+    </div>
+  }
+</div>
+</ng-container>

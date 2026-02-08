@@ -1,0 +1,71 @@
+<ng-container *transloco="let t">
+<div class="flex items-center justify-center min-h-[70vh]">
+  <p-card styleClass="w-full max-w-md text-center">
+    @if (isLoading()) {
+      <ng-template pTemplate="content">
+        <p-progressSpinner
+          styleClass="w-16 h-16"
+          strokeWidth="4"
+        />
+        <p class="mt-4 text-secondary">{{ t('successPage.confirmingPayment') }}</p>
+      </ng-template>
+    } @else {
+      <ng-template pTemplate="header">
+        <div class="pt-8">
+          <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <i class="pi pi-check text-green-500 text-4xl"></i>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <h1 class="text-2xl font-heading font-bold text-primary-800 dark:text-primary-200 mb-2">
+          {{ t('successPage.title') }}
+        </h1>
+        <p class="text-secondary mb-6">
+          {{ t('successPage.message', { plan: planName() }) }}
+        </p>
+
+        <div class="bg-secondary-50 dark:bg-secondary-800 rounded-lg p-4 mb-6">
+          <h3 class="font-semibold mb-2">{{ t('successPage.whatYouGot') }}</h3>
+          <ul class="text-left text-sm space-y-2">
+            <li class="flex items-center">
+              <i class="pi pi-check text-green-500 mr-2"></i>
+              <span>{{ t('successPage.benefits.moreBooks') }}</span>
+            </li>
+            <li class="flex items-center">
+              <i class="pi pi-check text-green-500 mr-2"></i>
+              <span>{{ t('successPage.benefits.moreTTS') }}</span>
+            </li>
+            <li class="flex items-center">
+              <i class="pi pi-check text-green-500 mr-2"></i>
+              <span>{{ t('successPage.benefits.freeLivras') }}</span>
+            </li>
+            <li class="flex items-center">
+              <i class="pi pi-check text-green-500 mr-2"></i>
+              <span>{{ t('successPage.benefits.prioritySupport') }}</span>
+            </li>
+          </ul>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="flex flex-col gap-2 px-4 pb-4">
+          <button
+            pButton
+            [label]="t('successPage.startWriting')"
+            icon="pi pi-book"
+            (click)="goToBooks()"
+          ></button>
+          <button
+            pButton
+            [label]="t('successPage.viewSubscription')"
+            severity="secondary"
+            (click)="goToSubscription()"
+          ></button>
+        </div>
+      </ng-template>
+    }
+  </p-card>
+</div>
+</ng-container>

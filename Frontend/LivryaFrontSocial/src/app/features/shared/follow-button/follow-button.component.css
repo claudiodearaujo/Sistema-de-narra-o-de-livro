@@ -1,0 +1,13 @@
+:host {
+  display: inline-block;
+}
+
+:host ::ng-deep .p-button {
+  min-width: 120px;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .p-button.unfollow-hover {
+  background-color: var(--color-accent-500) !important;
+  border-color: var(--color-accent-500) !important;
+}

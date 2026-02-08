@@ -1,0 +1,17 @@
+<p-select [options]="languageService.availableLanguages" [(ngModel)]="selectedLanguage" optionLabel="name"
+    optionValue="code" [showClear]="false" styleClass="language-selector" (onChange)="onLanguageChange($event)">
+    <ng-template pTemplate="selectedItem" let-value>
+        @if (languageService.currentLanguageOption()) {
+        <div class="flex items-center gap-2" [pTooltip]="languageService.currentLanguageOption().name"
+            tooltipPosition="bottom">
+            <img [src]="languageService.currentLanguageOption().flagImage"
+                [alt]="languageService.currentLanguageOption().name" class="flag-image" />
+        </div>
+        }
+    </ng-template>
+    <ng-template pTemplate="item" let-option>
+        <div class="flex items-center gap-2" [pTooltip]="option.name" tooltipPosition="right">
+            <img [src]="option.flagImage" [alt]="option.name" class="flag-image" />
+        </div>
+    </ng-template>
+</p-select>

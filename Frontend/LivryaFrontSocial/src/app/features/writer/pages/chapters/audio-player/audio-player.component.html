@@ -1,0 +1,13 @@
+@if (audioUrl()) {
+  <div class="audio-player p-4 border border-surface-border rounded-lg bg-secondary-50/50 dark:bg-secondary-800"
+    >
+    <div class="flex flex-col gap-2">
+      <h4 class="font-semibold text-sm text-primary-700 dark:text-primary-300 font-heading">Áudio Final</h4>
+      <audio controls class="w-full" [src]="audioUrl()"></audio>
+      <div class="flex justify-end mt-2">
+        <a [href]="audioUrl()" target="_blank" pButton label="Download / Abrir" icon="pi pi-download"
+        class="p-button-outlined p-button-secondary w-full sm:w-auto flex justify-center"></a>
+      </div>
+    </div>
+  </div>
+}

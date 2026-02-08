@@ -1,0 +1,97 @@
+.type-selection {
+  :host ::ng-deep .p-selectbutton {
+    display: flex;
+    width: 100%;
+
+    .p-button {
+      flex: 1;
+    }
+  }
+}
+
+.image-preview {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-100);
+
+  .preview-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+  }
+
+  .remove-image-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+}
+
+.upload-area {
+  padding: 16px;
+  border: 2px dashed var(--surface-300);
+  border-radius: 8px;
+}
+
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background: var(--surface-50);
+
+  &:hover {
+    background: var(--surface-100);
+    border-color: var(--primary-color);
+  }
+}
+
+.upload-icon {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+}
+
+.upload-text {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--text-color);
+}
+
+.url-divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+  gap: 12px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--surface-300);
+  }
+
+  span {
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+}
+
+.hidden-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.upload-progress {
+  text-align: center;
+}

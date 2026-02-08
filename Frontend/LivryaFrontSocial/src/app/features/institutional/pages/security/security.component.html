@@ -1,0 +1,95 @@
+<div class="legal-page">
+    <div class="page-container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-icon">
+                <i class="pi pi-verified"></i>
+            </div>
+            <h1 class="page-title">Segurança e Proteção de Dados</h1>
+            <p class="page-subtitle">Última atualização: {{ lastUpdated }}</p>
+        </header>
+
+        <!-- Content -->
+        <article class="page-content">
+            <section class="content-section intro-section">
+                <p class="intro-text">
+                    Utilizamos protocolos de segurança para proteger contas, obras e informações pessoais.
+                </p>
+            </section>
+
+            <!-- Security Measures Grid -->
+            <section class="content-section">
+                <h2>Nossas Medidas de Segurança</h2>
+                <div class="security-grid">
+                    @for (measure of securityMeasures; track measure.title) {
+                    <div class="security-card">
+                        <div class="security-icon">
+                            <i class="pi" [ngClass]="measure.icon"></i>
+                        </div>
+                        <h3>{{ measure.title }}</h3>
+                        <p>{{ measure.description }}</p>
+                    </div>
+                    }
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>Investimento Contínuo</h2>
+                <p>
+                    A Livrya investe constantemente em sistemas de proteção contra acessos não autorizados, vazamentos e
+                    uso indevido de dados.
+                </p>
+                <p>Nossa equipe de segurança trabalha para:</p>
+                <ul>
+                    <li>Monitorar ameaças em tempo real</li>
+                    <li>Atualizar sistemas regularmente</li>
+                    <li>Realizar testes de segurança periódicos</li>
+                    <li>Implementar as melhores práticas do mercado</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>Proteção da sua Conta</h2>
+                <p>Recomendamos que você:</p>
+                <ul>
+                    <li>Use uma senha forte e única</li>
+                    <li>Ative a autenticação de dois fatores</li>
+                    <li>Não compartilhe suas credenciais</li>
+                    <li>Mantenha seu e-mail de recuperação atualizado</li>
+                    <li>Revise periodicamente as sessões ativas</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>Relatar Atividade Suspeita</h2>
+                <p class="highlight">
+                    Caso identifique qualquer atividade suspeita, nossa equipe de suporte está disponível.
+                </p>
+                <p>
+                    Entre em contato imediatamente através da nossa <a routerLink="/institutional/contact">página de
+                        contato</a> ou envie um e-mail para <strong>seguranca&#64;livrya.com.br</strong>.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Transparência</h2>
+                <p>
+                    Em caso de incidentes de segurança que afetem dados pessoais, comunicaremos os usuários afetados
+                    conforme exigido pela LGPD.
+                </p>
+            </section>
+        </article>
+
+        <!-- Navigation -->
+        <nav class="page-nav">
+            <a routerLink="/institutional/privacy" class="nav-link nav-prev">
+                <i class="pi pi-arrow-left"></i>
+                Política de Privacidade
+            </a>
+            <a routerLink="/institutional/code-conduct" class="nav-link">
+                <i class="pi pi-arrow-right"></i>
+                Código de Conduta
+            </a>
+        </nav>
+    </div>
+</div>

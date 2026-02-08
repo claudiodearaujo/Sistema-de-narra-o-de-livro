@@ -1,0 +1,94 @@
+<div class="about-page">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Sobre a <span class="brand">Livrya</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Histórias que ganham voz, forma e caminho.
+                </p>
+                <p class="hero-description">
+                    Conectamos escritores e leitores em um espaço onde palavras ganham vida.
+                </p>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-image-wrapper">
+                    <img src="assets/home.jpeg" alt="Livrya - Plataforma Literária" class="hero-image">
+                    <div class="hero-image-glow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section">
+        <div class="section-container">
+            <div class="mission-card">
+                <h2 class="section-title">Uma plataforma literária brasileira<br>para dar vida às histórias.</h2>
+                <p class="mission-text">
+                    A Livrya nasceu para dar espaço, voz e caminho às histórias.
+                </p>
+                <p class="mission-text">
+                    Somos uma plataforma literária brasileira criada para conectar escritores e leitores em um ambiente
+                    seguro, criativo e acolhedor. Aqui, textos ganham forma, voz e alcance — seja pela leitura
+                    tradicional ou por experiências imersivas como áudio e imagem.
+                </p>
+                <p class="mission-highlight">
+                    Acreditamos que toda história importa e que escrever é um ato de coragem.
+                </p>
+                <p class="mission-emphasis">
+                    Na Livrya, criadores não são invisíveis.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="section-container">
+            <h3 class="features-intro">Na Livrya, você pode:</h3>
+            <div class="features-grid">
+                @for (feature of features; track feature.title) {
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="pi" [ngClass]="feature.icon"></i>
+                    </div>
+                    <h4 class="feature-title">{{ feature.title }}</h4>
+                    <p class="feature-description">{{ feature.description }}</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Beliefs Section -->
+    <section class="beliefs-section">
+        <div class="section-container">
+            <h3 class="beliefs-title">Acreditamos no poder das histórias:</h3>
+            <div class="beliefs-grid">
+                @for (belief of beliefs; track belief.text) {
+                <div class="belief-item">
+                    <i class="pi" [ngClass]="belief.icon"></i>
+                    <span>{{ belief.text }}</span>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <div class="cta-card">
+                <h3 class="cta-title">Comece sua jornada literária</h3>
+                <p class="cta-text">Junte-se a milhares de escritores e leitores que já fazem parte da Livrya.</p>
+                <div class="cta-actions">
+                    <a routerLink="/auth/signup" class="cta-btn-primary">Criar Conta Grátis</a>
+                    <a routerLink="/institutional/writer-area" class="cta-btn-secondary">Saiba mais para escritores</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

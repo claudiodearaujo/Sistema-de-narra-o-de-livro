@@ -1,0 +1,148 @@
+<ng-container *transloco="let t">
+  <div class="social-layout" [class.mobile]="isMobile()">
+    <!-- Header -->
+    <header class="social-header">
+      <div class="header-content">
+        <!-- Logo -->
+        <div class="logo" (click)="goToFeed()">
+          <img src="../../../../assets/logosm.png" class="logo-icon" alt="logo livrya">
+          <img src="../../../../assets/logo.png" class="logo-icon-2" alt="logo livrya">
+        </div>
+
+        <!-- Search (Desktop) -->
+        @if (!isMobile()) {
+          <div class="search-container">
+            <div class="search-box" (click)="goToSearch()">
+              <i class="pi pi-search"></i>
+              <span class="search-placeholder">{{ t('social.layout.searchPlaceholder') }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <!-- Notifications -->
+          <button
+            pButton
+            pRipple
+            class="p-button-text p-button-rounded"
+            (click)="goToNotifications()"
+            [pTooltip]="t('social.layout.notifications')"
+            tooltipPosition="bottom">
+            <i class="pi pi-bell" pBadge [value]="notificationCount()" severity="danger"></i>
+          </button>
+
+          <!-- Messages -->
+          <button
+            pButton
+            pRipple
+            class="p-button-text p-button-rounded"
+            (click)="goToMessages()"
+            [pTooltip]="t('social.layout.messages')"
+            tooltipPosition="bottom">
+            <i class="pi pi-envelope" pBadge [value]="messageCount()" severity="info"></i>
+          </button>
+
+          <!-- User Menu -->
+          <p-avatar [image]="currentUser()?.avatar || ''"
+            [label]="!currentUser()?.avatar ? getInitials() : ''"
+            shape="circle"
+            size="normal"
+            styleClass="cursor-pointer"
+            (click)="userMenu.toggle($event)"
+            [pTooltip]="t('social.layout.menu')"
+            tooltipPosition="bottom" />
+          <p-menu #userMenu [model]="userMenuItems()" [popup]="true" />
+        </div>
+      </div>
+    </header>
+
+    <div class="social-body">
+      <!-- Sidebar (Desktop) -->
+      @if (!isMobile()) {
+        <aside class="social-sidebar">
+          <nav class="sidebar-nav">
+            @for (item of navItems(); track item.route) {
+              <a
+                class="nav-item"
+                [class.active]="isActiveRoute(item.route)"
+                [routerLink]="item.route"
+                pRipple>
+                <i [class]="item.icon"></i>
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </nav>
+
+          <!-- New Post Button -->
+          <button
+            pButton
+            pRipple
+            class="new-post-btn"
+            [label]="t('social.layout.newPost')"
+            icon="pi pi-plus"
+            (click)="openNewPost()">
+          </button>
+
+          <!-- Sidebar Footer -->
+          <div class="sidebar-footer">
+            <a routerLink="/writer" class="writer-link" pRipple>
+              <i class="pi pi-pencil"></i>
+              <span>{{ t('social.layout.writerArea') }}</span>
+            </a>
+          </div>
+        </aside>
+      }
+
+      <!-- Main Content -->
+      <main class="social-main">
+        <router-outlet />
+      </main>
+
+      <!-- Right Sidebar (Desktop - Optional) -->
+      @if (!isMobile() && showRightSidebar()) {
+        <aside class="social-right-sidebar">
+          <!-- Trending / Suggestions -->
+          <div class="sidebar-card">
+            <h3>🔥 {{ t('social.layout.trending') }}</h3>
+            <!-- Trending content will go here -->
+          </div>
+
+          <div class="sidebar-card">
+            <h3>✨ {{ t('social.layout.suggestions') }}</h3>
+            <!-- User suggestions will go here -->
+          </div>
+        </aside>
+      }
+    </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    @if (isMobile()) {
+      <nav class="bottom-nav">
+        @for (item of mobileNavItems(); track item.route) {
+          <a
+            class="bottom-nav-item"
+            [class.active]="isActiveRoute(item.route)"
+            [routerLink]="item.route">
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+        <!-- Floating New Post Button (Mobile) -->
+        <button class="fab-new-post" (click)="openNewPost()">
+          <i class="pi pi-plus"></i>
+        </button>
+      </nav>
+    }
+  </div>
+
+  <!-- Toast for notifications -->
+  <p-toast />
+
+  <!-- Post Composer Modal -->
+  <app-post-composer [visible]="showPostComposer()"
+    [userName]="currentUser()?.name || t('social.layout.user')"
+    [userAvatar]="currentUser()?.avatar || ''"
+    (visibleChange)="showPostComposer.set($event)"
+    (postCreated)="onPostCreated($event)" />
+</ng-container>

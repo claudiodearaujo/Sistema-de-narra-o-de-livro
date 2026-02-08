@@ -1,0 +1,111 @@
+<div class="contact-page">
+    <!-- Hero Section -->
+    <section class="contact-hero">
+        <div class="hero-container">
+            <div class="hero-icon">
+                <i class="pi pi-send"></i>
+            </div>
+            <h1 class="hero-title">Contato</h1>
+            <p class="hero-subtitle">
+                Tem dúvidas, sugestões ou precisa de ajuda?<br>
+                Nossa equipe está pronta para te ouvir.
+            </p>
+            <p class="hero-quote">
+                Porque por trás de toda plataforma, existem pessoas.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Channels -->
+    <section class="channels-section">
+        <div class="section-container">
+            <div class="channels-grid">
+                @for (channel of contactChannels; track channel.title) {
+                <a [href]="channel.link" target="_blank" class="channel-card">
+                    <i class="pi" [ngClass]="channel.icon"></i>
+                    <span class="channel-title">{{ channel.title }}</span>
+                    <span class="channel-value">{{ channel.value }}</span>
+                </a>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form -->
+    <section class="form-section">
+        <div class="section-container">
+            <h2 class="section-title">Envie uma mensagem</h2>
+
+            @if (isSubmitted) {
+            <div class="success-message">
+                <div class="success-icon">
+                    <i class="pi pi-check-circle"></i>
+                </div>
+                <h3>Mensagem enviada!</h3>
+                <p>Obrigado por entrar em contato. Responderemos em breve.</p>
+                <button class="reset-btn" (click)="isSubmitted = false">
+                    Enviar outra mensagem
+                </button>
+            </div>
+            } @else {
+            <form class="contact-form" (ngSubmit)="onSubmit()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Nome</label>
+                        <input type="text" id="name" [(ngModel)]="contactForm.name" name="name" placeholder="Seu nome"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" [(ngModel)]="contactForm.email" name="email"
+                            placeholder="seu@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Assunto</label>
+                    <select id="subject" [(ngModel)]="contactForm.subject" name="subject" required>
+                        <option value="" disabled>Selecione um assunto</option>
+                        @for (subject of subjects; track subject) {
+                        <option [value]="subject">{{ subject }}</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Mensagem</label>
+                    <textarea id="message" [(ngModel)]="contactForm.message" name="message"
+                        placeholder="Escreva sua mensagem..." rows="6" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+                    @if (isSubmitting) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                    Enviando...
+                    } @else {
+                    <i class="pi pi-send"></i>
+                    Enviar Mensagem
+                    }
+                </button>
+            </form>
+            }
+        </div>
+    </section>
+
+    <!-- FAQ Link -->
+    <section class="faq-section">
+        <div class="section-container">
+            <div class="faq-card">
+                <i class="pi pi-question-circle"></i>
+                <div>
+                    <h3>Perguntas Frequentes</h3>
+                    <p>Talvez sua dúvida já tenha sido respondida.</p>
+                </div>
+                <a routerLink="/institutional/about" class="faq-btn">
+                    Ver FAQ
+                    <i class="pi pi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+</div>

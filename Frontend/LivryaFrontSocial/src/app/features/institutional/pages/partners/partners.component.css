@@ -1,0 +1,52 @@
+/* Partners page styles */
+@import '../terms/terms.component.css';
+
+.intro-section {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: var(--space-6);
+}
+
+.intro-text {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-600);
+  text-align: center;
+}
+
+.benefits-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-success-50);
+  border: 1px solid var(--color-success-100);
+  border-radius: var(--radius-lg);
+}
+
+.benefit-item i {
+  font-size: 1.25rem;
+  color: var(--color-success-500);
+}
+
+.benefit-item span {
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-success-700);
+}
+
+.page-nav {
+  justify-content: space-between;
+}
+
+.nav-prev {
+  flex-direction: row-reverse;
+}

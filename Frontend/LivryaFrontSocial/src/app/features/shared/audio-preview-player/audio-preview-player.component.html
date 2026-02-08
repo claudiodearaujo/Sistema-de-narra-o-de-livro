@@ -1,0 +1,115 @@
+<div class="audio-preview-card bg-linear-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 rounded-xl overflow-hidden border border-primary-200 dark:border-primary-700">
+  <!-- Header -->
+  <div class="bg-primary-100 dark:bg-primary-800/50 px-4 py-2 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <i class="pi pi-volume-up text-primary-600 dark:text-primary-400"></i>
+      <span class="text-sm font-medium text-primary-800 dark:text-primary-200">
+        Narração disponível
+      </span>
+    </div>
+    <p-tag value="🎧 Áudio" severity="info" />
+  </div>
+
+  <!-- Content -->
+  <div class="p-4">
+    <!-- Book/Chapter Info -->
+    <div class="flex items-center gap-3 mb-4">
+      @if (book()?.coverUrl) {
+        <img 
+          [src]="book()!.coverUrl" 
+          [alt]="book()!.title"
+          class="w-12 h-16 object-cover rounded shadow-sm"
+        />
+      }
+      <div class="flex-1 min-w-0">
+        <h3 class="font-semibold text-primary-800 dark:text-primary-200 truncate">
+          {{ chapter()?.title || 'Narração' }}
+        </h3>
+        <p class="text-sm text-secondary truncate">
+          {{ book()?.title }} • {{ book()?.author }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Audio Player -->
+    <div class="bg-white/60 dark:bg-secondary-800/60 rounded-lg p-4">
+      <!-- Waveform Visualization (Static) -->
+      <div class="flex items-center gap-1 h-12 mb-3">
+        @for (bar of waveformBars; track $index) {
+          <div 
+            class="flex-1 rounded-full transition-all duration-300"
+            [style.height.%]="bar"
+            [class]="isPlaying() && $index <= currentBarIndex() ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
+          ></div>
+        }
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center gap-4">
+        <button 
+          pButton 
+          type="button"
+          [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'"
+          class="p-button-rounded p-button-lg"
+          [class]="isPlaying() ? 'p-button-primary' : 'p-button-secondary'"
+          (click)="togglePlay()"
+        ></button>
+
+        <!-- Progress -->
+        <div class="flex-1">
+          <p-slider 
+            [(ngModel)]="progress"
+            [min]="0"
+            [max]="100"
+            (onChange)="onSeek($event)"
+            styleClass="w-full"
+          />
+        </div>
+
+        <!-- Time -->
+        <div class="text-sm text-secondary min-w-20 text-right">
+          {{ formatTime(currentTime()) }} / {{ formatTime(duration()) }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-between mt-4">
+      <div class="flex items-center gap-2">
+        <button 
+          pButton 
+          type="button"
+          icon="pi pi-download"
+          class="p-button-text p-button-sm p-button-secondary"
+          pTooltip="Baixar áudio"
+        ></button>
+        <button 
+          pButton 
+          type="button"
+          icon="pi pi-external-link"
+          class="p-button-text p-button-sm p-button-secondary"
+          pTooltip="Abrir no player completo"
+        ></button>
+      </div>
+
+      <a 
+        [routerLink]="['/books', book()?.id, 'chapter', chapter()?.id, 'listen']"
+        pButton
+        type="button"
+        label="Ouvir completo"
+        icon="pi pi-headphones"
+        class="p-button-sm"
+      ></a>
+    </div>
+  </div>
+
+  <!-- Hidden Audio Element -->
+  <audio 
+    #audioPlayer
+    [src]="audioUrl()"
+    (timeupdate)="onTimeUpdate()"
+    (loadedmetadata)="onMetadataLoaded()"
+    (ended)="onEnded()"
+    preload="metadata"
+  ></audio>
+</div>

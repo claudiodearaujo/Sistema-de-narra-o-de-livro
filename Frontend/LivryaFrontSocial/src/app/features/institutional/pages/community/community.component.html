@@ -1,0 +1,103 @@
+<div class="community-page">
+    <!-- Hero Section -->
+    <section class="community-hero">
+        <div class="hero-container">
+            <div class="hero-badge">
+                <i class="pi pi-users"></i>
+                Comunidade
+            </div>
+            <h1 class="hero-title">Comunidade Livrya</h1>
+            <p class="hero-subtitle">
+                A Livrya é feita de pessoas.
+            </p>
+            <p class="hero-description">
+                Incentivamos trocas honestas, apoio entre criadores e leitura consciente.
+                Comentários construtivos são sempre bem-vindos.
+            </p>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="section-container">
+            <h2 class="section-title">Nossos Valores</h2>
+            <div class="values-grid">
+                @for (value of values; track value.title) {
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="pi" [ngClass]="value.icon"></i>
+                    </div>
+                    <h3>{{ value.title }}</h3>
+                    <p>{{ value.description }}</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Features -->
+    <section class="features-section">
+        <div class="section-container">
+            <h2 class="section-title">O que você encontra aqui</h2>
+            <div class="features-list">
+                <div class="feature-item">
+                    <i class="pi pi-book"></i>
+                    <div>
+                        <h3>Clubes de Leitura</h3>
+                        <p>Participe de grupos que leem e discutem obras juntos.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="pi pi-pencil"></i>
+                    <div>
+                        <h3>Grupos de Escrita</h3>
+                        <p>Conecte-se com outros autores para feedback e motivação.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="pi pi-calendar"></i>
+                    <div>
+                        <h3>Eventos e Desafios</h3>
+                        <p>Participe de maratonas de escrita e concursos literários.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="pi pi-hashtag"></i>
+                    <div>
+                        <h3>Hashtags e Trends</h3>
+                        <p>Descubra os assuntos mais comentados da comunidade.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Guidelines Link -->
+    <section class="guidelines-section">
+        <div class="section-container">
+            <div class="guidelines-card">
+                <i class="pi pi-info-circle"></i>
+                <div>
+                    <h3>Conheça nossas diretrizes</h3>
+                    <p>Para manter um ambiente saudável, temos regras de convivência.</p>
+                </div>
+                <a routerLink="/institutional/content-guidelines" class="guidelines-btn">
+                    Ver Diretrizes
+                    <i class="pi pi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2>Faça parte da comunidade</h2>
+            <p>Junte-se a milhares de leitores e escritores apaixonados por literatura.</p>
+            <div class="cta-actions">
+                <a routerLink="/auth/signup" class="cta-btn-primary">Entrar para a Comunidade</a>
+                <a routerLink="/social" class="cta-btn-secondary">Explorar a Comunidade</a>
+            </div>
+        </div>
+    </section>
+</div>

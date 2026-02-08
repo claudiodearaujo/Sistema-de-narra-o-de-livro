@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ========== AI USAGE TRACKING ==========
+
+enum AIOperationType {
+  TTS_GENERATE
+  TTS_PREVIEW
+  TTS_VOICES_LIST
+  TEXT_GENERATE
+  TEXT_SPELLCHECK
+  TEXT_SUGGEST
+  TEXT_ENRICH
+  IMAGE_GENERATE
+  IMAGE_EMOTION
+  NARRATION_CHAPTER
+}
+
+enum AIProviderName {
+  GEMINI
+  ELEVENLABS
+  OPENAI
+  ANTHROPIC
+  STABILITY
+  AZURE
+}
+
+model AIUsageLog {
+  id            String          @id @default(uuid())
+
+  // Quem (referência externa ao backend)
+  userId        String          @map("user_id")
+  clientId      String?         @map("client_id")  // ID da aplicação cliente
+
+  // O que
+  operation     AIOperationType
+  provider      AIProviderName
+
+  // Contexto (referências externas)
+  resourceType  String?         @map("resource_type")
+  resourceId    String?         @map("resource_id")
+
+  // Métricas de uso
+  inputTokens   Int             @default(0) @map("input_tokens")
+  outputTokens  Int             @default(0) @map("output_tokens")
+  inputChars    Int             @default(0) @map("input_chars")
+  outputBytes   Int             @default(0) @map("output_bytes")
+  durationMs    Int             @default(0) @map("duration_ms")
+
+  // Custo
+  estimatedCost Float           @default(0) @map("estimated_cost")
+  creditsCost   Int             @default(0) @map("credits_cost")
+
+  // Resultado
+  success       Boolean         @default(true)
+  errorMessage  String?         @map("error_message")
+
+  // Metadados
+  metadata      Json?
+
+  createdAt     DateTime        @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([operation])
+  @@index([provider])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([userId, operation])
+  @@index([provider, createdAt])
+  @@index([clientId, createdAt])
+
+  @@map("ai_usage_logs")
+}
+
+// ========== AUDIO CACHE ==========
+
+model AudioCache {
+  id              String   @id @default(uuid())
+
+  // Cache key components
+  textHash        String   @unique @map("text_hash")
+  text            String
+  voiceId         String   @map("voice_id")
+  provider        String
+
+  // Cached audio
+  audioUrl        String   @map("audio_url")
+  audioDurationMs Int      @map("audio_duration_ms")
+  audioSizeBytes  Int      @map("audio_size_bytes")
+  format          String   @default("mp3")
+
+  // Usage tracking
+  hitCount        Int      @default(0) @map("hit_count")
+  lastAccessedAt  DateTime @default(now()) @map("last_accessed_at")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  expiresAt       DateTime? @map("expires_at")
+
+  @@index([textHash])
+  @@index([voiceId])
+  @@index([provider])
+  @@index([lastAccessedAt])
+  @@index([createdAt])
+
+  @@map("audio_cache")
+}
+
+// ========== API KEYS ==========
+
+model ApiKey {
+  id          String    @id @default(uuid())
+
+  // Identificação
+  name        String
+  key         String    @unique
+  keyHash     String    @unique @map("key_hash")
+
+  // Permissões
+  permissions Json      @default("[]")
+  rateLimit   Int       @default(100) @map("rate_limit")
+
+  // Quotas
+  monthlyQuota Int?     @map("monthly_quota")
+  usedQuota    Int      @default(0) @map("used_quota")
+  quotaResetAt DateTime? @map("quota_reset_at")
+
+  // Status
+  isActive    Boolean   @default(true) @map("is_active")
+  lastUsedAt  DateTime? @map("last_used_at")
+  expiresAt   DateTime? @map("expires_at")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([key])
+  @@index([keyHash])
+  @@index([isActive])
+
+  @@map("api_keys")
+}
+
+// ========== COST CONFIGURATION ==========
+
+model CostConfig {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Int
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("cost_configs")
+}
+
+// ========== SYNC JOBS ==========
+
+model SyncJob {
+  id              String   @id @default(uuid())
+
+  // Referência externa
+  clientId        String   @map("client_id")
+  userId          String   @map("user_id")
+  resourceType    String   @map("resource_type")  // "chapter", "book", etc.
+  resourceId      String   @map("resource_id")
+
+  // Status
+  status          String   @default("pending")  // pending, processing, completed, failed
+  progress        Int      @default(0)
+
+  // Configuração
+  provider        String?
+  config          Json?
+
+  // Resultados
+  outputUrl       String?  @map("output_url")
+  totalItems      Int?     @map("total_items")
+  completedItems  Int      @default(0) @map("completed_items")
+  failedItems     Int      @default(0) @map("failed_items")
+  timelineJson    Json?    @map("timeline_json")
+  errorMessage    String?  @map("error_message")
+
+  // Tempos
+  startedAt       DateTime? @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([clientId])
+  @@index([userId])
+  @@index([resourceType, resourceId])
+  @@index([status])
+  @@index([createdAt])
+
+  @@map("sync_jobs")
+}

@@ -1,0 +1,211 @@
+<div class="notifications-container" *transloco="let t">
+  <div class="notifications-header">
+    <h1>{{ t('social.notifications.title') }}</h1>
+    <div class="header-actions">
+      <p-button [icon]="groupingEnabled() ? 'pi pi-list' : 'pi pi-objects-column'"
+        [text]="true"
+        size="small"
+        [pTooltip]="groupingEnabled() ? t('social.notifications.showIndividually') : t('social.notifications.groupSimilar')"
+        (onClick)="toggleGrouping()" />
+      @if (unreadCount() > 0) {
+        <p-button [label]="t('social.notifications.markAllAsRead')"
+          [text]="true"
+          size="small"
+          (onClick)="markAllAsRead()" />
+      }
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="notification-filters">
+    @for (filter of filterOptions; track filter.value) {
+      <button
+        class="filter-chip"
+        [class.active]="selectedFilter() === filter.value"
+        (click)="setFilter(filter.value)">
+        <i [class]="filter.icon"></i>
+        <span>{{ getFilterLabel(filter.labelKey) }}</span>
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="notifications-skeleton">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="notification-skeleton">
+          <p-skeleton shape="circle" size="3rem" />
+          <div class="skeleton-content">
+            <p-skeleton width="80%" height="1rem" />
+            <p-skeleton width="60%" height="0.8rem" class="mt-2" />
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <p-tabs value="0">
+      <p-tablist>
+        <p-tab value="0">
+          {{ t('social.notifications.tabs.all') }}
+          @if (unreadCount() > 0) {
+            <p-badge [value]="unreadCount().toString()" severity="danger" class="ml-2" />
+          }
+        </p-tab>
+        <p-tab value="1">{{ t('social.notifications.tabs.unread') }}</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <div class="notifications-list">
+            @if (groupingEnabled() && groupedNotifications(); as grouped) {
+              @for (notification of grouped; track notification.id) {
+                @if (getNotificationLink(notification); as link) {
+                  <a
+                    [routerLink]="link"
+                    class="notification-item"
+                    [class.unread]="!notification.isRead"
+                    [class.grouped]="notification.count > 1"
+                    (click)="markAsRead(notification)">
+                    <ng-container *ngTemplateOutlet="groupedContent; context: { $implicit: notification }" />
+                  </a>
+                } @else {
+                  <div
+                    class="notification-item"
+                    [class.unread]="!notification.isRead"
+                    [class.grouped]="notification.count > 1"
+                    (click)="markAsRead(notification)">
+                    <ng-container *ngTemplateOutlet="groupedContent; context: { $implicit: notification }" />
+                  </div>
+                }
+              } @empty {
+                <div class="empty-state">
+                  <i class="pi pi-bell empty-icon"></i>
+                  <h3>{{ t('social.notifications.noNotifications') }}</h3>
+                  <p>{{ t('social.notifications.noNotificationsYet') }}</p>
+                </div>
+              }
+            } @else {
+              @for (notification of filteredNotifications(); track notification.id) {
+                @if (getNotificationLink(notification); as link) {
+                  <a
+                    [routerLink]="link"
+                    class="notification-item"
+                    [class.unread]="!notification.isRead"
+                    (click)="markAsRead(notification)">
+                    <ng-container *ngTemplateOutlet="notificationContent; context: { $implicit: notification }" />
+                  </a>
+                } @else {
+                  <div
+                    class="notification-item"
+                    [class.unread]="!notification.isRead"
+                    (click)="markAsRead(notification)">
+                    <ng-container *ngTemplateOutlet="notificationContent; context: { $implicit: notification }" />
+                  </div>
+                }
+              } @empty {
+                <div class="empty-state">
+                  <i class="pi pi-bell empty-icon"></i>
+                  <h3>{{ t('social.notifications.noNotifications') }}</h3>
+                  <p>{{ t('social.notifications.noNotificationsYet') }}</p>
+                </div>
+              }
+            }
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="1">
+          <div class="notifications-list">
+            @for (notification of getUnreadNotifications(); track notification.id) {
+              @if (getNotificationLink(notification); as link) {
+                <a
+                  [routerLink]="link"
+                  class="notification-item unread"
+                  (click)="markAsRead(notification)">
+                  <ng-container *ngTemplateOutlet="notificationContent; context: { $implicit: notification }" />
+                </a>
+              } @else {
+                <div
+                  class="notification-item unread"
+                  (click)="markAsRead(notification)">
+                  <ng-container *ngTemplateOutlet="notificationContent; context: { $implicit: notification }" />
+                </div>
+              }
+            } @empty {
+              <div class="empty-state">
+                <i class="pi pi-check-circle empty-icon"></i>
+                <h3>{{ t('social.notifications.allRead') }}</h3>
+                <p>{{ t('social.notifications.allReadMessage') }}</p>
+              </div>
+            }
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  }
+</div>
+
+<!-- Notification Content Template -->
+<ng-template #notificationContent let-notification>
+  <div class="notification-icon" [style.backgroundColor]="getNotificationColor(notification.type)">
+    <i [class]="getNotificationIcon(notification.type)"></i>
+  </div>
+
+  <div class="notification-body">
+    @if (notification.actor) {
+      <p-avatar [image]="notification.actor.avatar || undefined"
+        [label]="notification.actor.avatar ? undefined : notification.actor.name.charAt(0)"
+        size="normal"
+        shape="circle" />
+    }
+
+    <div class="notification-text">
+      @if (notification.actor) {
+        <span class="actor-name">{{ notification.actor.name }}</span>
+      }
+      <span>{{ notification.message }}</span>
+    </div>
+  </div>
+
+  <span class="notification-time">{{ formatTimeAgo(notification.createdAt) }}</span>
+
+  @if (!notification.isRead) {
+    <span class="unread-dot"></span>
+  }
+</ng-template>
+
+<!-- Grouped Notification Content Template -->
+<ng-template #groupedContent let-notification>
+  <div class="notification-icon" [style.backgroundColor]="getNotificationColor(notification.type)">
+    <i [class]="getNotificationIcon(notification.type)"></i>
+    @if (notification.count > 1) {
+      <span class="group-badge">{{ notification.count }}</span>
+    }
+  </div>
+
+  <div class="notification-body">
+    <!-- Stacked avatars for grouped notifications -->
+    @if (notification.actors && notification.actors.length > 0) {
+      <div class="stacked-avatars">
+        @for (actor of notification.actors.slice(0, 3); track actor.id; let i = $index) {
+          <p-avatar [image]="actor.avatar || undefined"
+            [label]="actor.avatar ? undefined : actor.name.charAt(0)"
+            size="normal"
+            shape="circle"
+            [style.z-index]="3 - i"
+            [style.margin-left]="i > 0 ? '-0.75rem' : '0'" />
+        }
+        @if (notification.actors.length > 3) {
+          <span class="more-actors">+{{ notification.actors.length - 3 }}</span>
+        }
+      </div>
+    }
+
+    <div class="notification-text">
+      <span>{{ notification.message }}</span>
+    </div>
+  </div>
+
+  <span class="notification-time">{{ formatTimeAgo(notification.createdAt) }}</span>
+
+  @if (!notification.isRead) {
+    <span class="unread-dot"></span>
+  }
+</ng-template>

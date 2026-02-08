@@ -1,0 +1,98 @@
+<ng-container *transloco="let t">
+<p-dialog
+  [header]="t('postComposer.title')"
+  [visible]="dialogVisible"
+  (visibleChange)="onDialogVisibleChange($event)"
+  [modal]="true"
+  [dismissableMask]="true"
+  [closable]="!submitting()"
+  [style]="{width: '500px', maxWidth: '95vw'}"
+  (onHide)="close()">
+
+  <div class="composer-content">
+    <!-- User Info -->
+    <div class="composer-header">
+      <p-avatar [image]="userAvatar() || ''"
+        [label]="!userAvatar() ? getInitials() : ''"
+        shape="circle"
+        size="normal" />
+      <span class="user-name">{{ userName() || t('postComposer.you') }}</span>
+    </div>
+
+    <!-- Content Input -->
+    <textarea
+      pTextarea
+      class="content-input"
+      [ngModel]="content()"
+      (ngModelChange)="onContentChange($event)"
+      [placeholder]="t('postComposer.placeholder')"
+      [rows]="4"
+      [autoResize]="true"
+      [maxlength]="MAX_CHARACTERS"
+      [disabled]="submitting()">
+    </textarea>
+
+    <!-- Character Counter -->
+    <div class="character-counter" [class.warning]="remainingCharacters < 100" [class.danger]="remainingCharacters < 0">
+      {{ remainingCharacters }} {{ t('postComposer.charactersRemaining') }}
+    </div>
+
+    <!-- Image URL Input -->
+    @if (showImageInput()) {
+      <div class="image-input-container">
+        <input
+          type="url"
+          pInputText
+          class="image-url-input"
+          [ngModel]="mediaUrl()"
+          (ngModelChange)="onMediaUrlChange($event)"
+          [placeholder]="t('postComposer.imageUrlPlaceholder')"
+          [disabled]="submitting()">
+        @if (mediaUrl()) {
+          <div class="image-preview">
+            <img [src]="mediaUrl()" alt="Preview" (error)="mediaUrl.set('')">
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Actions -->
+  <ng-template pTemplate="footer">
+    <div class="composer-footer">
+      <div class="action-buttons">
+        <button
+          pButton
+          class="p-button-text p-button-rounded"
+          icon="pi pi-image"
+          [class.active]="showImageInput()"
+          [pTooltip]="t('postComposer.addImage')"
+          tooltipPosition="top"
+          (click)="toggleImageInput()"
+          [disabled]="submitting()">
+        </button>
+        <!-- Future: emoji picker, polls, etc -->
+      </div>
+
+      <div class="submit-buttons">
+        <button
+          pButton
+          class="p-button-text"
+          [label]="t('common.cancel')"
+          (click)="close()"
+          [disabled]="submitting()">
+        </button>
+        <button
+          pButton
+          [label]="t('postComposer.publish')"
+          icon="pi pi-send"
+          iconPos="right"
+          [disabled]="!isValid || submitting()"
+          [loading]="submitting()"
+          (click)="submit()">
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+</ng-container>

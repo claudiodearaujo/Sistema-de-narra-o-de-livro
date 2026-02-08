@@ -1,0 +1,23 @@
+.post-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+:host ::ng-deep .p-button.p-button-text {
+  font-weight: 500;
+}
+
+:host ::ng-deep .p-button.p-button-text:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

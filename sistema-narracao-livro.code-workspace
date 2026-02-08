@@ -1,0 +1,182 @@
+{
+  "folders": [
+    {
+      "name": "Backend",
+      "path": "backend"
+    },
+    {
+      "name": "Writer Center Front",
+      "path": "Frontend/WriterCenterFront"
+    },
+    {
+      "name": "AI Service",
+      "path": "ai-service"
+    },
+    {
+      "name": "Livrya Front Social",
+      "path": "Frontend/LivryaFrontSocial"
+    },
+    {
+      "name": "Root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.git": true,
+      "**/.angular": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.angular": true
+    },
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "prisma.prisma",
+      "bradlc.vscode-tailwindcss",
+      "ms-vscode.vscode-typescript-next",
+      "angular.ng-template"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Backend: Debug",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "cwd": "${workspaceFolder:Backend}",
+        "console": "integratedTerminal",
+        "skipFiles": ["<node_internals>/**"]
+      },
+      {
+        "name": "AI Service: Debug",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "cwd": "${workspaceFolder:AI Service}",
+        "console": "integratedTerminal",
+        "skipFiles": ["<node_internals>/**"]
+      },
+      {
+        "name": "Writer Center Front: Debug",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:5173",
+        "webRoot": "${workspaceFolder:Writer Center Front}/src"
+      },
+      {
+        "name": "Livrya Front Social: Debug",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:4200",
+        "webRoot": "${workspaceFolder:Livrya Front Social}/src"
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Full Stack",
+        "configurations": ["Backend: Debug", "AI Service: Debug", "Writer Center Front: Debug"]
+      },
+      {
+        "name": "Full Stack + Livrya",
+        "configurations": ["Backend: Debug", "AI Service: Debug", "Livrya Front Social: Debug"]
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Backend: Install",
+        "type": "shell",
+        "command": "npm install",
+        "options": {
+          "cwd": "${workspaceFolder:Backend}"
+        }
+      },
+      {
+        "label": "Backend: Dev",
+        "type": "shell",
+        "command": "npm run dev",
+        "options": {
+          "cwd": "${workspaceFolder:Backend}"
+        },
+        "isBackground": true
+      },
+      {
+        "label": "AI Service: Install",
+        "type": "shell",
+        "command": "npm install",
+        "options": {
+          "cwd": "${workspaceFolder:AI Service}"
+        }
+      },
+      {
+        "label": "AI Service: Dev",
+        "type": "shell",
+        "command": "npm run dev",
+        "options": {
+          "cwd": "${workspaceFolder:AI Service}"
+        },
+        "isBackground": true
+      },
+      {
+        "label": "Writer Center Front: Install",
+        "type": "shell",
+        "command": "npm install",
+        "options": {
+          "cwd": "${workspaceFolder:Writer Center Front}"
+        }
+      },
+      {
+        "label": "Writer Center Front: Dev",
+        "type": "shell",
+        "command": "npm run dev",
+        "options": {
+          "cwd": "${workspaceFolder:Writer Center Front}"
+        },
+        "isBackground": true
+      },
+      {
+        "label": "Livrya Front Social: Install",
+        "type": "shell",
+        "command": "npm install",
+        "options": {
+          "cwd": "${workspaceFolder:Livrya Front Social}"
+        }
+      },
+      {
+        "label": "Livrya Front Social: Dev",
+        "type": "shell",
+        "command": "npm start",
+        "options": {
+          "cwd": "${workspaceFolder:Livrya Front Social}"
+        },
+        "isBackground": true
+      },
+      {
+        "label": "Install All",
+        "dependsOn": ["Backend: Install", "AI Service: Install", "Writer Center Front: Install", "Livrya Front Social: Install"]
+      },
+      {
+        "label": "Dev All",
+        "dependsOn": ["Backend: Dev", "AI Service: Dev", "Writer Center Front: Dev"]
+      }
+    ]
+  }
+}

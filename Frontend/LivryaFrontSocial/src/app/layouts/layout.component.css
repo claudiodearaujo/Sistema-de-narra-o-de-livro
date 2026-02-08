@@ -1,0 +1,46 @@
+.layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-image: url(../../assets/backgroud.jpeg);
+    background-repeat: no-repeat;
+    background-size: 100vw 100vh;
+    background-attachment: fixed;
+}
+
+
+.logo-icon {
+    width: 40px;
+    height: auto;
+}
+
+.logo-icon-2 {
+    width: 90px;
+    height: auto;
+}
+
+.layout-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--surface-card);
+    border-bottom: var(--border-width) solid var(--surface-border);
+}
+
+.layout-main {
+    flex: 1;
+    padding: var(--space-6);
+}
+
+.layout-footer {
+    margin-top: auto;
+    background: var(--surface-card);
+    border-top: var(--border-width) solid var(--surface-border);
+    padding: var(--space-4) var(--space-6);
+}
+
+@media (max-width: 768px) {
+    .layout-main {
+        padding: var(--space-4);
+    }
+}

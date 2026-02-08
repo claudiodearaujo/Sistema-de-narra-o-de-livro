@@ -1,0 +1,162 @@
+<ng-container *transloco="let t">
+  <div class="feed-container">
+    <!-- Toast for notifications -->
+    <p-toast />
+
+    <!-- Story Bar -->
+    <app-story-bar
+      #storyBar
+      (createStory)="openStoryCreator()"
+      (viewStory)="openStoryViewer($event)"
+    />
+
+    <!-- Post Composer -->
+    <div class="post-composer">
+      <p-avatar shape="circle"
+        label="EU"
+        size="normal" />
+      <div class="composer-input" (click)="openPostModal()">
+        <span>{{ t('social.feed.whatAreYouThinking') }}</span>
+      </div>
+      <button pButton class="p-button-text" icon="pi pi-image" [pTooltip]="t('social.feed.addImage')"></button>
+    </div>
+
+    <!-- Error State -->
+    @if (error()) {
+      <div class="error-state">
+        <i class="pi pi-exclamation-circle error-icon"></i>
+        <p>{{ error() }}</p>
+        <button pButton [label]="t('common.actions.tryAgain')" icon="pi pi-refresh" (click)="refresh()"></button>
+      </div>
+    }
+
+    <!-- Loading Skeleton -->
+    @if (loading() && posts().length === 0) {
+      @for (i of [1, 2, 3]; track i) {
+        <div class="post-skeleton">
+          <div class="skeleton-header">
+            <p-skeleton shape="circle" size="3rem" />
+            <div class="skeleton-info">
+              <p-skeleton width="150px" height="1rem" />
+              <p-skeleton width="100px" height="0.8rem" />
+            </div>
+          </div>
+          <p-skeleton width="100%" height="4rem" styleClass="mt-3" />
+          <p-skeleton width="100%" height="200px" styleClass="mt-2" />
+          <div class="skeleton-actions mt-3">
+            <p-skeleton width="60px" height="1.5rem" />
+            <p-skeleton width="60px" height="1.5rem" />
+            <p-skeleton width="60px" height="1.5rem" />
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Posts -->
+    @for (post of posts(); track trackByPostId($index, post)) {
+      <div class="post-card">
+        <div class="post-header">
+          <p-avatar [label]="getInitials(post.user.name)"
+            [image]="post.user.avatar || ''"
+            shape="circle"
+            size="normal"
+            (click)="goToProfile(post.user.username || post.user.id)" />
+          <div class="post-user-info">
+            <span class="user-name" (click)="goToProfile(post.user.username || post.user.id)">
+              {{ post.user.name }}
+            </span>
+            <span class="post-time">{{ post.createdAt | timeAgo }}</span>
+          </div>
+          <button pButton class="p-button-text p-button-rounded" icon="pi pi-ellipsis-h"></button>
+        </div>
+
+        <div class="post-content">
+          <p>{{ post.content }}</p>
+          @if (post.mediaUrl) {
+            <img [src]="post.mediaUrl" alt="Post image" class="post-image">
+          }
+        </div>
+
+        <div class="post-stats">
+          <span>{{ post.likeCount }} {{ t('social.feed.likes') }}</span>
+          <span>{{ post.commentCount }} {{ t('social.feed.comments') }}</span>
+        </div>
+
+        <div class="post-actions">
+          <button
+            pButton
+            class="p-button-text"
+            [icon]="post.isLiked ? 'pi pi-heart-fill' : 'pi pi-heart'"
+            [class.liked]="post.isLiked"
+            [label]="t('social.feed.like')"
+            (click)="toggleLike(post)">
+          </button>
+          <button
+            pButton
+            class="p-button-text"
+            icon="pi pi-comment"
+            [label]="t('social.feed.comment')"
+            (click)="goToPost(post.id)">
+          </button>
+          <button
+            pButton
+            class="p-button-text"
+            icon="pi pi-share-alt"
+            [label]="t('social.feed.share')">
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (posts().length === 0 && !loading() && !error()) {
+      <div class="empty-state">
+        <i class="pi pi-inbox empty-icon"></i>
+        <h3>{{ t('social.feed.empty') }}</h3>
+        <p>{{ t('social.feed.emptySubtitle') }}</p>
+        <button pButton [label]="t('common.actions.explore')" icon="pi pi-compass" (click)="goToExplore()"></button>
+      </div>
+    }
+
+    <!-- Infinite Scroll Sentinel -->
+    <div
+      appInfiniteScroll
+      (scrolled)="loadMore()"
+      [disabled]="isScrollDisabled()"
+      [threshold]="0.1"
+      rootMargin="200px"
+      class="sentinel">
+    </div>
+
+    <!-- Loading More -->
+    @if (loadingMore()) {
+      <div class="loading-more">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ t('common.loadingMore') }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Post Composer Modal -->
+  <app-post-composer [visible]="showPostComposer()"
+    [userName]="currentUser()?.name || 'User'"
+    [userAvatar]="currentUser()?.avatar || ''"
+    (visibleChange)="showPostComposer.set($event)"
+    (postCreated)="onPostCreated($event)" />
+
+  <!-- Story Creator Modal -->
+  <app-story-creator
+    #storyCreator
+    (created)="onStoryCreated()"
+  />
+
+  <!-- Story Viewer -->
+  @if (showStoryViewer()) {
+    <app-story-viewer
+      [userStories]="storyViewerData()"
+      [startIndex]="storyViewerStartIndex()"
+      [currentUserId]="currentUser()?.id || ''"
+      (close)="closeStoryViewer()"
+    />
+  }
+</ng-container>

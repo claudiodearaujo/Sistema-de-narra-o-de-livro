@@ -1,0 +1,308 @@
+/* ==========================================================================
+   LIVRIA Post Detail — Design Tokens Applied
+   ========================================================================== */
+
+.post-detail-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Header */
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-4);
+  border-bottom: var(--border-width) solid var(--surface-border);
+}
+
+.detail-header h2 {
+  font-family: var(--font-heading);
+  margin: 0;
+  font-size: var(--text-xl);
+  color: var(--text-primary);
+}
+
+/* Post Card */
+.post-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-4);
+  border: var(--border-width) solid var(--surface-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.post-user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.user-name:hover {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.user-handle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.post-content {
+  padding: 0 var(--space-4);
+}
+
+.post-content p {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--text-primary);
+}
+
+.post-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  margin-top: var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.post-timestamp {
+  padding: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  border-bottom: var(--border-width) solid var(--surface-border);
+}
+
+.post-metrics {
+  display: flex;
+  gap: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  border-bottom: var(--border-width) solid var(--surface-border);
+}
+
+.post-metrics strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-around;
+  padding: var(--space-2);
+}
+
+.post-actions button {
+  color: var(--text-secondary);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.post-actions button:hover {
+  color: var(--color-primary-600);
+}
+
+.post-actions button.liked {
+  color: var(--color-accent-500) !important;
+}
+
+/* Comment Composer */
+.comment-composer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-4);
+  border: var(--border-width) solid var(--surface-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.composer-input-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.composer-input-wrapper textarea {
+  width: 100%;
+  resize: none;
+  font-family: var(--font-body);
+}
+
+.cancel-reply {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.cancel-reply:hover {
+  color: var(--text-primary);
+}
+
+/* Comments Section */
+.comments-section {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--surface-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.comments-section h3 {
+  font-family: var(--font-heading);
+  margin: 0 0 var(--space-4) 0;
+  font-size: var(--text-md);
+  color: var(--text-primary);
+}
+
+.comment-card {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: var(--border-width) solid var(--surface-border);
+}
+
+.comment-card:last-child {
+  border-bottom: none;
+}
+
+.comment-body {
+  flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.comment-author {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.comment-author:hover {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.comment-time {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.comment-text {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+}
+
+.comment-actions {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.action-btn:hover {
+  color: var(--color-primary-600);
+}
+
+.action-btn.liked {
+  color: var(--color-accent-500);
+}
+
+/* Replies */
+.replies-list {
+  margin-top: var(--space-3);
+  padding-left: var(--space-2);
+  border-left: 2px solid var(--color-primary-200);
+}
+
+.reply-card {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+}
+
+.reply-body {
+  flex: 1;
+}
+
+/* No Comments */
+.no-comments {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--text-muted);
+}
+
+/* Skeleton */
+.post-skeleton {
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid var(--surface-border);
+}
+
+.skeleton-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.skeleton-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
+}

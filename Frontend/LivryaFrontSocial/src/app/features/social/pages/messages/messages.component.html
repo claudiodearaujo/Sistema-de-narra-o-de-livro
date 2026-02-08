@@ -1,0 +1,167 @@
+<ng-container *transloco="let t">
+  <div class="messages-container">
+    <div class="messages-header">
+      <h1>{{ t('social.messages.title') }}</h1>
+      @if (totalUnread() > 0) {
+        <p-badge [value]="totalUnread().toString()" severity="danger" />
+      }
+      <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" class="new-message-btn" (onClick)="openNewMessageDialog()" />
+    </div>
+
+    <!-- Error State -->
+    @if (error()) {
+      <p-message severity="error" [text]="error()!" styleClass="w-full mb-3" />
+      <div class="text-center">
+        <p-button [label]="t('social.messages.tryAgain')" icon="pi pi-refresh" (onClick)="retry()" />
+      </div>
+    } @else {
+      <!-- Search -->
+      <div class="search-box">
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchQuery"
+            [placeholder]="t('social.messages.searchConversations')"
+            class="w-full">
+        </span>
+      </div>
+
+      @if (loading()) {
+        <div class="conversations-skeleton">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="conversation-skeleton">
+              <p-skeleton shape="circle" size="3.5rem" />
+              <div class="skeleton-content">
+                <p-skeleton width="60%" height="1rem" />
+                <p-skeleton width="80%" height="0.8rem" class="mt-2" />
+              </div>
+              <p-skeleton width="40px" height="0.8rem" />
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="conversations-list">
+          @for (conversation of filteredConversations(); track conversation.id) {
+            <a
+              [routerLink]="['/social/messages', conversation.participant.id]"
+              class="conversation-item"
+              [class.unread]="conversation.unreadCount > 0">
+              <div class="avatar-wrapper">
+                <p-avatar [image]="conversation.participant.avatar || undefined"
+                  [label]="conversation.participant.avatar ? undefined : conversation.participant.name.charAt(0)"
+                  size="large"
+                  shape="circle" />
+                @if (isOnline(conversation.participant.id)) {
+                  <span class="online-indicator"></span>
+                }
+              </div>
+
+              <div class="conversation-info">
+                <div class="conversation-header">
+                  <span class="participant-name">{{ conversation.participant.name }}</span>
+                  <span class="message-time">{{ formatTimeAgo(conversation.lastMessage.createdAt) }}</span>
+                </div>
+                <div class="last-message">
+                  @if (conversation.lastMessage.senderId !== conversation.participant.id) {
+                    <span class="you-label">{{ t('social.messages.you') }} </span>
+                  }
+                  <span [class.unread-text]="conversation.unreadCount > 0">
+                    {{ truncateMessage(conversation.lastMessage.content) }}
+                  </span>
+                </div>
+              </div>
+
+              @if (conversation.unreadCount > 0) {
+                <p-badge [value]="conversation.unreadCount.toString()" severity="info" />
+              }
+            </a>
+          } @empty {
+            <div class="empty-state">
+              @if (searchQuery()) {
+                <i class="pi pi-search empty-icon"></i>
+                <h3>{{ t('social.messages.noResults') }}</h3>
+                <p>{{ t('social.messages.noResultsFor', { query: searchQuery() }) }}</p>
+              } @else {
+                <i class="pi pi-comments empty-icon"></i>
+                <h3>{{ t('social.messages.noMessages') }}</h3>
+                <p>{{ t('social.messages.startConversation') }}</p>
+                <p-button [label]="t('social.messages.newMessage')" icon="pi pi-plus" class="mt-3" (onClick)="openNewMessageDialog()" />
+              }
+            </div>
+          }
+
+          <!-- Load More -->
+          @if (hasMore() && !searchQuery()) {
+            <div class="load-more">
+              <p-button [label]="t('common.actions.loadMore')"
+                [loading]="loadingMore()"
+                [text]="true"
+                (onClick)="loadMore()" />
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- New Message Dialog -->
+  <p-dialog
+    [header]="t('social.messages.newMessage')"
+    [(visible)]="showNewMessageDialog"
+    [modal]="true"
+    [style]="{width: '400px'}"
+    [draggable]="false"
+    [resizable]="false">
+    <div class="new-message-form">
+      <div class="search-user-box">
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchUserQuery"
+            [placeholder]="t('social.messages.searchUsers')"
+            class="w-full"
+            (input)="searchUsers(searchUserQuery())">
+        </span>
+      </div>
+
+      @if (searchingUsers()) {
+        <div class="searching-indicator">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{ t('social.messages.searching') }}</span>
+        </div>
+      }
+
+      @if (foundUsers().length > 0) {
+        <div class="users-list">
+          @for (user of foundUsers(); track user.id) {
+            <a [routerLink]="['/social/messages', user.id]" class="user-item" (click)="closeNewMessageDialog()">
+              <p-avatar [image]="user.avatar || undefined"
+                [label]="user.avatar ? undefined : user.name.charAt(0)"
+                size="normal"
+                shape="circle" />
+              <div class="user-info">
+                <span class="user-name">{{ user.name }}</span>
+                @if (user.username) {
+                  <span class="user-username">&#64;{{ user.username }}</span>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      } @else if (searchUserQuery().length >= 2 && !searchingUsers()) {
+        <div class="no-users-found">
+          <i class="pi pi-user-minus"></i>
+          <p>{{ t('social.messages.noUserFound') }}</p>
+        </div>
+      } @else {
+        <div class="search-hint">
+          <p>{{ t('social.messages.minChars') }}</p>
+        </div>
+      }
+    </div>
+  </p-dialog>
+</ng-container>

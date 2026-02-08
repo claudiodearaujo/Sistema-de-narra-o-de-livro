@@ -33,6 +33,8 @@ const group_routes_1 = __importDefault(require("./routes/group.routes"));
 const campaign_routes_1 = __importDefault(require("./routes/campaign.routes"));
 const story_routes_1 = __importDefault(require("./routes/story.routes"));
 const audit_routes_1 = __importDefault(require("./routes/admin/audit.routes"));
+const oauth_routes_1 = __importDefault(require("./routes/oauth.routes"));
+const ai_api_routes_1 = __importDefault(require("./routes/ai-api.routes"));
 const websocket_server_1 = require("./websocket/websocket.server");
 const middleware_1 = require("./middleware");
 // Initialize Redis queues (if enabled)
@@ -44,6 +46,7 @@ require("./queues/notification.worker");
 require("./queues/subscription.worker");
 require("./queues/story.worker");
 require("./queues/audit.worker");
+require("./queues/chapter-sync.worker");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);
@@ -51,7 +54,7 @@ const port = process.env.PORT || 3000;
 // CORS Configuration - restrict origins in production
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:4200', 'http://localhost:3000'];
+    : ['http://localhost:4200', 'http://localhost:3000', 'http://localhost:5173'];
 const corsOptions = {
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, curl, etc.)
@@ -111,8 +114,12 @@ app.use('/api/groups', group_routes_1.default); // Groups and group campaigns
 app.use('/api/campaigns', campaign_routes_1.default); // Campaign management
 // Sprint 12: Stories routes
 app.use('/api/stories', story_routes_1.default); // Stories (ephemeral content)
+// AI API Routes (unified AI gateway)
+app.use('/api/ai', ai_api_routes_1.default); // AI operations (TTS, Text, Image) with token control
 // Admin Routes
 app.use('/api/admin/audit', audit_routes_1.default); // Audit logging admin API
+// OAuth Routes (SSO for external apps)
+app.use('/oauth', oauth_routes_1.default);
 // Initialize WebSocket
 (0, websocket_server_1.initializeWebSocket)(httpServer);
 httpServer.listen(port, () => {

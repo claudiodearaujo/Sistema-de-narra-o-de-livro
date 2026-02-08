@@ -1,0 +1,95 @@
+<div class="story-viewer-overlay" (click)="onOverlayClick($event)">
+  <div class="story-viewer" [style.--story-duration]="storyDurationCss">
+    <!-- Progress bars -->
+    <div class="progress-container">
+      @for (story of currentUserStories()?.stories || []; track story.id; let i = $index) {
+        <div class="progress-bar-wrapper">
+          <div 
+            class="story-progress-bar"
+            [class.animating]="i === currentStoryIndex() && isPlaying()"
+            [class.completed]="i < currentStoryIndex()"
+          ></div>
+        </div>
+      }
+    </div>
+    <!-- Header -->
+    <div class="story-header">
+      <div class="user-info">
+        @if (currentUserStories()?.userAvatar) {
+          <p-avatar 
+            [image]="currentUserStories()!.userAvatar!" 
+            shape="circle" 
+            size="normal"
+          />
+        } @else {
+          <p-avatar 
+            [label]="getInitials(currentUserStories()?.userName || '')" 
+            shape="circle" 
+            size="normal"
+            styleClass="bg-primary"
+          />
+        }
+        <div class="user-details">
+          <span class="user-name">{{ currentUserStories()?.userName }}</span>
+          <span class="story-time">{{ getTimeSince(currentStory()?.createdAt || '') }}</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <p-button 
+          icon="pi pi-times" 
+          [rounded]="true" 
+          [text]="true" 
+          severity="secondary"
+          (onClick)="close.emit()"
+        />
+      </div>
+    </div>
+
+    <!-- Story Content -->
+    <div class="story-content" (click)="onContentClick($event)">
+      <!-- Left tap area (previous) -->
+      <div class="tap-area left" (click)="previousStory()"></div>
+      
+      <!-- Story Display -->
+      @if (currentStory(); as story) {
+        @switch (story.type) {
+          @case ('IMAGE') {
+            <img [src]="story.mediaUrl" [alt]="story.content || 'Story'" class="story-image" />
+            @if (story.content) {
+              <div class="story-text-overlay">{{ story.content }}</div>
+            }
+          }
+          @case ('TEXT') {
+            <div class="story-text">
+              <p>{{ story.content }}</p>
+            </div>
+          }
+          @case ('QUOTE') {
+            <div class="story-quote">
+              <i class="pi pi-quote-left quote-icon"></i>
+              <p>{{ story.content }}</p>
+            </div>
+          }
+          @default {
+            <div class="story-text">
+              <p>{{ story.content }}</p>
+            </div>
+          }
+        }
+      }
+
+      <!-- Right tap area (next) -->
+      <div class="tap-area right" (click)="nextStory()"></div>
+    </div>
+
+    <!-- Footer (for owner: view count) -->
+    @if (isOwner()) {
+      <div class="story-footer">
+        <div class="view-count" (click)="showViewers.emit(currentStory()!)">
+          <i class="pi pi-spin pi-cog"></i>
+          <span>{{ currentStory()?.viewCount || 0 }} visualizações</span>
+        </div>
+      </div>
+    }
+  </div>
+</div>

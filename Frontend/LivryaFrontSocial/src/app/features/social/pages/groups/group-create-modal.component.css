@@ -1,0 +1,161 @@
+/* Group Create Modal Styles */
+
+:host {
+  display: block;
+}
+
+/* Ensure modal has solid background */
+.modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 28rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background-color: #1f2937;
+  }
+}
+
+/* Form inputs with solid background */
+.modal-content input,
+.modal-content textarea {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-content input,
+  .modal-content textarea {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-header {
+    border-color: #374151;
+  }
+}
+
+/* Form */
+.modal-form {
+  padding: 1rem;
+}
+
+.modal-form > * + * {
+  margin-top: 1rem;
+}
+
+/* Privacy options */
+.privacy-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.privacy-option:hover {
+  background-color: #f3f4f6;
+}
+
+.privacy-option.selected {
+  border-color: var(--primary-500, #166534);
+  background-color: rgba(22, 101, 52, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .privacy-option {
+    border-color: #374151;
+  }
+  
+  .privacy-option:hover {
+    background-color: #374151;
+  }
+}
+
+/* Actions */
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.btn-cancel:hover {
+  background-color: #d1d5db;
+}
+
+.btn-submit {
+  background-color: var(--primary-600, #166534);
+  color: #ffffff;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: var(--primary-700, #15803d);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn-cancel {
+    background-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .btn-cancel:hover {
+    background-color: #4b5563;
+  }
+}

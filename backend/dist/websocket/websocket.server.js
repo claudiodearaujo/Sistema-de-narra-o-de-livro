@@ -10,12 +10,12 @@ exports.emitToAdmins = emitToAdmins;
 const socket_io_1 = require("socket.io");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const client_1 = require("@prisma/client");
-const prisma_1 = __importDefault(require("../lib/prisma"));
 const message_service_1 = require("../services/message.service");
 const notification_service_1 = require("../services/notification.service");
 const notification_worker_1 = require("../queues/notification.worker");
 const livra_service_1 = require("../services/livra.service");
 const audit_service_1 = require("../services/audit.service");
+const prisma = new client_1.PrismaClient();
 // Map of userId to socket ids (a user can have multiple connections)
 const userSockets = new Map();
 /**
@@ -27,7 +27,7 @@ async function getUserFromSocket(socket) {
         return null;
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        const user = await prisma_1.default.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id: decoded.userId },
             select: { id: true, role: true }
         });
@@ -108,10 +108,9 @@ const initializeWebSocket = (httpServer) => {
     exports.io.on('connection', async (socket) => {
         console.log('Client connected:', socket.id);
         const user = await getUserFromSocket(socket);
-        const userId = user?.userId;
         // Register user socket connection
         if (user) {
-            const { role } = user;
+            const { userId, role } = user;
             if (!userSockets.has(userId)) {
                 userSockets.set(userId, new Set());
             }

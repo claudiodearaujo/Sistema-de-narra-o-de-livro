@@ -1,12 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.auditService = exports.AuditService = void 0;
 const client_1 = require("@prisma/client");
-const prisma_1 = __importDefault(require("../lib/prisma"));
 const notification_service_1 = require("./notification.service");
+const prisma = new client_1.PrismaClient();
 // ========== CONSTANTS ==========
 const SENSITIVE_FIELDS = [
     'password', 'senha', 'token', 'refreshToken', 'accessToken',
@@ -81,7 +78,7 @@ class AuditService {
             const description = input.description
                 ? sanitizeString(input.description)
                 : undefined;
-            const log = await prisma_1.default.auditLog.create({
+            const log = await prisma.auditLog.create({
                 data: {
                     userId: input.userId,
                     userEmail: input.userEmail,
@@ -337,7 +334,7 @@ class AuditService {
         const sortBy = filters.sortBy || 'createdAt';
         const sortOrder = filters.sortOrder || 'desc';
         const [data, total] = await Promise.all([
-            prisma_1.default.auditLog.findMany({
+            prisma.auditLog.findMany({
                 where,
                 skip,
                 take: limit,
@@ -353,7 +350,7 @@ class AuditService {
                     },
                 },
             }),
-            prisma_1.default.auditLog.count({ where }),
+            prisma.auditLog.count({ where }),
         ]);
         return {
             data,
@@ -370,7 +367,7 @@ class AuditService {
      * Obtém um log específico por ID
      */
     async getById(id) {
-        return prisma_1.default.auditLog.findUnique({
+        return prisma.auditLog.findUnique({
             where: { id },
             include: {
                 user: {
@@ -391,13 +388,13 @@ class AuditService {
         const now = new Date();
         const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
         const [total, last24hCount, severityStats, categoryStats] = await Promise.all([
-            prisma_1.default.auditLog.count(),
-            prisma_1.default.auditLog.count({ where: { createdAt: { gte: last24h } } }),
-            prisma_1.default.auditLog.groupBy({
+            prisma.auditLog.count(),
+            prisma.auditLog.count({ where: { createdAt: { gte: last24h } } }),
+            prisma.auditLog.groupBy({
                 by: ['severity'],
                 _count: { _all: true },
             }),
-            prisma_1.default.auditLog.groupBy({
+            prisma.auditLog.groupBy({
                 by: ['category'],
                 _count: { _all: true },
             }),
@@ -457,7 +454,7 @@ class AuditService {
      * Expurga logs antigos conforme política de retenção
      */
     async purge(olderThan) {
-        const result = await prisma_1.default.auditLog.deleteMany({
+        const result = await prisma.auditLog.deleteMany({
             where: {
                 createdAt: { lt: olderThan },
             },
@@ -478,7 +475,7 @@ class AuditService {
         ];
         for (const rule of rules) {
             const cutoff = new Date(now.getTime() - rule.days * 24 * 60 * 60 * 1000);
-            const result = await prisma_1.default.auditLog.deleteMany({
+            const result = await prisma.auditLog.deleteMany({
                 where: {
                     severity: rule.severity,
                     createdAt: { lt: cutoff },
@@ -511,7 +508,7 @@ class AuditService {
      */
     async notifyAdmins(title, message, data) {
         try {
-            const admins = await prisma_1.default.user.findMany({
+            const admins = await prisma.user.findMany({
                 where: { role: client_1.UserRole.ADMIN },
                 select: { id: true }
             });
@@ -530,7 +527,7 @@ class AuditService {
      * Anonimiza logs de um usuário (LGPD)
      */
     async anonymizeUserLogs(userId) {
-        const result = await prisma_1.default.auditLog.updateMany({
+        const result = await prisma.auditLog.updateMany({
             where: { userId },
             data: {
                 userId: null,

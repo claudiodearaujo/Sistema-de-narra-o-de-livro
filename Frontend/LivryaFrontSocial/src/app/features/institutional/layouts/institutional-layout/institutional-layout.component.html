@@ -1,0 +1,102 @@
+<div class="institutional-layout">
+  <!-- Header -->
+  <header class="institutional-header">
+    <div class="header-container">
+     
+
+      <nav class="main-nav">
+        @for (item of mainNav; track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active" class="nav-link">
+          {{ item.label }}
+        </a>
+        }
+      </nav>
+ <a routerLink="/" class="logo">
+        <img src="assets/logosm.png" alt="Livrya" class="logo-icon">
+        <img src="assets/logo.png" alt="Livrya" class="logo-icon-2">
+      </a>
+      <div class="header-actions">
+        <a routerLink="/auth/login" class="btn-outline">Entrar</a>
+        <a routerLink="/auth/signup" class="btn-primary">Baixe o App</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="institutional-main">
+    <router-outlet />
+  </main>
+
+  <!-- Footer -->
+  <footer class="institutional-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <!-- Brand Column -->
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="assets/logosm.png" alt="Livrya" class="footer-logo-icon">
+            <img src="assets/logo.png" alt="Livrya" class="footer-logo-text">
+          </div>
+          <p class="footer-tagline">
+            Uma plataforma literária brasileira para dar vida às histórias.
+          </p>
+          <div class="footer-social">
+            <a href="#" class="social-link" aria-label="Instagram">
+              <i class="pi pi-instagram"></i>
+            </a>
+            <a href="#" class="social-link" aria-label="Twitter">
+              <i class="pi pi-twitter"></i>
+            </a>
+            <a href="#" class="social-link" aria-label="Facebook">
+              <i class="pi pi-facebook"></i>
+            </a>
+            <a href="#" class="social-link" aria-label="YouTube">
+              <i class="pi pi-youtube"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Site Links -->
+        <div class="footer-column">
+          <h4 class="footer-title">Para o Site</h4>
+          <ul class="footer-links">
+            @for (link of footerLinks.site; track link.path) {
+            <li>
+              <a [routerLink]="link.path">{{ link.label }}</a>
+            </li>
+            }
+          </ul>
+        </div>
+
+        <!-- Writers Links -->
+        <div class="footer-column">
+          <h4 class="footer-title">Para Escritores</h4>
+          <ul class="footer-links">
+            @for (link of footerLinks.writers; track link.path) {
+            <li>
+              <a [routerLink]="link.path">{{ link.label }}</a>
+            </li>
+            }
+          </ul>
+        </div>
+
+        <!-- Community Links -->
+        <div class="footer-column">
+          <h4 class="footer-title">Comunidade</h4>
+          <ul class="footer-links">
+            @for (link of footerLinks.community; track link.path) {
+            <li>
+              <a [routerLink]="link.path">{{ link.label }}</a>
+            </li>
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; {{ currentYear }} Livrya. Todos os direitos reservados.</p>
+        <p class="footer-domain">www.livrya.com.br</p>
+      </div>
+    </div>
+  </footer>
+</div>

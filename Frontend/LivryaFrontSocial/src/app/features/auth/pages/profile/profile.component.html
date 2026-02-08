@@ -1,0 +1,221 @@
+<ng-container *transloco="let t">
+  <div class="profile-container">
+    <div class="profile-header">
+      <a routerLink="/writer" class="back-link">
+        <i class="pi pi-arrow-left"></i>
+        {{ t('auth.profile.back') }}
+      </a>
+      <h1>{{ t('auth.profile.title') }}</h1>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+        <p>{{ t('auth.profile.loading') }}</p>
+      </div>
+    } @else {
+      <div class="profile-content">
+        <!-- Avatar Section -->
+        <div class="avatar-section">
+          <div class="avatar-wrapper">
+            @if (user()?.avatar) {
+              <p-avatar
+                [image]="user()!.avatar!"
+                size="xlarge"
+                shape="circle"
+                styleClass="profile-avatar"
+              />
+            } @else {
+              <p-avatar
+                [label]="getInitials()"
+                size="xlarge"
+                shape="circle"
+                styleClass="profile-avatar"
+              />
+            }
+          </div>
+          <p-fileUpload
+            mode="basic"
+            accept="image/*"
+            [maxFileSize]="5000000"
+            [chooseLabel]="t('auth.profile.avatar.change')"
+            (onSelect)="onAvatarUpload($event)"
+            styleClass="avatar-upload"
+          />
+          <p class="avatar-hint">{{ t('auth.profile.avatar.hint') }}</p>
+        </div>
+
+        <!-- Tabs -->
+        <p-tabs value="0">
+          <p-tablist>
+            <p-tab value="0">{{ t('auth.profile.tabs.info') }}</p-tab>
+            <p-tab value="1">{{ t('auth.profile.tabs.security') }}</p-tab>
+          </p-tablist>
+
+          <p-tabpanels>
+            <!-- Profile Info Tab -->
+            <p-tabpanel value="0">
+              <div class="tab-content">
+                @if (successMessage) {
+                  <p-message severity="success" [text]="successMessage" styleClass="w-full mb-4" />
+                }
+                @if (errorMessage) {
+                  <p-message severity="error" [text]="errorMessage" styleClass="w-full mb-4" />
+                }
+
+                <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+                  <div class="field">
+                    <label for="name">{{ t('auth.profile.fields.name') }}</label>
+                    <input
+                      pInputText
+                      id="name"
+                      type="text"
+                      formControlName="name"
+                      class="w-full"
+                    />
+                    @if (pf['name'].invalid && pf['name'].touched) {
+                      <small class="p-error">{{ t('validation.required', { field: t('auth.profile.fields.name') }) }}</small>
+                    }
+                  </div>
+
+                  <div class="field">
+                    <label for="email">{{ t('auth.profile.fields.email') }}</label>
+                    <input
+                      pInputText
+                      id="email"
+                      type="email"
+                      [value]="user()?.email"
+                      class="w-full"
+                      [disabled]="true"
+                    />
+                    <small class="hint">{{ t('auth.profile.fields.emailHint') }}</small>
+                  </div>
+
+                  <div class="field">
+                    <label for="username">{{ t('auth.profile.fields.username') }}</label>
+                    <input
+                      pInputText
+                      id="username"
+                      type="text"
+                      formControlName="username"
+                      [placeholder]="t('auth.profile.fields.usernamePlaceholder')"
+                      class="w-full"
+                    />
+                    @if (pf['username'].invalid && pf['username'].touched) {
+                      <small class="p-error">
+                        @if (pf['username'].errors?.['minlength']) {
+                          {{ t('validation.minLength', { field: t('auth.profile.fields.username'), min: 3 }) }}
+                        } @else if (pf['username'].errors?.['pattern']) {
+                          {{ t('validation.onlyLettersNumbersUnderscore') }}
+                        }
+                      </small>
+                    }
+                  </div>
+
+                  <div class="field">
+                    <label for="bio">{{ t('auth.profile.fields.bio') }}</label>
+                    <textarea
+                      pTextarea
+                      id="bio"
+                      formControlName="bio"
+                      [rows]="4"
+                      [placeholder]="t('auth.profile.fields.bioPlaceholder')"
+                      class="w-full"
+                    ></textarea>
+                    <small class="hint">
+                      {{ profileForm.get('bio')?.value?.length || 0 }}/500 {{ t('auth.profile.fields.characters') }}
+                    </small>
+                  </div>
+
+                  <p-button
+                    type="submit"
+                    [label]="t('auth.profile.save')"
+                    [loading]="isSaving()"
+                    [disabled]="profileForm.invalid || isSaving()"
+                  />
+                </form>
+              </div>
+            </p-tabpanel>
+
+            <!-- Security Tab -->
+            <p-tabpanel value="1">
+              <div class="tab-content">
+                <h3>{{ t('auth.profile.changePassword') }}</h3>
+
+                @if (passwordSuccess) {
+                  <p-message severity="success" [text]="passwordSuccess" styleClass="w-full mb-4" />
+                }
+                @if (passwordError) {
+                  <p-message severity="error" [text]="passwordError" styleClass="w-full mb-4" />
+                }
+
+                <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+                  <div class="field">
+                    <label for="currentPassword">{{ t('auth.profile.currentPassword') }}</label>
+                    <p-password
+                      id="currentPassword"
+                      formControlName="currentPassword"
+                      [feedback]="false"
+                      [toggleMask]="true"
+                      styleClass="w-full"
+                      inputStyleClass="w-full"
+                    />
+                    @if (pwf['currentPassword'].invalid && pwf['currentPassword'].touched) {
+                      <small class="p-error">{{ t('validation.required', { field: t('auth.profile.currentPassword') }) }}</small>
+                    }
+                  </div>
+
+                  <div class="field">
+                    <label for="newPassword">{{ t('auth.profile.newPassword') }}</label>
+                    <p-password
+                      id="newPassword"
+                      formControlName="newPassword"
+                      [toggleMask]="true"
+                      styleClass="w-full"
+                      inputStyleClass="w-full"
+                      [promptLabel]="t('auth.signup.passwordStrength.prompt')"
+                      [weakLabel]="t('auth.signup.passwordStrength.weak')"
+                      [mediumLabel]="t('auth.signup.passwordStrength.medium')"
+                      [strongLabel]="t('auth.signup.passwordStrength.strong')"
+                    />
+                    @if (pwf['newPassword'].invalid && pwf['newPassword'].touched) {
+                      <small class="p-error">{{ t('validation.minLength', { field: t('auth.profile.newPassword'), min: 8 }) }}</small>
+                    }
+                  </div>
+
+                  <div class="field">
+                    <label for="confirmPassword">{{ t('auth.profile.confirmNewPassword') }}</label>
+                    <p-password
+                      id="confirmPassword"
+                      formControlName="confirmPassword"
+                      [feedback]="false"
+                      [toggleMask]="true"
+                      styleClass="w-full"
+                      inputStyleClass="w-full"
+                    />
+                    @if (pwf['confirmPassword'].invalid && pwf['confirmPassword'].touched) {
+                      <small class="p-error">
+                        @if (pwf['confirmPassword'].errors?.['required']) {
+                          {{ t('validation.required', { field: t('auth.profile.confirmNewPassword') }) }}
+                        } @else if (pwf['confirmPassword'].errors?.['passwordMismatch']) {
+                          {{ t('validation.passwordMismatch') }}
+                        }
+                      </small>
+                    }
+                  </div>
+
+                  <p-button
+                    type="submit"
+                    [label]="t('auth.profile.changePasswordBtn')"
+                    [loading]="isChangingPassword()"
+                    [disabled]="passwordForm.invalid || isChangingPassword()"
+                  />
+                </form>
+              </div>
+            </p-tabpanel>
+          </p-tabpanels>
+        </p-tabs>
+      </div>
+    }
+  </div>
+</ng-container>

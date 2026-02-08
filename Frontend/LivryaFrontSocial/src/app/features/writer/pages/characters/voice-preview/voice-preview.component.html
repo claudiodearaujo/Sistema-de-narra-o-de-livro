@@ -1,0 +1,11 @@
+<ng-container *transloco="let t">
+    <div
+        class="flex items-center gap-2 p-2 border border-surface-border rounded-lg bg-secondary-50/50 dark:bg-gray-800">
+        <input pInputText type="text" [ngModel]="text()" [placeholder]="t('voices.preview.characterNameOptional')"
+            class="flex-1 p-2 text-sm" />
+
+        <button pButton [icon]="isLoading ? 'pi pi-spin pi-spinner' : (isPlaying ? 'pi pi-stop' : 'pi pi-play')"
+            [disabled]="isLoading || !voiceId()" (click)="play()" class="p-button-rounded p-button-text"
+            [ngClass]="{'text-green-600': isPlaying, 'text-primary-600': !isPlaying}"></button>
+    </div>
+</ng-container>

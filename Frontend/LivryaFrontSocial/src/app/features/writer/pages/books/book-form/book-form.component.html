@@ -1,0 +1,82 @@
+<ng-container *transloco="let t">
+  <div class="container mx-auto md:p-6 max-w-4xl">
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold mb-2 font-heading text-primary-700 dark:text-primary-300">
+        {{ isEditMode ? t('books.editBook') : t('books.newBook') }}
+      </h1>
+      <p class="text-secondary">
+        {{ isEditMode ? t('books.form.editSubtitle') : t('books.form.createSubtitle') }}
+      </p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+        <!-- Title -->
+        <div class="mb-4">
+          <label for="title" class="block text-sm font-medium mb-2">
+            {{ t('books.form.titleLabel') }} <span class="text-red-500">*</span>
+          </label>
+          <input pInputText id="title" formControlName="title" [placeholder]="t('books.form.titlePlaceholder')"
+            class="w-full" [class.ng-invalid]="title?.invalid && title?.touched" />
+            @if (title?.invalid && title?.touched) {
+              <small class="text-red-500">
+                @if (title?.errors?.['required']) {
+                  <span>{{ t('validation.required', { field: t('books.form.titleLabel') }) }}</span>
+                }
+                @if (title?.errors?.['minlength']) {
+                  <span>{{ t('validation.minLength', { field: t('books.form.titleLabel'), min: 3 }) }}</span>
+                }
+              </small>
+            }
+          </div>
+
+          <!-- Author -->
+          <div class="mb-4">
+            <label for="author" class="block text-sm font-medium mb-2">
+              {{ t('books.form.authorLabel') }} <span class="text-red-500">*</span>
+            </label>
+            <input pInputText id="author" formControlName="author" [placeholder]="t('books.form.authorPlaceholder')"
+              class="w-full" [class.ng-invalid]="author?.invalid && author?.touched" />
+              @if (author?.invalid && author?.touched) {
+                <small class="text-red-500">
+                  {{ t('validation.required', { field: t('books.form.authorLabel') }) }}
+                </small>
+              }
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+              <label for="description" class="block text-sm font-medium mb-2">
+                {{ t('books.form.descriptionLabel') }}
+              </label>
+              <textarea pInputTextarea id="description" formControlName="description"
+                [placeholder]="t('books.form.descriptionPlaceholder')" rows="6" class="w-full" [autoResize]="true">
+              </textarea>
+            </div>
+
+            <!-- Cover URL -->
+            <div class="mb-6">
+              <label for="coverUrl" class="block text-sm font-medium mb-2">
+                {{ t('books.coverUrl') }}
+              </label>
+              <input pInputText id="coverUrl" formControlName="coverUrl" [placeholder]="t('books.coverUrlPlaceholder')"
+                class="w-full" />
+                <small class="text-gray-500">
+                  {{ t('books.coverUrlHint') }}
+                </small>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex flex-col-reverse md:flex-row gap-3 justify-end">
+                <button pButton type="button" [label]="t('common.actions.cancel')" icon="pi pi-times" (click)="cancel()"
+                severity="secondary" [disabled]="submitting" class="w-full md:w-auto"></button>
+                <button pButton type="submit" [label]="isEditMode ? t('books.form.update') : t('books.form.create')" icon="pi pi-check"
+                  [loading]="submitting" [disabled]="bookForm.invalid || submitting"
+                class="w-full md:w-auto"></button>
+              </div>
+            </form>
+          </div>
+
+          <p-toast />
+        </div>
+      </ng-container>

@@ -1,0 +1,73 @@
+<div class="flex items-center justify-center min-h-[70vh]">
+  <p-card styleClass="w-full max-w-md text-center">
+    @if (isLoading()) {
+      <ng-template pTemplate="content">
+        <p-progressSpinner 
+          styleClass="w-16 h-16"
+          strokeWidth="4"
+        />
+        <p class="mt-4 text-secondary">Processando sua compra...</p>
+      </ng-template>
+    } @else {
+      <ng-template pTemplate="header">
+        <div class="pt-8">
+          <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <i class="pi pi-check text-green-500 text-4xl"></i>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <h1 class="text-2xl font-heading font-bold text-primary-900 dark:text-white mb-2">
+          Compra Realizada!
+        </h1>
+        <p class="text-secondary mb-6">
+          Suas Livras foram adicionadas à sua conta.
+          Use-as para desbloquear recursos premium!
+        </p>
+
+        <div class="bg-primary-50 dark:bg-primary-900 rounded-lg p-6 mb-6">
+          <div class="text-sm text-secondary mb-1">Seu novo saldo</div>
+          <div class="text-4xl font-bold text-primary-500">
+            {{ balance() }} Livras
+          </div>
+        </div>
+
+        <div class="text-sm text-secondary">
+          <h4 class="font-semibold mb-2">O que você pode fazer com Livras:</h4>
+          <ul class="text-left space-y-1">
+            <li class="flex items-center">
+              <i class="pi pi-volume-up text-primary-500 mr-2"></i>
+              <span>Gerar áudio TTS para seus livros</span>
+            </li>
+            <li class="flex items-center">
+              <i class="pi pi-image text-primary-500 mr-2"></i>
+              <span>Criar imagens para personagens</span>
+            </li>
+            <li class="flex items-center">
+              <i class="pi pi-star text-primary-500 mr-2"></i>
+              <span>Promover seus posts</span>
+            </li>
+          </ul>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="flex flex-col gap-2 px-4 pb-4">
+          <button
+            pButton
+            label="Começar a Usar"
+            icon="pi pi-book"
+            (click)="goToBooks()"
+          ></button>
+          <button
+            pButton
+            label="Ver Histórico"
+            severity="secondary"
+            (click)="goToLivras()"
+          ></button>
+        </div>
+      </ng-template>
+    }
+  </p-card>
+</div>

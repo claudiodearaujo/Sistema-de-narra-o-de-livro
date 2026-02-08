@@ -1,0 +1,94 @@
+<div class="legal-page">
+    <div class="page-container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-icon">
+                <i class="pi pi-users"></i>
+            </div>
+            <h1 class="page-title">Código de Conduta</h1>
+            <p class="page-subtitle">Última atualização: {{ lastUpdated }}</p>
+        </header>
+
+        <!-- Content -->
+        <article class="page-content">
+            <section class="content-section intro-section">
+                <p class="intro-text">
+                    A comunidade Livrya é baseada em respeito.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Nossos Valores</h2>
+                <p>
+                    Prezamos por um ambiente seguro, diverso e criativo.
+                </p>
+                <p>
+                    A Livrya é um espaço para todos que amam literatura, independentemente de origem, gênero,
+                    orientação, idade ou experiência.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>O que não é permitido</h2>
+                <div class="prohibited-grid">
+                    @for (item of prohibited; track item.text) {
+                    <div class="prohibited-item">
+                        <i class="pi" [ngClass]="item.icon"></i>
+                        <span>{{ item.text }}</span>
+                    </div>
+                    }
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>Comportamentos Esperados</h2>
+                <ul>
+                    <li>Respeite as opiniões e trabalhos de outros membros</li>
+                    <li>Ofereça críticas construtivas e respeitosas</li>
+                    <li>Credite sempre o trabalho de terceiros</li>
+                    <li>Reporte conteúdos ou comportamentos inadequados</li>
+                    <li>Contribua para um ambiente acolhedor e inclusivo</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>Consequências</h2>
+                <p>
+                    Violações ao código de conduta podem resultar em:
+                </p>
+                <ul>
+                    <li>Aviso formal</li>
+                    <li>Suspensão temporária da conta</li>
+                    <li>Remoção de conteúdo</li>
+                    <li>Banimento permanente da plataforma</li>
+                </ul>
+                <p>
+                    Cada caso é analisado individualmente, considerando a gravidade e recorrência.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Denúncias</h2>
+                <p>
+                    Se você presenciar ou for vítima de comportamentos inadequados, utilize nosso sistema de denúncias
+                    ou entre em contato através da <a routerLink="/institutional/moderation">página de moderação</a>.
+                </p>
+                <p class="highlight">
+                    Todas as denúncias são tratadas com sigilo e seriedade.
+                </p>
+            </section>
+        </article>
+
+        <!-- Navigation -->
+        <nav class="page-nav">
+            <a routerLink="/institutional/security" class="nav-link nav-prev">
+                <i class="pi pi-arrow-left"></i>
+                Segurança
+            </a>
+            <a routerLink="/institutional/community" class="nav-link">
+                <i class="pi pi-arrow-right"></i>
+                Comunidade
+            </a>
+        </nav>
+    </div>
+</div>

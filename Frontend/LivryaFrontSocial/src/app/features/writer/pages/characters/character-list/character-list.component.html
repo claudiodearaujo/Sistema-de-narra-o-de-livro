@@ -1,0 +1,70 @@
+<ng-container *transloco="let t">
+  <div class="md:p-4">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+      <h2 class="text-2xl font-bold font-heading text-primary-700 dark:text-primary-300">{{ t('characters.title') }}</h2>
+
+      <div class="flex gap-4 items-center w-full md:w-auto">
+        @if (books.length > 0) {
+          <div class="w-full md:w-64">
+            <p-select [options]="books" [(ngModel)]="selectedBookId" optionLabel="title" optionValue="id"
+              [showClear]="true" [placeholder]="t('characters.filterByBook')" (onChange)="onBookChange()" [filter]="true"
+              filterBy="title" styleClass="w-full" />
+          </div>
+        }
+        <button pButton [label]="t('characters.newCharacter')" icon="pi pi-plus" (click)="openNew()"
+        severity="success" class="whitespace-nowrap"></button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (char of characters; track char) {
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-surface-border hover:shadow-lg transition-shadow">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-xl">
+                {{ char.name.charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg text-gray-900 dark:text-white">{{ char.name }}</h3>
+                <div class="flex items-center gap-2 mt-1">
+                  <span
+                    class="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
+                    {{ char.voice ? char.voice.name : (char.voiceId || t('characters.voiceNotDefined')) }}
+                  </span>
+                  <p-tag [value]="(char.completionPercentage || 0) + '%'"
+                    [severity]="getPercentageSeverity(char.completionPercentage)"
+                    [rounded]="true"
+                    styleClass="text-xs" />
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-sm text-blue-500"
+              (click)="editCharacter(char)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-sm text-red-500"
+              (click)="deleteCharacter(char)"></button>
+            </div>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2 min-h-\[2.5rem]">
+            {{ char.voiceDescription || t('characters.noVoiceDescription') }}
+          </p>
+          <div class="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
+            <app-voice-preview [voiceId]="char.voiceId" [text]="char.name" [characterId]="char.id" />
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (characters.length === 0) {
+      <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+        <i class="pi pi-users text-4xl mb-3"></i>
+        <p>{{ bookId() ? t('characters.noCharactersForBook') : t('characters.noCharacters') }}</p>
+      </div>
+    }
+  </div>
+
+  <p-confirmDialog [style]="{width: '450px'}" />
+  <p-toast />
+</ng-container>

@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+.plan-card-featured {
+  border: 2px solid var(--primary-color);
+  transform: scale(1.02);
+}

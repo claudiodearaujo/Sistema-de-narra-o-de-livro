@@ -4,6 +4,7 @@ import { TTSProvider } from './interfaces/tts-provider.interface';
 import { GeminiTextProvider } from './providers/gemini-text.provider';
 import { GeminiImageProvider } from './providers/gemini-image.provider';
 import { GeminiTTSProvider } from './providers/gemini-tts.provider';
+import { ElevenLabsTTSProvider } from './providers/elevenlabs-tts.provider';
 import { aiConfig, TextProviderType, ImageProviderType, TTSProviderType } from './ai.config';
 
 export class AIFactory {
@@ -52,12 +53,9 @@ export class AIFactory {
         switch (providerName) {
             case 'gemini':
                 return new GeminiTTSProvider();
-            
-            // Adicione novos provedores aqui:
-            // case 'elevenlabs':
-            //     return new ElevenLabsTTSProvider();
-            // case 'azure':
-            //     return new AzureTTSProvider();
+
+            case 'elevenlabs':
+                return new ElevenLabsTTSProvider();
             
             default:
                 throw new Error(`TTS Provider '${providerName}' not supported`);

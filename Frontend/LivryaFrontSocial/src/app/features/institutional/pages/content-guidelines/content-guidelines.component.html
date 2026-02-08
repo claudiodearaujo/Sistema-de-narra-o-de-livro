@@ -1,0 +1,98 @@
+<div class="legal-page">
+    <div class="page-container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-icon">
+                <i class="pi pi-list-check"></i>
+            </div>
+            <h1 class="page-title">Diretrizes de Conteúdo</h1>
+            <p class="page-subtitle">Última atualização: {{ lastUpdated }}</p>
+        </header>
+
+        <!-- Content -->
+        <article class="page-content">
+            <section class="content-section">
+                <h2>Sobre as Diretrizes</h2>
+                <p>
+                    Estas diretrizes definem o que pode e o que não pode ser publicado na Livrya.
+                    Nosso objetivo é manter um ambiente seguro, criativo e respeitoso para todos.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Conteúdo Permitido</h2>
+                <p>A Livrya acolhe uma ampla variedade de conteúdos literários:</p>
+                <div class="allowed-list">
+                    @for (item of allowed; track item) {
+                    <div class="allowed-item">
+                        <i class="pi pi-check"></i>
+                        <span>{{ item }}</span>
+                    </div>
+                    }
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>Conteúdo Proibido</h2>
+                <p>Os seguintes tipos de conteúdo não são permitidos:</p>
+                <div class="notallowed-list">
+                    @for (item of notAllowed; track item) {
+                    <div class="notallowed-item">
+                        <i class="pi pi-times"></i>
+                        <span>{{ item }}</span>
+                    </div>
+                    }
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>Classificação Etária</h2>
+                <p>
+                    Obras devem ser classificadas corretamente quanto ao conteúdo:
+                </p>
+                <ul>
+                    <li><strong>Livre:</strong> Adequado para todas as idades</li>
+                    <li><strong>+12:</strong> Contém temas levemente maduros</li>
+                    <li><strong>+16:</strong> Contém violência moderada ou temas adultos</li>
+                    <li><strong>+18:</strong> Contém conteúdo explícito (violência intensa, sexualidade)</li>
+                </ul>
+                <p class="highlight">
+                    Classificação incorreta pode resultar em remoção ou ajuste do conteúdo.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Conteúdo Sensível</h2>
+                <p>
+                    Temas sensíveis (suicídio, transtornos alimentares, abuso, etc.) podem ser abordados
+                    desde que tratados com responsabilidade e sem glorificação.
+                </p>
+                <p>
+                    Recomendamos incluir avisos de gatilho (trigger warnings) no início de capítulos
+                    que contenham temas potencialmente perturbadores.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Denúncias</h2>
+                <p>
+                    Se você encontrar conteúdo que viole estas diretrizes, por favor denuncie
+                    através do botão "Denunciar" presente em cada obra ou acesse nossa
+                    <a routerLink="/institutional/moderation">página de denúncias</a>.
+                </p>
+            </section>
+        </article>
+
+        <!-- Navigation -->
+        <nav class="page-nav">
+            <a routerLink="/institutional/partners" class="nav-link nav-prev">
+                <i class="pi pi-arrow-left"></i>
+                Parcerias e Editoras
+            </a>
+            <a routerLink="/institutional/moderation" class="nav-link">
+                <i class="pi pi-arrow-right"></i>
+                Denúncias e Moderação
+            </a>
+        </nav>
+    </div>
+</div>

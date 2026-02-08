@@ -1,0 +1,92 @@
+<ng-container *transloco="let t">
+<p-toast />
+
+<div class="container mx-auto p-6">
+    <p-card>
+        <ng-template pTemplate="header">
+            <div class="flex justify-between items-center p-4">
+                <div>
+                    <h2 class="text-2xl font-bold font-heading text-primary-700 dark:text-primary-300">{{ t('voiceList.title') }}
+                    </h2>
+                    <p class="text-secondary mt-1">{{ t('voiceList.subtitle') }}</p>
+                </div>
+            </div>
+        </ng-template>
+
+        <p-table [value]="voices" [loading]="loading" [paginator]="true" [rows]="15" [showCurrentPageReport]="true"
+            [currentPageReportTemplate]="t('voiceList.pagination')"
+            [rowsPerPageOptions]="[15, 30]" styleClass="p-datatable-gridlines"
+            [globalFilterFields]="['name', 'gender', 'description']">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="name" style="width: 180px">
+                        {{ t('voiceList.columns.name') }}
+                        <p-sortIcon field="name" />
+                    </th>
+                    <th pSortableColumn="gender" style="width: 120px">
+                        {{ t('voiceList.columns.gender') }}
+                        <p-sortIcon field="gender" />
+                    </th>
+                    <th class="hidden md:table-cell">{{ t('voiceList.columns.description') }}</th>
+                    <th style="width: 100px">{{ t('voiceList.columns.preview') }}</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-voice>
+                <tr>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-volume-up text-primary-600"></i>
+                            <span class="font-semibold">{{ voice.name }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="getGenderLabel(voice.gender)" [severity]="getGenderSeverity(voice.gender)" />
+                    </td>
+                    <td class="hidden md:table-cell">
+                        <span class="text-gray-700">{{ voice.description }}</span>
+                    </td>
+                    <td>
+                        <p-button [icon]="previewingVoice === voice.id ? 'pi pi-stop' : 'pi pi-play'"
+                            [severity]="previewingVoice === voice.id ? 'danger' : 'secondary'" size="small"
+                            [rounded]="true" (onClick)="previewVoice(voice)"
+                            [pTooltip]="previewingVoice === voice.id ? t('voiceList.stop') : t('voiceList.listen')" tooltipPosition="top"
+                            [loading]="previewingVoice === voice.id" />
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4" class="text-center py-8">
+                        <div class="flex flex-col items-center gap-3">
+                            <i class="pi pi-info-circle text-4xl text-gray-400"></i>
+                            <p class="text-gray-600">{{ t('voiceList.noVoices') }}</p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <ng-template pTemplate="footer">
+            <div class="text-sm text-gray-600 p-2">
+                <div class="flex items-start gap-2">
+                    <i class="pi pi-info-circle mt-0.5"></i>
+                    <div>
+                        <p><strong>{{ t('voiceList.info.geminiVoices') }}:</strong> {{ t('voiceList.info.description') }}</p>
+                        <p class="mt-1">{{ t('voiceList.info.uniqueCharacteristics') }}</p>
+                        <p class="mt-1">
+                            <a href="https://ai.google.dev/gemini-api/docs/speech-generation?hl=pt-br#voices"
+                                target="_blank" class="text-primary hover:underline">
+                                {{ t('voiceList.info.viewDocs') }}
+                                <i class="pi pi-external-link ml-1"></i>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    </p-card>
+</div>
+</ng-container>

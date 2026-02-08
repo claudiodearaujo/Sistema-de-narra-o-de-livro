@@ -1,0 +1,63 @@
+/* Moderation page styles */
+@import '../terms/terms.component.css';
+
+.intro-section {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: var(--space-6);
+}
+
+.intro-text {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: var(--leading-relaxed);
+}
+
+.content-section ol {
+  margin: var(--space-4) 0;
+  padding-left: var(--space-6);
+}
+
+.content-section ol li {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+  padding-left: var(--space-2);
+}
+
+.reasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.reason-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-secondary-50);
+  border-radius: var(--radius-lg);
+}
+
+.reason-item i {
+  font-size: 1rem;
+  color: var(--color-primary-500);
+}
+
+.reason-item span {
+  font-size: var(--text-md);
+  color: var(--text-primary);
+}
+
+.page-nav {
+  justify-content: space-between;
+}
+
+.nav-prev {
+  flex-direction: row-reverse;
+}

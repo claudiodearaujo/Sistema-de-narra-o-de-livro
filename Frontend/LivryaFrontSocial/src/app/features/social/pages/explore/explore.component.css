@@ -1,0 +1,407 @@
+/* ==========================================================================
+   LIVRIA Explore — Design Tokens Applied
+   ========================================================================== */
+
+.explore-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: var(--space-8);
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-4) 0;
+  color: var(--text-primary);
+}
+
+.mb-6 {
+  margin-bottom: var(--space-6);
+}
+
+/* Trending */
+.trending-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.trending-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all var(--duration-normal) var(--ease-standard);
+  border: var(--border-width) solid var(--surface-border);
+}
+
+.trending-item:hover {
+  background: var(--surface-subtle);
+  border-color: var(--color-primary-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.trending-tag {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-600);
+}
+
+.trending-count {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.trending-skeleton,
+.trending-item-skeleton {
+  margin-bottom: var(--space-2);
+}
+
+/* Genres */
+.genres-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+:host ::ng-deep .genre-chip {
+  cursor: pointer;
+  background: var(--surface-card) !important;
+  border: var(--border-width) solid var(--surface-border) !important;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+:host ::ng-deep .genre-chip:hover {
+  background: var(--color-primary-500) !important;
+  border-color: var(--color-primary-500) !important;
+  color: var(--color-primary-on) !important;
+}
+
+/* Users */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.user-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  gap: var(--space-2);
+  border: var(--border-width) solid var(--surface-border);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-normal) var(--ease-standard);
+}
+
+.user-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-200);
+}
+
+.user-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-decoration: none;
+  margin-top: var(--space-2);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.user-name:hover {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.user-username {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.user-followers {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.user-bio {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: var(--space-2) 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.users-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.user-card-skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+}
+
+/* Books */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-4);
+}
+
+.book-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  text-decoration: none;
+  transition: all var(--duration-normal) var(--ease-standard);
+  border: var(--border-width) solid var(--surface-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.book-cover {
+  aspect-ratio: 2/3;
+  overflow: hidden;
+}
+
+.book-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+}
+
+.book-cover-placeholder i {
+  font-size: var(--text-3xl);
+}
+
+.book-info {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.book-title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-author {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.book-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-livra);
+}
+
+.book-rating span {
+  color: var(--text-primary);
+}
+
+.reviews-count {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.books-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-4);
+}
+
+.book-card-skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+}
+
+.mt-1 {
+  margin-top: var(--space-1);
+}
+
+.mt-2 {
+  margin-top: var(--space-2);
+}
+
+.mt-3 {
+  margin-top: var(--space-3);
+}
+
+/* Posts */
+.posts-skeleton,
+.post-skeleton {
+  margin-bottom: var(--space-4);
+}
+
+.post-skeleton {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--surface-border);
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.skeleton-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.post-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-4);
+  overflow: hidden;
+  border: var(--border-width) solid var(--surface-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-normal) var(--ease-standard);
+}
+
+.post-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.post-user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.post-user-info .user-name {
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  text-align: left;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.post-user-info .user-name:hover {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.post-time {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.post-content {
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.post-content p {
+  margin: 0 0 var(--space-3) 0;
+  line-height: var(--leading-relaxed);
+  color: var(--text-primary);
+}
+
+.post-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.post-stats {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  border-top: var(--border-width) solid var(--surface-divider);
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-around;
+  padding: var(--space-2);
+  border-top: var(--border-width) solid var(--surface-divider);
+}
+
+.post-actions button {
+  color: var(--text-secondary);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.post-actions button:hover {
+  color: var(--color-primary-600);
+}
+
+.post-actions button.liked {
+  color: var(--color-accent-500) !important;
+}
+
+/* Loading More */
+.loading-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  color: var(--text-secondary);
+}
+
+.sentinel {
+  height: 1px;
+}

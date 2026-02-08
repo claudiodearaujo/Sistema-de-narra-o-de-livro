@@ -28,6 +28,8 @@ import groupRoutes from './routes/group.routes';
 import campaignRoutes from './routes/campaign.routes';
 import storyRoutes from './routes/story.routes';
 import adminAuditRoutes from './routes/admin/audit.routes';
+import oauthRoutes from './routes/oauth.routes';
+import aiApiRoutes from './routes/ai-api.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 import { auditContext } from './middleware';
 // Initialize Redis queues (if enabled)
@@ -39,6 +41,7 @@ import './queues/notification.worker';
 import './queues/subscription.worker';
 import './queues/story.worker';
 import './queues/audit.worker';
+import './queues/chapter-sync.worker';
 
 dotenv.config();
 
@@ -49,7 +52,7 @@ const port = process.env.PORT || 3000;
 // CORS Configuration - restrict origins in production
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:4200', 'http://localhost:3000'];
+  : ['http://localhost:4200', 'http://localhost:3000', 'http://localhost:5173'];
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
@@ -124,8 +127,14 @@ app.use('/api/campaigns', campaignRoutes);         // Campaign management
 // Sprint 12: Stories routes
 app.use('/api/stories', storyRoutes);              // Stories (ephemeral content)
 
+// AI API Routes (unified AI gateway)
+app.use('/api/ai', aiApiRoutes);                    // AI operations (TTS, Text, Image) with token control
+
 // Admin Routes
 app.use('/api/admin/audit', adminAuditRoutes);     // Audit logging admin API
+
+// OAuth Routes (SSO for external apps)
+app.use('/oauth', oauthRoutes);
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

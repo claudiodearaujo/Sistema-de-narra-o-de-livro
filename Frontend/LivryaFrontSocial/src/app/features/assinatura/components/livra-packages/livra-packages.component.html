@@ -1,0 +1,44 @@
+<ng-container *transloco="let t">
+<p-toast />
+
+<div class="mb-6">
+  <h2 class="text-xl font-bold font-heading text-primary-700 dark:text-primary-300 mb-2">{{ t('livraPackages.title') }}</h2>
+  <p class="text-secondary">
+    {{ t('livraPackages.subtitle') }}
+  </p>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  @for (pkg of packages(); track pkg.id) {
+    <p-card [styleClass]="getCardClass(pkg)">
+      <ng-template pTemplate="content">
+        <div class="text-center">
+          @if (getBestValue(pkg)) {
+            <p-tag [value]="t('livraPackages.bestValue')" severity="success" class="mb-2" />
+          }
+
+          <div class="text-4xl font-bold text-primary-500 mb-2">
+            {{ pkg.amount }}
+          </div>
+          <div class="text-sm text-secondary mb-4">{{ t('livraPackages.livras') }}</div>
+
+          <div class="text-2xl font-semibold mb-1">
+            R$ {{ pkg.displayPrice }}
+          </div>
+          <div class="text-xs text-secondary mb-4">
+            R$ {{ pkg.pricePerLivra }} / {{ t('livraPackages.livra') }}
+          </div>
+
+          <button
+            pButton
+            [label]="t('livraPackages.buy')"
+            class="w-full"
+            [loading]="loadingPackage() === pkg.id"
+            (click)="purchasePackage(pkg)"
+          ></button>
+        </div>
+      </ng-template>
+    </p-card>
+  }
+</div>
+</ng-container>

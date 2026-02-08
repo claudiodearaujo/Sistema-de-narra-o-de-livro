@@ -33,7 +33,14 @@ exports.aiConfig = {
         },
         elevenlabs: {
             apiKey: process.env.ELEVENLABS_API_KEY || '',
-            defaultVoice: process.env.ELEVENLABS_DEFAULT_VOICE || 'Rachel'
+            defaultVoice: process.env.ELEVENLABS_DEFAULT_VOICE || 'Rachel',
+            defaultModel: process.env.ELEVENLABS_MODEL || 'eleven_multilingual_v2',
+            voiceSettings: {
+                stability: parseFloat(process.env.ELEVENLABS_VOICE_STABILITY || '0.5'),
+                similarityBoost: parseFloat(process.env.ELEVENLABS_VOICE_SIMILARITY || '0.75'),
+                style: parseFloat(process.env.ELEVENLABS_VOICE_STYLE || '0.0'),
+                useSpeakerBoost: process.env.ELEVENLABS_SPEAKER_BOOST !== 'false',
+            },
         },
         azure: {
             apiKey: process.env.AZURE_SPEECH_KEY || '',
@@ -69,6 +76,12 @@ exports.aiConfig = {
             windowMs: 60000,
             retryDelayMs: parseInt(process.env.ANTHROPIC_RATE_LIMIT_RETRY_DELAY || '1000', 10),
             maxRetries: parseInt(process.env.ANTHROPIC_RATE_LIMIT_MAX_RETRIES || '3', 10)
+        },
+        elevenlabs: {
+            maxRequests: parseInt(process.env.ELEVENLABS_RATE_LIMIT_RPM || '10', 10),
+            windowMs: 60000,
+            retryDelayMs: parseInt(process.env.ELEVENLABS_RATE_LIMIT_RETRY_DELAY || '2000', 10),
+            maxRetries: parseInt(process.env.ELEVENLABS_RATE_LIMIT_MAX_RETRIES || '3', 10)
         }
     }
 };

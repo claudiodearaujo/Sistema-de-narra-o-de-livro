@@ -1,0 +1,175 @@
+<div class="investors-page">
+    <!-- Hero Section -->
+    <section class="investors-hero">
+        <div class="hero-container">
+            <div class="hero-badge">
+                <i class="pi pi-trending-up"></i>
+                <span>Oportunidade de Investimento</span>
+            </div>
+            <h1 class="hero-title">Invista no Futuro da Literatura Digital</h1>
+            <p class="hero-subtitle">
+                A LIVRIA está revolucionando a forma como histórias são criadas, compartilhadas e consumidas.<br>
+                Seja parte desta transformação no mercado literário brasileiro.
+            </p>
+            <div class="hero-cta">
+                <a href="https://wa.me/5511971904955?text=Olá! Tenho interesse em investir no projeto LIVRIA."
+                   target="_blank" class="cta-primary">
+                    <i class="pi pi-whatsapp"></i>
+                    Falar com o Fundador
+                </a>
+                <a href="#sobre-projeto" class="cta-secondary">
+                    <i class="pi pi-arrow-down"></i>
+                    Conhecer o Projeto
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Project Section -->
+    <section id="sobre-projeto" class="about-section">
+        <div class="section-container">
+            <h2 class="section-title">O que é a LIVRIA?</h2>
+            <p class="section-description">
+                A LIVRIA é uma plataforma literária inovadora que combina <strong>rede social para escritores</strong>
+                com <strong>tecnologia de narração por inteligência artificial</strong>. Permitimos que autores
+                criem, publiquem e monetizem suas obras, enquanto leitores descobrem histórias e as ouvem
+                narradas com vozes realistas geradas por IA.
+            </p>
+
+            <div class="highlights-grid">
+                @for (highlight of projectHighlights; track highlight.title) {
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="pi" [ngClass]="highlight.icon"></i>
+                    </div>
+                    <h3>{{ highlight.title }}</h3>
+                    <p>{{ highlight.description }}</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Invest Section -->
+    <section class="benefits-section">
+        <div class="section-container">
+            <h2 class="section-title">Por que Investir na LIVRIA?</h2>
+
+            <div class="benefits-grid">
+                @for (benefit of investmentBenefits; track benefit.title) {
+                <div class="benefit-card">
+                    <i class="pi" [ngClass]="benefit.icon"></i>
+                    <div class="benefit-content">
+                        <h3>{{ benefit.title }}</h3>
+                        <p>{{ benefit.description }}</p>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section class="roadmap-section">
+        <div class="section-container">
+            <h2 class="section-title">Roadmap do Projeto</h2>
+            <p class="section-subtitle">Acompanhe nosso progresso e próximos passos</p>
+
+            <div class="timeline">
+                @for (milestone of milestones; track milestone.label; let i = $index) {
+                <div class="timeline-item" [class]="milestone.status">
+                    <div class="timeline-marker">
+                        @if (milestone.status === 'completed') {
+                        <i class="pi pi-check"></i>
+                        } @else if (milestone.status === 'in-progress') {
+                        <i class="pi pi-spin pi-spinner"></i>
+                        } @else {
+                        <span>{{ i + 1 }}</span>
+                        }
+                    </div>
+                    <div class="timeline-content">
+                        <h3>{{ milestone.label }}</h3>
+                        <p>{{ milestone.description }}</p>
+                        <span class="status-badge" [class]="milestone.status">
+                            @if (milestone.status === 'completed') {
+                            Concluído
+                            } @else if (milestone.status === 'in-progress') {
+                            Em Andamento
+                            } @else {
+                            Planejado
+                            }
+                        </span>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Founder Section -->
+    <section class="founder-section">
+        <div class="section-container">
+            <h2 class="section-title">Conheça o Fundador</h2>
+
+            <div class="founder-card">
+                <div class="founder-avatar">
+                    <i class="pi pi-user"></i>
+                </div>
+                <div class="founder-info">
+                    <h3>{{ developerInfo.name }}</h3>
+                    <span class="founder-role">{{ developerInfo.role }}</span>
+                    <span class="founder-location">
+                        <i class="pi pi-map-marker"></i>
+                        {{ developerInfo.location }}
+                    </span>
+                    <p class="founder-bio">{{ developerInfo.bio }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="section-container">
+            <h2 class="section-title">Entre em Contato</h2>
+            <p class="section-subtitle">
+                Interessado em saber mais sobre oportunidades de investimento?<br>
+                Entre em contato diretamente com o fundador.
+            </p>
+
+            <div class="contact-grid">
+                @for (channel of contactChannels; track channel.title) {
+                <a [href]="channel.link" target="_blank" class="contact-card" [class]="channel.color">
+                    <i class="pi" [ngClass]="channel.icon"></i>
+                    <span class="contact-title">{{ channel.title }}</span>
+                    <span class="contact-value">{{ channel.value }}</span>
+                </a>
+                }
+            </div>
+
+            <div class="contact-note">
+                <i class="pi pi-info-circle"></i>
+                <p>
+                    Todas as conversas sobre investimento são tratadas com total confidencialidade.
+                    Apresentamos informações detalhadas sobre o projeto, projeções financeiras e
+                    termos de participação após contato inicial.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <div class="cta-card">
+                <h2>Pronto para fazer parte desta história?</h2>
+                <p>A LIVRIA está construindo o futuro da literatura digital no Brasil. Junte-se a nós.</p>
+                <a href="https://wa.me/5511971904955?text=Olá! Tenho interesse em investir no projeto LIVRIA."
+                   target="_blank" class="cta-button">
+                    <i class="pi pi-whatsapp"></i>
+                    Iniciar Conversa
+                </a>
+            </div>
+        </div>
+    </section>
+</div>

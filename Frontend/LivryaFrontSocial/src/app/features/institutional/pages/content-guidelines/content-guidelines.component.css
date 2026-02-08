@@ -1,0 +1,57 @@
+/* Content Guidelines page styles */
+@import '../terms/terms.component.css';
+
+.allowed-list,
+.notallowed-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.allowed-item,
+.notallowed-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+}
+
+.allowed-item {
+  background: var(--color-success-50);
+  border: 1px solid var(--color-success-100);
+}
+
+.allowed-item i {
+  font-size: 1rem;
+  color: var(--color-success-500);
+}
+
+.allowed-item span {
+  font-size: var(--text-md);
+  color: var(--color-success-700);
+}
+
+.notallowed-item {
+  background: var(--color-error-50);
+  border: 1px solid var(--color-error-100);
+}
+
+.notallowed-item i {
+  font-size: 1rem;
+  color: var(--color-error-500);
+}
+
+.notallowed-item span {
+  font-size: var(--text-md);
+  color: var(--color-error-700);
+}
+
+.page-nav {
+  justify-content: space-between;
+}
+
+.nav-prev {
+  flex-direction: row-reverse;
+}

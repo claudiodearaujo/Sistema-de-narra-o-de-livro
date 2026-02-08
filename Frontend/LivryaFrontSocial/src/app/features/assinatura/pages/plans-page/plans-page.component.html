@@ -1,0 +1,178 @@
+<ng-container *transloco="let t">
+<p-toast />
+
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold font-heading text-primary-700 dark:text-primary-300 mb-2">
+      {{ t('plansPage.title') }}
+    </h1>
+    <p class="text-secondary max-w-2xl mx-auto">
+      {{ t('plansPage.subtitle') }}
+    </p>
+  </div>
+
+  <!-- Billing Period Toggle -->
+  <div class="flex justify-center mb-8">
+    <p-selectButton
+      [options]="billingOptions()"
+      [(ngModel)]="billingPeriod"
+      optionLabel="label"
+      optionValue="value"
+      styleClass="p-selectbutton-sm"
+    />
+    @if (billingPeriod() === 'yearly') {
+      <p-tag
+        [value]="t('plansPage.saveUpTo')"
+        severity="success"
+        class="ml-3"
+      />
+    }
+  </div>
+
+  <!-- Plans Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    @for (plan of plans(); track plan.id) {
+      <p-card
+        [styleClass]="getCardClass(plan)"
+      >
+        <ng-template pTemplate="header">
+          <div class="px-6 pt-6">
+            @if (plan.id === 'PRO') {
+              <div class="text-center mb-2">
+                <p-tag [value]="t('plansPage.mostPopular')" severity="info" />
+              </div>
+            }
+            <h2 class="text-2xl font-heading font-bold text-center mb-1">{{ plan.name }}</h2>
+            <p class="text-secondary text-center text-sm">{{ plan.description }}</p>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="content">
+          <!-- Price -->
+          <div class="text-center my-6">
+            <div class="flex items-baseline justify-center">
+              <span class="text-4xl font-bold">
+                {{ formatPrice(getPrice(plan)) }}
+              </span>
+              @if (plan.price.monthly > 0) {
+                <span class="text-secondary ml-1">
+                  /{{ billingPeriod() === 'monthly' ? t('plansPage.period.month') : t('plansPage.period.year') }}
+                </span>
+              }
+            </div>
+            @if (billingPeriod() === 'yearly' && plan.price.monthly > 0) {
+              <div class="text-sm text-secondary mt-1">
+                {{ formatPrice(plan.price.yearly / 12) }}/{{ t('plansPage.period.month') }}
+                <span class="text-green-600 ml-1">
+                  ({{ calculateSavings(plan) }}% off)
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- Livras Monthly -->
+          @if (plan.livrasMonthly > 0) {
+            <div class="text-center mb-4">
+              <p-tag
+                [value]="'+' + plan.livrasMonthly + ' ' + t('plansPage.livrasPerMonth')"
+                severity="warn"
+              />
+            </div>
+          }
+
+          <p-divider />
+
+          <!-- Features -->
+          <ul class="space-y-3 my-4">
+            @for (feature of plan.features; track feature) {
+              <li class="flex items-start">
+                <i class="pi pi-check text-green-500 mr-2 mt-1"></i>
+                <span class="text-primary-700 dark:text-primary-300">{{ feature }}</span>
+              </li>
+            }
+          </ul>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <div class="px-2">
+            @if (plan.id === currentPlan()) {
+              <button
+                pButton
+                [label]="t('plansPage.buttons.currentPlan')"
+                severity="secondary"
+                [disabled]="true"
+                class="w-full"
+              ></button>
+            } @else if (plan.id === 'FREE') {
+              <button
+                pButton
+                [label]="t('plansPage.buttons.basicPlan')"
+                severity="secondary"
+                [disabled]="true"
+                class="w-full"
+              ></button>
+            } @else {
+              <button
+                pButton
+                [label]="getButtonLabel(plan)"
+                [severity]="plan.id === 'PRO' ? 'warn' : 'primary'"
+                class="w-full"
+                [loading]="isLoading()"
+                (click)="selectPlan(plan)"
+              ></button>
+            }
+          </div>
+        </ng-template>
+      </p-card>
+    }
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="mt-16">
+    <h2 class="text-2xl font-bold text-center mb-8">{{ t('plansPage.faq.title') }}</h2>
+
+    <div class="max-w-3xl mx-auto space-y-4">
+      <p-card>
+        <ng-template pTemplate="content">
+          <h3 class="font-semibold mb-2">{{ t('plansPage.faq.cancel.question') }}</h3>
+          <p class="text-secondary">
+            {{ t('plansPage.faq.cancel.answer') }}
+          </p>
+        </ng-template>
+      </p-card>
+
+      <p-card>
+        <ng-template pTemplate="content">
+          <h3 class="font-semibold mb-2">{{ t('plansPage.faq.livras.question') }}</h3>
+          <p class="text-secondary">
+            {{ t('plansPage.faq.livras.answer') }}
+          </p>
+        </ng-template>
+      </p-card>
+
+      <p-card>
+        <ng-template pTemplate="content">
+          <h3 class="font-semibold mb-2">{{ t('plansPage.faq.changePlan.question') }}</h3>
+          <p class="text-secondary">
+            {{ t('plansPage.faq.changePlan.answer') }}
+          </p>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Current Subscription Info -->
+  @if (currentPlan() !== 'FREE') {
+    <div class="mt-8 text-center">
+      <button
+        pButton
+        [label]="t('plansPage.buttons.manageSubscription')"
+        severity="secondary"
+        icon="pi pi-cog"
+        (click)="openPortal()"
+      ></button>
+    </div>
+  }
+</div>
+</ng-container>
