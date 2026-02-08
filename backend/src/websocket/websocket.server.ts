@@ -117,23 +117,24 @@ export const initializeWebSocket = (httpServer: HttpServer) => {
     console.log('Client connected:', socket.id);
 
     const user = await getUserFromSocket(socket);
+    const userId = user?.userId;
 
     // Register user socket connection
     if (user) {
-      const { userId, role } = user;
-      
-      if (!userSockets.has(userId)) {
-        userSockets.set(userId, new Set());
+      const { role } = user;
+
+      if (!userSockets.has(userId!)) {
+        userSockets.set(userId!, new Set());
       }
-      userSockets.get(userId)!.add(socket.id);
-      
+      userSockets.get(userId!)!.add(socket.id);
+
       // Mark user as online
-      messageService.setUserOnline(userId);
+      messageService.setUserOnline(userId!);
       console.log(`User ${userId} (${role}) is now online (socket: ${socket.id})`);
 
       // Join user's personal room for targeted messages
       socket.join(`user:${userId}`);
-      
+
       // Join admin room if user is admin
       if (role === UserRole.ADMIN) {
         socket.join('admin-room');
