@@ -86,6 +86,11 @@ class AuditController {
                 sortOrder: req.query.sortOrder,
             };
             const result = await audit_service_1.auditService.export(filters, format);
+            // Check if result is an error response
+            if ('error' in result) {
+                res.status(400).json(result);
+                return;
+            }
             res.setHeader('Content-Type', format === 'csv' ? 'text/csv' : 'application/json');
             res.setHeader('Content-Disposition', `attachment; filename=audit-logs-${new Date().toISOString()}.${format}`);
             res.send(result);

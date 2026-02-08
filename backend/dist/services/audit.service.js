@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.auditService = void 0;
+exports.auditService = exports.AuditService = void 0;
 const client_1 = require("@prisma/client");
 const notification_service_1 = require("./notification.service");
 const prisma = new client_1.PrismaClient();
@@ -55,6 +55,15 @@ function sanitizeString(input) {
 }
 // ========== AUDIT SERVICE ==========
 class AuditService {
+    constructor() {
+        this.wsEmitter = null;
+    }
+    /**
+     * Define o emissor de eventos WebSocket
+     */
+    setWebSocketEmitter(emitter) {
+        this.wsEmitter = emitter;
+    }
     /**
      * Registra um evento de auditoria
      * Fire-and-forget: não bloqueia a execução
@@ -69,7 +78,7 @@ class AuditService {
             const description = input.description
                 ? sanitizeString(input.description)
                 : undefined;
-            await prisma.auditLog.create({
+            const log = await prisma.auditLog.create({
                 data: {
                     userId: input.userId,
                     userEmail: input.userEmail,
@@ -92,6 +101,11 @@ class AuditService {
                     duration: input.duration,
                 },
             });
+            // Emitir via WebSocket para admins em tempo real
+            if (this.wsEmitter) {
+                // Emite apenas para sala de admins
+                this.wsEmitter('admin-room', 'audit:new', log);
+            }
             // Disparar alertas se necessário
             this.checkAndTriggerAlert(input).catch(err => console.error('[AUDIT ALERT]', err));
         }
@@ -394,9 +408,21 @@ class AuditService {
     }
     /**
      * Exporta logs para CSV ou JSON
+     * Limitado a 100.000 registros para prevenir DoS
      */
     async export(filters, format) {
-        const result = await this.query({ ...filters, limit: 10000 });
+        const MAX_EXPORT_RECORDS = 100000;
+        // Primeiro, verifica quantos registros seriam exportados
+        const countResult = await this.query({ ...filters, limit: 1 });
+        const totalRecords = countResult.pagination.total;
+        if (totalRecords > MAX_EXPORT_RECORDS) {
+            return {
+                error: `Exportação limitada a ${MAX_EXPORT_RECORDS} registros. Total encontrado: ${totalRecords}`,
+                maxRecords: MAX_EXPORT_RECORDS
+            };
+        }
+        // Busca todos os registros (até o limite)
+        const result = await this.query({ ...filters, limit: totalRecords });
         if (format === 'json') {
             return Buffer.from(JSON.stringify(result.data, null, 2));
         }
@@ -541,5 +567,6 @@ class AuditService {
         return client_1.AuditCategory.SYSTEM;
     }
 }
+exports.AuditService = AuditService;
 // Singleton instance
 exports.auditService = new AuditService();
