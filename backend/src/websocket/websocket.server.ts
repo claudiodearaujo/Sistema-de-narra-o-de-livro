@@ -1,14 +1,13 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import jwt from 'jsonwebtoken';
-import { PrismaClient, UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
+import prisma from '../lib/prisma';
 import { messageService } from '../services/message.service';
 import { notificationService } from '../services/notification.service';
 import { setNotificationWorkerEmitter } from '../queues/notification.worker';
 import { setLivraWebSocketEmitter } from '../services/livra.service';
 import { auditService } from '../services/audit.service';
-
-const prisma = new PrismaClient();
 
 export let io: Server;
 
