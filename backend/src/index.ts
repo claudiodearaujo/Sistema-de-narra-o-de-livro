@@ -41,7 +41,6 @@ import './queues/notification.worker';
 import './queues/subscription.worker';
 import './queues/story.worker';
 import './queues/audit.worker';
-import './queues/chapter-sync.worker';
 
 dotenv.config();
 
@@ -50,7 +49,7 @@ const httpServer = createServer(app);
 const port = process.env.PORT || 3000;
 
 // CORS Configuration - restrict origins in production
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
+const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : ['http://localhost:4200', 'http://localhost:3000', 'http://localhost:5173'];
 
@@ -58,7 +57,7 @@ const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
@@ -80,7 +79,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.get('/', (req, res) => {
-    res.send('Sistema de Narração de Livros API - Gemini TTS');
+  res.send('Sistema de Narração de Livros API - Gemini TTS');
 });
 
 // Auth Routes (public and protected)
@@ -140,6 +139,6 @@ app.use('/oauth', oauthRoutes);
 initializeWebSocket(httpServer);
 
 httpServer.listen(port, () => {
-    console.log(`🚀 Servidor rodando na porta ${port}`);
-    console.log(`📁 Arquivos de áudio em: ${path.join(__dirname, '../uploads')}`);
+  console.log(`🚀 Servidor rodando na porta ${port}`);
+  console.log(`📁 Arquivos de áudio em: ${path.join(__dirname, '../uploads')}`);
 });
