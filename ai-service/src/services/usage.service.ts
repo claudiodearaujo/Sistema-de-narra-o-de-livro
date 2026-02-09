@@ -1,4 +1,4 @@
-import { AIOperationType, AIProviderName } from '@prisma/client';
+import { AIOperationType, AIProviderName, CostConfig, AIUsageLog } from '@prisma/client';
 import { prisma } from './prisma';
 
 // Default costs in credits per operation
@@ -69,7 +69,7 @@ class UsageService {
         const costs: Record<string, { credits: number; estimatedUsd: number }> = {};
 
         for (const operation of Object.keys(DEFAULT_COSTS)) {
-            const config = configs.find(c => c.key === operation);
+            const config = configs.find((c: CostConfig) => c.key === operation);
             costs[operation] = {
                 credits: config?.value ?? DEFAULT_COSTS[operation],
                 estimatedUsd: USD_COSTS[operation] ?? 0,
@@ -191,8 +191,8 @@ class UsageService {
             where: { createdAt: { gte: startDate } },
         });
 
-        const successLogs = logs.filter(l => l.success);
-        const uniqueUsers = new Set(logs.map(l => l.userId));
+        const successLogs = logs.filter((l: AIUsageLog) => l.success);
+        const uniqueUsers = new Set(logs.map((l: AIUsageLog) => l.userId));
 
         const byOperation: Record<string, { count: number; credits: number; usd: number }> = {};
         const byProvider: Record<string, { count: number; credits: number; usd: number }> = {};

@@ -60,7 +60,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.16.0",
     "@types/socket.io": "^3.0.1",
-    "prisma": "^7.2.0",
+    "prisma": "^7.3.0",
     "ts-node": "^10.9.2"
   }
 }
