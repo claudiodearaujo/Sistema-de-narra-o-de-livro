@@ -16,6 +16,7 @@ exports.triggerMonthlyLivraCredits = triggerMonthlyLivraCredits;
 const bullmq_1 = require("bullmq");
 const ioredis_1 = __importDefault(require("ioredis"));
 const subscription_service_1 = require("../services/subscription.service");
+const prisma_1 = __importDefault(require("../lib/prisma"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const redis_config_1 = require("../config/redis.config");
 dotenv_1.default.config();
@@ -157,47 +158,40 @@ async function processMonthlyLivraCredits() {
  */
 async function checkExpiredSubscriptions() {
     console.log('Checking for expired subscriptions...');
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    try {
-        // Find subscriptions that should have expired
-        const expiredSubscriptions = await prisma.subscription.findMany({
-            where: {
-                status: 'ACTIVE',
-                plan: { not: 'FREE' },
-                currentPeriodEnd: { lt: new Date() },
-                cancelAtPeriodEnd: true,
-            },
-        });
-        let expiredCount = 0;
-        for (const sub of expiredSubscriptions) {
-            try {
-                await prisma.subscription.update({
-                    where: { id: sub.id },
-                    data: {
-                        plan: 'FREE',
-                        status: 'CANCELLED',
-                        stripeSubscriptionId: null,
-                        stripePriceId: null,
-                        cancelAtPeriodEnd: false,
-                    },
-                });
-                await prisma.user.update({
-                    where: { id: sub.userId },
-                    data: { role: 'USER' },
-                });
-                expiredCount++;
-            }
-            catch (error) {
-                console.error(`Error expiring subscription ${sub.id}:`, error);
-            }
+    // Find subscriptions that should have expired
+    const expiredSubscriptions = await prisma_1.default.subscription.findMany({
+        where: {
+            status: 'ACTIVE',
+            plan: { not: 'FREE' },
+            currentPeriodEnd: { lt: new Date() },
+            cancelAtPeriodEnd: true,
+        },
+    });
+    let expiredCount = 0;
+    for (const sub of expiredSubscriptions) {
+        try {
+            await prisma_1.default.subscription.update({
+                where: { id: sub.id },
+                data: {
+                    plan: 'FREE',
+                    status: 'CANCELLED',
+                    stripeSubscriptionId: null,
+                    stripePriceId: null,
+                    cancelAtPeriodEnd: false,
+                },
+            });
+            await prisma_1.default.user.update({
+                where: { id: sub.userId },
+                data: { role: 'USER' },
+            });
+            expiredCount++;
         }
-        console.log(`Checked ${expiredSubscriptions.length} subscriptions, ${expiredCount} expired`);
-        return { checked: expiredSubscriptions.length, expired: expiredCount };
+        catch (error) {
+            console.error(`Error expiring subscription ${sub.id}:`, error);
+        }
     }
-    finally {
-        await prisma.$disconnect();
-    }
+    console.log(`Checked ${expiredSubscriptions.length} subscriptions, ${expiredCount} expired`);
+    return { checked: expiredSubscriptions.length, expired: expiredCount };
 }
 /**
  * Manually trigger monthly Livra credits (for testing/admin)
