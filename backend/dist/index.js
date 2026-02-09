@@ -46,7 +46,6 @@ require("./queues/notification.worker");
 require("./queues/subscription.worker");
 require("./queues/story.worker");
 require("./queues/audit.worker");
-require("./queues/chapter-sync.worker");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);

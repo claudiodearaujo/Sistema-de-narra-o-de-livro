@@ -45,20 +45,20 @@ export function stopAuditCleanupWorker(): void {
 async function runCleanup(): Promise<void> {
   const startTime = Date.now();
   console.log('[Maintenance] Starting daily audit log purge...');
-  
+
   try {
     const deletedCount = await auditService.purgeByRetentionPolicy();
-    
+
     const duration = Date.now() - startTime;
     console.log(`[Maintenance] Audit log purge completed. Removed ${deletedCount} logs in ${duration}ms`);
-    
+
     // Log the maintenance action itself to the audit log (meta-audit)
     // We use a try-catch here to ensure even if logging fails, the process continues
     try {
       await auditService.log({
-        action: 'SYSTEM_MAINTENANCE' as any,
-        category: 'SYSTEM' as any,
-        severity: 'LOW' as any,
+        action: 'SYSTEM_MAINTENANCE',
+        category: 'SYSTEM',
+        severity: 'LOW',
         description: `Limpeza automática de logs concluída. Removidos: ${deletedCount}`,
         metadata: { deletedCount, duration, type: 'audit_purge' }
       });
