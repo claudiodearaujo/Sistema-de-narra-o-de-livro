@@ -1,33 +1,37 @@
 export interface Book {
   id: string;
   title: string;
+  author: string;
   description?: string;
   coverUrl?: string;
-  status: 'draft' | 'in_progress' | 'completed' | 'published';
-  authorId: string;
-  wordCount: number;
-  chaptersCount: number;
+  userId?: string;
   createdAt: string;
   updatedAt: string;
-  publishedAt?: string;
+  chapters?: { id: string; status: string }[];
 }
 
 export interface BookStats {
-  totalWords: number;
   totalChapters: number;
-  completedChapters: number;
   totalSpeeches: number;
   totalCharacters: number;
-  estimatedDuration?: number;
 }
 
 export interface CreateBookDto {
   title: string;
+  author: string;
   description?: string;
 }
 
 export interface UpdateBookDto {
   title?: string;
+  author?: string;
   description?: string;
-  status?: Book['status'];
+}
+
+export interface BooksResponse {
+  data: Book[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
