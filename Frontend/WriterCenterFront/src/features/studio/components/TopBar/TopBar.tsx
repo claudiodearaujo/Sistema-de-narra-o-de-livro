@@ -7,8 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useBook } from '../../../../shared/hooks/useBooks';
 import { useChapter } from '../../../../shared/hooks/useChapters';
-import { useDeleteSpeech } from '../../../../shared/hooks/useSpeeches';
+import { useSpeeches, useDeleteSpeech } from '../../../../shared/hooks/useSpeeches';
 import { cn } from '../../../../shared/lib/utils';
+import { studioToast } from '../../../../shared/lib/toast';
 
 export function TopBar() {
   const navigate = useNavigate();
@@ -28,9 +29,41 @@ export function TopBar() {
 
   const { data: book } = useBook(activeBookId);
   const { data: chapter } = useChapter(activeChapterId);
+  const { data: speeches } = useSpeeches(activeChapterId);
   const deleteSpeech = useDeleteSpeech();
 
   const hasSelection = selectedSpeechIds.length > 0;
+
+  const handleExport = () => {
+    if (!speeches || speeches.length === 0) {
+      studioToast.error('Nada para exportar', 'O capítulo está vazio.');
+      return;
+    }
+
+    const content = speeches
+      .map(s => {
+        const charName = s.characterId === 'narrator' ? 'Narrador' : 'Personagem'; 
+        // Idealmente pegariamos o nome do personagem real aqui, mas precisaria cruzar dados
+        return `[${charName}]: ${s.text}`;
+      })
+      .join('\n\n');
+
+    // eslint-disable-next-line no-undef
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${chapter?.title || 'capitulo'}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    studioToast.success('Exportado com sucesso', 'O arquivo .txt foi baixado.');
+  };
+
+  const handleNotImplemented = (feature: string) => {
+    studioToast.info('Em breve', `A funcionalidade de ${feature} estará disponível na próxima atualização.`);
+  };
 
   return (
     <header className="h-14 border-b border-zinc-800 flex items-center justify-between px-4 gap-3">
@@ -136,16 +169,16 @@ export function TopBar() {
         ) : (
           <div className="hidden md:flex items-center gap-1 opacity-50">
             <button
-              className="p-1.5 text-zinc-600 transition-colors cursor-not-allowed"
-              title="Desfazer (em breve)"
-              disabled
+              onClick={() => handleNotImplemented('Desfazer')}
+              className="p-1.5 text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer"
+              title="Desfazer"
             >
               <Undo2 className="w-4 h-4" />
             </button>
             <button
-              className="p-1.5 text-zinc-600 transition-colors cursor-not-allowed"
-              title="Refazer (em breve)"
-              disabled
+              onClick={() => handleNotImplemented('Refazer')}
+              className="p-1.5 text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer"
+              title="Refazer"
             >
               <Redo2 className="w-4 h-4" />
             </button>
@@ -181,8 +214,9 @@ export function TopBar() {
         </button>
 
         <button
+          onClick={handleExport}
           className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
-          title="Exportar áudio"
+          title="Exportar capítulo (TXT)"
         >
           <Download className="w-4 h-4" />
         </button>
@@ -196,6 +230,7 @@ export function TopBar() {
         </button>
 
         <button
+          onClick={() => handleNotImplemented('Configurações')}
           className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
           title="Configurações"
         >

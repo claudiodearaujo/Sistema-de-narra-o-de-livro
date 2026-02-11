@@ -42,6 +42,8 @@ export type WebSocketEventMap = {
   'ai:stream': AiStreamEvent;
 };
 
+import { env } from '../lib/env';
+
 // ─── Singleton Socket Manager ────────────────────────────────────────────────
 
 let socket: Socket | null = null;
@@ -49,7 +51,10 @@ let connectionAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
 function getSocketUrl(): string {
-  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+  // Use WS_URL if defined, otherwise derive from API_URL
+  if (env.wsUrl) return env.wsUrl;
+  
+  const apiUrl = env.apiUrl;
   // Strip /api suffix if present, since WebSocket connects to the root
   return apiUrl.replace(/\/api\/?$/, '');
 }

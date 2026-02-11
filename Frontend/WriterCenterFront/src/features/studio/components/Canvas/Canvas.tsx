@@ -20,6 +20,7 @@ import { useSpeeches, useCreateSpeech, useReorderSpeeches } from '../../../../sh
 import { useCharacters } from '../../../../shared/hooks/useCharacters';
 import { useNarration } from '../../../../shared/hooks/useNarration';
 import { useSpeechEditor } from '../../hooks/useSpeechEditor';
+import { useAutoSave } from '../../hooks/useAutoSave';
 import { SortableSpeechBlock } from './SortableSpeechBlock';
 import { NewSpeechInput } from './NewSpeechInput';
 import { studioToast } from '../../../../shared/lib/toast';
@@ -38,6 +39,10 @@ export function Canvas() {
   const narration = useNarration(activeChapterId);
 
   const editor = useSpeechEditor();
+  
+  // Enable auto-save for editing sessions
+  useAutoSave();
+
   const createSpeech = useCreateSpeech();
   const reorderSpeeches = useReorderSpeeches();
 
@@ -83,7 +88,7 @@ export function Canvas() {
           speechIds: newOrder.map((s) => s.id),
         },
       });
-    } catch (error) {
+    } catch {
       // Revert on error
       setLocalSpeeches(speeches ?? []);
       studioToast.error('Erro ao reordenar', 'Não foi possível salvar a nova ordem das falas');
