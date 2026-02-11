@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { aiApiController } from '../controllers/ai-api.controller';
+import { aiChatController } from '../controllers/ai-chat.controller';
 import { authenticate, requireWriter, requireFeature, requireAdmin } from '../middleware';
 
 const router = Router();
@@ -7,6 +8,17 @@ const router = Router();
 // ========== Health Check ==========
 
 router.get('/health', aiApiController.healthCheck.bind(aiApiController));
+
+// ========== Chat Routes ==========
+
+// AI Chat with streaming - requires authentication and writer role
+router.post('/chat',
+    authenticate,
+    requireWriter,
+    requireFeature('canUseAI'),
+    aiChatController.chat.bind(aiChatController)
+);
+
 
 // ========== TTS Routes ==========
 

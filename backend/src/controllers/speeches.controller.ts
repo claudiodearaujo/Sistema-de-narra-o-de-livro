@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { speechesService } from '../services/speeches.service';
 import { aiService } from '../ai';
+import prisma from '../lib/prisma';
 
 export class SpeechesController {
     async getByChapterId(req: Request, res: Response) {
@@ -161,6 +162,64 @@ export class SpeechesController {
                 res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
             } else {
                 res.status(400).json({ error: errorMessage });
+            }
+        }
+    }
+
+    /**
+     * POST /speeches/:id/audio
+     * Generate TTS audio for a single speech
+     */
+    async generateAudio(req: Request, res: Response) {
+        try {
+            const speechId = req.params.id as string;
+            
+            // Get speech with character info
+            const speech = await speechesService.getById(speechId);
+            if (!speech) {
+                return res.status(404).json({ error: 'Speech not found' });
+            }
+
+            // Get character to get voice info
+            const character = await prisma.character.findUnique({
+                where: { id: speech.characterId }
+            });
+
+            if (!character) {
+                return res.status(404).json({ error: 'Character not found' });
+            }
+
+            // Use SSML text if available, otherwise plain text
+            const textToNarrate = speech.ssmlText || speech.text;
+
+            // Generate audio using AI service
+            const audioResult = await aiService.generateAudio({
+                text: textToNarrate,
+                voiceName: character.voiceId,
+                useSSML: !!speech.ssmlText,
+                outputFormat: 'mp3'
+            });
+
+            // Update speech with audio URL and duration
+            const updatedSpeech = await speechesService.update(speechId, {
+                audioUrl: audioResult.audioUrl,
+                audioDurationMs: audioResult.durationMs
+            });
+
+            res.json({
+                success: true,
+                speech: updatedSpeech,
+                audioUrl: audioResult.audioUrl,
+                durationMs: audioResult.durationMs
+            });
+        } catch (error: any) {
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('429') || errorMessage.includes('exceeded') || errorMessage.includes('quota')) {
+                res.status(429).json({ error: 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.' });
+            } else if (errorMessage.includes('insuficiente')) {
+                res.status(402).json({ error: errorMessage });
+            } else {
+                res.status(500).json({ error: errorMessage });
             }
         }
     }

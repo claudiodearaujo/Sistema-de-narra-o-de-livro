@@ -15,6 +15,9 @@ router.get('/speeches/:id', optionalAuth, speechesController.getById);
 router.put('/speeches/:id', authenticate, requireWriter, speechesController.update);
 router.delete('/speeches/:id', authenticate, requireWriter, speechesController.delete);
 
+// TTS audio generation for individual speech
+router.post('/speeches/:id/audio', authenticate, requireWriter, speechesController.generateAudio);
+
 // SSML validation (protected - requires auth)
 router.post('/ssml/validate', authenticate, speechesController.validateSSML);
 

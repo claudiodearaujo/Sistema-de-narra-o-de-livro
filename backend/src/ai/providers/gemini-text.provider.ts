@@ -82,8 +82,38 @@ export class GeminiTextProvider implements TextAIProvider {
             role: 'user',
             parts: [{ text: options.prompt }]
         });
-console.log('model', this.model);
+
         return this.rateLimiter.execute(async () => {
+            // If streaming is requested
+            if (options.stream) {
+                const streamResponse = await this.ai.models.generateContentStream({
+                    model: this.model,
+                    contents,
+                    config: {
+                        temperature: options.temperature ?? aiConfig.defaults.temperature,
+                        maxOutputTokens: options.maxTokens ?? aiConfig.defaults.maxTokens,
+                        responseMimeType: options.responseFormat === 'json' ? 'application/json' : 'text/plain'
+                    }
+                });
+
+                // Create async generator for streaming chunks
+                const streamGenerator = async function* () {
+                    for await (const chunk of streamResponse) {
+                        const text = chunk?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                        if (text) {
+                            yield text;
+                        }
+                    }
+                };
+
+                return {
+                    text: '', // Will be filled by consumer
+                    stream: streamGenerator(),
+                    finishReason: 'STREAMING'
+                };
+            }
+
+            // Non-streaming response
             const response = await this.ai.models.generateContent({
                 model: this.model,
                 contents,

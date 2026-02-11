@@ -30,6 +30,8 @@ import storyRoutes from './routes/story.routes';
 import adminAuditRoutes from './routes/admin/audit.routes';
 import oauthRoutes from './routes/oauth.routes';
 import aiApiRoutes from './routes/ai-api.routes';
+import ssmlRoutes from './routes/ssml.routes';
+import mediaRoutes from './routes/media.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 import { auditContext } from './middleware';
 // Initialize Redis queues (if enabled)
@@ -128,6 +130,9 @@ app.use('/api/stories', storyRoutes);              // Stories (ephemeral content
 
 // AI API Routes (unified AI gateway)
 app.use('/api/ai', aiApiRoutes);                    // AI operations (TTS, Text, Image) with token control
+
+// SSML Routes (AI-powered SSML assistance)
+app.use('/api/ssml', ssmlRoutes);                   // SSML tag and property suggestions
 
 // Admin Routes
 app.use('/api/admin/audit', adminAuditRoutes);     // Audit logging admin API

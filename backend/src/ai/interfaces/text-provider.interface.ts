@@ -8,10 +8,12 @@ export interface TextGenerationOptions {
     temperature?: number;
     maxTokens?: number;
     responseFormat?: 'text' | 'json';
+    stream?: boolean; // Enable streaming response
 }
 
 export interface TextGenerationResult {
     text: string;
+    stream?: AsyncIterable<string>; // Streaming chunks if stream=true
     usage?: {
         promptTokens: number;
         completionTokens: number;
