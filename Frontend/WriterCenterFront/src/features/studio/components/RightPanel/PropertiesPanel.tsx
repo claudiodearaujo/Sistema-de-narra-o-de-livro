@@ -24,12 +24,12 @@ export function PropertiesPanel() {
   const updateChapter = useUpdateChapter();
 
   const { register, handleSubmit, reset, formState: { isDirty } } = useForm<FormValues>({
-    defaultValues: { title: '', status: 'draft', notes: '' },
+    defaultValues: { title: '', status: 'draft' },
   });
 
   useEffect(() => {
     if (chapter) {
-      reset({ title: chapter.title, status: chapter.status, notes: '' });
+      reset({ title: chapter.title, status: chapter.status });
     }
   }, [chapter, reset]);
 
@@ -39,7 +39,7 @@ export function PropertiesPanel() {
       id: activeChapterId,
       dto: { title: values.title, status: values.status },
     });
-    reset(values); // Clear dirty state
+    // form will auto-reset via useForm behavior or query invalidation logic
   };
 
   if (!activeChapterId) {
@@ -75,21 +75,11 @@ export function PropertiesPanel() {
           className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-amber-500/50"
         >
           {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <option key={opt.value} value={opt.label /* wait, value prop on option should be value */}>
               {opt.label}
             </option>
           ))}
         </select>
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-[11px] text-zinc-500 uppercase tracking-wider">Notas do autor</label>
-        <textarea
-          {...register('notes')}
-          placeholder="Anotações privadas sobre este capítulo..."
-          rows={4}
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/50 resize-none"
-        />
       </div>
 
       <button

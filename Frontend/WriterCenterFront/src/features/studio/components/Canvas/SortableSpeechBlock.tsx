@@ -5,6 +5,8 @@ import { SpeechBlock } from './SpeechBlock';
 import type { Speech } from '../../../../shared/types/speech.types';
 import type { Character } from '../../../../shared/types/character.types';
 
+import type { SpeechNarrationProgress } from '../../../../shared/hooks/useNarration';
+
 interface SortableSpeechBlockProps {
   speech: Speech;
   character: Character | null;
@@ -16,6 +18,7 @@ interface SortableSpeechBlockProps {
   onCancelEdit: () => void;
   onUpdateText: (text: string) => void;
   onToggleSelect: (speechId: string) => void;
+  narrationProgress?: SpeechNarrationProgress;
 }
 
 export function SortableSpeechBlock(props: SortableSpeechBlockProps) {

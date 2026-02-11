@@ -1,7 +1,24 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, Plus, Loader2, CheckCircle2, Clock, FileText } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import type { Chapter } from '../../../../shared/types/chapter.types';
-import { cn } from '../../../../shared/lib/utils';
+import { useReorderChapters } from '../../../../shared/hooks/useChapters';
+import { SortableChapterItem } from './SortableChapterItem';
+import { studioToast } from '../../../../shared/lib/toast';
 
 interface ChapterTreeProps {
   bookId: string;
@@ -12,13 +29,8 @@ interface ChapterTreeProps {
   onNewChapter: () => void;
 }
 
-const STATUS_CONFIG = {
-  completed: { icon: <CheckCircle2 className="w-3 h-3" />, color: 'text-emerald-500', label: 'Completo' },
-  in_progress: { icon: <Clock className="w-3 h-3" />, color: 'text-blue-400', label: 'Em andamento' },
-  draft: { icon: <FileText className="w-3 h-3" />, color: 'text-zinc-500', label: 'Rascunho' },
-};
-
 export function ChapterTree({
+  bookId,
   chapters,
   activeChapterId,
   isLoading,
@@ -26,6 +38,26 @@ export function ChapterTree({
   onNewChapter,
 }: ChapterTreeProps) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const reorderChapters = useReorderChapters();
+
+  // Local state for optimistic UI updates
+  const [localChapters, setLocalChapters] = useState(chapters);
+
+  // Sync local state when prop changes (unless dragging/optimistic pending)
+  if (chapters !== localChapters && !reorderChapters.isPending) {
+    // Only update if IDs/content changed drastically or initial load
+    // Simple check: IDs match?
+    const currentIds = localChapters.map(c => c.id).join(',');
+    const newIds = chapters.map(c => c.id).join(',');
+    if (currentIds !== newIds) {
+       setLocalChapters(chapters);
+    }
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) => {
@@ -34,6 +66,31 @@ export function ChapterTree({
       else next.add(id);
       return next;
     });
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = localChapters.findIndex((c) => c.id === active.id);
+    const newIndex = localChapters.findIndex((c) => c.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Optimistic update
+    const newOrder = arrayMove(localChapters, oldIndex, newIndex);
+    setLocalChapters(newOrder);
+
+    try {
+      await reorderChapters.mutateAsync({
+        bookId,
+        dto: { chapterIds: newOrder.map((c) => c.id) },
+      });
+    } catch {
+      setLocalChapters(chapters); // Revert
+      studioToast.error('Erro ao reordenar capítulos');
+    }
   };
 
   if (isLoading) {
@@ -46,74 +103,25 @@ export function ChapterTree({
 
   return (
     <div className="space-y-1">
-      {chapters.map((chapter, idx) => {
-        const isActive = chapter.id === activeChapterId;
-        const isExpanded = expandedIds.has(chapter.id);
-        const status = STATUS_CONFIG[chapter.status];
-
-        return (
-          <div key={chapter.id}>
-            <div
-              className={cn(
-                'rounded-lg p-2 cursor-pointer group',
-                isActive
-                  ? 'bg-amber-500/10 border border-amber-500/20'
-                  : 'hover:bg-zinc-800/50 border border-transparent'
-              )}
-              onClick={() => onSelectChapter(chapter.id)}
-            >
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleExpand(chapter.id);
-                  }}
-                  className="text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
-                >
-                  {isExpanded ? (
-                    <ChevronDown className="w-3 h-3" />
-                  ) : (
-                    <ChevronRight className="w-3 h-3" />
-                  )}
-                </button>
-
-                <span
-                  className={cn(
-                    'text-xs font-medium flex-1 truncate',
-                    isActive ? 'text-zinc-200' : 'text-zinc-400 group-hover:text-zinc-300'
-                  )}
-                >
-                  Cap. {idx + 1} — {chapter.title}
-                </span>
-
-                <span className={cn('shrink-0', status.color)} title={status.label}>
-                  {status.icon}
-                </span>
-              </div>
-
-              <div className="mt-1 text-[10px] text-zinc-600 pl-5">
-                {chapter.wordCount.toLocaleString('pt-BR')} palavras
-                {chapter.speechesCount > 0 && ` · ${chapter.speechesCount} falas`}
-              </div>
-            </div>
-
-            {/* Expanded mini-preview placeholder */}
-            {isExpanded && (
-              <div className="ml-5 pl-2 border-l border-zinc-800 mt-1 mb-1 space-y-1">
-                <p className="text-[10px] text-zinc-600 py-1">
-                  {chapter.speechesCount === 0
-                    ? 'Nenhuma fala'
-                    : `${chapter.speechesCount} fala${chapter.speechesCount > 1 ? 's' : ''} — clique para abrir`}
-                </p>
-              </div>
-            )}
-          </div>
-        );
-      })}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={localChapters.map(c => c.id)} strategy={verticalListSortingStrategy}>
+          {localChapters.map((chapter, idx) => (
+            <SortableChapterItem
+              key={chapter.id}
+              chapter={chapter}
+              idx={idx + 1}
+              isActive={chapter.id === activeChapterId}
+              isExpanded={expandedIds.has(chapter.id)}
+              onSelect={onSelectChapter}
+              onToggleExpand={toggleExpand}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
 
       <button
         onClick={onNewChapter}
-        className="w-full mt-1 p-2 rounded-lg border border-dashed border-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-400 flex items-center justify-center gap-2 text-xs transition-colors"
+        className="w-full mt-2 p-2 rounded-lg border border-dashed border-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-400 flex items-center justify-center gap-2 text-xs transition-colors"
       >
         <Plus className="w-3.5 h-3.5" />
         Novo Capítulo

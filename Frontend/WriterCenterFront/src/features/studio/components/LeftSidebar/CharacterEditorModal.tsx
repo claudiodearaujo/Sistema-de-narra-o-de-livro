@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { X, User, Volume2, Loader2 } from 'lucide-react';
 import { cn } from '../../../../shared/lib/utils';
-import type { Character, CreateCharacterDto, UpdateCharacterDto } from '../../../../shared/types/character.types';
+import type { Character, CreateCharacterDto, UpdateCharacterDto, CharacterRole } from '../../../../shared/types/character.types';
 
 interface CharacterEditorModalProps {
   isOpen: boolean;
@@ -17,6 +17,8 @@ interface CharacterEditorModalProps {
 
 interface FormData {
   name: string;
+  role: CharacterRole;
+  color: string;
   voiceId: string;
   description?: string;
 }
@@ -40,6 +42,13 @@ const VOICE_OPTIONS = [
   { id: 'pt-BR-YaraNeural', label: 'Yara (Feminino, BR)' },
 ];
 
+const ROLE_OPTIONS: { value: CharacterRole; label: string }[] = [
+  { value: 'protagonist', label: 'Protagonista' },
+  { value: 'antagonist', label: 'Antagonista' },
+  { value: 'supporting', label: 'Coadjuvante' },
+  { value: 'narrator', label: 'Narrador' },
+];
+
 export function CharacterEditorModal({
   isOpen,
   character,
@@ -61,6 +70,8 @@ export function CharacterEditorModal({
   } = useForm<FormData>({
     defaultValues: {
       name: character?.name ?? '',
+      role: character?.role ?? 'supporting',
+      color: character?.color ?? '#ef4444',
       voiceId: character?.voiceId ?? 'pt-BR-FranciscaNeural',
       description: character?.description ?? '',
     },
@@ -73,12 +84,16 @@ export function CharacterEditorModal({
     if (character) {
       reset({
         name: character.name,
+        role: character.role,
+        color: character.color,
         voiceId: character.voiceId,
         description: character.description ?? '',
       });
     } else {
       reset({
         name: '',
+        role: 'supporting',
+        color: '#ef4444', // Default red
         voiceId: 'pt-BR-FranciscaNeural',
         description: '',
       });
@@ -89,6 +104,8 @@ export function CharacterEditorModal({
     if (isEditMode) {
       await onSave({
         name: data.name,
+        role: data.role,
+        color: data.color,
         voiceId: data.voiceId,
         description: data.description || undefined,
       } as UpdateCharacterDto);
@@ -96,6 +113,8 @@ export function CharacterEditorModal({
       await onSave({
         bookId,
         name: data.name,
+        role: data.role,
+        color: data.color,
         voiceId: data.voiceId,
         description: data.description || undefined,
       } as CreateCharacterDto);
@@ -144,13 +163,54 @@ export function CharacterEditorModal({
               {...register('name', { required: 'Nome é obrigatório' })}
               className={cn(
                 'w-full px-3 py-2 bg-zinc-800 border rounded text-zinc-100 placeholder-zinc-500',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'focus:outline-none focus:border-amber-500/50',
                 errors.name ? 'border-red-500' : 'border-zinc-700'
               )}
               placeholder="Ex: João Silva"
               autoFocus
             />
             {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            {/* Role */}
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-zinc-300 mb-1">
+                Papel *
+              </label>
+              <select
+                id="role"
+                {...register('role')}
+                className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-zinc-100 focus:outline-none focus:border-amber-500/50"
+              >
+                {ROLE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Color */}
+            <div>
+              <label htmlFor="color" className="block text-sm font-medium text-zinc-300 mb-1">
+                Cor *
+              </label>
+              <div className="flex gap-2 h-9.5">
+                <input
+                  id="color"
+                  type="color"
+                  {...register('color')}
+                  className="h-full w-12 bg-transparent border-none cursor-pointer p-0"
+                />
+                <input
+                  type="text"
+                  {...register('color')}
+                  className="flex-1 px-3 bg-zinc-800 border border-zinc-700 rounded text-zinc-100 focus:outline-none focus:border-amber-500/50 uppercase"
+                  maxLength={7}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Voice */}
@@ -164,7 +224,7 @@ export function CharacterEditorModal({
                 {...register('voiceId', { required: 'Voz é obrigatória' })}
                 className={cn(
                   'flex-1 px-3 py-2 bg-zinc-800 border rounded text-zinc-100',
-                  'focus:outline-none focus:ring-2 focus:ring-blue-500',
+                  'focus:outline-none focus:border-amber-500/50',
                   errors.voiceId ? 'border-red-500' : 'border-zinc-700'
                 )}
               >
@@ -200,7 +260,7 @@ export function CharacterEditorModal({
               id="description"
               {...register('description')}
               rows={3}
-              className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500/50 resize-none"
               placeholder="Descrição opcional do personagem..."
             />
           </div>
@@ -219,7 +279,7 @@ export function CharacterEditorModal({
           <button
             onClick={handleSubmit(onSubmit)}
             disabled={isSaving || !isDirty}
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-4 py-2 text-sm bg-amber-500 text-zinc-950 font-medium rounded hover:bg-amber-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
             {isEditMode ? 'Salvar' : 'Criar'}

@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { Send, Loader2, Bot, User, Zap } from 'lucide-react';
+import { useStudioStore, useUIStore } from '../../../../shared/stores';
+import { useSpeeches } from '../../../../shared/hooks/useSpeeches';
 import { http } from '../../../../shared/api/http';
 import { endpoints } from '../../../../shared/api/endpoints';
 import { cn } from '../../../../shared/lib/utils';
@@ -21,10 +23,17 @@ let msgCounter = 0;
 const nextId = () => String(++msgCounter);
 
 export function AiChat() {
+  const activeChapterId = useStudioStore((s) => s.activeChapterId);
+  const selectedSpeechIds = useUIStore((s) => s.selectedSpeechIds);
+  const { data: speeches } = useSpeeches(activeChapterId);
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const selectedSpeeches = speeches?.filter((s) => selectedSpeechIds.includes(s.id)) ?? [];
+  const hasContext = selectedSpeeches.length > 0;
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -35,9 +44,19 @@ export function AiChat() {
       setInput('');
       setIsLoading(true);
 
+      // Inject context if speeches are selected
+      let finalMessage = text.trim();
+      if (hasContext) {
+        const contextText = selectedSpeeches
+          .map((s) => `[Fala ${s.characterId ?? 'Narrador'}]: ${s.text}`)
+          .join('\n');
+        
+        finalMessage = `Contexto:\n${contextText}\n\nPergunta:\n${text}`;
+      }
+
       try {
         const { data } = await http.post(endpoints.ai.chat, {
-          message: text.trim(),
+          message: finalMessage,
           history: messages.map((m) => ({ role: m.role, content: m.content })),
         });
 
@@ -57,7 +76,7 @@ export function AiChat() {
         setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
       }
     },
-    [isLoading, messages]
+    [isLoading, messages, hasContext, selectedSpeeches]
   );
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -69,6 +88,14 @@ export function AiChat() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Context Indicator */}
+      {hasContext && (
+        <div className="px-3 py-2 bg-amber-500/10 border-b border-amber-500/20 text-[10px] text-amber-500 font-medium flex items-center justify-between">
+          <span>{selectedSpeeches.length} falas selecionadas para contexto</span>
+          <Bot className="w-3 h-3" />
+        </div>
+      )}
+
       {/* Quick actions */}
       <div className="p-3 border-b border-zinc-800">
         <p className="text-[10px] text-zinc-600 uppercase tracking-wider mb-2">Ações rápidas</p>
@@ -108,7 +135,7 @@ export function AiChat() {
             )}
             <div
               className={cn(
-                'max-w-[85%] rounded-lg px-3 py-2 text-xs leading-relaxed',
+                'max-w-[85%] rounded-lg px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap',
                 msg.role === 'user'
                   ? 'bg-amber-500/15 text-zinc-200'
                   : 'bg-zinc-800 text-zinc-300'
@@ -145,7 +172,7 @@ export function AiChat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Mensagem... (Enter para enviar)"
+            placeholder={hasContext ? "Pergunte sobre as falas selecionadas..." : "Mensagem... (Enter para enviar)"}
             rows={2}
             disabled={isLoading}
             className="flex-1 bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/50 resize-none disabled:opacity-50"

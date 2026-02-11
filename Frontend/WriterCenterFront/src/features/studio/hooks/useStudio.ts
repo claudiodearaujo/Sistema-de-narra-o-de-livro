@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useStudioStore } from '../../../shared/stores';
 import { useBook } from '../../../shared/hooks/useBooks';
 import { useChapters } from '../../../shared/hooks/useChapters';
@@ -6,6 +6,7 @@ import { useCharacters } from '../../../shared/hooks/useCharacters';
 import { useSpeeches } from '../../../shared/hooks/useSpeeches';
 import { useNarration } from '../../../shared/hooks/useNarration';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
+import { useAutoSave } from './useAutoSave';
 
 /**
  * Composite hook that bundles all Studio page state and data,
@@ -27,29 +28,7 @@ export function useStudio() {
   const narration = useNarration(activeChapterId);
 
   // ── Auto-save (debounced) ──────────────────────────────────────────────────
-  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout>>();
-
-  useEffect(() => {
-    if (!isDirty) return;
-
-    // Clear any existing timer
-    if (autoSaveTimerRef.current) {
-      clearTimeout(autoSaveTimerRef.current);
-    }
-
-    // Set a new debounced timer (3 seconds)
-    autoSaveTimerRef.current = setTimeout(() => {
-      // Auto-save is triggered by editingSpeech flow — the useSpeechEditor
-      // hook handles saving via the save button or Ctrl+Enter.
-      // This timer is a safety net for future field-level auto-save.
-    }, 3000);
-
-    return () => {
-      if (autoSaveTimerRef.current) {
-        clearTimeout(autoSaveTimerRef.current);
-      }
-    };
-  }, [isDirty]);
+  useAutoSave();
 
   // ── beforeunload guard ─────────────────────────────────────────────────────
 

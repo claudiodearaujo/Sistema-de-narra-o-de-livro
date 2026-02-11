@@ -1,11 +1,13 @@
 import { useRef, useCallback, KeyboardEvent } from 'react';
-import { Mic, Image, Music, Wand2, MoreHorizontal, Check } from 'lucide-react';
+import { Mic, Image, Music, Wand2, MoreHorizontal, Check, Loader2 } from 'lucide-react';
+import { useSpeechActions } from '../../hooks/useSpeechActions';
 import type { Speech } from '../../../../shared/types/speech.types';
 import type { Character } from '../../../../shared/types/character.types';
 import { TagToolbar } from './TagToolbar';
 import { AudioPlayer } from './AudioPlayer';
 import { SceneImage } from './SceneImage';
 import { cn } from '../../../../shared/lib/utils';
+import type { SpeechNarrationProgress } from '../../../../shared/hooks/useNarration';
 
 interface SpeechBlockProps {
   speech: Speech;
@@ -18,6 +20,7 @@ interface SpeechBlockProps {
   onCancelEdit: () => void;
   onUpdateText: (text: string) => void;
   onToggleSelect: (speechId: string) => void;
+  narrationProgress?: SpeechNarrationProgress;
 }
 
 const NARRATOR_COLOR = '#71717A'; // zinc-500
@@ -33,8 +36,18 @@ export function SpeechBlock({
   onCancelEdit,
   onUpdateText,
   onToggleSelect,
+  narrationProgress,
 }: SpeechBlockProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const actions = useSpeechActions();
+
+  // Derived state from both local optimistics and server events
+  const isGeneratingAudio = narrationProgress?.status === 'processing' || actions.generateAudio.isPending;
+  const audioProgress = narrationProgress?.progress ?? 0;
+  const hasAudioError = narrationProgress?.status === 'failed' || actions.generateAudio.isError;
+  
+  const effectiveAudioUrl = speech.audioUrl || narrationProgress?.audioUrl;
+  const showPlayer = !!effectiveAudioUrl && (speech.hasAudio || narrationProgress?.status === 'completed');
 
   const isNarrator = !character || speech.characterId === 'narrator';
   const color = isNarrator ? NARRATOR_COLOR : character?.color ?? NARRATOR_COLOR;
@@ -92,10 +105,13 @@ export function SpeechBlock({
       {/* Checkbox on hover */}
       <div
         className={cn(
-          'absolute left-[-24px] top-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer',
+          'absolute -left-6 top-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer',
           isSelected && 'opacity-100'
         )}
-        onClick={() => onToggleSelect(speech.id)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleSelect(speech.id);
+        }}
       >
         <div
           className={cn(
@@ -197,9 +213,28 @@ export function SpeechBlock({
       {/* Media Content (Audio Player & Scene Image) */}
       {!isEditing && (
         <div className="mt-3 space-y-2">
-          {speech.hasAudio && speech.audioUrl && (
-            <AudioPlayer audioUrl={speech.audioUrl} />
-          )}
+          {/* Audio Player or Progress */}
+          {showPlayer ? (
+             <div className="relative group/audio">
+               <AudioPlayer audioUrl={effectiveAudioUrl!} />
+             </div>
+          ) : isGeneratingAudio ? (
+            <div className="flex items-center gap-2 p-2 bg-zinc-800/50 rounded border border-zinc-700/50 w-full max-w-sm">
+              <Loader2 className="w-3.5 h-3.5 text-amber-500 animate-spin shrink-0" />
+              <div className="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-amber-500 transition-all duration-300 ease-out"
+                  style={{ width: `${Math.max(5, audioProgress)}%` }}
+                />
+              </div>
+              <span className="text-[10px] text-zinc-500 font-mono shrink-0 w-8 text-right">{audioProgress}%</span>
+            </div>
+          ) : hasAudioError ? (
+             <div className="text-xs text-red-400 p-2 bg-red-500/10 border border-red-500/20 rounded">
+               Erro ao gerar áudio. Tente novamente.
+             </div>
+          ) : null}
+
           {speech.hasImage && speech.imageUrl && (
             <SceneImage imageUrl={speech.imageUrl} alt={`Cena: ${speech.text.slice(0, 50)}...`} />
           )}
@@ -208,33 +243,74 @@ export function SpeechBlock({
 
       {/* Quick actions on hover (non-editing) */}
       {!isEditing && (
-        <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-          <button
-            className="p-1 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
-            title="Gerar narração TTS"
-          >
-            <Mic className="w-3.5 h-3.5" />
-          </button>
-          <button
-            className="p-1 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
-            title="Gerar imagem da cena"
-          >
-            <Image className="w-3.5 h-3.5" />
-          </button>
-          <button
-            className="p-1 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
-            title="Ferramentas IA"
-          >
-            <Wand2 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            className="p-1 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
-            title="Mais opções"
-          >
-            <MoreHorizontal className="w-3.5 h-3.5" />
-          </button>
+        <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 z-10">
+          <SpeechActionButton
+            icon={Mic}
+            label={isGeneratingAudio ? "Gerando..." : "Gerar narração"}
+            onClick={() => actions.generateAudio.mutate(speech.id)}
+            isLoading={isGeneratingAudio}
+            active={speech.hasAudio}
+          />
+          <SpeechActionButton
+            icon={Image}
+            label="Gerar imagem"
+            onClick={() => actions.generateSceneImage.mutate(speech.id)}
+            isLoading={actions.generateSceneImage.isPending}
+            active={speech.hasImage}
+          />
+          <SpeechActionButton
+            icon={Music}
+            label="Gerar ambiente"
+            onClick={() => actions.generateAmbientAudio.mutate(speech.id)}
+            isLoading={actions.generateAmbientAudio.isPending}
+            active={speech.hasAmbientAudio}
+          />
+          <SpeechActionButton
+            icon={Wand2}
+            label="Assistente IA"
+            onClick={() => actions.openAiTools(speech.id)}
+          />
+          <SpeechActionButton
+            icon={MoreHorizontal}
+            label="Mais opções"
+            onClick={() => {}} // TODO: Implementar dropdown
+          />
         </div>
       )}
     </div>
+  );
+}
+
+interface SpeechActionButtonProps {
+  icon: typeof Mic;
+  label: string;
+  onClick: () => void;
+  isLoading?: boolean;
+  active?: boolean;
+}
+
+function SpeechActionButton({ icon: Icon, label, onClick, isLoading, active }: SpeechActionButtonProps) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      disabled={isLoading}
+      className={cn(
+        "p-1.5 rounded transition-all duration-200",
+        active 
+          ? "text-amber-500 bg-amber-500/10 hover:bg-amber-500/20" 
+          : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800",
+        isLoading && "opacity-70 cursor-not-allowed"
+      )}
+      title={label}
+    >
+      {isLoading ? (
+        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+      ) : (
+        <Icon className="w-3.5 h-3.5" />
+      )}
+    </button>
   );
 }

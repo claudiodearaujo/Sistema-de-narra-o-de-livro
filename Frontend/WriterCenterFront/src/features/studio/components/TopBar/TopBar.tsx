@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useBook } from '../../../../shared/hooks/useBooks';
 import { useChapter } from '../../../../shared/hooks/useChapters';
+import { useDeleteSpeech } from '../../../../shared/hooks/useSpeeches';
 import { cn } from '../../../../shared/lib/utils';
 
 export function TopBar() {
@@ -27,6 +28,7 @@ export function TopBar() {
 
   const { data: book } = useBook(activeBookId);
   const { data: chapter } = useChapter(activeChapterId);
+  const deleteSpeech = useDeleteSpeech();
 
   const hasSelection = selectedSpeechIds.length > 0;
 
@@ -68,32 +70,71 @@ export function TopBar() {
       </div>
 
       {/* Center: Selection toolbar OR Undo/Redo */}
-      <div className="flex items-center gap-1">
+      <div className="flex-1 flex justify-center">
         {hasSelection ? (
-          <div className="flex items-center gap-1 bg-zinc-800 rounded-lg px-2 py-1">
-            <span className="text-xs text-zinc-400 mr-1">{selectedSpeechIds.length} selecionadas</span>
+          <div className="flex items-center gap-2 bg-zinc-800 rounded-full px-4 py-1.5 border border-zinc-700 animate-in fade-in slide-in-from-top-2 duration-200">
+            <span className="text-xs font-medium text-zinc-300 mr-2">
+              {selectedSpeechIds.length} selecionada{selectedSpeechIds.length > 1 ? 's' : ''}
+            </span>
+            
+            <div className="h-4 w-px bg-zinc-600" />
+            
             <button
-              className="p-1 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 rounded transition-colors"
-              title="Ferramentas IA nas falas selecionadas"
+              onClick={() => openRightPanel('ai')}
+              className="p-1.5 text-zinc-400 hover:text-amber-400 hover:bg-zinc-700 rounded-full transition-colors"
+              title="Assistente IA (Contexto da seleção)"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-4 h-4" />
             </button>
+            
             <button
-              className="p-1 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 rounded transition-colors"
-              title="Excluir falas selecionadas"
+               onClick={() => {
+                 // TODO: Implementar geração em massa
+                 openRightPanel('media');
+               }}
+              className="p-1.5 text-zinc-400 hover:text-emerald-400 hover:bg-zinc-700 rounded-full transition-colors"
+              title="Gerar áudio para seleção"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Loader2 className="w-4 h-4 text-emerald-500 hidden" /> {/* Placeholder para loading */}
+              <Bot className="w-4 h-4" />
             </button>
+
+            <div className="h-4 w-px bg-zinc-600" />
+
+            <button
+              onClick={async () => {
+                if (window.confirm(`Excluir ${selectedSpeechIds.length} falas selecionadas?`)) {
+                   // Deletar uma por uma por enquanto (ideal: endpoint bulk delete)
+                   // Como useDeleteSpeech requer {id, chapterId}, e talvez não tenhamos chapterId fácil para todas se pegarmos só IDs...
+                   // Mas activeChapterId está aqui.
+                   if (!activeChapterId) return;
+                   
+                   try {
+                     await Promise.all(selectedSpeechIds.map(id => 
+                       deleteSpeech.mutateAsync({ id, chapterId: activeChapterId })
+                     ));
+                     clearSelection();
+                   } catch (e) {
+                     console.error(e);
+                   }
+                }
+              }}
+              className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-zinc-700 rounded-full transition-colors"
+              title="Excluir selecionadas"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+
             <button
               onClick={clearSelection}
-              className="p-1 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 rounded transition-colors"
+              className="ml-2 p-1.5 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 rounded-full transition-colors"
               title="Limpar seleção"
             >
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-4 h-4" />
             </button>
           </div>
         ) : (
-          <>
+          <div className="hidden md:flex items-center gap-1 opacity-50">
             <button
               className="p-1.5 text-zinc-600 transition-colors cursor-not-allowed"
               title="Desfazer (em breve)"
@@ -108,7 +149,7 @@ export function TopBar() {
             >
               <Redo2 className="w-4 h-4" />
             </button>
-          </>
+          </div>
         )}
       </div>
 

@@ -18,6 +18,7 @@ import {
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useSpeeches, useCreateSpeech, useReorderSpeeches } from '../../../../shared/hooks/useSpeeches';
 import { useCharacters } from '../../../../shared/hooks/useCharacters';
+import { useNarration } from '../../../../shared/hooks/useNarration';
 import { useSpeechEditor } from '../../hooks/useSpeechEditor';
 import { SortableSpeechBlock } from './SortableSpeechBlock';
 import { NewSpeechInput } from './NewSpeechInput';
@@ -32,6 +33,9 @@ export function Canvas() {
 
   const { data: speeches, isLoading, isError } = useSpeeches(activeChapterId);
   const { data: characters = [] } = useCharacters(activeBookId);
+
+  // Real-time Narration Hook
+  const narration = useNarration(activeChapterId);
 
   const editor = useSpeechEditor();
   const createSpeech = useCreateSpeech();
@@ -135,6 +139,8 @@ export function Canvas() {
                 speech.characterId === 'narrator'
                   ? null
                   : (characters.find((c) => c.id === speech.characterId) ?? null);
+              
+              const narrationProgress = narration.speechProgress.get(speech.id);
 
               return (
                 <SortableSpeechBlock
@@ -149,6 +155,7 @@ export function Canvas() {
                   onCancelEdit={editor.cancel}
                   onUpdateText={editor.updateEditingText}
                   onToggleSelect={toggleSpeechSelection}
+                  narrationProgress={narrationProgress}
                 />
               );
             })}

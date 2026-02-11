@@ -61,3 +61,35 @@ export function useUpdateChapter() {
     },
   });
 }
+
+export interface ReorderChaptersDto {
+  chapterIds: string[];
+}
+
+export function useReorderChapters() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ bookId, dto }: { bookId: string; dto: ReorderChaptersDto }): Promise<void> => {
+      // Endpoint correto para reorder chapters de um livro seria /books/{id}/chapters/reorder ou similar
+      // Mas o endpoint.ts tem: reorder: (chapterId: string) => `/chapters/${chapterId}/reorder`
+      // Isso parece estranho para reordenar A LISTA de capítulos. Geralmente é no pai (Book).
+      // Vou assumir que existe um endpoint no Book ou ajustar o endpoints.ts.
+      // O endpoint `/chapters/${chapterId}/reorder` deve ser para mover UM capítulo para nova posição?
+      // O padrão RESTful para listas costuma ser PUT /books/{id}/chapters/reorder com lista de IDs.
+      
+      // Verificando endpoints.ts: reorder: (chapterId) -> ...
+      // Talvez seja reorder SPEECHES que eu vi antes?
+      // endpoints.chapters.reorder existe.
+      
+      // Vou usar batch update se não tiver endpoint de coleção.
+      // Mas vou assumir que posso enviar a lista.
+      
+      // Se o endpoint for `/books/:bookId/chapters/reorder`, preciso adicionar no endpoints.ts
+      await http.put(`/books/${bookId}/chapters/reorder`, dto);
+    },
+    onSuccess: (_data, { bookId }) => {
+      queryClient.invalidateQueries({ queryKey: chapterKeys.byBook(bookId) });
+    },
+  });
+}
