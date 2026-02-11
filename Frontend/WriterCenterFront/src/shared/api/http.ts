@@ -50,13 +50,13 @@ http.interceptors.response.use(
 
         // Try to refresh the token
         const response = await axios.post(
-          `${env.apiUrl}/auth/token/refresh`,
-          {},
+          `${env.apiUrl}/auth/refresh`,
+          { refreshToken },
           { withCredentials: true }
         );
 
-        const { accessToken } = response.data;
-        setAccessToken(accessToken);
+        const { accessToken, refreshToken: newRefreshToken } = response.data;
+        setTokens(accessToken, newRefreshToken);
 
         // Retry the original request with new token
         if (originalRequest.headers) {
@@ -64,9 +64,9 @@ http.interceptors.response.use(
         }
         return http(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, clear tokens and redirect to login
+        // Refresh failed, clear tokens and redirect to SSO
         clearTokens();
-        window.location.href = '/auth/login';
+        window.location.href = '/';
         return Promise.reject(refreshError);
       }
     }
