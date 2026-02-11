@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, KeyboardEvent } from 'react';
+import { useState, useRef, useCallback, useMemo, KeyboardEvent } from 'react';
 import { Send, Loader2, Bot, User, Zap } from 'lucide-react';
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useSpeeches } from '../../../../shared/hooks/useSpeeches';
@@ -32,7 +32,10 @@ export function AiChat() {
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const selectedSpeeches = speeches?.filter((s) => selectedSpeechIds.includes(s.id)) ?? [];
+  const selectedSpeeches = useMemo(
+    () => speeches?.filter((s) => selectedSpeechIds.includes(s.id)) ?? [],
+    [speeches, selectedSpeechIds]
+  );
   const hasContext = selectedSpeeches.length > 0;
 
   const sendMessage = useCallback(
