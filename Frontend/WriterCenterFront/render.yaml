@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: livrya-writer-studio
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+
+    # CRÍTICO: Regras de roteamento para SPA React
+    # Redireciona todas as requisições para index.html
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
