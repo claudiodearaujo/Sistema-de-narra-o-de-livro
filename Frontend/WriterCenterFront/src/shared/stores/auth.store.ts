@@ -27,12 +27,12 @@ export const useAuthStore = create<AuthStore>()(
         set({ user, isAuthenticated: true }),
 
       setTokens: (tokens) => {
-        setHttpTokens(tokens.accessToken, tokens.refreshToken);
+        setHttpTokens(tokens.accessToken);
         set({ tokens });
       },
 
       login: (user, tokens) => {
-        setHttpTokens(tokens.accessToken, tokens.refreshToken);
+        setHttpTokens(tokens.accessToken);
         set({ user, tokens, isAuthenticated: true });
       },
 
@@ -50,7 +50,6 @@ export const useAuthStore = create<AuthStore>()(
       name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        tokens: state.tokens,
         isAuthenticated: state.isAuthenticated,
       }),
     }

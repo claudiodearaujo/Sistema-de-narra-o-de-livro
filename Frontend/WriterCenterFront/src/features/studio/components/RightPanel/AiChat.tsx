@@ -2,9 +2,10 @@ import { useState, useRef, useCallback, useMemo, KeyboardEvent } from 'react';
 import { Send, Loader2, Bot, User, Zap } from 'lucide-react';
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useSpeeches } from '../../../../shared/hooks/useSpeeches';
-import { http } from '../../../../shared/api/http';
+import { getAccessToken } from '../../../../shared/api/http';
 import { endpoints } from '../../../../shared/api/endpoints';
 import { cn } from '../../../../shared/lib/utils';
+import { env } from '../../../../shared/lib/env';
 
 interface Message {
   id: string;
@@ -21,6 +22,29 @@ const QUICK_ACTIONS = [
 
 let msgCounter = 0;
 const nextId = () => String(++msgCounter);
+
+function extractChunk(rawChunk: string): string {
+  const chunk = rawChunk.trim();
+  if (!chunk) return '';
+
+  if (chunk.startsWith('data:')) {
+    const payload = chunk.slice(5).trim();
+    if (payload === '[DONE]') return '';
+    try {
+      const parsed = JSON.parse(payload);
+      return parsed.delta ?? parsed.message ?? parsed.content ?? '';
+    } catch {
+      return payload;
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(chunk);
+    return parsed.delta ?? parsed.message ?? parsed.content ?? '';
+  } catch {
+    return chunk;
+  }
+}
 
 export function AiChat() {
   const activeChapterId = useStudioStore((s) => s.activeChapterId);
@@ -58,17 +82,73 @@ export function AiChat() {
       }
 
       try {
-        const { data } = await http.post(endpoints.ai.chat, {
-          message: finalMessage,
-          history: messages.map((m) => ({ role: m.role, content: m.content })),
+        const assistantId = nextId();
+        setMessages((prev) => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
+
+        const response = await fetch(`${env.apiUrl}${endpoints.ai.chat}`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(getAccessToken() ? { Authorization: `Bearer ${getAccessToken()}` } : {}),
+          },
+          body: JSON.stringify({
+            message: finalMessage,
+            history: messages.map((m) => ({ role: m.role, content: m.content })),
+            stream: true,
+          }),
         });
 
-        const assistantMsg: Message = {
-          id: nextId(),
-          role: 'assistant',
-          content: data.message ?? data.content ?? 'Sem resposta.',
-        };
-        setMessages((prev) => [...prev, assistantMsg]);
+        if (!response.ok) {
+          throw new Error('Falha ao conectar com backend de IA');
+        }
+
+        if (!response.body) {
+          const data = await response.json();
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantId
+                ? { ...msg, content: data.message ?? data.content ?? 'Sem resposta.' }
+                : msg
+            )
+          );
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let aggregate = '';
+        let buffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop() ?? '';
+
+          for (const part of parts) {
+            const text = extractChunk(part);
+            if (!text) continue;
+
+            aggregate += text;
+            setMessages((prev) =>
+              prev.map((msg) => (msg.id === assistantId ? { ...msg, content: aggregate } : msg))
+            );
+          }
+        }
+
+        if (!aggregate.trim()) {
+          const fallbackText = extractChunk(buffer);
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantId
+                ? { ...msg, content: fallbackText || 'Sem resposta.' }
+                : msg
+            )
+          );
+        }
       } catch {
         setMessages((prev) => [
           ...prev,

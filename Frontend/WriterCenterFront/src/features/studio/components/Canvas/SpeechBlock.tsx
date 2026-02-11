@@ -1,5 +1,6 @@
 import { useRef, useCallback, KeyboardEvent } from 'react';
 import { Mic, Image, Music, Wand2, MoreHorizontal, Check, Loader2 } from 'lucide-react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useSpeechActions } from '../../hooks/useSpeechActions';
 import type { Speech } from '../../../../shared/types/speech.types';
 import type { Character } from '../../../../shared/types/character.types';
@@ -270,11 +271,51 @@ export function SpeechBlock({
             label="Assistente IA"
             onClick={() => actions.openAiTools(speech.id)}
           />
-          <SpeechActionButton
-            icon={MoreHorizontal}
-            label="Mais opções"
-            onClick={() => {}} // TODO: Implementar dropdown
-          />
+
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                type="button"
+                className="p-1.5 rounded transition-all duration-200 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800"
+                title="Mais opções"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal className="w-3.5 h-3.5" />
+              </button>
+            </DropdownMenu.Trigger>
+
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                align="end"
+                sideOffset={6}
+                className="z-50 min-w-[180px] rounded-md border border-zinc-700 bg-zinc-900 p-1 shadow-xl"
+              >
+                <DropdownMenu.Item
+                  onSelect={() => actions.openAiTools(speech.id)}
+                  className="cursor-pointer rounded px-2 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 outline-none"
+                >
+                  Abrir no Assistente IA
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onSelect={() => actions.duplicateSpeech.mutate(speech)}
+                  className="cursor-pointer rounded px-2 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 outline-none"
+                >
+                  Duplicar fala
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="my-1 h-px bg-zinc-700" />
+                <DropdownMenu.Item
+                  onSelect={() => {
+                    if (window.confirm('Tem certeza que deseja excluir esta fala?')) {
+                      actions.deleteSpeech.mutate(speech);
+                    }
+                  }}
+                  className="cursor-pointer rounded px-2 py-1.5 text-xs text-red-400 hover:bg-zinc-800 focus:bg-zinc-800 outline-none"
+                >
+                  Excluir fala
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
       )}
     </div>

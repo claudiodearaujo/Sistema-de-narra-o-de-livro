@@ -4,6 +4,7 @@ import { endpoints } from '../../../shared/api/endpoints';
 import { studioToast } from '../../../shared/lib/toast';
 import { speechKeys } from '../../../shared/hooks/useSpeeches';
 import { useUIStore } from '../../../shared/stores';
+import type { Speech } from '../../../shared/types/speech.types';
 
 /**
  * Hook para ações rápidas nas falas (gerar áudio, imagem, ambiente, etc).
@@ -68,6 +69,40 @@ export function useSpeechActions() {
     },
   });
 
+  const duplicateSpeech = useMutation({
+    mutationFn: async (speech: Speech) => {
+      const { data } = await http.post(endpoints.speeches.create, {
+        chapterId: speech.chapterId,
+        characterId: speech.characterId,
+        text: speech.text,
+        order: speech.order + 1,
+        emotion: speech.emotion,
+        tags: speech.tags,
+      });
+      return data;
+    },
+    onSuccess: (_data, speech) => {
+      studioToast.success('Fala duplicada');
+      queryClient.invalidateQueries({ queryKey: speechKeys.byChapter(speech.chapterId) });
+    },
+    onError: () => {
+      studioToast.error('Erro ao duplicar fala');
+    },
+  });
+
+  const deleteSpeech = useMutation({
+    mutationFn: async (speech: Speech) => {
+      await http.delete(endpoints.speeches.byId(speech.id));
+    },
+    onSuccess: (_data, speech) => {
+      studioToast.success('Fala excluída');
+      queryClient.invalidateQueries({ queryKey: speechKeys.byChapter(speech.chapterId) });
+    },
+    onError: () => {
+      studioToast.error('Erro ao excluir fala');
+    },
+  });
+
   /**
    * Abre o painel de IA com o contexto da fala selecionada.
    */
@@ -80,6 +115,8 @@ export function useSpeechActions() {
     generateAudio,
     generateSceneImage,
     generateAmbientAudio,
+    duplicateSpeech,
+    deleteSpeech,
     openAiTools,
   };
 }

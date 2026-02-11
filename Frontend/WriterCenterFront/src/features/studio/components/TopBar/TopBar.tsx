@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useBook } from '../../../../shared/hooks/useBooks';
 import { useChapter } from '../../../../shared/hooks/useChapters';
-import { useSpeeches, useDeleteSpeech } from '../../../../shared/hooks/useSpeeches';
+import { useSpeeches, useDeleteSpeech, useBatchSpeechAudio } from '../../../../shared/hooks/useSpeeches';
 import { cn } from '../../../../shared/lib/utils';
 import { studioToast } from '../../../../shared/lib/toast';
 
@@ -31,6 +31,7 @@ export function TopBar() {
   const { data: chapter } = useChapter(activeChapterId);
   const { data: speeches } = useSpeeches(activeChapterId);
   const deleteSpeech = useDeleteSpeech();
+  const batchSpeechAudio = useBatchSpeechAudio();
 
   const hasSelection = selectedSpeechIds.length > 0;
 
@@ -120,15 +121,27 @@ export function TopBar() {
             </button>
             
             <button
-               onClick={() => {
-                 // TODO: Implementar geração em massa
-                 openRightPanel('media');
+               onClick={async () => {
+                 if (!activeChapterId || selectedSpeechIds.length === 0) return;
+
+                 try {
+                   await batchSpeechAudio.mutateAsync({
+                     chapterId: activeChapterId,
+                     dto: { action: 'generate_audio', speechIds: selectedSpeechIds },
+                   });
+                   studioToast.success('Geração em massa iniciada', `${selectedSpeechIds.length} falas enviadas para narração.`);
+                 } catch {
+                   studioToast.error('Falha na geração em massa', 'Não foi possível gerar áudio para a seleção.');
+                 }
                }}
               className="p-1.5 text-zinc-400 hover:text-emerald-400 hover:bg-zinc-700 rounded-full transition-colors"
               title="Gerar áudio para seleção"
             >
-              <Loader2 className="w-4 h-4 text-emerald-500 hidden" /> {/* Placeholder para loading */}
-              <Bot className="w-4 h-4" />
+              {batchSpeechAudio.isPending ? (
+                <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
+              ) : (
+                <Bot className="w-4 h-4" />
+              )}
             </button>
 
             <div className="h-4 w-px bg-zinc-600" />

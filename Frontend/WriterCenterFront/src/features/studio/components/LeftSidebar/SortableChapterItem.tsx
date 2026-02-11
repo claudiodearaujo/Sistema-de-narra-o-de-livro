@@ -3,6 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { ChevronRight, ChevronDown, CheckCircle2, Clock, FileText, GripVertical } from 'lucide-react';
 import type { Chapter } from '../../../../shared/types/chapter.types';
 import { cn } from '../../../../shared/lib/utils';
+import { useSpeeches } from '../../../../shared/hooks/useSpeeches';
 
 interface SortableChapterItemProps {
   chapter: Chapter;
@@ -27,6 +28,8 @@ export function SortableChapterItem({
   onSelect,
   onToggleExpand,
 }: SortableChapterItemProps) {
+  const { data: previewSpeeches, isLoading: isLoadingPreview } = useSpeeches(isExpanded ? chapter.id : null);
+
   const {
     attributes,
     listeners,
@@ -43,6 +46,10 @@ export function SortableChapterItem({
   };
 
   const status = STATUS_CONFIG[chapter.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.draft;
+  const previewLines = (previewSpeeches ?? [])
+    .slice(0, 2)
+    .map((speech) => speech.text.trim())
+    .filter(Boolean);
 
   return (
     <div ref={setNodeRef} style={style} className="relative group/sortable">
@@ -101,14 +108,25 @@ export function SortableChapterItem({
         </div>
       </div>
 
-      {/* Expanded mini-preview placeholder */}
+      {/* Expanded mini-preview */}
       {isExpanded && (
         <div className="ml-6 pl-2 border-l border-zinc-800 mt-1 mb-2 space-y-1 animate-in slide-in-from-top-1 duration-200">
-          <p className="text-[10px] text-zinc-600 py-1 italic">
-            {chapter.speechesCount === 0
-              ? 'Nenhuma fala ainda'
-              : `${chapter.speechesCount} fala${chapter.speechesCount > 1 ? 's' : ''} — clique para carregar`}
-          </p>
+          {isLoadingPreview ? (
+            <p className="text-[10px] text-zinc-600 py-1 italic">Carregando preview...</p>
+          ) : chapter.speechesCount === 0 || previewLines.length === 0 ? (
+            <p className="text-[10px] text-zinc-600 py-1 italic">Nenhuma fala ainda</p>
+          ) : (
+            <>
+              {previewLines.map((line, index) => (
+                <p key={`${chapter.id}-preview-${index}`} className="text-[10px] text-zinc-500 leading-relaxed line-clamp-2">
+                  “{line}”
+                </p>
+              ))}
+              <p className="text-[10px] text-zinc-600 italic">
+                {chapter.speechesCount} fala{chapter.speechesCount > 1 ? 's' : ''} no total
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>
