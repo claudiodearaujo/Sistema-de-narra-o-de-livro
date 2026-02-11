@@ -1,8 +1,9 @@
-import { FileText, Clock, Mic, CheckCircle2 } from 'lucide-react';
+import { FileText, Clock, Mic } from 'lucide-react';
 import { useStudioStore } from '../../../../shared/stores';
 import { useSpeeches } from '../../../../shared/hooks/useSpeeches';
 import { useCharacters } from '../../../../shared/hooks/useCharacters';
 import { useChapter } from '../../../../shared/hooks/useChapters';
+import { SaveStatus } from './SaveStatus';
 
 function estimateNarrationTime(wordCount: number): string {
   // Average spoken rate: ~130 words per minute
@@ -52,10 +53,7 @@ export function StatusBar() {
         <div className="h-3 w-px bg-zinc-700" />
         <span>{characters.length} personagen{characters.length !== 1 ? 's' : ''}</span>
         <div className="h-3 w-px bg-zinc-700" />
-        <div className="flex items-center gap-1">
-          <CheckCircle2 className={`w-3 h-3 ${isDirty ? 'text-amber-500' : 'text-emerald-500'}`} />
-          <span>{isDirty ? 'Não salvo' : lastSavedAt ? 'Salvo' : 'Salvo'}</span>
-        </div>
+        <SaveStatus isDirty={isDirty} lastSavedAt={lastSavedAt} />
       </div>
     </footer>
   );
