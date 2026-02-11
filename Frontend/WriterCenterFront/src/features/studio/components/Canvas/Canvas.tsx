@@ -1,10 +1,27 @@
+import { useState } from 'react';
 import { BookOpen, Loader2 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
-import { useSpeeches, useCreateSpeech } from '../../../../shared/hooks/useSpeeches';
+import { useSpeeches, useCreateSpeech, useReorderSpeeches } from '../../../../shared/hooks/useSpeeches';
 import { useCharacters } from '../../../../shared/hooks/useCharacters';
 import { useSpeechEditor } from '../../hooks/useSpeechEditor';
-import { SpeechBlock } from './SpeechBlock';
+import { SortableSpeechBlock } from './SortableSpeechBlock';
 import { NewSpeechInput } from './NewSpeechInput';
+import { studioToast } from '../../../../shared/lib/toast';
 import type { CreateSpeechDto } from '../../../../shared/types/speech.types';
 
 export function Canvas() {
@@ -18,6 +35,56 @@ export function Canvas() {
 
   const editor = useSpeechEditor();
   const createSpeech = useCreateSpeech();
+  const reorderSpeeches = useReorderSpeeches();
+
+  // Local state for optimistic UI updates during drag
+  const [localSpeeches, setLocalSpeeches] = useState(speeches ?? []);
+
+  // Update local state when speeches data changes
+  if (speeches && speeches !== localSpeeches) {
+    setLocalSpeeches(speeches);
+  }
+
+  // Drag & Drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required to start drag
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !activeChapterId) return;
+
+    const oldIndex = localSpeeches.findIndex((s) => s.id === active.id);
+    const newIndex = localSpeeches.findIndex((s) => s.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Optimistic update
+    const newOrder = arrayMove(localSpeeches, oldIndex, newIndex);
+    setLocalSpeeches(newOrder);
+
+    // Persist to backend
+    try {
+      await reorderSpeeches.mutateAsync({
+        chapterId: activeChapterId,
+        dto: {
+          speechIds: newOrder.map((s) => s.id),
+        },
+      });
+    } catch (error) {
+      // Revert on error
+      setLocalSpeeches(speeches ?? []);
+      studioToast.error('Erro ao reordenar', 'Não foi possível salvar a nova ordem das falas');
+    }
+  };
 
   const handleSaveNewSpeech = async (dto: CreateSpeechDto) => {
     await createSpeech.mutateAsync(dto);
@@ -50,39 +117,43 @@ export function Canvas() {
     );
   }
 
-  const speechList = speeches ?? [];
+  const speechIds = localSpeeches.map((s) => s.id);
 
   return (
     <div className="flex-1 overflow-y-auto scrollbar-thin">
       <div className="max-w-4xl mx-auto p-6 space-y-2 pb-24">
-        {speechList.length === 0 && (
+        {localSpeeches.length === 0 && (
           <div className="text-center py-12">
             <p className="text-zinc-600 text-sm">Nenhuma fala ainda. Adicione a primeira fala abaixo.</p>
           </div>
         )}
 
-        {speechList.map((speech) => {
-          const character =
-            speech.characterId === 'narrator'
-              ? null
-              : (characters.find((c) => c.id === speech.characterId) ?? null);
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={speechIds} strategy={verticalListSortingStrategy}>
+            {localSpeeches.map((speech) => {
+              const character =
+                speech.characterId === 'narrator'
+                  ? null
+                  : (characters.find((c) => c.id === speech.characterId) ?? null);
 
-          return (
-            <SpeechBlock
-              key={speech.id}
-              speech={speech}
-              character={character}
-              isEditing={editor.editingSpeechId === speech.id}
-              editingText={editor.editingText}
-              isSelected={selectedSpeechIds.includes(speech.id)}
-              onStartEdit={editor.startEdit}
-              onSaveEdit={editor.saveEdit}
-              onCancelEdit={editor.cancel}
-              onUpdateText={editor.updateEditingText}
-              onToggleSelect={toggleSpeechSelection}
-            />
-          );
-        })}
+              return (
+                <SortableSpeechBlock
+                  key={speech.id}
+                  speech={speech}
+                  character={character}
+                  isEditing={editor.editingSpeechId === speech.id}
+                  editingText={editor.editingText}
+                  isSelected={selectedSpeechIds.includes(speech.id)}
+                  onStartEdit={editor.startEdit}
+                  onSaveEdit={editor.saveEdit}
+                  onCancelEdit={editor.cancel}
+                  onUpdateText={editor.updateEditingText}
+                  onToggleSelect={toggleSpeechSelection}
+                />
+              );
+            })}
+          </SortableContext>
+        </DndContext>
 
         {/* New speech input */}
         <NewSpeechInput
@@ -95,3 +166,4 @@ export function Canvas() {
     </div>
   );
 }
+
