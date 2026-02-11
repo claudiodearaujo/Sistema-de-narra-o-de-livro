@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 type PanelType = 'ai' | 'media' | 'properties' | null;
 
@@ -88,6 +88,7 @@ export const useUIStore = create<UIStore>()(
         leftSidebarOpen: state.leftSidebarOpen,
         focusMode: state.focusMode,
       }),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

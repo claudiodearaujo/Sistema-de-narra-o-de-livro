@@ -1,0 +1,42 @@
+name: WriterCenterFront CI
+
+on:
+  pull_request:
+    paths:
+      - 'Frontend/WriterCenterFront/**'
+      - '.github/workflows/writer-center-front-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Frontend/WriterCenterFront/**'
+      - '.github/workflows/writer-center-front-ci.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend/WriterCenterFront
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: Frontend/WriterCenterFront/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test -- --run
+
+      - name: Build
+        run: npm run build

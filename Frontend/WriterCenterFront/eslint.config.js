@@ -31,6 +31,7 @@ export default [
         Uint8Array: 'readonly',
         Array: 'readonly',
         String: 'readonly',
+        prompt: 'readonly',
       },
     },
     plugins: {
@@ -43,6 +44,8 @@ export default [
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': 'off',
+      // TypeScript already resolves symbols/types; this rule causes false positives on TS type names.
+      'no-undef': 'off',
     },
   },
   {

@@ -48,8 +48,14 @@ export function BookSelectorPage() {
       setBooks((prev) => [newBook, ...prev]);
       setShowCreateDialog(false);
       navigate(`/book/${newBook.id}`);
-    } catch (err: any) {
-      const message = err?.response?.data?.error || 'Erro ao criar livro. Tente novamente.';
+    } catch (err: unknown) {
+      const message =
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as { response?: { data?: { error?: string } } }).response?.data?.error === 'string'
+          ? (err as { response?: { data?: { error?: string } } }).response?.data?.error
+          : 'Erro ao criar livro. Tente novamente.';
       throw new Error(message);
     } finally {
       setCreating(false);

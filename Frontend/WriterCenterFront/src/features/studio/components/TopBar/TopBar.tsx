@@ -48,7 +48,6 @@ export function TopBar() {
       })
       .join('\n\n');
 
-    // eslint-disable-next-line no-undef
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
