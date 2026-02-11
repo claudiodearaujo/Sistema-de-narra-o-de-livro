@@ -27,7 +27,7 @@ async function seedOAuthClient() {
         gen_random_uuid()::text,
         'livrya-writer-studio',
         'Writer Studio',
-        ARRAY['http://localhost:5173/auth/callback', 'https://writer.livrya.com/auth/callback'],
+        ARRAY['http://localhost:5173/auth/callback', 'https://writer.livrya.com.br/auth/callback'],
         ARRAY['openid', 'profile', 'books', 'chapters', 'characters', 'speeches'],
         true,
         NOW(),
