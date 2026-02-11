@@ -133,7 +133,7 @@ app.use('/api/ai', aiApiRoutes);                    // AI operations (TTS, Text,
 app.use('/api/admin/audit', adminAuditRoutes);     // Audit logging admin API
 
 // OAuth Routes (SSO for external apps)
-app.use('/oauth', oauthRoutes);
+app.use('/api/oauth', oauthRoutes);
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);
