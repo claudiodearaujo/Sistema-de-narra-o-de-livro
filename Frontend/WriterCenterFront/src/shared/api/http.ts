@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { env } from '../lib/env';
+import { endpoints } from './endpoints';
 
 /**
  * Axios instance configured for the Livrya API
@@ -43,20 +44,17 @@ http.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = getRefreshToken();
-        if (!refreshToken) {
-          throw new Error('No refresh token available');
-        }
-
-        // Try to refresh the token
         const response = await axios.post(
-          `${env.apiUrl}/auth/refresh`,
-          { refreshToken },
+          `${env.apiUrl}${endpoints.auth.tokenRefresh}`,
+          {},
           { withCredentials: true }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-        setTokens(accessToken, newRefreshToken);
+        const accessToken = response.data?.accessToken ?? response.data?.access_token;
+        if (!accessToken) {
+          throw new Error('No access token returned from refresh endpoint');
+        }
+        setAccessToken(accessToken);
 
         // Retry the original request with new token
         if (originalRequest.headers) {
@@ -80,34 +78,19 @@ http.interceptors.response.use(
  * These should be replaced with actual implementation from auth store
  */
 let accessTokenCache: string | null = null;
-let refreshTokenCache: string | null = null;
 
 export function getAccessToken(): string | null {
-  return accessTokenCache || localStorage.getItem('access_token');
-}
-
-export function getRefreshToken(): string | null {
-  return refreshTokenCache || localStorage.getItem('refresh_token');
+  return accessTokenCache;
 }
 
 export function setAccessToken(token: string): void {
   accessTokenCache = token;
-  localStorage.setItem('access_token', token);
 }
 
-export function setRefreshToken(token: string): void {
-  refreshTokenCache = token;
-  localStorage.setItem('refresh_token', token);
-}
-
-export function setTokens(accessToken: string, refreshToken: string): void {
+export function setTokens(accessToken: string): void {
   setAccessToken(accessToken);
-  setRefreshToken(refreshToken);
 }
 
 export function clearTokens(): void {
   accessTokenCache = null;
-  refreshTokenCache = null;
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
 }

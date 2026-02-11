@@ -79,3 +79,22 @@ export function useReorderSpeeches() {
     },
   });
 }
+
+export interface BatchSpeechAudioDto {
+  speechIds: string[];
+  action: 'generate_audio';
+}
+
+export function useBatchSpeechAudio() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ chapterId, dto }: { chapterId: string; dto: BatchSpeechAudioDto }): Promise<void> => {
+      await http.post(endpoints.speeches.bulk(chapterId), dto);
+    },
+    onSuccess: (_data, { chapterId }) => {
+      queryClient.invalidateQueries({ queryKey: speechKeys.byChapter(chapterId) });
+      queryClient.invalidateQueries({ queryKey: speechKeys.all });
+    },
+  });
+}

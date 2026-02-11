@@ -7,11 +7,11 @@
 export const endpoints = {
   // Auth (OAuth endpoints)
   auth: {
-    ssoAuthorize: '/oauth/authorize',
-    token: '/oauth/token',
-    tokenRefresh: '/auth/refresh',
+    ssoAuthorize: '/auth/sso/authorize',
+    token: '/auth/token',
+    tokenRefresh: '/auth/token/refresh',
     logout: '/auth/logout',
-    userInfo: '/oauth/userinfo',
+    userInfo: '/auth/userinfo',
   },
 
   // Books

@@ -47,20 +47,24 @@ export function AuthCallback() {
         code_verifier: verifier,
       });
 
-      const { access_token, refresh_token, expires_in } = response.data;
+      const accessToken = response.data?.access_token ?? response.data?.accessToken;
+      const expiresIn = response.data?.expires_in ?? response.data?.expiresIn ?? 3600;
+
+      if (!accessToken) {
+        throw new Error('Resposta de token inválida');
+      }
 
       // Get user info
       const userResponse = await http.get(endpoints.auth.userInfo, {
         headers: {
-          Authorization: `Bearer ${access_token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
       // Store tokens and user
       login(userResponse.data, {
-        accessToken: access_token,
-        refreshToken: refresh_token,
-        expiresIn: expires_in,
+        accessToken: accessToken,
+        expiresIn,
       });
 
       // Clean up session storage
