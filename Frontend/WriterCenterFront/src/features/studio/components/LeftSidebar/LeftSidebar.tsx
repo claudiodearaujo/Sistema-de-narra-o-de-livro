@@ -3,6 +3,7 @@ import { FileText, Users, BarChart3 } from 'lucide-react';
 import { useStudioStore } from '../../../../shared/stores';
 import { useChapters, useCreateChapter } from '../../../../shared/hooks/useChapters';
 import { useCharacters } from '../../../../shared/hooks/useCharacters';
+import { useNarration } from '../../../../shared/hooks/useNarration';
 import { http } from '../../../../shared/api/http';
 import { endpoints } from '../../../../shared/api/endpoints';
 import { ChapterTree } from './ChapterTree';
@@ -28,6 +29,7 @@ export function LeftSidebar() {
   const { data: chapters = [], isLoading: chaptersLoading } = useChapters(activeBookId);
   const { data: characters = [], isLoading: charactersLoading } = useCharacters(activeBookId);
 
+  const narration = useNarration(activeChapterId);
   const createChapter = useCreateChapter();
 
   const handleNewChapter = async () => {
@@ -35,6 +37,11 @@ export function LeftSidebar() {
     const title = prompt('Nome do novo capítulo:');
     if (!title?.trim()) return;
     await createChapter.mutateAsync({ bookId: activeBookId, title: title.trim() });
+  };
+
+  const handleNarrate = async () => {
+    if (!activeChapterId || narration.isNarrating) return;
+    await narration.start();
   };
 
   const handlePreviewAudio = async (characterId: string) => {
@@ -88,7 +95,9 @@ export function LeftSidebar() {
             {activeChapterId && activeChapter && (
               <ChapterTools
                 chapterId={activeChapterId}
-                onNarrate={() => {}}
+                onNarrate={handleNarrate}
+                isNarrating={narration.isNarrating}
+                narrationProgress={narration.overallProgress}
                 onExport={() => {}}
               />
             )}

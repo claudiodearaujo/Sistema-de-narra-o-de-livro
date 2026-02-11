@@ -6,12 +6,36 @@ interface ChapterToolsProps {
   onNarrate: () => void;
   onExport: () => void;
   isNarrating?: boolean;
+  narrationProgress?: number;
 }
 
-export function ChapterTools({ chapterId: _chapterId, onNarrate, onExport, isNarrating }: ChapterToolsProps) {
+export function ChapterTools({
+  chapterId: _chapterId,
+  onNarrate,
+  onExport,
+  isNarrating,
+  narrationProgress = 0,
+}: ChapterToolsProps) {
   return (
     <div className="border-t border-zinc-800 pt-3 mt-3">
       <p className="text-[10px] text-zinc-600 uppercase tracking-wider mb-2 px-1">Ferramentas do capítulo</p>
+
+      {/* Narration Progress Bar */}
+      {isNarrating && narrationProgress > 0 && (
+        <div className="px-1 mb-2">
+          <div className="flex items-center justify-between text-[10px] text-amber-400 mb-1">
+            <span>Narrando...</span>
+            <span>{narrationProgress}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${narrationProgress}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-1">
         <button
           className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
@@ -60,3 +84,4 @@ export function ChapterTools({ chapterId: _chapterId, onNarrate, onExport, isNar
     </div>
   );
 }
+

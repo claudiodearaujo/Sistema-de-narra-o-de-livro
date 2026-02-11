@@ -57,7 +57,7 @@ export function useDeleteCharacter() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, bookId }: { id: string; bookId: string }): Promise<void> => {
+    mutationFn: async ({ id, bookId: _bookId }: { id: string; bookId: string }): Promise<void> => {
       await http.delete(endpoints.characters.byId(id));
     },
     onSuccess: (_data, { bookId }) => {

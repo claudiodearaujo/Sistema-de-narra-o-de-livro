@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useStudioStore, useUIStore } from '../../shared/stores';
+import { useStudio } from './hooks/useStudio';
 import { TopBar } from './components/TopBar/TopBar';
 import { StatusBar } from './components/StatusBar/StatusBar';
 import { LeftSidebar } from './components/LeftSidebar/LeftSidebar';
@@ -8,7 +9,9 @@ import { Canvas } from './components/Canvas/Canvas';
 import { RightPanel } from './components/RightPanel/RightPanel';
 
 /**
- * Main Writer Studio page with 3-zone layout
+ * Main Writer Studio page with 3-zone layout.
+ * The useStudio hook handles keyboard shortcuts, beforeunload guard,
+ * and data orchestration for the entire page.
  */
 export function StudioPage() {
   const { bookId, chapterId } = useParams<{ bookId: string; chapterId?: string }>();
@@ -17,6 +20,9 @@ export function StudioPage() {
   const leftSidebarOpen = useUIStore((state) => state.leftSidebarOpen);
   const rightPanelOpen = useUIStore((state) => state.rightPanelOpen);
   const focusMode = useUIStore((state) => state.focusMode);
+
+  // Composite hook — activates keyboard shortcuts & beforeunload guard
+  useStudio();
 
   useEffect(() => {
     if (bookId) {

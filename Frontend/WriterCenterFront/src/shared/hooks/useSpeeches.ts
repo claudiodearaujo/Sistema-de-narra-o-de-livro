@@ -58,7 +58,7 @@ export function useDeleteSpeech() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, chapterId }: { id: string; chapterId: string }): Promise<void> => {
+    mutationFn: async ({ id, chapterId: _chapterId }: { id: string; chapterId: string }): Promise<void> => {
       await http.delete(endpoints.speeches.byId(id));
     },
     onSuccess: (_data, { chapterId }) => {

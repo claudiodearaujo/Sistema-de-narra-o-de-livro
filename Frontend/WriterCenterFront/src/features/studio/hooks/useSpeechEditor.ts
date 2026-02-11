@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useStudioStore } from '../../../shared/stores';
 import { useUpdateSpeech } from '../../../shared/hooks/useSpeeches';
+import { studioToast } from '../../../shared/lib/toast';
 
 export function useSpeechEditor() {
   const editingSpeechId = useStudioStore((s) => s.editingSpeechId);
@@ -29,6 +30,7 @@ export function useSpeechEditor() {
 
     updateLastSavedAt();
     cancelEditing();
+    studioToast.speechSaved();
   }, [editingSpeechId, editingText, updateSpeech, updateLastSavedAt, cancelEditing]);
 
   const cancel = useCallback(() => {

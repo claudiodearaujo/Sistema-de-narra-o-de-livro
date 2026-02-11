@@ -3,6 +3,8 @@ import { Mic, Image, Music, Wand2, MoreHorizontal, Check } from 'lucide-react';
 import type { Speech } from '../../../../shared/types/speech.types';
 import type { Character } from '../../../../shared/types/character.types';
 import { TagToolbar } from './TagToolbar';
+import { AudioPlayer } from './AudioPlayer';
+import { SceneImage } from './SceneImage';
 import { cn } from '../../../../shared/lib/utils';
 
 interface SpeechBlockProps {
@@ -126,9 +128,9 @@ export function SpeechBlock({
           )}
           {/* Media indicators */}
           <div className="flex items-center gap-1 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-            {speech.hasAudio && <Mic className="w-3 h-3 text-emerald-500" title="Áudio gerado" />}
-            {speech.hasImage && <Image className="w-3 h-3 text-blue-400" title="Imagem gerada" />}
-            {speech.hasAmbientAudio && <Music className="w-3 h-3 text-purple-400" title="Áudio ambiente" />}
+            {speech.hasAudio && <Mic className="w-3 h-3 text-emerald-500" />}
+            {speech.hasImage && <Image className="w-3 h-3 text-blue-400" />}
+            {speech.hasAmbientAudio && <Music className="w-3 h-3 text-purple-400" />}
           </div>
         </div>
       )}
@@ -189,6 +191,18 @@ export function SpeechBlock({
           title="Clique para editar"
         >
           {speech.text || <span className="text-zinc-600 italic">Fala vazia — clique para editar</span>}
+        </div>
+      )}
+
+      {/* Media Content (Audio Player & Scene Image) */}
+      {!isEditing && (
+        <div className="mt-3 space-y-2">
+          {speech.hasAudio && speech.audioUrl && (
+            <AudioPlayer audioUrl={speech.audioUrl} />
+          )}
+          {speech.hasImage && speech.imageUrl && (
+            <SceneImage imageUrl={speech.imageUrl} alt={`Cena: ${speech.text.slice(0, 50)}...`} />
+          )}
         </div>
       )}
 
