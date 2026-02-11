@@ -90,7 +90,11 @@ Apesar do grande progresso, identificamos as seguintes lacunas que precisam ser 
 
 1.  **Integrar Auto-Save**: Adicionar `useAutoSave()` no componente que gerencia a edição ativa.
 2.  **Validar TopBar**: Garantir que título e breadcrumbs sejam dinâmicos.
-3.  **Refinar Error Handling**: Garantir que falhas de rede no WebSocket tenham feedback visual persistente (além de toasts).
+### 3. Error Handling de Narração ✅
+*   **Status**: Resolvido.
+*   **Detalhes**:
+    *   No hook `useNarration.ts`, o estado de erro é preservado.
+    *   No `Canvas.tsx`, um banner de erro persistente agora aparece quando a narração falha, com botão para dispensar/resetar.
 
 ---
 

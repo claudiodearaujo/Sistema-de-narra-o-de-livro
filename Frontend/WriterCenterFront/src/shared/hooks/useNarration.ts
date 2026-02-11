@@ -131,6 +131,7 @@ export function useNarration(chapterId: string | null) {
         ...prev,
         status: 'failed',
         error: event.error,
+        // Keep progress map to show which specific ones failed if we track that later
       }));
 
       studioToast.narrationFailed(event.error);

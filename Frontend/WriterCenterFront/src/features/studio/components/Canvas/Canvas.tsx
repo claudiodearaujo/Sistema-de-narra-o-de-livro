@@ -137,6 +137,21 @@ export function Canvas() {
           </div>
         )}
 
+        {narration.error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-md p-3 mb-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+             <div className="text-red-400 text-xs">
+                <span className="font-semibold block mb-0.5">Falha na narração</span>
+                {narration.error}
+             </div>
+             <button 
+               onClick={narration.reset}
+               className="text-[10px] bg-red-500/10 hover:bg-red-500/20 text-red-300 px-2 py-1 rounded transition-colors"
+             >
+               Dispensar
+             </button>
+          </div>
+        )}
+
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={speechIds} strategy={verticalListSortingStrategy}>
             {localSpeeches.map((speech) => {
