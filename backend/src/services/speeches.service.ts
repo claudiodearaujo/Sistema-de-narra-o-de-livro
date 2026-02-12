@@ -264,7 +264,21 @@ export class SpeechesService {
             }).catch(err => console.error('[AUDIT]', err));
         }
 
-        return { message: `${speechesData.length} speeches created successfully` };
+        // Fetch and return the newly created speeches
+        const createdSpeeches = await prisma.speech.findMany({
+            where: { 
+                chapterId,
+                orderIndex: {
+                    gte: startOrder
+                }
+            },
+            orderBy: { orderIndex: 'asc' },
+            include: {
+                character: true
+            }
+        });
+
+        return createdSpeeches;
     }
 }
 
