@@ -6,6 +6,27 @@
 
 ---
 
+## 📋 RESUMO EXECUTIVO
+
+### Problema
+O Writer Frontend (React) não está carregando os capítulos do livro quando acessa a URL `https://writer.livrya.com.br/book/{bookId}`.
+
+### Causa Raiz
+Fallback da URL da API no arquivo `env.ts` está faltando o sufixo `/api`, causando requisições para URLs incorretas quando as variáveis de ambiente não estão definidas.
+
+### Solução
+Adicionar `/api` ao fallback em:
+- **Arquivo:** `Frontend/WriterCenterFront/src/shared/lib/env.ts`
+- **Linha:** 2
+- **Alteração:** `'http://localhost:3000'` → `'http://localhost:3000/api'`
+
+### Status
+- ✅ **Problema identificado**
+- ✅ **Correção aplicada**
+- ⏳ **Aguardando deploy para validação**
+
+---
+
 ## 1. Fluxo de Obtenção de Capítulos - Frontend Social (LivryaFrontSocial)
 
 ### 1.1 Estrutura do Frontend Social
