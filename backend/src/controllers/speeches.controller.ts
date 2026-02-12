@@ -90,11 +90,14 @@ export class SpeechesController {
     async reorder(req: Request, res: Response) {
         try {
             const chapterId = req.params.chapterId as string;
-            const { orderedIds } = req.body;
-            if (!orderedIds || !Array.isArray(orderedIds)) {
-                return res.status(400).json({ error: 'orderedIds array is required' });
+            // Accept both speechIds (from frontend) and orderedIds for compatibility
+            const { orderedIds, speechIds } = req.body;
+            const ids = orderedIds || speechIds;
+            
+            if (!ids || !Array.isArray(ids)) {
+                return res.status(400).json({ error: 'speechIds or orderedIds array is required' });
             }
-            const result = await speechesService.reorder(chapterId, orderedIds);
+            const result = await speechesService.reorder(chapterId, ids);
             res.json(result);
         } catch (error: any) {
             res.status(500).json({ error: error.message });

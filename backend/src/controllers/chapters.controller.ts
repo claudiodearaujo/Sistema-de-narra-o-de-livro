@@ -121,13 +121,15 @@ export class ChaptersController {
     async reorder(req: Request, res: Response) {
         try {
             const bookId = req.params.bookId as string;
-            const { orderedIds } = req.body;
+            // Accept both chapterIds (from frontend) and orderedIds for compatibility
+            const { orderedIds, chapterIds } = req.body;
+            const ids = orderedIds || chapterIds;
 
-            if (!Array.isArray(orderedIds)) {
-                return res.status(400).json({ error: 'orderedIds must be an array' });
+            if (!Array.isArray(ids)) {
+                return res.status(400).json({ error: 'chapterIds or orderedIds must be an array' });
             }
 
-            const result = await chaptersService.reorder(bookId, orderedIds);
+            const result = await chaptersService.reorder(bookId, ids);
             res.json(result);
         } catch (error) {
             if (error instanceof Error && error.message === 'Book not found') {
