@@ -245,8 +245,10 @@ export class SpeechesService {
             orderIndex: startOrder + index
         }));
 
-        await prisma.speech.createMany({
-            data: speechesData
+        // Use createManyAndReturn to get the created speeches in one operation
+        const createdSpeeches = await prisma.speech.createManyAndReturn({
+            data: speechesData,
+            include: { character: true }
         });
 
         // Audit log - bulk create
@@ -264,7 +266,7 @@ export class SpeechesService {
             }).catch(err => console.error('[AUDIT]', err));
         }
 
-        return { message: `${speechesData.length} speeches created successfully` };
+        return createdSpeeches;
     }
 }
 
