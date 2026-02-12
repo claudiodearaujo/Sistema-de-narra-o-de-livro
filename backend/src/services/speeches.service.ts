@@ -245,21 +245,10 @@ export class SpeechesService {
             orderIndex: startOrder + index
         }));
 
-        await prisma.speech.createMany({
-            data: speechesData
-        });
-
-        // Fetch the created speeches to return them with character info
-        const createdSpeeches = await prisma.speech.findMany({
-            where: { 
-                chapterId,
-                orderIndex: {
-                    gte: startOrder,
-                    lt: startOrder + speechesData.length
-                }
-            },
-            include: { character: true },
-            orderBy: { orderIndex: 'asc' }
+        // Use createManyAndReturn to get the created speeches in one operation
+        const createdSpeeches = await prisma.speech.createManyAndReturn({
+            data: speechesData,
+            include: { character: true }
         });
 
         // Audit log - bulk create
