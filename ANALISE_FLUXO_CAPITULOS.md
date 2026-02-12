@@ -337,6 +337,13 @@ export const env = {
    - Executar: `import.meta.env.VITE_API_URL`
    - Deve retornar: `"https://sistema-de-narra-o-de-livro.onrender.com/api"`
 
+4. **Verificar CORS no Backend:**
+   - Garantir que `ALLOWED_ORIGINS` no backend inclui o Writer Frontend
+   - Adicionar em `.env` do backend:
+   ```bash
+   ALLOWED_ORIGINS=http://localhost:4200,http://localhost:3000,http://localhost:5173,https://www.livrya.com.br,https://writer.livrya.com.br
+   ```
+
 ### 5.3 Melhorias Adicionais (Opcional)
 
 #### Adicionar validação de ambiente:
@@ -394,9 +401,56 @@ O Frontend Writer (React/Vite) usa variáveis de ambiente dinâmicas:
 
 ---
 
-## 7. CONCLUSÃO
+## 8. POSSÍVEIS PROBLEMAS SECUNDÁRIOS
 
-### 7.1 Causa Raiz
+### 8.1 CORS - Cross-Origin Resource Sharing
+
+**Descrição:** O backend pode bloquear requisições do Writer Frontend se a origem não estiver na lista de permitidos.
+
+**Verificação:**
+- Abrir DevTools → Network
+- Verificar se há erro de CORS (status code `cors` ou mensagem de CORS blocked)
+
+**Solução:**
+Adicionar `https://writer.livrya.com.br` ao `ALLOWED_ORIGINS` no backend:
+
+```bash
+# backend/.env
+ALLOWED_ORIGINS=http://localhost:4200,http://localhost:3000,http://localhost:5173,https://www.livrya.com.br,https://writer.livrya.com.br
+```
+
+### 8.2 Autenticação SSO
+
+**Descrição:** O Writer Frontend usa SSO para autenticação. Se não estiver autenticado, algumas rotas podem falhar.
+
+**Verificação:**
+- A rota de capítulos usa `optionalAuth` (permite acesso sem token)
+- Mas outras operações podem exigir autenticação
+
+**Status:** Não deve ser a causa do problema atual (optionalAuth permite acesso)
+
+### 8.3 Variáveis de Ambiente em Produção
+
+**Descrição:** Se as variáveis de ambiente não forem injetadas corretamente no build, o fallback será usado.
+
+**Verificação em Produção:**
+1. Acessar https://writer.livrya.com.br
+2. Abrir DevTools → Console
+3. Executar: `window.location.origin` para confirmar o domínio
+4. Verificar se há erros de rede no Network tab
+
+**Possíveis Causas:**
+- Build não usa `.env.prod`
+- Variáveis de ambiente não definidas no host (Vercel, Netlify, etc.)
+- Nome das variáveis não segue padrão `VITE_*`
+
+---
+
+## 9. CONCLUSÃO
+
+## 9. CONCLUSÃO
+
+### 9.1 Causa Raiz
 
 **Problema:** Fallback URL em `env.ts` está faltando o sufixo `/api`
 
@@ -407,7 +461,7 @@ O Frontend Writer (React/Vite) usa variáveis de ambiente dinâmicas:
 - Requisição vai para URL incorreta (404 Not Found)
 - UI fica travada em estado de loading ou mostra erro
 
-### 7.2 Solução
+### 9.2 Solução
 
 **Ação Imediata:**
 1. Adicionar `/api` ao fallback em `env.ts`
@@ -419,7 +473,7 @@ O Frontend Writer (React/Vite) usa variáveis de ambiente dinâmicas:
 2. Implementar health check que valida configuração de ambiente
 3. Adicionar logs de debug para variáveis de ambiente em desenvolvimento
 
-### 7.3 Status dos Componentes
+### 9.3 Status dos Componentes
 
 | Componente | Status | Problema |
 |------------|--------|----------|
@@ -427,7 +481,7 @@ O Frontend Writer (React/Vite) usa variáveis de ambiente dinâmicas:
 | Social Frontend (Angular) | ✅ Funcionando | Nenhum |
 | Writer Frontend (React) | ❌ Com erro | Fallback URL incorreto |
 
-### 7.4 Próximos Passos
+### 9.4 Próximos Passos
 
 1. ✅ Análise completa realizada
 2. ⏳ Aplicar correção no código
