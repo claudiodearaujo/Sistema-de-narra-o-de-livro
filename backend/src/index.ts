@@ -89,6 +89,12 @@ app.get('/', (req, res) => {
   res.send('Sistema de Narração de Livros API - Gemini TTS');
 });
 
+// Auth Routes (public and protected)
+app.use('/api/auth', authRoutes);
+
+// OAuth Routes (SSO for external apps)
+app.use('/api/oauth', oauthRoutes);
+
 // Batch Operations Routes (Batch audio/image, Export)
 app.use('/api', batchRoutes);
 
@@ -97,9 +103,6 @@ app.use('/api', analyticsRoutes);
 
 // Export Routes (Print/PDF)
 app.use('/api', exportRoutes);
-
-// Auth Routes (public and protected)
-app.use('/api/auth', authRoutes);
 
 // Protected Routes (will add middleware to protect these later)
 app.use('/api/books', booksRoutes);
@@ -153,9 +156,6 @@ app.use('/api', mediaRoutes);                       // Media generation and mana
 
 // Admin Routes
 app.use('/api/admin/audit', adminAuditRoutes);     // Audit logging admin API
-
-// OAuth Routes (SSO for external apps)
-app.use('/api/oauth', oauthRoutes);
 
 // Initialize WebSocket
 initializeWebSocket(httpServer);

@@ -4,8 +4,6 @@ import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.use(authenticate);
-
-router.get('/analytics/author', analyticsController.getAuthorStats.bind(analyticsController));
+router.get('/analytics/author', authenticate, analyticsController.getAuthorStats.bind(analyticsController));
 
 export default router;

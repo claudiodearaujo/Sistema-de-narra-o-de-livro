@@ -307,7 +307,7 @@ async function main() {
     update: {
       allowedRedirectUris: [
         'http://localhost:5173/auth/callback',
-        'https://writer.livrya.com/auth/callback'
+        'https://writer.livrya.com.br/auth/callback'
       ],
       allowedScopes: ['openid', 'profile', 'books', 'chapters', 'characters', 'speeches']
     },
@@ -316,7 +316,7 @@ async function main() {
       name: 'Writer Studio',
       allowedRedirectUris: [
         'http://localhost:5173/auth/callback',
-        'https://writer.livrya.com/auth/callback'
+        'https://writer.livrya.com.br/auth/callback'
       ],
       allowedScopes: ['openid', 'profile', 'books', 'chapters', 'characters', 'speeches'],
       isActive: true

@@ -4,8 +4,6 @@ import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.use(authenticate);
-
-router.get('/chapters/:id/export/print', exportController.exportChapterPrint.bind(exportController));
+router.get('/chapters/:id/export/print', authenticate, exportController.exportChapterPrint.bind(exportController));
 
 export default router;
