@@ -50,6 +50,7 @@ export const endpoints = {
       suggestions: '/speeches/tools/suggestions',
       characterContext: '/speeches/tools/character-context',
       dictation: '/speeches/tools/dictation',
+      emotionImage: '/speeches/tools/emotion-image',
     },
   },
 
@@ -73,6 +74,8 @@ export const endpoints = {
   characters: {
     list: (bookId: string) => `/books/${bookId}/characters`,
     byId: (id: string) => `/characters/${id}`,
+    create: '/characters',
+    previewAudio: (characterId: string) => `/characters/${characterId}/preview-audio`,
   },
   
   // Voices (AI)
