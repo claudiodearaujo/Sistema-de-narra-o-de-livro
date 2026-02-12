@@ -24,10 +24,19 @@ export class ChaptersController {
     async getByBookId(req: Request, res: Response) {
         try {
             const bookId = req.params.bookId as string;
+            console.log('[ChaptersController] getByBookId called with bookId:', bookId);
+            console.log('[ChaptersController] Request headers:', req.headers);
+            console.log('[ChaptersController] Request user:', req.user);
+            
             const chapters = await chaptersService.getByBookId(bookId);
+            console.log('[ChaptersController] Found chapters:', chapters.length);
+            
             const transformed = chapters.map(transformChapter);
+            console.log('[ChaptersController] Transformed chapters:', transformed.length);
+            
             res.json(transformed);
         } catch (error) {
+            console.error('[ChaptersController] Error in getByBookId:', error);
             res.status(500).json({
                 error: 'Failed to fetch chapters',
                 message: error instanceof Error ? error.message : 'Unknown error'
