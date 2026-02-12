@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { booksService } from '../services/books.service';
+import { calculateWordCountFromSpeeches } from '../utils/transform.utils';
 
 /**
  * Transform chapter data from database format to API format
@@ -9,15 +10,12 @@ function transformChapterSimple(chapter: any) {
     const { orderIndex, speeches, ...rest } = chapter;
     
     // If speeches are included, calculate counts
-    const wordCount = speeches?.reduce((sum: number, speech: any) => {
-        const words = speech.text?.split(/\s+/).filter(Boolean).length || 0;
-        return sum + words;
-    }, 0) || 0;
+    const wordCount = calculateWordCountFromSpeeches(speeches || []);
     
     return {
         ...rest,
         order: orderIndex,
-        wordCount: speeches ? wordCount : 0,
+        wordCount,
         speechesCount: speeches?.length || 0,
     };
 }
