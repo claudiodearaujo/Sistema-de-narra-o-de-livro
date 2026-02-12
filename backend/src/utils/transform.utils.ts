@@ -4,6 +4,10 @@
 
 /**
  * Calculate word count from a text string
+ * 
+ * Note: Uses whitespace-based word splitting, which works well for 
+ * Portuguese, English, and most European languages. May not be accurate
+ * for languages without whitespace separation (e.g., Chinese, Japanese).
  */
 export function countWords(text: string): number {
     if (!text) return 0;
