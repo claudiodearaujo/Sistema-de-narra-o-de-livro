@@ -3,12 +3,30 @@ import { speechesService } from '../services/speeches.service';
 import { aiService } from '../ai';
 import prisma from '../lib/prisma';
 
+/**
+ * Transform speech data from database format to API format
+ * Maps orderIndex -> order and adds computed fields
+ */
+function transformSpeech(speech: any) {
+    const { orderIndex, ...rest } = speech;
+    
+    return {
+        ...rest,
+        order: orderIndex,
+        hasAudio: !!speech.audioUrl,
+        hasImage: !!speech.sceneImageUrl,
+        hasAmbientAudio: !!speech.ambientAudioUrl,
+        tags: speech.ssmlText ? [] : [], // Parse SSML tags if needed
+    };
+}
+
 export class SpeechesController {
     async getByChapterId(req: Request, res: Response) {
         try {
             const chapterId = req.params.chapterId as string;
             const speeches = await speechesService.getByChapterId(chapterId);
-            res.json(speeches);
+            const transformed = speeches.map(transformSpeech);
+            res.json(transformed);
         } catch (error: any) {
             res.status(500).json({ error: error.message });
         }
@@ -18,7 +36,8 @@ export class SpeechesController {
         try {
             const id = req.params.id as string;
             const speech = await speechesService.getById(id);
-            res.json(speech);
+            const transformed = transformSpeech(speech);
+            res.json(transformed);
         } catch (error: any) {
             if (error.message === 'Speech not found') {
                 res.status(404).json({ error: error.message });
@@ -32,7 +51,8 @@ export class SpeechesController {
         try {
             const chapterId = req.params.chapterId as string;
             const speech = await speechesService.create({ ...req.body, chapterId });
-            res.status(201).json(speech);
+            const transformed = transformSpeech(speech);
+            res.status(201).json(transformed);
         } catch (error: any) {
             res.status(400).json({ error: error.message });
         }
@@ -42,7 +62,8 @@ export class SpeechesController {
         try {
             const id = req.params.id as string;
             const speech = await speechesService.update(id, req.body);
-            res.json(speech);
+            const transformed = transformSpeech(speech);
+            res.json(transformed);
         } catch (error: any) {
             if (error.message === 'Speech not found') {
                 res.status(404).json({ error: error.message });
@@ -90,7 +111,8 @@ export class SpeechesController {
             }
 
             const result = await speechesService.bulkCreate(chapterId, text, strategy, defaultCharacterId);
-            res.status(201).json(result);
+            const transformed = result.map(transformSpeech);
+            res.status(201).json(transformed);
         } catch (error: any) {
             res.status(500).json({ error: error.message });
         }
