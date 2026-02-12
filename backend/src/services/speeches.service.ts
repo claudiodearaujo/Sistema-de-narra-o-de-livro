@@ -269,7 +269,8 @@ export class SpeechesService {
             where: { 
                 chapterId,
                 orderIndex: {
-                    gte: startOrder
+                    gte: startOrder,
+                    lt: startOrder + speechesData.length
                 }
             },
             orderBy: { orderIndex: 'asc' },
