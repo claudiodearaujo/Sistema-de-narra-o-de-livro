@@ -13,8 +13,17 @@ export function useChapters(bookId: string | null) {
   return useQuery({
     queryKey: chapterKeys.byBook(bookId ?? ''),
     queryFn: async (): Promise<Chapter[]> => {
-      const { data } = await http.get(endpoints.chapters.list(bookId!));
-      return data;
+      console.log('[useChapters] Fetching chapters for bookId:', bookId);
+      const endpoint = endpoints.chapters.list(bookId!);
+      console.log('[useChapters] Endpoint:', endpoint);
+      try {
+        const response = await http.get(endpoint);
+        console.log('[useChapters] Response:', response);
+        return response.data;
+      } catch (error) {
+        console.error('[useChapters] Error fetching chapters:', error);
+        throw error;
+      }
     },
     enabled: !!bookId,
     staleTime: 30_000,
