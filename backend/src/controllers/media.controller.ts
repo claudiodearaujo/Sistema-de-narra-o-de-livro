@@ -41,9 +41,6 @@ export class MediaController {
       
       if (speech.chapter?.book) {
         context.push(`Livro: ${speech.chapter.book.title}`);
-        if (speech.chapter.book.genre) {
-          context.push(`Gênero: ${speech.chapter.book.genre}`);
-        }
       }
 
       if (speech.chapter) {

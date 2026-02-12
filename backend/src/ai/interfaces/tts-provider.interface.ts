@@ -33,6 +33,9 @@ export interface AudioResult {
     format: string;
     duration?: number;
     sampleRate?: number;
+    // Extended properties for client usage
+    durationMs?: number;
+    audioUrl?: string;
 }
 
 export interface TTSProvider {

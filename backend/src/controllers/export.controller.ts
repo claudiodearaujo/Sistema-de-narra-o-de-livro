@@ -8,7 +8,7 @@ export class ExportController {
      */
     async exportChapterPrint(req: Request, res: Response) {
         try {
-            const chapterId = req.params.id;
+            const chapterId = req.params.id as string;
             const chapter = await prisma.chapter.findUnique({
                 where: { id: chapterId },
                 include: { 

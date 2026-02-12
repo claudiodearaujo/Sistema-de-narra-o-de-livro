@@ -1,9 +1,7 @@
 version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: livrya-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -12,70 +10,58 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - livrya-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: livrya-redis
     ports:
       - "6379:6379"
-    networks:
-      - livrya-net
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    volumes:
+      - redis_data:/data
 
-  backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: livrya-backend
+  ai-service:
+    build: ./ai-service
     ports:
-      - "4000:4000"
+      - "3001:3001"
     environment:
-      NODE_ENV: production
-      PORT: 4000
       DATABASE_URL: postgresql://postgres:password@postgres:5432/narracao
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      # Environment variables to be passed from system environment or .env file
-      JWT_SECRET: ${JWT_SECRET:-dev_secret_key_change_me}
-      PINECONE_API_KEY: ${PINECONE_API_KEY}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      ELEVEN_LABS_API_KEY: ${ELEVEN_LABS_API_KEY}
-      GOOGLE_APPLICATION_CREDENTIALS_JSON: ${GOOGLE_APPLICATION_CREDENTIALS_JSON}
+      PORT: 3001
+      # Add API keys here or in .env
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - livrya-net
+      - postgres
+      - redis
 
-  frontend:
-    build: 
-      context: ./Frontend/WriterCenterFront
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:4000/api}
-    container_name: livrya-frontend
+  backend:
+    build: ./backend
     ports:
-      - "80:80"
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/narracao
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 4000
+      AI_SERVICE_URL: http://ai-service:3001/api
+      JWT_SECRET: "changeme_in_prod"
+    depends_on:
+      - postgres
+      - redis
+      - ai-service
+
+  writer-center:
+    build: ./Frontend/WriterCenterFront
+    ports:
+      - "8080:80"
     depends_on:
       - backend
-    networks:
-      - livrya-net
+
+  social-front:
+    build: ./Frontend/LivryaFrontSocial
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
-
-networks:
-  livrya-net:
+  redis_data:

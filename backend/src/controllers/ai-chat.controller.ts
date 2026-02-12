@@ -125,16 +125,13 @@ export class AIChatController {
     if (params.bookId) {
       const book = await prisma.book.findUnique({
         where: { id: params.bookId },
-        select: { title: true, description: true, genre: true }
+        select: { title: true, description: true }
       });
 
       if (book) {
         sections.push(`📚 Livro: ${book.title}`);
         if (book.description) {
           sections.push(`Descrição: ${book.description}`);
-        }
-        if (book.genre) {
-          sections.push(`Gênero: ${book.genre}`);
         }
       }
     }

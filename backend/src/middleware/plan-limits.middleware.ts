@@ -19,6 +19,7 @@ export interface PlanLimits {
   monthlyLivras: number;
   canBoostPosts: boolean;
   canCreateCampaigns: boolean;
+  canUseAI: boolean;
 }
 
 /**
@@ -36,6 +37,7 @@ export const PLAN_LIMITS: Record<SubscriptionPlan, PlanLimits> = {
     monthlyLivras: 0,
     canBoostPosts: false,
     canCreateCampaigns: false,
+    canUseAI: true,
   },
   PREMIUM: {
     maxBooks: 10,
@@ -48,6 +50,7 @@ export const PLAN_LIMITS: Record<SubscriptionPlan, PlanLimits> = {
     monthlyLivras: 100,
     canBoostPosts: true,
     canCreateCampaigns: true,
+    canUseAI: true,
   },
   PRO: {
     maxBooks: -1, // Ilimitado
@@ -60,6 +63,7 @@ export const PLAN_LIMITS: Record<SubscriptionPlan, PlanLimits> = {
     monthlyLivras: 500,
     canBoostPosts: true,
     canCreateCampaigns: true,
+    canUseAI: true,
   },
 };
 

@@ -37,6 +37,7 @@ export interface EmotionImageResult {
     prompt: string;
     caption: string;
     sentiment: string;
+    imageUrl?: string;
 }
 
 export interface ImageAIProvider {

@@ -18,6 +18,8 @@ export interface UpdateSpeechDto {
     text?: string;
     ssmlText?: string;
     orderIndex?: number;
+    audioUrl?: string;
+    audioDurationMs?: number;
 }
 
 export class SpeechesService {
@@ -127,7 +129,9 @@ export class SpeechesService {
                 ...(data.characterId && { characterId: data.characterId }),
                 ...(data.text !== undefined && { text: data.text }),
                 ...(data.ssmlText !== undefined && { ssmlText: data.ssmlText }),
-                ...(data.orderIndex !== undefined && { orderIndex: data.orderIndex })
+                ...(data.orderIndex !== undefined && { orderIndex: data.orderIndex }),
+                ...(data.audioUrl !== undefined && { audioUrl: data.audioUrl }),
+                ...(data.audioDurationMs !== undefined && { audioDurationMs: data.audioDurationMs })
             }
         });
 
