@@ -1,5 +1,38 @@
 import { Request, Response } from 'express';
 import { booksService } from '../services/books.service';
+import { calculateWordCountFromSpeeches } from '../utils/transform.utils';
+
+/**
+ * Transform chapter data from database format to API format
+ * This is a simplified version for book listings (doesn't calculate wordCount from speeches)
+ */
+function transformChapterSimple(chapter: any) {
+    const { orderIndex, speeches, ...rest } = chapter;
+    
+    // If speeches are included, calculate counts
+    const wordCount = calculateWordCountFromSpeeches(speeches || []);
+    
+    return {
+        ...rest,
+        order: orderIndex,
+        wordCount,
+        speechesCount: speeches?.length || 0,
+    };
+}
+
+/**
+ * Transform book data including nested chapters
+ */
+function transformBook(book: any) {
+    if (!book) return book;
+    
+    const { chapters, ...rest } = book;
+    
+    return {
+        ...rest,
+        chapters: chapters?.map(transformChapterSimple) || [],
+    };
+}
 
 export class BooksController {
     async getAll(req: Request, res: Response) {
@@ -11,7 +44,14 @@ export class BooksController {
             const userId = (req as any).user?.userId;
 
             const result = await booksService.getAll(page, limit, title, author, userId);
-            res.json(result);
+            
+            // Transform books with chapters
+            const transformedData = result.data.map(transformBook);
+            
+            res.json({
+                ...result,
+                data: transformedData,
+            });
         } catch (error) {
             res.status(500).json({
                 error: 'Failed to fetch books',
@@ -24,7 +64,8 @@ export class BooksController {
         try {
             const id = req.params.id as string;
             const book = await booksService.getById(id);
-            res.json(book);
+            const transformed = transformBook(book);
+            res.json(transformed);
         } catch (error) {
             if (error instanceof Error && error.message === 'Book not found') {
                 res.status(404).json({ error: error.message });
@@ -41,7 +82,8 @@ export class BooksController {
         try {
             const userId = (req as any).user?.userId;
             const book = await booksService.create({ ...req.body, userId });
-            res.status(201).json(book);
+            const transformed = transformBook(book);
+            res.status(201).json(transformed);
         } catch (error) {
             if (error instanceof Error && (
                 error.message.includes('Title') ||
@@ -62,7 +104,8 @@ export class BooksController {
             const id = req.params.id as string;
             const userId = (req as any).user?.userId;
             const book = await booksService.update(id, req.body, userId);
-            res.json(book);
+            const transformed = transformBook(book);
+            res.json(transformed);
         } catch (error) {
             if (error instanceof Error && error.message === 'Book not found') {
                 res.status(404).json({ error: error.message });
