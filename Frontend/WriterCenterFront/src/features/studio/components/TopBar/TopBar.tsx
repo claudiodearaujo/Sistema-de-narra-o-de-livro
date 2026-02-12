@@ -1,7 +1,7 @@
 import {
   BookOpen, Save, ChevronLeft, Maximize2, Minimize2, Settings,
   PanelLeftClose, PanelLeftOpen, Undo2, Redo2, Download, Bot,
-  Loader2, Check, Sparkles, Trash2, Wand2, Mic, Image, FileAudio
+  Loader2, Check, Sparkles, Trash2, Wand2, Mic, Image, FileAudio, Printer
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,8 @@ import { useChapter } from '../../../../shared/hooks/useChapters';
 import { useSpeeches, useDeleteSpeech, useBatchSpeechAudio } from '../../../../shared/hooks/useSpeeches';
 import { cn } from '../../../../shared/lib/utils';
 import { studioToast } from '../../../../shared/lib/toast';
+import { env } from '../../../../shared/lib';
+import { getAccessToken } from '../../../../shared/api/http';
 
 export function TopBar() {
   const navigate = useNavigate();
@@ -283,6 +285,14 @@ export function TopBar() {
                 >
                   <Download className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Exportar Texto (.txt)</span>
+                </DropdownMenu.Item>
+
+                <DropdownMenu.Item 
+                  onSelect={() => activeChapterId && window.open(`${env.apiUrl}/chapters/${activeChapterId}/export/print?token=${getAccessToken()}`, '_blank')}
+                  className="cursor-pointer rounded px-2 py-2 text-xs text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 outline-none flex items-center gap-2"
+                >
+                  <Printer className="w-3.5 h-3.5 text-orange-500" />
+                  <span>Imprimir / Salvar PDF</span>
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>

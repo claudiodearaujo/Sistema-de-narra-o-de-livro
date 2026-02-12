@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Plus, AlertCircle, RefreshCw, LogOut } from 'lucide-react';
+import { BookOpen, Plus, AlertCircle, RefreshCw, LogOut, LayoutDashboard } from 'lucide-react';
 import { http, endpoints } from '../../shared/api';
 import { useAuthStore } from '../../shared/stores';
 import type { Book, BooksResponse, CreateBookDto } from '../../shared/types';
@@ -95,6 +95,13 @@ export function BookSelectorPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 transition-colors text-sm font-medium mr-2"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              Dashboard
+            </button>
             <button
               onClick={() => setShowCreateDialog(true)}
               className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-500 transition-colors text-sm font-medium"

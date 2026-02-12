@@ -32,6 +32,8 @@ import oauthRoutes from './routes/oauth.routes';
 import aiApiRoutes from './routes/ai-api.routes';
 import ssmlRoutes from './routes/ssml.routes';
 import { batchRoutes } from './routes/batch.routes';
+import analyticsRoutes from './routes/analytics.routes';
+import exportRoutes from './routes/export.routes';
 import mediaRoutes from './routes/media.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 import { auditContext } from './middleware';
@@ -86,6 +88,15 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.get('/', (req, res) => {
   res.send('Sistema de Narração de Livros API - Gemini TTS');
 });
+
+// Batch Operations Routes (Batch audio/image, Export)
+app.use('/api', batchRoutes);
+
+// Analytics Routes
+app.use('/api', analyticsRoutes);
+
+// Export Routes (Print/PDF)
+app.use('/api', exportRoutes);
 
 // Auth Routes (public and protected)
 app.use('/api/auth', authRoutes);

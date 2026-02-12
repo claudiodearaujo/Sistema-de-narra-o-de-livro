@@ -15,7 +15,12 @@ declare global {
  * Authentication middleware - verifies JWT token
  */
 export function authenticate(req: Request, res: Response, next: NextFunction): void {
-  const authHeader = req.headers.authorization;
+  let authHeader = req.headers.authorization;
+
+  // Allow token in query string (for downloads/exports)
+  if (!authHeader && req.query.token && typeof req.query.token === 'string') {
+    authHeader = `Bearer ${req.query.token}`;
+  }
 
   if (!authHeader) {
     res.status(401).json({ 
