@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PauseCircle, Zap, TrendingUp, TrendingDown, Wind, Bold, Italic, Sparkles, Loader2, X } from 'lucide-react';
-import { useSSMLSuggestions, SSMLTagSuggestion } from '../../../../shared/hooks/useSSMLSuggestions';
+import { useSSMLSuggestions } from '../../../../shared/hooks/useSSMLSuggestions';
 import { cn } from '../../../../shared/lib/utils';
 import * as Dialog from '@radix-ui/react-dialog';
 
@@ -66,14 +66,6 @@ export function TagToolbar({ onInsertTag, selectedText = '' }: TagToolbarProps) 
   const [context, setContext] = useState('');
   const [emotion, setEmotion] = useState('');
   const { suggestTags } = useSSMLSuggestions();
-
-  const handleSuggest = async () => {
-    if (!selectedText) return;
-    setIsDialogOpen(true);
-    // Auto-fetch if we assume default context, or wait for user input in dialog?
-    // Let's fetch immediately with defaults to show speed, user can refine in dialog if needed.
-    // actually, better to let user pick emotion first in the dialog
-  };
 
   const handleFetchSuggestions = async () => {
      await suggestTags.mutateAsync({

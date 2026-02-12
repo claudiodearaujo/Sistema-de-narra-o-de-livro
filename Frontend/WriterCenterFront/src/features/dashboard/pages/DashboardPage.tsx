@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAuthorStats } from '../../../shared/hooks/useAuthorStats';
 import { Loader2, TrendingUp, Users, BookOpen, Mic, DollarSign, Heart, MessageCircle } from 'lucide-react';
 
