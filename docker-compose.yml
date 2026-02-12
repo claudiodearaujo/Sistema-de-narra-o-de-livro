@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: livrya-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: narracao
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - livrya-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: livrya-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - livrya-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: livrya-backend
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/narracao
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Environment variables to be passed from system environment or .env file
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_key_change_me}
+      PINECONE_API_KEY: ${PINECONE_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ELEVEN_LABS_API_KEY: ${ELEVEN_LABS_API_KEY}
+      GOOGLE_APPLICATION_CREDENTIALS_JSON: ${GOOGLE_APPLICATION_CREDENTIALS_JSON}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - livrya-net
+
+  frontend:
+    build: 
+      context: ./Frontend/WriterCenterFront
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:4000/api}
+    container_name: livrya-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - livrya-net
+
+volumes:
+  postgres_data:
+
+networks:
+  livrya-net:

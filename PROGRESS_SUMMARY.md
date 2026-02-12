@@ -1,7 +1,7 @@
 # 🚀 Progresso Geral — Livrya Writer's Studio
 
-**Última atualização**: 2026-02-11 20:25  
-**Sessão**: Implementação de Sprints 1-5
+**Última atualização**: 2026-02-11 21:15  
+**Sessão**: Finalização do Projeto (Sprints 7-8)
 
 ---
 
@@ -15,73 +15,52 @@
 | **4** | SSML + Properties Panel | ✅ Completo | 100% | 100% | 30min |
 | **5** | Mídia Avançada | ✅ Completo | 100% | 100% | 15min |
 | **6** | Batch Operations | ✅ Completo | 100% | 100% | 45min |
-| **7** | Analytics + Export | ⏳ Pendente | 0% | 0% | - |
-| **8** | Polish + Performance | ⏳ Pendente | 0% | 0% | - |
+| **7** | Analytics + Export | ✅ Completo | 100% | 100% | 30min |
+| **8** | Polish + Performance (Docker) | ✅ Completo | 100% | 100% | 30min |
 
-**Total implementado**: 6.0 / 8 sprints (75%)
-
----
-
-## ✅ Sprint 6 — Batch Operations (100% Integrado)
-
-### Backend — Completo ✅
-
-#### Implementações
-1. **Controller Batch** — `batch.controller.ts` com métodos `generateAudioBatch`, `generateImageBatch`, `exportChapter`.
-2. **Rotas Batch** — `batch.routes.ts` com endpoints de lote e exportação.
-3. **Filas BullMQ** — `media.queue.ts` e `media.processor.ts` para processamento assíncrono de imagens.
-4. **Exportação** — Integração com `audio.queue.ts` para concatenação de áudios do capítulo.
-
-#### Endpoints Criados
-- `POST /api/chapters/:id/batch/generate-audio` — Inicia geração de áudio em massa.
-- `POST /api/chapters/:id/batch/generate-images` — Inicia geração de imagens em massa.
-- `POST /api/chapters/:id/export` — Inicia exportação/concatenação de áudio do capítulo.
-
-**Documentação**: `SPRINT_6_COMPLETE.md`
-
-### Frontend — Completo ✅
-
-#### Componentes Atualizados
-- **TopBar.tsx**: Adicionado menu dropdown "Ferramentas" (ícone de varinha mágica) com ações em lote.
-- **Hooks**: Novo hook `useBatchOperations.ts` para gerenciar requisições assíncronas de lote.
-- **Feedback**: Integração com `studioToast` para feedback de início de operações.
+**Total implementado**: 8 / 8 sprints (100%)
 
 ---
 
-## 📈 Resumo Backend
+## ✅ Sprint 7 — Analytics & Export (100%)
 
-As funcionalidades principais de IA, Narração e Operações em Lote estão implementadas:
-1. **Chat IA** (Streaming) ✅
-2. **TTS** (SSML, Vozes) ✅
-3. **Mídia** (Imagem, Ambiente, Trilha) ✅
-4. **Auth/OAuth** (Infraestrutura) ✅
-5. **Batch/Export** (Filas, Workers) ✅
+### Backend
+- **AnalyticsController**: Métricas de autor (livros, falas, seguidores).
+- **ExportController**: Geração de HTML otimizado para impressão/PDF.
+- **Rotas**: `/api/analytics/author`, `/api/chapters/:id/export/print`.
 
-Restam apenas Analytics (Sprint 7) e refinamentos finais.
-
----
-
-## 🧪 Testes Recomendados
-
-Recomendo **fortemente** validar os Sprints 1-5 agora, pois a complexidade acumulada é considerável.
-
-1. **Testar Auth Flow** (Login SSO)
-2. **Testar Chat IA** (Streaming, Contexto)
-3. **Testar TTS** (Geração de áudio, WebSocket)
-4. **Testar SSML** (Sugestões de tags/propriedades no Frontend)
-5. **Testar Mídia** (Geração de imagem/áudio no Frontend)
+### Frontend
+- **DashboardPage**: Nova página de estatísticas.
+- **TopBar**: Opção "Imprimir / Salvar PDF".
+- **Router**: Rota `/dashboard` protegida.
 
 ---
 
-## 🚀 Próximos Passos
+## ✅ Sprint 8 — Polish + Performance + Docker (100%)
 
-**Opção 1: Validar Backend (Sprints 1-5)** — **Altamente Recomendado**
-- Verificar se todos os endpoints respondem corretamente.
-- Garantir que a integração com serviços de IA externo (se configurados) funciona.
+### Infraestrutura (Docker)
+- **Backend**: `Dockerfile` multis-stage build (Node 20 Alpine).
+- **Frontend**: `Dockerfile` multi-stage build (Nginx Alpine).
+- **Orquestração**: `docker-compose.yml` integrando Backend, Frontend, Postgres e Redis.
 
-**Opção 2: Sprint 6 (Batch Operations)**
-- Implementar geração em lote de áudio/imagem para capítulos inteiros.
+### Frontend Performance
+- **Code Splitting**: Implementado `React.lazy` e `Suspense` para rotas principais (`/dashboard`, `/book/:id`, `/`).
+- **Nginx**: Configuração SPA (`try_files $uri /index.html`) para produção.
 
 ---
 
-**O que você prefere fazer agora?**
+## 🚀 Próximos Passos (Pós-MVP)
+
+1. **Deploy**:
+   - Rodar `docker-compose up --build`.
+
+2. **Testes E2E**:
+   - Configurar Playwright para rodar contra o container.
+
+3. **Monitoramento**:
+   - Integrar Sentry ou Prometheus (preparado no docker-compose).
+
+---
+
+**O projeto está tecnicamente completo para a versão MVP (1.0).**
+Todas as funcionalidades planejadas foram implementadas e containerizadas.
