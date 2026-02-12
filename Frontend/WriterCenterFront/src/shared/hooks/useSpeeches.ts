@@ -25,6 +25,18 @@ export function useSpeeches(chapterId: string | null) {
   });
 }
 
+export function useSpeech(id: string | null) {
+  return useQuery({
+    queryKey: speechKeys.byId(id ?? ''),
+    queryFn: async (): Promise<Speech> => {
+      const { data } = await http.get(endpoints.speeches.byId(id!));
+      return data;
+    },
+    enabled: !!id,
+    staleTime: 30_000,
+  });
+}
+
 export function useCreateSpeech() {
   const queryClient = useQueryClient();
 

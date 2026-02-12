@@ -1,9 +1,11 @@
 import {
   BookOpen, Save, ChevronLeft, Maximize2, Minimize2, Settings,
   PanelLeftClose, PanelLeftOpen, Undo2, Redo2, Download, Bot,
-  Loader2, Check, Sparkles, Trash2,
+  Loader2, Check, Sparkles, Trash2, Wand2, Mic, Image, FileAudio
 } from 'lucide-react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useNavigate } from 'react-router-dom';
+import { useBatchOperations } from '../../../../shared/hooks/useBatchOperations';
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useBook } from '../../../../shared/hooks/useBooks';
 import { useChapter } from '../../../../shared/hooks/useChapters';
@@ -32,6 +34,7 @@ export function TopBar() {
   const { data: speeches } = useSpeeches(activeChapterId);
   const deleteSpeech = useDeleteSpeech();
   const batchSpeechAudio = useBatchSpeechAudio();
+  const { generateBatchAudio, generateBatchImages, exportChapterAudio } = useBatchOperations();
 
   const hasSelection = selectedSpeechIds.length > 0;
 
@@ -225,13 +228,65 @@ export function TopBar() {
           <Bot className="w-4 h-4" />
         </button>
 
-        <button
-          onClick={handleExport}
-          className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
-          title="Exportar capítulo (TXT)"
-        >
-          <Download className="w-4 h-4" />
-        </button>
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
+                title="Ferramentas de IA e Batch"
+              >
+                <Wand2 className="w-4 h-4" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content 
+                align="end" 
+                sideOffset={5} 
+                className="z-50 min-w-[220px] rounded-md border border-zinc-700 bg-zinc-900 p-1 shadow-xl animate-in fade-in zoom-in-95 duration-100"
+              >
+                <DropdownMenu.Label className="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                  Geração em Lote
+                </DropdownMenu.Label>
+                
+                <DropdownMenu.Item 
+                  onSelect={() => activeChapterId && generateBatchAudio.mutate({ chapterId: activeChapterId })}
+                  className="cursor-pointer rounded px-2 py-2 text-xs text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 outline-none flex items-center gap-2"
+                >
+                  <Mic className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Gerar Áudio (Todas as falas)</span>
+                </DropdownMenu.Item>
+                
+                <DropdownMenu.Item 
+                  onSelect={() => activeChapterId && generateBatchImages.mutate({ chapterId: activeChapterId })}
+                  className="cursor-pointer rounded px-2 py-2 text-xs text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 outline-none flex items-center gap-2"
+                >
+                  <Image className="w-3.5 h-3.5 text-blue-500" />
+                  <span>Gerar Imagens (Todas as falas)</span>
+                </DropdownMenu.Item>
+
+                <DropdownMenu.Separator className="my-1 h-px bg-zinc-700" />
+                
+                 <DropdownMenu.Label className="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                  Exportação
+                </DropdownMenu.Label>
+
+                <DropdownMenu.Item 
+                  onSelect={() => activeChapterId && exportChapterAudio.mutate(activeChapterId)}
+                  className="cursor-pointer rounded px-2 py-2 text-xs text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 outline-none flex items-center gap-2"
+                >
+                  <FileAudio className="w-3.5 h-3.5 text-purple-500" />
+                  <span>Exportar Áudio (.mp3)</span>
+                </DropdownMenu.Item>
+
+                 <DropdownMenu.Item 
+                  onSelect={handleExport}
+                  className="cursor-pointer rounded px-2 py-2 text-xs text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 outline-none flex items-center gap-2"
+                >
+                  <Download className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Exportar Texto (.txt)</span>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+        </DropdownMenu.Root>
 
         <button
           onClick={toggleFocusMode}

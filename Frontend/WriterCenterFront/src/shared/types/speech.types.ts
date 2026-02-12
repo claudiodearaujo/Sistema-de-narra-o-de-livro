@@ -22,10 +22,15 @@ export interface Speech {
   hasImage: boolean;
   hasAmbientAudio: boolean;
   audioUrl?: string;
-  imageUrl?: string;
+  sceneImageUrl?: string;
   ambientAudioUrl?: string;
   createdAt: string;
   updatedAt: string;
+  character?: {
+    id: string;
+    name: string;
+    voiceId: string;
+  };
 }
 
 export interface CreateSpeechDto {

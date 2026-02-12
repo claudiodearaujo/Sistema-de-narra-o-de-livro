@@ -49,19 +49,33 @@ export const endpoints = {
       spellCheck: '/speeches/tools/spell-check',
       suggestions: '/speeches/tools/suggestions',
       characterContext: '/speeches/tools/character-context',
-      emotionImage: '/speeches/tools/emotion-image',
+      dictation: '/speeches/tools/dictation',
     },
+  },
+
+  // SSML Assistance (Sprint 4)
+  ssml: {
+    suggestTags: '/ssml/suggest-tags',
+    suggestProperties: '/ssml/suggest-properties',
+    applySuggestions: '/ssml/apply-suggestions',
+    validate: '/ssml/validate',
+  },
+
+  // Media Generation (Sprint 5)
+  media: {
+    sceneImage: (speechId: string) => `/speeches/${speechId}/scene-image`,
+    ambientAudio: (speechId: string) => `/speeches/${speechId}/ambient-audio`,
+    chapterSoundtrack: (chapterId: string) => `/chapters/${chapterId}/soundtrack`,
+    generateSoundtrack: (chapterId: string) => `/chapters/${chapterId}/soundtrack/generate`,
   },
 
   // Characters
   characters: {
     list: (bookId: string) => `/books/${bookId}/characters`,
-    create: '/characters',
     byId: (id: string) => `/characters/${id}`,
-    previewAudio: (id: string) => `/characters/${id}/preview-audio`,
   },
-
-  // Voices
+  
+  // Voices (AI)
   voices: {
     list: '/voices',
     preview: '/voices/preview',
@@ -70,10 +84,5 @@ export const endpoints = {
   // AI Tools
   ai: {
     chat: '/ai/chat',
-  },
-
-  // SSML
-  ssml: {
-    validate: '/ssml/validate',
   },
 } as const;

@@ -31,12 +31,15 @@ import adminAuditRoutes from './routes/admin/audit.routes';
 import oauthRoutes from './routes/oauth.routes';
 import aiApiRoutes from './routes/ai-api.routes';
 import ssmlRoutes from './routes/ssml.routes';
+import { batchRoutes } from './routes/batch.routes';
 import mediaRoutes from './routes/media.routes';
 import { initializeWebSocket } from './websocket/websocket.server';
 import { auditContext } from './middleware';
 // Initialize Redis queues (if enabled)
 import './queues/narration.queue';
 import './queues/narration.processor';
+import './queues/media.queue';
+import './queues/media.processor';
 import './queues/audio.queue';
 import './queues/notification.queue';
 import './queues/notification.worker';
@@ -133,6 +136,9 @@ app.use('/api/ai', aiApiRoutes);                    // AI operations (TTS, Text,
 
 // SSML Routes (AI-powered SSML assistance)
 app.use('/api/ssml', ssmlRoutes);                   // SSML tag and property suggestions
+
+// Media Routes (Scene images, ambient audio, soundtracks)
+app.use('/api', mediaRoutes);                       // Media generation and management
 
 // Admin Routes
 app.use('/api/admin/audit', adminAuditRoutes);     // Audit logging admin API

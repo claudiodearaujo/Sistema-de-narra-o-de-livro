@@ -236,8 +236,8 @@ export function SpeechBlock({
              </div>
           ) : null}
 
-          {speech.hasImage && speech.imageUrl && (
-            <SceneImage imageUrl={speech.imageUrl} alt={`Cena: ${speech.text.slice(0, 50)}...`} />
+          {speech.hasImage && speech.sceneImageUrl && (
+            <SceneImage imageUrl={speech.sceneImageUrl} alt={`Cena: ${speech.text.slice(0, 50)}...`} />
           )}
         </div>
       )}

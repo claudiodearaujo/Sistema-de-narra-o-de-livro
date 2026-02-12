@@ -211,6 +211,8 @@ model Chapter {
   title         String
   orderIndex    Int            @map("order_index")
   status        String         @default("draft") // draft, in_progress, completed
+  soundtrackUrl String?        @map("soundtrack_url")
+  soundtrackVolume Float?      @default(1.0) @map("soundtrack_volume")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   book          Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
@@ -382,6 +384,8 @@ model Speech {
   ssmlText    String? @map("ssml_text")
   orderIndex  Int     @map("order_index")
   audioUrl    String? @map("audio_url")
+  sceneImageUrl   String? @map("scene_image_url")
+  ambientAudioUrl String? @map("ambient_audio_url")
 
   // Timeline/sync fields (in milliseconds)
   audioDurationMs Int? @map("audio_duration_ms") // Duration of this speech audio
