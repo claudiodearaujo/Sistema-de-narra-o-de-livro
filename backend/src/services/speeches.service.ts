@@ -249,6 +249,19 @@ export class SpeechesService {
             data: speechesData
         });
 
+        // Fetch the created speeches to return them with character info
+        const createdSpeeches = await prisma.speech.findMany({
+            where: { 
+                chapterId,
+                orderIndex: {
+                    gte: startOrder,
+                    lt: startOrder + speechesData.length
+                }
+            },
+            include: { character: true },
+            orderBy: { orderIndex: 'asc' }
+        });
+
         // Audit log - bulk create
         if (userId && userEmail) {
             auditService.log({
@@ -264,7 +277,7 @@ export class SpeechesService {
             }).catch(err => console.error('[AUDIT]', err));
         }
 
-        return { message: `${speechesData.length} speeches created successfully` };
+        return createdSpeeches;
     }
 }
 
