@@ -18,13 +18,28 @@ export interface ReorderChaptersDto {
 
 export class ChaptersService {
     async getByBookId(bookId: string) {
-        return await prisma.chapter.findMany({
-            where: { bookId },
-            orderBy: { orderIndex: 'asc' },
-            include: {
-                speeches: true,
-            },
-        });
+        console.log('[ChaptersService] getByBookId called for bookId:', bookId);
+        try {
+            const chapters = await prisma.chapter.findMany({
+                where: { bookId },
+                orderBy: { orderIndex: 'asc' },
+                include: {
+                    _count: {
+                        select: { speeches: true }
+                    },
+                    speeches: {
+                        select: {
+                            text: true
+                        }
+                    }
+                },
+            });
+            console.log('[ChaptersService] Found chapters:', chapters.length);
+            return chapters;
+        } catch (error) {
+            console.error('[ChaptersService] Error fetching chapters:', error);
+            throw error;
+        }
     }
 
     async getById(id: string) {

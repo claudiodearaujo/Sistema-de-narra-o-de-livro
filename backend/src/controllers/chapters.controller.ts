@@ -7,16 +7,19 @@ import { calculateWordCountFromSpeeches } from '../utils/transform.utils';
  * Maps orderIndex -> order and adds computed fields
  */
 function transformChapter(chapter: any) {
-    const { orderIndex, speeches, ...rest } = chapter;
+    const { orderIndex, speeches, _count, ...rest } = chapter;
     
     // Calculate word count from speeches
     const wordCount = calculateWordCountFromSpeeches(speeches || []);
+    
+    // Get speech count from _count if available, otherwise from speeches array
+    const speechesCount = _count?.speeches ?? speeches?.length ?? 0;
     
     return {
         ...rest,
         order: orderIndex,
         wordCount,
-        speechesCount: speeches?.length || 0,
+        speechesCount,
     };
 }
 
