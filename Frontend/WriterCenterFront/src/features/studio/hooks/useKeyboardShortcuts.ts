@@ -14,7 +14,8 @@ interface KeyboardShortcutOptions {
  * │ Ctrl+Enter       │ Save speech edit (handled by      │
  * │                  │ SpeechBlock, duplicated here for   │
  * │                  │ global consistency)                │
- * │ Esc              │ Cancel editing / Clear selection   │
+ * │ Esc              │ Exit focus mode / Cancel editing / │
+ * │                  │ Clear selection                    │
  * │ Ctrl+Z           │ Undo (future)                     │
  * │ Ctrl+Shift+Z     │ Redo (future)                     │
  * │ Ctrl+B           │ Toggle left sidebar               │
@@ -25,6 +26,9 @@ interface KeyboardShortcutOptions {
 export function useKeyboardShortcuts(options?: KeyboardShortcutOptions) {
   const toggleLeftSidebar = useUIStore((s) => s.toggleLeftSidebar);
   const toggleFocusMode = useUIStore((s) => s.toggleFocusMode);
+  const focusMode = useUIStore((s) => s.focusMode);
+  const setFocusMode = useUIStore((s) => s.setFocusMode);
+  const setLeftSidebarOpen = useUIStore((s) => s.setLeftSidebarOpen);
   const openRightPanel = useUIStore((s) => s.openRightPanel);
   const rightPanelOpen = useUIStore((s) => s.rightPanelOpen);
   const closeRightPanel = useUIStore((s) => s.closeRightPanel);
@@ -77,10 +81,13 @@ export function useKeyboardShortcuts(options?: KeyboardShortcutOptions) {
         return;
       }
 
-      // ── Escape — Cancel editing or clear selection ─────────────────
+      // ── Escape — Exit focus mode / Cancel editing / Clear selection ─
       // Note: Esc for textarea editing is handled inside SpeechBlock/useSpeechEditor
       if (key === 'escape' && !isTextarea) {
-        if (editingSpeechId) {
+        if (focusMode) {
+          setFocusMode(false);
+          setLeftSidebarOpen(true);
+        } else if (editingSpeechId) {
           cancelEditing();
         } else if (selectedSpeechIds.length > 0) {
           clearSelection();
@@ -91,6 +98,9 @@ export function useKeyboardShortcuts(options?: KeyboardShortcutOptions) {
     [
       toggleLeftSidebar,
       toggleFocusMode,
+      focusMode,
+      setFocusMode,
+      setLeftSidebarOpen,
       openRightPanel,
       closeRightPanel,
       rightPanelOpen,
