@@ -1,0 +1,23 @@
+src/controllers/ai-chat.controller.ts(128,51): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'BookSelect<DefaultArgs>'.
+src/controllers/ai-chat.controller.ts(136,18): error TS2339: Property 'genre' does not exist on type '{ userId: string | null; id: string; createdAt: Date; updatedAt: Date; title: string; author: string; description: string | null; coverUrl: string | null; }'.
+src/controllers/ai-chat.controller.ts(137,41): error TS2339: Property 'genre' does not exist on type '{ userId: string | null; id: string; createdAt: Date; updatedAt: Date; title: string; author: string; description: string | null; coverUrl: string | null; }'.
+src/controllers/export.controller.ts(13,26): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/export.controller.ts(27,38): error TS2339: Property 'book' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; title: string; bookId: string; status: string; orderIndex: number; soundtrackUrl: string | null; soundtrackVolume: number | null; }'.
+src/controllers/export.controller.ts(42,35): error TS2339: Property 'book' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; title: string; bookId: string; status: string; orderIndex: number; soundtrackUrl: string | null; soundtrackVolume: number | null; }'.
+src/controllers/export.controller.ts(47,42): error TS2339: Property 'speeches' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; title: string; bookId: string; status: string; orderIndex: number; soundtrackUrl: string | null; soundtrackVolume: number | null; }'.
+src/controllers/media.controller.ts(44,33): error TS2339: Property 'genre' does not exist on type '{ userId: string | null; id: string; createdAt: Date; updatedAt: Date; title: string; author: string; description: string | null; coverUrl: string | null; }'.
+src/controllers/media.controller.ts(45,55): error TS2339: Property 'genre' does not exist on type '{ userId: string | null; id: string; createdAt: Date; updatedAt: Date; title: string; author: string; description: string | null; coverUrl: string | null; }'.
+src/controllers/media.controller.ts(67,44): error TS2339: Property 'imageUrl' does not exist on type 'EmotionImageResult'.
+src/controllers/media.controller.ts(73,31): error TS2339: Property 'imageUrl' does not exist on type 'EmotionImageResult'.
+src/controllers/speeches.controller.ts(205,17): error TS2353: Object literal may only specify known properties, and 'audioUrl' does not exist in type 'UpdateSpeechDto'.
+src/controllers/speeches.controller.ts(205,39): error TS2339: Property 'audioUrl' does not exist on type 'AudioResult'.
+src/controllers/speeches.controller.ts(206,46): error TS2551: Property 'durationMs' does not exist on type 'AudioResult'. Did you mean 'duration'?
+src/controllers/speeches.controller.ts(212,39): error TS2339: Property 'audioUrl' does not exist on type 'AudioResult'.
+src/controllers/speeches.controller.ts(213,41): error TS2551: Property 'durationMs' does not exist on type 'AudioResult'. Did you mean 'duration'?
+src/queues/media.processor.ts(81,60): error TS2339: Property 'imageUrl' does not exist on type 'EmotionImageResult'.
+src/queues/media.processor.ts(88,47): error TS2339: Property 'imageUrl' does not exist on type 'EmotionImageResult'.
+src/routes/ai-api.routes.ts(18,20): error TS2345: Argument of type '"canUseAI"' is not assignable to parameter of type 'keyof PlanLimits'.
+src/services/ai-service.client.ts(8,50): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/services/ai-service.client.ts(91,47): error TS7006: Parameter 'config' implicitly has an 'any' type.
+src/services/ai-service.client.ts(98,14): error TS7006: Parameter 'response' implicitly has an 'any' type.
