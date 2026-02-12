@@ -116,7 +116,10 @@ export class SpeechesController {
 
             const result = await speechesService.bulkCreate(chapterId, text, strategy, defaultCharacterId);
             const transformed = result.map(transformSpeech);
-            res.status(201).json(transformed);
+            res.status(201).json({ 
+                speeches: transformed,
+                count: transformed.length 
+            });
         } catch (error: any) {
             res.status(500).json({ error: error.message });
         }
