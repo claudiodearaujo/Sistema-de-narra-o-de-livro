@@ -59,9 +59,8 @@ export class ChaptersController {
         try {
             const bookId = req.params.bookId as string;
             const chapter = await chaptersService.create(bookId, req.body);
-            // Get chapter with speeches for transformation
-            const fullChapter = await chaptersService.getById(chapter.id);
-            const transformed = transformChapter(fullChapter);
+            // Return transformed chapter (speeches will be empty for new chapters)
+            const transformed = transformChapter({ ...chapter, speeches: [] });
             res.status(201).json(transformed);
         } catch (error) {
             if (error instanceof Error && error.message === 'Book not found') {
@@ -81,7 +80,7 @@ export class ChaptersController {
         try {
             const id = req.params.id as string;
             const chapter = await chaptersService.update(id, req.body);
-            // Get chapter with speeches for transformation
+            // Get chapter with speeches for accurate counts
             const fullChapter = await chaptersService.getById(id);
             const transformed = transformChapter(fullChapter);
             res.json(transformed);
@@ -126,7 +125,7 @@ export class ChaptersController {
             const ids = orderedIds || chapterIds;
 
             if (!Array.isArray(ids)) {
-                return res.status(400).json({ error: 'chapterIds or orderedIds must be an array' });
+                return res.status(400).json({ error: 'Either chapterIds or orderedIds array is required' });
             }
 
             const result = await chaptersService.reorder(bookId, ids);

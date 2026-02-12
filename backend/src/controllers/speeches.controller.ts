@@ -16,7 +16,8 @@ function transformSpeech(speech: any) {
         hasAudio: !!speech.audioUrl,
         hasImage: !!speech.sceneImageUrl,
         hasAmbientAudio: !!speech.ambientAudioUrl,
-        tags: speech.ssmlText ? [] : [], // Parse SSML tags if needed
+        // TODO: Parse SSML tags from ssmlText field when SSML parsing is implemented
+        tags: [],
     };
 }
 
@@ -95,7 +96,7 @@ export class SpeechesController {
             const ids = orderedIds || speechIds;
             
             if (!ids || !Array.isArray(ids)) {
-                return res.status(400).json({ error: 'speechIds or orderedIds array is required' });
+                return res.status(400).json({ error: 'Either speechIds or orderedIds array is required' });
             }
             const result = await speechesService.reorder(chapterId, ids);
             res.json(result);
