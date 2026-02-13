@@ -1,5 +1,5 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
-import { Bug, Trash2, X, ChevronUp } from 'lucide-react';
+import { Bug, Trash2, X } from 'lucide-react';
 import {
   getDebugLogs,
   subscribeDebugLogs,
@@ -64,13 +64,6 @@ export function DebugLogPanel() {
             title="Limpar logs"
           >
             <Trash2 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={() => setOpen(false)}
-            className="p-1 rounded hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors"
-            title="Minimizar"
-          >
-            <ChevronUp className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setOpen(false)}
