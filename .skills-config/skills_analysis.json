@@ -1,0 +1,1348 @@
+{
+  "keep": {
+    "frontend": [
+      {
+        "id": "3d-web-experience",
+        "name": "3d-web-experience",
+        "description": "Expert in building 3D experiences for the web - Three.js, React Three Fiber, Spline, WebGL, and inte..."
+      },
+      {
+        "id": "algolia-search",
+        "name": "algolia-search",
+        "description": "Expert patterns for Algolia search implementation, indexing strategies, React InstantSearch, and rel..."
+      },
+      {
+        "id": "autonomous-agents",
+        "name": "autonomous-agents",
+        "description": "Autonomous agents are AI systems that can independently decompose goals, plan actions, execute tools..."
+      },
+      {
+        "id": "avalonia-viewmodels-zafiro",
+        "name": "avalonia-viewmodels-zafiro",
+        "description": "Optimal ViewModel and Wizard creation patterns for Avalonia using Zafiro and ReactiveUI."
+      },
+      {
+        "id": "cc-skill-coding-standards",
+        "name": "coding-standards",
+        "description": "Universal coding standards, best practices, and patterns for TypeScript, JavaScript, React, and Node..."
+      },
+      {
+        "id": "claude-d3js-skill",
+        "name": "d3-viz",
+        "description": "Creating interactive data visualisations using d3.js. This skill should be used when creating custom..."
+      },
+      {
+        "id": "frontend-design",
+        "name": "frontend-design",
+        "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill wh..."
+      },
+      {
+        "id": "frontend-dev-guidelines",
+        "name": "frontend-dev-guidelines",
+        "description": "Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspens..."
+      },
+      {
+        "id": "cc-skill-frontend-patterns",
+        "name": "frontend-patterns",
+        "description": "Frontend development patterns for React, Next.js, state management, performance optimization, and UI..."
+      },
+      {
+        "id": "langgraph",
+        "name": "langgraph",
+        "description": "Expert in LangGraph - the production-grade framework for building stateful, multi-actor AI applicati..."
+      },
+      {
+        "id": "mobile-design",
+        "name": "mobile-design",
+        "description": "Mobile-first design thinking and decision-making for iOS and Android apps. Touch interaction, perfor..."
+      },
+      {
+        "id": "playwright-skill",
+        "name": "playwright-skill",
+        "description": "Complete browser automation with Playwright. Auto-detects dev servers, writes clean test scripts to ..."
+      },
+      {
+        "id": "react-patterns",
+        "name": "react-patterns",
+        "description": "Modern React patterns and principles. Hooks, composition, performance, TypeScript best practices."
+      },
+      {
+        "id": "react-ui-patterns",
+        "name": "react-ui-patterns",
+        "description": "Modern React UI patterns for loading states, error handling, and data fetching. Use when building UI..."
+      },
+      {
+        "id": "remotion-best-practices",
+        "name": "remotion-best-practices",
+        "description": "Best practices for Remotion - Video creation in React"
+      },
+      {
+        "id": "tailwind-patterns",
+        "name": "tailwind-patterns",
+        "description": "Tailwind CSS v4 principles. CSS-first configuration, container queries, modern patterns, design toke..."
+      },
+      {
+        "id": "ui-ux-pro-max",
+        "name": "ui-ux-pro-max",
+        "description": "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Nex..."
+      },
+      {
+        "id": "web-artifacts-builder",
+        "name": "web-artifacts-builder",
+        "description": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern fronten..."
+      },
+      {
+        "id": "web-design-guidelines",
+        "name": "web-design-guidelines",
+        "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check acc..."
+      }
+    ],
+    "devops": [
+      {
+        "id": "address-github-comments",
+        "name": "address-github-comments",
+        "description": "Use when you need to address review or issue comments on an open GitHub Pull Request using the gh CL..."
+      },
+      {
+        "id": "deployment-procedures",
+        "name": "deployment-procedures",
+        "description": "Production deployment principles and decision-making. Safe deployment workflows, rollback strategies..."
+      },
+      {
+        "id": "docker-expert",
+        "name": "docker-expert",
+        "description": "Docker containerization expert with deep knowledge of multi-stage builds, image optimization, contai..."
+      },
+      {
+        "id": "git-pushing",
+        "name": "git-pushing",
+        "description": "Stage, commit, and push git changes with conventional commit messages. Use when user wants to commit..."
+      },
+      {
+        "id": "github-workflow-automation",
+        "name": "github-workflow-automation",
+        "description": "Automate GitHub workflows with AI assistance. Includes PR reviews, issue triage, CI/CD integration, ..."
+      },
+      {
+        "id": "writing-skills",
+        "name": "writing-skills",
+        "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment"
+      }
+    ],
+    "code-quality": [
+      {
+        "id": "agent-evaluation",
+        "name": "agent-evaluation",
+        "description": "Testing and benchmarking LLM agents including behavioral testing, capability assessment, reliability..."
+      },
+      {
+        "id": "browser-automation",
+        "name": "browser-automation",
+        "description": "Browser automation powers web testing, scraping, and AI agent interactions. The difference between a..."
+      },
+      {
+        "id": "bun-development",
+        "name": "bun-development",
+        "description": "Modern JavaScript/TypeScript development with Bun runtime. Covers package management, bundling, test..."
+      },
+      {
+        "id": "clean-code",
+        "name": "clean-code",
+        "description": "Pragmatic coding standards - concise, direct, no over-engineering, no unnecessary comments"
+      },
+      {
+        "id": "html-injection-testing",
+        "name": "HTML Injection Testing",
+        "description": "This skill should be used when the user asks to \"test for HTML injection\", \"inject HTML into web pag..."
+      },
+      {
+        "id": "mcp-builder",
+        "name": "mcp-builder",
+        "description": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact wi..."
+      },
+      {
+        "id": "systematic-debugging",
+        "name": "systematic-debugging",
+        "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes"
+      },
+      {
+        "id": "tdd-workflow",
+        "name": "tdd-workflow",
+        "description": "Test-Driven Development workflow principles. RED-GREEN-REFACTOR cycle."
+      },
+      {
+        "id": "test-driven-development",
+        "name": "test-driven-development",
+        "description": "Use when implementing any feature or bugfix, before writing implementation code"
+      },
+      {
+        "id": "testing-patterns",
+        "name": "testing-patterns",
+        "description": "Jest testing patterns, factory functions, mocking strategies, and TDD workflow. Use when writing uni..."
+      },
+      {
+        "id": "trigger-dev",
+        "name": "trigger-dev",
+        "description": "Trigger.dev expert for background jobs, AI workflows, and reliable async execution with excellent de..."
+      },
+      {
+        "id": "typescript-expert",
+        "name": "typescript-expert",
+        "description": ">-"
+      },
+      {
+        "id": "webapp-testing",
+        "name": "webapp-testing",
+        "description": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying..."
+      }
+    ],
+    "ai": [
+      {
+        "id": "agent-memory-mcp",
+        "name": "agent-memory-mcp",
+        "description": "A hybrid memory system that provides persistent, searchable knowledge management for AI agents (Arch..."
+      },
+      {
+        "id": "agent-memory-systems",
+        "name": "agent-memory-systems",
+        "description": "Memory is the cornerstone of intelligent agents. Without it, every interaction starts from zero. Thi..."
+      },
+      {
+        "id": "agent-tool-builder",
+        "name": "agent-tool-builder",
+        "description": "Tools are how AI agents interact with the world. A well-designed tool is the difference between an a..."
+      },
+      {
+        "id": "ai-agents-architect",
+        "name": "ai-agents-architect",
+        "description": "Expert in designing and building autonomous AI agents. Masters tool use, memory systems, planning st..."
+      },
+      {
+        "id": "ai-product",
+        "name": "ai-product",
+        "description": "Every product will be AI-powered. The question is whether you'll build it right or ship a demo that ..."
+      },
+      {
+        "id": "app-builder",
+        "name": "app-builder",
+        "description": "Main application building orchestrator. Creates full-stack applications from natural language reques..."
+      },
+      {
+        "id": "autonomous-agent-patterns",
+        "name": "autonomous-agent-patterns",
+        "description": "Design patterns for building autonomous coding agents. Covers tool integration, permission systems, ..."
+      },
+      {
+        "id": "behavioral-modes",
+        "name": "behavioral-modes",
+        "description": "AI operational modes (brainstorm, implement, debug, review, teach, ship, orchestrate). Use to adapt ..."
+      },
+      {
+        "id": "brainstorming",
+        "name": "brainstorming",
+        "description": ">"
+      },
+      {
+        "id": "claude-code-guide",
+        "name": "Claude Code Guide",
+        "description": "Master guide for using Claude Code effectively. Includes configuration templates, prompting strategi..."
+      },
+      {
+        "id": "codex-review",
+        "name": "codex-review",
+        "description": "Professional code review with auto CHANGELOG generation, integrated with Codex AI"
+      },
+      {
+        "id": "crewai",
+        "name": "crewai",
+        "description": "Expert in CrewAI - the leading role-based multi-agent framework used by 60% of Fortune 500 companies..."
+      },
+      {
+        "id": "dispatching-parallel-agents",
+        "name": "dispatching-parallel-agents",
+        "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential depend..."
+      },
+      {
+        "id": "documentation-templates",
+        "name": "documentation-templates",
+        "description": "Documentation templates and structure guidelines. README, API docs, code comments, and AI-friendly d..."
+      },
+      {
+        "id": "file-uploads",
+        "name": "file-uploads",
+        "description": "Expert at handling file uploads and cloud storage. Covers S3, Cloudflare R2, presigned URLs, multipa..."
+      },
+      {
+        "id": "geo-fundamentals",
+        "name": "geo-fundamentals",
+        "description": "Generative Engine Optimization for AI search engines (ChatGPT, Claude, Perplexity)."
+      },
+      {
+        "id": "javascript-mastery",
+        "name": "javascript-mastery",
+        "description": "Comprehensive JavaScript reference covering 33+ essential concepts every developer should know. From..."
+      },
+      {
+        "id": "kaizen",
+        "name": "kaizen",
+        "description": "Guide for continuous improvement, error proofing, and standardization. Use this skill when the user ..."
+      },
+      {
+        "id": "langfuse",
+        "name": "langfuse",
+        "description": "Expert in Langfuse - the open-source LLM observability platform. Covers tracing, prompt management, ..."
+      },
+      {
+        "id": "llm-app-patterns",
+        "name": "llm-app-patterns",
+        "description": "Production-ready patterns for building LLM applications. Covers RAG pipelines, agent architectures, ..."
+      },
+      {
+        "id": "multi-agent-brainstorming",
+        "name": "multi-agent-brainstorming",
+        "description": ">"
+      },
+      {
+        "id": "obsidian-clipper-template-creator",
+        "name": "obsidian-clipper-template-creator",
+        "description": "Guide for creating templates for the Obsidian Web Clipper. Use when you want to create a new clippin..."
+      },
+      {
+        "id": "paid-ads",
+        "name": "paid-ads",
+        "description": "When the user wants help with paid advertising campaigns on Google Ads, Meta (Facebook/Instagram), L..."
+      },
+      {
+        "id": "parallel-agents",
+        "name": "parallel-agents",
+        "description": "Multi-agent orchestration patterns. Use when multiple independent tasks can run with different domai..."
+      },
+      {
+        "id": "prompt-caching",
+        "name": "prompt-caching",
+        "description": "Caching strategies for LLM prompts including Anthropic prompt caching, response caching, and CAG (Ca..."
+      },
+      {
+        "id": "prompt-engineer",
+        "name": "prompt-engineer",
+        "description": "Expert in designing effective prompts for LLM-powered applications. Masters prompt structure, contex..."
+      },
+      {
+        "id": "prompt-engineering",
+        "name": "prompt-engineering",
+        "description": "Expert guide on prompt engineering patterns, best practices, and optimization techniques. Use when u..."
+      },
+      {
+        "id": "prompt-library",
+        "name": "prompt-library",
+        "description": "Curated collection of high-quality prompts for various use cases. Includes role-based prompts, task-..."
+      },
+      {
+        "id": "rag-implementation",
+        "name": "rag-implementation",
+        "description": "Retrieval-Augmented Generation patterns including chunking, embeddings, vector stores, and retrieval..."
+      },
+      {
+        "id": "skill-developer",
+        "name": "skill-developer",
+        "description": "Create and manage Claude Code skills following Anthropic best practices. Use when creating new skill..."
+      },
+      {
+        "id": "stripe-integration",
+        "name": "stripe-integration",
+        "description": "Get paid from day one. Payments, subscriptions, billing portal, webhooks, metered billing, Stripe Co..."
+      },
+      {
+        "id": "subagent-driven-development",
+        "name": "subagent-driven-development",
+        "description": "Use when executing implementation plans with independent tasks in the current session"
+      },
+      {
+        "id": "telegram-bot-builder",
+        "name": "telegram-bot-builder",
+        "description": "Expert in building Telegram bots that solve real problems - from simple automation to complex AI-pow..."
+      },
+      {
+        "id": "templates",
+        "name": "templates",
+        "description": "Project scaffolding templates for new applications. Use when creating new projects from scratch. Con..."
+      },
+      {
+        "id": "verification-before-completion",
+        "name": "verification-before-completion",
+        "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - req..."
+      },
+      {
+        "id": "voice-agents",
+        "name": "voice-agents",
+        "description": "Voice agents represent the frontier of AI interaction - humans speaking naturally with AI systems. T..."
+      },
+      {
+        "id": "voice-ai-development",
+        "name": "voice-ai-development",
+        "description": "Expert in building voice AI applications - from real-time voice agents to voice-enabled apps. Covers..."
+      }
+    ],
+    "backend": [
+      {
+        "id": "api-patterns",
+        "name": "api-patterns",
+        "description": "API design principles and decision-making. REST vs GraphQL vs tRPC selection, response formats, vers..."
+      },
+      {
+        "id": "api-security-best-practices",
+        "name": "api-security-best-practices",
+        "description": "Implement secure API design patterns including authentication, authorization, input validation, rate..."
+      },
+      {
+        "id": "cc-skill-backend-patterns",
+        "name": "backend-patterns",
+        "description": "Backend architecture patterns, API design, database optimization, and server-side best practices for..."
+      },
+      {
+        "id": "bullmq-specialist",
+        "name": "bullmq-specialist",
+        "description": "BullMQ expert for Redis-backed job queues, background processing, and reliable async execution in No..."
+      },
+      {
+        "id": "cc-skill-clickhouse-io",
+        "name": "clickhouse-io",
+        "description": "ClickHouse database patterns, query optimization, analytics, and data engineering best practices for..."
+      },
+      {
+        "id": "database-design",
+        "name": "database-design",
+        "description": "Database design principles and decision-making. Schema design, indexing strategy, ORM selection, ser..."
+      },
+      {
+        "id": "neon-postgres",
+        "name": "neon-postgres",
+        "description": "Expert patterns for Neon serverless Postgres, branching, connection pooling, and Prisma/Drizzle inte..."
+      },
+      {
+        "id": "nestjs-expert",
+        "name": "nestjs-expert",
+        "description": "Nest.js framework expert specializing in module architecture, dependency injection, middleware, guar..."
+      },
+      {
+        "id": "nodejs-best-practices",
+        "name": "nodejs-best-practices",
+        "description": "Node.js development principles and decision-making. Framework selection, async patterns, security, a..."
+      },
+      {
+        "id": "nosql-expert",
+        "name": "nosql-expert",
+        "description": "Expert guidance for distributed NoSQL databases (Cassandra, DynamoDB). Focuses on mental models, que..."
+      },
+      {
+        "id": "prisma-expert",
+        "name": "prisma-expert",
+        "description": "Prisma ORM expert for schema design, migrations, query optimization, relations modeling, and databas..."
+      },
+      {
+        "id": "rag-engineer",
+        "name": "rag-engineer",
+        "description": "Expert in building Retrieval-Augmented Generation systems. Masters embedding models, vector database..."
+      },
+      {
+        "id": "senior-architect",
+        "name": "senior-architect",
+        "description": "Comprehensive software architecture skill for designing scalable, maintainable systems using ReactJS..."
+      },
+      {
+        "id": "senior-fullstack",
+        "name": "senior-fullstack",
+        "description": "Comprehensive fullstack development skill for building complete web applications with React, Next.js..."
+      },
+      {
+        "id": "postgres-best-practices",
+        "name": "supabase-postgres-best-practices",
+        "description": "Postgres performance optimization and best practices from Supabase. Use this skill when writing, rev..."
+      }
+    ],
+    "security": [
+      {
+        "id": "clerk-auth",
+        "name": "clerk-auth",
+        "description": "Expert patterns for Clerk auth implementation, middleware, organizations, webhooks, and user sync Us..."
+      },
+      {
+        "id": "code-review-checklist",
+        "name": "code-review-checklist",
+        "description": "Comprehensive checklist for conducting thorough code reviews covering functionality, security, perfo..."
+      },
+      {
+        "id": "computer-use-agents",
+        "name": "computer-use-agents",
+        "description": "Build AI agents that interact with computers like humans do - viewing screens, moving cursors, click..."
+      },
+      {
+        "id": "doc-coauthoring",
+        "name": "doc-coauthoring",
+        "description": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to wri..."
+      },
+      {
+        "id": "nextjs-supabase-auth",
+        "name": "nextjs-supabase-auth",
+        "description": "Expert integration of Supabase Auth with Next.js App Router Use when: supabase auth next, authentica..."
+      },
+      {
+        "id": "notebooklm",
+        "name": "notebooklm",
+        "description": "Use this skill to query your Google NotebookLM notebooks directly from Claude Code for source-ground..."
+      },
+      {
+        "id": "plaid-fintech",
+        "name": "plaid-fintech",
+        "description": "Expert patterns for Plaid API integration including Link token flows, transactions sync, identity ve..."
+      },
+      {
+        "id": "scanning-tools",
+        "name": "Security Scanning Tools",
+        "description": "This skill should be used when the user asks to \"perform vulnerability scanning\", \"scan networks for..."
+      },
+      {
+        "id": "cc-skill-security-review",
+        "name": "security-review",
+        "description": "Use this skill when adding authentication, handling user input, working with secrets, creating API e..."
+      },
+      {
+        "id": "vulnerability-scanner",
+        "name": "vulnerability-scanner",
+        "description": "Advanced vulnerability analysis principles. OWASP 2025, Supply Chain Security, attack surface mappin..."
+      }
+    ],
+    "productivity": [
+      {
+        "id": "using-git-worktrees",
+        "name": "using-git-worktrees",
+        "description": "Use when starting feature work that needs isolation from current workspace or before executing imple..."
+      }
+    ]
+  },
+  "review": [
+    {
+      "id": "ab-test-setup",
+      "name": "ab-test-setup",
+      "category": "uncategorized",
+      "description": "Structured guide for setting up A/B tests with mandatory gates for hypothesis, metrics, and executio..."
+    },
+    {
+      "id": "algorithmic-art",
+      "name": "algorithmic-art",
+      "category": "uncategorized",
+      "description": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. U..."
+    },
+    {
+      "id": "analytics-tracking",
+      "name": "analytics-tracking",
+      "category": "uncategorized",
+      "description": "When the user wants to set up, improve, or audit analytics tracking and measurement. Also use when t..."
+    },
+    {
+      "id": "api-documentation-generator",
+      "name": "api-documentation-generator",
+      "category": "uncategorized",
+      "description": "Generate comprehensive, developer-friendly API documentation from code, including endpoints, paramet..."
+    },
+    {
+      "id": "architecture",
+      "name": "architecture",
+      "category": "uncategorized",
+      "description": "Architectural decision-making framework. Requirements analysis, trade-off evaluation, ADR documentat..."
+    },
+    {
+      "id": "avalonia-layout-zafiro",
+      "name": "avalonia-layout-zafiro",
+      "category": "uncategorized",
+      "description": "Guidelines for modern Avalonia UI layout using Zafiro.Avalonia, emphasizing shared styles, generic c..."
+    },
+    {
+      "id": "avalonia-zafiro-development",
+      "name": "avalonia-zafiro-development",
+      "category": "uncategorized",
+      "description": "Mandatory skills, conventions, and behavioral rules for Avalonia UI development using the Zafiro too..."
+    },
+    {
+      "id": "bash-linux",
+      "name": "bash-linux",
+      "category": "uncategorized",
+      "description": "Bash/Linux terminal patterns. Critical commands, piping, error handling, scripting. Use when working..."
+    },
+    {
+      "id": "blockrun",
+      "name": "blockrun",
+      "category": "uncategorized",
+      "description": "Use when user needs capabilities Claude lacks (image generation, real-time X/Twitter data) or explic..."
+    },
+    {
+      "id": "brand-guidelines-community",
+      "name": "brand-guidelines",
+      "category": "uncategorized",
+      "description": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit fr..."
+    },
+    {
+      "id": "brand-guidelines-anthropic",
+      "name": "brand-guidelines",
+      "category": "uncategorized",
+      "description": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit fr..."
+    },
+    {
+      "id": "canvas-design",
+      "name": "canvas-design",
+      "category": "uncategorized",
+      "description": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this ..."
+    },
+    {
+      "id": "cc-skill-continuous-learning",
+      "name": "cc-skill-continuous-learning",
+      "category": "uncategorized",
+      "description": "Development skill from everything-claude-code"
+    },
+    {
+      "id": "cc-skill-project-guidelines-example",
+      "name": "cc-skill-project-guidelines-example",
+      "category": "uncategorized",
+      "description": "Project Guidelines Skill (Example)"
+    },
+    {
+      "id": "cc-skill-strategic-compact",
+      "name": "cc-skill-strategic-compact",
+      "category": "uncategorized",
+      "description": "Development skill from everything-claude-code"
+    },
+    {
+      "id": "concise-planning",
+      "name": "concise-planning",
+      "category": "uncategorized",
+      "description": "Use when a user asks for a plan for a coding task, to generate a clear, actionable, and atomic check..."
+    },
+    {
+      "id": "context7-auto-research",
+      "name": "context7-auto-research",
+      "category": "uncategorized",
+      "description": "Automatically fetch latest library/framework documentation for Claude Code via Context7 API"
+    },
+    {
+      "id": "conversation-memory",
+      "name": "conversation-memory",
+      "category": "uncategorized",
+      "description": "Persistent memory systems for LLM conversations including short-term, long-term, and entity-based me..."
+    },
+    {
+      "id": "core-components",
+      "name": "core-components",
+      "category": "uncategorized",
+      "description": "Core component library and design system patterns. Use when building UI, using design tokens, or wor..."
+    },
+    {
+      "id": "design-orchestration",
+      "name": "design-orchestration",
+      "category": "uncategorized",
+      "description": ">"
+    },
+    {
+      "id": "discord-bot-architect",
+      "name": "discord-bot-architect",
+      "category": "uncategorized",
+      "description": "Specialized skill for building production-ready Discord bots. Covers Discord.js (JavaScript) and Pyc..."
+    },
+    {
+      "id": "docx-official",
+      "name": "docx",
+      "category": "uncategorized",
+      "description": "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, f..."
+    },
+    {
+      "id": "environment-setup-guide",
+      "name": "environment-setup-guide",
+      "category": "uncategorized",
+      "description": "Guide developers through setting up development environments with proper tools, dependencies, and co..."
+    },
+    {
+      "id": "exa-search",
+      "name": "exa-search",
+      "category": "uncategorized",
+      "description": "Semantic search, similar content discovery, and structured research using Exa API"
+    },
+    {
+      "id": "executing-plans",
+      "name": "executing-plans",
+      "category": "uncategorized",
+      "description": "Use when you have a written implementation plan to execute in a separate session with review checkpo..."
+    },
+    {
+      "id": "file-organizer",
+      "name": "file-organizer",
+      "category": "uncategorized",
+      "description": "Intelligently organizes files and folders by understanding context, finding duplicates, and suggesti..."
+    },
+    {
+      "id": "finishing-a-development-branch",
+      "name": "finishing-a-development-branch",
+      "category": "uncategorized",
+      "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the wor..."
+    },
+    {
+      "id": "firecrawl-scraper",
+      "name": "firecrawl-scraper",
+      "category": "uncategorized",
+      "description": "Deep web scraping, screenshots, PDF parsing, and website crawling using Firecrawl API"
+    },
+    {
+      "id": "i18n-localization",
+      "name": "i18n-localization",
+      "category": "uncategorized",
+      "description": "Internationalization and localization patterns. Detecting hardcoded strings, managing translations, ..."
+    },
+    {
+      "id": "inngest",
+      "name": "inngest",
+      "category": "uncategorized",
+      "description": "Inngest expert for serverless-first background jobs, event-driven workflows, and durable execution w..."
+    },
+    {
+      "id": "interactive-portfolio",
+      "name": "interactive-portfolio",
+      "category": "uncategorized",
+      "description": "Expert in building portfolios that actually land jobs and clients - not just showing work, but creat..."
+    },
+    {
+      "id": "internal-comms-anthropic",
+      "name": "internal-comms",
+      "category": "uncategorized",
+      "description": "A set of resources to help me write all kinds of internal communications, using the formats that my ..."
+    },
+    {
+      "id": "internal-comms-community",
+      "name": "internal-comms",
+      "category": "uncategorized",
+      "description": "A set of resources to help me write all kinds of internal communications, using the formats that my ..."
+    },
+    {
+      "id": "lint-and-validate",
+      "name": "lint-and-validate",
+      "category": "uncategorized",
+      "description": "Automatic quality control, linting, and static analysis procedures. Use after every code modificatio..."
+    },
+    {
+      "id": "linux-shell-scripting",
+      "name": "Linux Production Shell Scripts",
+      "category": "uncategorized",
+      "description": "This skill should be used when the user asks to \"create bash scripts\", \"automate Linux tasks\", \"moni..."
+    },
+    {
+      "id": "nextjs-best-practices",
+      "name": "nextjs-best-practices",
+      "category": "uncategorized",
+      "description": "Next.js App Router principles. Server Components, data fetching, routing patterns."
+    },
+    {
+      "id": "pdf-official",
+      "name": "pdf",
+      "category": "uncategorized",
+      "description": "Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/sp..."
+    },
+    {
+      "id": "performance-profiling",
+      "name": "performance-profiling",
+      "category": "uncategorized",
+      "description": "Performance profiling principles. Measurement, analysis, and optimization techniques."
+    },
+    {
+      "id": "personal-tool-builder",
+      "name": "personal-tool-builder",
+      "category": "uncategorized",
+      "description": "Expert in building custom tools that solve your own problems first. The best products often start as..."
+    },
+    {
+      "id": "plan-writing",
+      "name": "plan-writing",
+      "category": "uncategorized",
+      "description": "Structured task planning with clear breakdowns, dependencies, and verification criteria. Use when im..."
+    },
+    {
+      "id": "planning-with-files",
+      "name": "planning-with-files",
+      "category": "uncategorized",
+      "description": "Implements Manus-style file-based planning for complex tasks. Creates task_plan.md, findings.md, and..."
+    },
+    {
+      "id": "pptx-official",
+      "name": "pptx",
+      "category": "uncategorized",
+      "description": "Presentation creation, editing, and analysis. When Claude needs to work with presentations (.pptx fi..."
+    },
+    {
+      "id": "product-manager-toolkit",
+      "name": "product-manager-toolkit",
+      "category": "uncategorized",
+      "description": "Comprehensive toolkit for product managers including RICE prioritization, customer interview analysi..."
+    },
+    {
+      "id": "production-code-audit",
+      "name": "production-code-audit",
+      "category": "uncategorized",
+      "description": "Autonomously deep-scan entire codebase line-by-line, understand architecture and patterns, then syst..."
+    },
+    {
+      "id": "python-patterns",
+      "name": "python-patterns",
+      "category": "uncategorized",
+      "description": "Python development principles and decision-making. Framework selection, async patterns, type hints, ..."
+    },
+    {
+      "id": "receiving-code-review",
+      "name": "receiving-code-review",
+      "category": "uncategorized",
+      "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback see..."
+    },
+    {
+      "id": "red-team-tactics",
+      "name": "red-team-tactics",
+      "category": "uncategorized",
+      "description": "Red team tactics principles based on MITRE ATT&CK. Attack phases, detection evasion, reporting."
+    },
+    {
+      "id": "requesting-code-review",
+      "name": "requesting-code-review",
+      "category": "uncategorized",
+      "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requi..."
+    },
+    {
+      "id": "salesforce-development",
+      "name": "salesforce-development",
+      "category": "uncategorized",
+      "description": "Expert patterns for Salesforce platform development including Lightning Web Components (LWC), Apex t..."
+    },
+    {
+      "id": "segment-cdp",
+      "name": "segment-cdp",
+      "category": "uncategorized",
+      "description": "Expert patterns for Segment Customer Data Platform including Analytics.js, server-side tracking, tra..."
+    },
+    {
+      "id": "server-management",
+      "name": "server-management",
+      "category": "uncategorized",
+      "description": "Server management principles and decision-making. Process management, monitoring strategy, and scali..."
+    },
+    {
+      "id": "skill-creator",
+      "name": "skill-creator",
+      "category": "uncategorized",
+      "description": "Guide for creating effective skills. This skill should be used when users want to create a new skill..."
+    },
+    {
+      "id": "software-architecture",
+      "name": "software-architecture",
+      "category": "uncategorized",
+      "description": "Guide for quality focused software architecture. This skill should be used when users want to write ..."
+    },
+    {
+      "id": "tavily-web",
+      "name": "tavily-web",
+      "category": "uncategorized",
+      "description": "Web search, content extraction, crawling, and research capabilities using Tavily API"
+    },
+    {
+      "id": "theme-factory",
+      "name": "theme-factory",
+      "category": "uncategorized",
+      "description": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML la..."
+    },
+    {
+      "id": "using-superpowers",
+      "name": "using-superpowers",
+      "category": "uncategorized",
+      "description": "Use when starting any conversation - establishes how to find and use skills, requiring Skill tool in..."
+    },
+    {
+      "id": "vr-ar",
+      "name": "vr-ar",
+      "category": "game-development",
+      "description": "VR/AR development principles. Comfort, interaction, performance requirements."
+    },
+    {
+      "id": "web-performance-optimization",
+      "name": "web-performance-optimization",
+      "category": "uncategorized",
+      "description": "Optimize website and web application performance including loading speed, Core Web Vitals, bundle si..."
+    },
+    {
+      "id": "wireshark-analysis",
+      "name": "Wireshark Network Traffic Analysis",
+      "category": "uncategorized",
+      "description": "This skill should be used when the user asks to \"analyze network traffic with Wireshark\", \"capture p..."
+    },
+    {
+      "id": "writing-plans",
+      "name": "writing-plans",
+      "category": "uncategorized",
+      "description": "Use when you have a spec or requirements for a multi-step task, before touching code"
+    },
+    {
+      "id": "xlsx-official",
+      "name": "xlsx",
+      "category": "uncategorized",
+      "description": "Comprehensive spreadsheet creation, editing, and analysis with support for formulas, formatting, dat..."
+    }
+  ],
+  "remove": [
+    {
+      "id": "2d-games",
+      "name": "2d-games",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "3d-games",
+      "name": "3d-games",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "active-directory-attacks",
+      "name": "Active Directory Attacks",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "agent-manager-skill",
+      "name": "agent-manager-skill",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "ai-wrapper-product",
+      "name": "ai-wrapper-product",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "api-fuzzing-bug-bounty",
+      "name": "API Fuzzing for Bug Bounty",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "app-store-optimization",
+      "name": "app-store-optimization",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "aws-penetration-testing",
+      "name": "AWS Penetration Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "aws-serverless",
+      "name": "aws-serverless",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "azure-functions",
+      "name": "azure-functions",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "backend-dev-guidelines",
+      "name": "backend-dev-guidelines",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "broken-authentication",
+      "name": "Broken Authentication Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "browser-extension-builder",
+      "name": "browser-extension-builder",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "burp-suite-testing",
+      "name": "Burp Suite Web Application Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "busybox-on-windows",
+      "name": "busybox-on-windows",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "cloud-penetration-testing",
+      "name": "Cloud Penetration Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "competitor-alternatives",
+      "name": "competitor-alternatives",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "content-creator",
+      "name": "content-creator",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "context-window-management",
+      "name": "context-window-management",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "copy-editing",
+      "name": "copy-editing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "copywriting",
+      "name": "copywriting",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "xss-html-injection",
+      "name": "Cross-Site Scripting and HTML Injection Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "email-sequence",
+      "name": "email-sequence",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "email-systems",
+      "name": "email-systems",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "ethical-hacking-methodology",
+      "name": "Ethical Hacking Methodology",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "file-path-traversal",
+      "name": "File Path Traversal Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "firebase",
+      "name": "firebase",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "form-cro",
+      "name": "form-cro",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "free-tool-strategy",
+      "name": "free-tool-strategy",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "game-art",
+      "name": "game-art",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "game-audio",
+      "name": "game-audio",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "game-design",
+      "name": "game-design",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "game-development",
+      "name": "game-development",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "gcp-cloud-run",
+      "name": "gcp-cloud-run",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "graphql",
+      "name": "graphql",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "hubspot-integration",
+      "name": "hubspot-integration",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "idor-testing",
+      "name": "IDOR Vulnerability Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "launch-strategy",
+      "name": "launch-strategy",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "linux-privilege-escalation",
+      "name": "Linux Privilege Escalation",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "loki-mode",
+      "name": "loki-mode",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "marketing-ideas",
+      "name": "marketing-ideas",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "marketing-psychology",
+      "name": "marketing-psychology",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "metasploit-framework",
+      "name": "Metasploit Framework",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "micro-saas-launcher",
+      "name": "micro-saas-launcher",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "mobile-games",
+      "name": "mobile-games",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "moodle-external-api-development",
+      "name": "moodle-external-api-development",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "multiplayer",
+      "name": "multiplayer",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "network-101",
+      "name": "Network 101",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "notion-template-business",
+      "name": "notion-template-business",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "onboarding-cro",
+      "name": "onboarding-cro",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "page-cro",
+      "name": "page-cro",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "paywall-upgrade-cro",
+      "name": "paywall-upgrade-cro",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "pc-games",
+      "name": "pc-games",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "pentest-checklist",
+      "name": "Pentest Checklist",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "pentest-commands",
+      "name": "Pentest Commands",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "popup-cro",
+      "name": "popup-cro",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "powershell-windows",
+      "name": "powershell-windows",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "pricing-strategy",
+      "name": "pricing-strategy",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "privilege-escalation-methods",
+      "name": "Privilege Escalation Methods",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "programmatic-seo",
+      "name": "programmatic-seo",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "red-team-tools",
+      "name": "Red Team Tools and Methodology",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "referral-program",
+      "name": "referral-program",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "research-engineer",
+      "name": "research-engineer",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "schema-markup",
+      "name": "schema-markup",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "scroll-experience",
+      "name": "scroll-experience",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "seo-audit",
+      "name": "seo-audit",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "seo-fundamentals",
+      "name": "seo-fundamentals",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "shodan-reconnaissance",
+      "name": "Shodan Reconnaissance and Pentesting",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "shopify-apps",
+      "name": "shopify-apps",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "shopify-development",
+      "name": "shopify-development",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "signup-flow-cro",
+      "name": "signup-flow-cro",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "slack-bot-builder",
+      "name": "slack-bot-builder",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "slack-gif-creator",
+      "name": "slack-gif-creator",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "smtp-penetration-testing",
+      "name": "SMTP Penetration Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "social-content",
+      "name": "social-content",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "sql-injection-testing",
+      "name": "SQL Injection Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "sqlmap-database-pentesting",
+      "name": "SQLMap Database Penetration Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "ssh-penetration-testing",
+      "name": "SSH Penetration Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "telegram-mini-app",
+      "name": "telegram-mini-app",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "test-fixing",
+      "name": "test-fixing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "top-web-vulnerabilities",
+      "name": "Top 100 Web Vulnerabilities Reference",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "twilio-communications",
+      "name": "twilio-communications",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "upstash-qstash",
+      "name": "upstash-qstash",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "vercel-deployment",
+      "name": "vercel-deployment",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "react-best-practices",
+      "name": "vercel-react-best-practices",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "viral-generator-builder",
+      "name": "viral-generator-builder",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "web-games",
+      "name": "web-games",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "windows-privilege-escalation",
+      "name": "Windows Privilege Escalation",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "wordpress-penetration-testing",
+      "name": "WordPress Penetration Testing",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "workflow-automation",
+      "name": "workflow-automation",
+      "reason": "Not relevant to Livrya project"
+    },
+    {
+      "id": "zapier-make-patterns",
+      "name": "zapier-make-patterns",
+      "reason": "Not relevant to Livrya project"
+    }
+  ]
+}

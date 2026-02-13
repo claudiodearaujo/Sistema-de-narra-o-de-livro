@@ -1,0 +1,233 @@
+{
+  "manifest": {
+    "version": "1.0.0",
+    "project": "Livrya - Sistema de Narração de Livro",
+    "description": "Reorganized skills structure for Livrya project",
+    "lastUpdated": "2026-02-13",
+    "baseLocation": "/skills"
+  },
+  "structure": {
+    "backend": {
+      "description": "Backend development skills (Node.js, Express, APIs, databases)",
+      "skills": 11,
+      "includes": [
+        "Node.js best practices",
+        "Prisma ORM",
+        "PostgreSQL optimization",
+        "API patterns",
+        "Database design",
+        "BullMQ/Redis",
+        "API security"
+      ]
+    },
+    "frontend": {
+      "description": "Frontend development skills organized by framework",
+      "subfolders": {
+        "angular": {
+          "description": "Angular-specific patterns and practices",
+          "skills": 0,
+          "notes": "To be populated with Angular best practices"
+        },
+        "react": {
+          "description": "React-specific patterns and practices",
+          "skills": 5,
+          "includes": [
+            "React patterns",
+            "React UI patterns",
+            "React best practices",
+            "Frontend dev guidelines",
+            "Frontend patterns"
+          ]
+        },
+        "shared": {
+          "description": "Frontend skills applicable to all frameworks",
+          "skills": 9,
+          "includes": [
+            "Tailwind CSS",
+            "UI/UX design",
+            "Responsive design",
+            "Web design guidelines",
+            "3D web experiences",
+            "Mobile design",
+            "Web artifacts builder",
+            "Frontend design",
+            "Algolia search"
+          ]
+        }
+      }
+    },
+    "fullstack": {
+      "description": "Full-stack development patterns and integrations",
+      "skills": 7,
+      "includes": [
+        "GraphQL",
+        "File uploads",
+        "Stripe integration",
+        "Serverless jobs (Inngest, Trigger.dev)",
+        "Web scraping",
+        "i18n/Localization"
+      ]
+    },
+    "ai-integration": {
+      "description": "AI, LLM agents, RAG, and machine learning integration",
+      "skills": 31,
+      "includes": [
+        "AI agents architecture",
+        "LangGraph (stateful agents)",
+        "CrewAI (role-based agents)",
+        "RAG (Retrieval-Augmented Generation)",
+        "Prompt engineering",
+        "Memory systems",
+        "Voice AI/TTS",
+        "Agent memory & tools",
+        "LLM patterns",
+        "Autonomous agents"
+      ]
+    },
+    "devops": {
+      "description": "DevOps, CI/CD, deployment, and infrastructure",
+      "skills": 7,
+      "includes": [
+        "Docker containerization",
+        "GitHub workflows & automation",
+        "Deployment procedures",
+        "Git workflows",
+        "Architecture decisions"
+      ]
+    },
+    "testing": {
+      "description": "Testing frameworks, automation, and quality assurance",
+      "skills": 5,
+      "includes": [
+        "Playwright E2E testing",
+        "Browser automation",
+        "Test fixing",
+        "WebApp testing",
+        "Agent evaluation"
+      ]
+    },
+    "code-quality": {
+      "description": "Code quality, standards, and best practices",
+      "skills": 12,
+      "includes": [
+        "Clean code",
+        "Test-driven development",
+        "TypeScript expertise",
+        "Code review checklists",
+        "Systematic debugging",
+        "Performance profiling",
+        "Coding standards",
+        "Production code audit"
+      ]
+    },
+    "security": {
+      "description": "Security practices, authentication, and authorization",
+      "skills": 4,
+      "includes": [
+        "API security best practices",
+        "JWT authentication",
+        "OAuth2/Clerk auth",
+        "Security review"
+      ]
+    },
+    "productivity": {
+      "description": "Development productivity and workflow skills",
+      "skills": 10,
+      "includes": [
+        "Planning and execution",
+        "Git workflows",
+        "Code review workflows",
+        "Documentation templates",
+        "Continuous improvement (Kaizen)"
+      ]
+    },
+    "project-specific": {
+      "description": "Skills specific to Livrya project",
+      "skills": 1,
+      "includes": [
+        "NotebookLM integration"
+      ],
+      "notes": "Will expand with Livrya-specific skills in Phase 2"
+    }
+  },
+  "statistics": {
+    "totalSkills": 105,
+    "byCategory": {
+      "AI Integration": 31,
+      "Frontend": 14,
+      "Backend": 11,
+      "Code Quality": 12,
+      "Testing": 5,
+      "Devops": 7,
+      "Fullstack": 7,
+      "Security": 4,
+      "Productivity": 10,
+      "Project-Specific": 1
+    },
+    "removalStats": {
+      "totalRemoved": 91,
+      "skipped": 57,
+      "forReview": 61
+    }
+  },
+  "symlinks": {
+    "locations": [
+      {
+        "path": "/.claude/skills",
+        "target": "../skills",
+        "purpose": "Claude Code access"
+      },
+      {
+        "path": "/.agent/skills",
+        "target": "../skills",
+        "purpose": "Agent access"
+      },
+      {
+        "path": "/.cursor/skills",
+        "target": "../skills",
+        "purpose": "Cursor IDE access"
+      },
+      {
+        "path": "/.gemini/skills",
+        "target": "../skills",
+        "purpose": "Gemini API access"
+      },
+      {
+        "path": "/backend/.claude/skills",
+        "target": "../../skills",
+        "purpose": "Backend development"
+      },
+      {
+        "path": "/Frontend/LivryaFrontSocial/.claude/skills",
+        "target": "../../../skills",
+        "purpose": "Frontend development"
+      }
+    ]
+  },
+  "nextPhases": {
+    "phase2": {
+      "title": "Create New Project-Specific Skills",
+      "description": "Develop new skills tailored to Livrya project needs",
+      "targetSkills": [
+        "livrya-audio-processing",
+        "livrya-tts-optimization",
+        "livrya-audio-streaming",
+        "socket-io-rooms-management",
+        "socket-io-security",
+        "social-feed-architecture",
+        "notification-system",
+        "gamification-patterns",
+        "stripe-subscription-patterns",
+        "oauth2-pkce-implementation"
+      ]
+    },
+    "phase3": {
+      "title": "Update Existing Skills with Project Best Practices",
+      "description": "Enhance skills with Livrya-specific patterns and conventions"
+    },
+    "phase4": {
+      "title": "Documentation and Training",
+      "description": "Create comprehensive guides for team"
+    }
+  }
+}
