@@ -1,19 +1,15 @@
 // ============================================================
-// Prisma Config - Backend
+// Prisma Config - Backend (Prisma 7)
 // ============================================================
-// IMPORTANTE: Para Supabase, o Prisma Migrate PRECISA da DIRECT_URL
-// (conexão direta, porta 5432) e NÃO da DATABASE_URL (pooled via
-// PgBouncer, porta 6543). O PgBouncer não suporta advisory locks
-// nem tabelas temporárias que o Prisma Migrate necessita.
+// No Prisma 7, directUrl foi removido. O campo "url" aqui é usado
+// exclusivamente pelo Prisma CLI (migrate, generate, introspect).
+// Por isso, usamos DIRECT_URL (conexão direta, porta 5432).
 //
-// - DATABASE_URL  → conexão pooled (PgBouncer:6543) → para queries runtime
-// - DIRECT_URL    → conexão direta (Postgres:5432)  → para migrations
+// O PrismaClient em runtime usa DATABASE_URL (pooler PgBouncer:6543)
+// via adapter pg — configurado em src/lib/prisma.ts.
 //
-// Comando de migração:
-//   npx prisma migrate dev --name <nome_da_migracao>
-//   npx prisma migrate deploy  (produção)
-//
-// Certifique-se de que ambas as variáveis estejam definidas no .env
+// - DIRECT_URL    → conexão direta (Postgres:5432)  → Prisma CLI
+// - DATABASE_URL  → conexão pooled (PgBouncer:6543) → PrismaClient runtime
 // ============================================================
 import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
@@ -24,7 +20,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: env("DATABASE_URL"),
-    directUrl: env("DIRECT_URL"),
+    url: env("DIRECT_URL"),
   },
 });
