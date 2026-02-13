@@ -23,7 +23,14 @@ export class ChaptersService {
             const chapters = await prisma.chapter.findMany({
                 where: { bookId },
                 orderBy: { orderIndex: 'asc' },
-                include: {
+                select: {
+                    id: true,
+                    bookId: true,
+                    title: true,
+                    orderIndex: true,
+                    status: true,
+                    createdAt: true,
+                    updatedAt: true,
                     _count: {
                         select: { speeches: true }
                     },
