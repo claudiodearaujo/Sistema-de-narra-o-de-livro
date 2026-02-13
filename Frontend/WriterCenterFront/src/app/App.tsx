@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { router } from './router';
+import { DebugLogPanel } from '../features/studio/components/DebugLogPanel';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,7 @@ function App() {
         closeButton
         richColors
       />
+      <DebugLogPanel />
     </QueryClientProvider>
   );
 }
