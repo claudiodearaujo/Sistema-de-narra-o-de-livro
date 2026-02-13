@@ -201,7 +201,47 @@ What are you deploying?
 
 ---
 
-## 8. Anti-Patterns
+## 8. Database Migrations in Deploy Pipelines (Render/Railway)
+
+### Common Failure: Prisma Migrate on Render
+
+When using `prisma migrate deploy` in the build command (e.g., `postinstall`),
+migrations can fail mid-execution, leaving the database in a broken state.
+
+| Problem | Cause | Solution |
+|---------|-------|----------|
+| `type "X" already exists` (42710) | CREATE TYPE without IF NOT EXISTS | Use `DO $$ EXCEPTION` blocks |
+| `relation "X" already exists` (42P07) | CREATE TABLE without IF NOT EXISTS | Use `CREATE TABLE IF NOT EXISTS` |
+| `P3009: failed migrations found` | Previous run failed, blocks new runs | `prisma migrate resolve --rolled-back` |
+| DDL fails through PgBouncer | Supabase/Neon pooled connection | Use `DIRECT_URL` (direct connection) |
+
+### Recovery Workflow
+
+```
+Migration failed on deploy?
+│
+├── 1. Fix the migration SQL to be idempotent
+│      └── DO $$ EXCEPTION blocks, IF NOT EXISTS
+│
+├── 2. Clear the failed state in the database
+│      └── npx prisma migrate resolve --rolled-back "migration_name"
+│
+└── 3. Redeploy with the fixed migration
+       └── The idempotent SQL re-runs safely
+```
+
+### Prevention: Always Write Idempotent Migrations
+
+For PostgreSQL, use these patterns in migration SQL:
+- `ALTER TABLE ADD COLUMN IF NOT EXISTS`
+- `CREATE TABLE IF NOT EXISTS`
+- `CREATE INDEX IF NOT EXISTS`
+- `DO $$ BEGIN CREATE TYPE ... EXCEPTION WHEN duplicate_object THEN null; END $$;`
+- `DO $$ BEGIN ALTER TABLE ADD CONSTRAINT ... EXCEPTION WHEN duplicate_object THEN null; END $$;`
+
+---
+
+## 9. Anti-Patterns
 
 | ❌ Don't | ✅ Do |
 |----------|-------|
@@ -214,7 +254,7 @@ What are you deploying?
 
 ---
 
-## 9. Decision Checklist
+## 10. Decision Checklist
 
 Before deploying:
 
@@ -227,7 +267,7 @@ Before deploying:
 
 ---
 
-## 10. Best Practices
+## 11. Best Practices
 
 1. **Small, frequent deploys** over big releases
 2. **Feature flags** for risky changes

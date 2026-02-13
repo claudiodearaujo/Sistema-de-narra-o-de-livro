@@ -131,6 +131,87 @@ npx prisma migrate resolve --applied "migration_name"
 npx prisma migrate resolve --rolled-back "migration_name"
 ```
 
+**Prisma 7+ with Supabase/Neon (DIRECT_URL for migrations):**
+
+Supabase and Neon use PgBouncer connection pooling by default. `prisma migrate deploy`
+runs DDL statements that **do not work through PgBouncer** (transaction pooling mode).
+You MUST use a direct (non-pooled) connection for migrations.
+
+In Prisma 7+, `schema.prisma` no longer accepts `directUrl`. Use `prisma.config.ts`:
+
+```typescript
+// prisma.config.ts
+import path from 'node:path';
+import type { PrismaConfig } from 'prisma';
+
+export default {
+  earlyAccess: true,
+  schema: path.join(__dirname, 'prisma', 'schema.prisma'),
+
+  migrate: {
+    async development() {
+      return {
+        // DIRECT_URL = direct connection (port 5432, no pooler)
+        url: process.env.DIRECT_URL ?? process.env.DATABASE_URL ?? '',
+      };
+    },
+  },
+} satisfies PrismaConfig;
+```
+
+Environment variables setup (Render, Vercel, etc.):
+```env
+# Pooled connection (PgBouncer) - used by Prisma Client at runtime
+DATABASE_URL="postgresql://user:pass@aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Direct connection - used by Prisma Migrate for DDL
+DIRECT_URL="postgresql://user:pass@aws-0-region.supabase.com:5432/postgres"
+```
+
+**Writing Idempotent Migration SQL (PostgreSQL):**
+
+PostgreSQL does NOT support `CREATE TYPE ... IF NOT EXISTS`. Use `DO $$ ... EXCEPTION` blocks:
+
+```sql
+-- CREATE TYPE (idempotent)
+DO $$ BEGIN
+    CREATE TYPE "MyEnum" AS ENUM ('VALUE_A', 'VALUE_B');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- CREATE TABLE (idempotent)
+CREATE TABLE IF NOT EXISTS "my_table" (...);
+
+-- CREATE INDEX (idempotent)
+CREATE INDEX IF NOT EXISTS "my_index" ON "my_table"("column");
+
+-- ADD CONSTRAINT / FOREIGN KEY (idempotent)
+DO $$ BEGIN
+    ALTER TABLE "my_table" ADD CONSTRAINT "my_fk" FOREIGN KEY ("col") REFERENCES "other"("id");
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+```
+
+This prevents `ERROR 42710: type/constraint already exists` when re-running migrations
+after a partial failure or when objects were created out-of-band (e.g., `prisma db push`).
+
+**Recovering from Failed Migrations in Production:**
+
+When a migration fails mid-execution (e.g., on Render/Railway), it gets marked as "failed"
+in `_prisma_migrations`. All subsequent `migrate deploy` calls will refuse to run. To recover:
+
+```bash
+# 1. Mark the failed migration as rolled-back
+npx prisma migrate resolve --rolled-back "20260213020000_migration_name"
+
+# 2. Fix the migration SQL to be idempotent (see patterns above)
+
+# 3. Redeploy - Prisma will re-run the (now idempotent) migration
+npx prisma migrate deploy
+```
+
 **Resources:**
 - https://www.prisma.io/docs/concepts/components/prisma-migrate
 - https://www.prisma.io/docs/guides/deployment/deploy-database-changes

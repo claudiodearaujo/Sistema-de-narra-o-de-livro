@@ -52,6 +52,51 @@ Each rule file contains:
 - Additional context and references
 - Supabase-specific notes (when applicable)
 
+## Supabase Connection Pooling & Prisma Migrations
+
+Supabase uses **PgBouncer** (transaction pooling mode) on port 6543.
+DDL statements (`CREATE TABLE`, `ALTER TABLE`, `CREATE TYPE`) do NOT work through PgBouncer.
+
+### Two URLs Required
+
+| Variable | Connection Type | Port | Used By |
+|----------|----------------|------|---------|
+| `DATABASE_URL` | Pooled (PgBouncer) | 6543 | Prisma Client (runtime queries) |
+| `DIRECT_URL` | Direct (no pooler) | 5432 | Prisma Migrate (DDL/migrations) |
+
+### Prisma 7+ Configuration
+
+In Prisma 7+, `directUrl` in `schema.prisma` is removed. Use `prisma.config.ts`:
+
+```typescript
+// prisma.config.ts
+import path from 'node:path';
+import type { PrismaConfig } from 'prisma';
+
+export default {
+  earlyAccess: true,
+  schema: path.join(__dirname, 'prisma', 'schema.prisma'),
+  migrate: {
+    async development() {
+      return { url: process.env.DIRECT_URL ?? process.env.DATABASE_URL ?? '' };
+    },
+  },
+} satisfies PrismaConfig;
+```
+
+### Supabase URL Patterns
+
+```
+# Pooled (PgBouncer) — for runtime queries
+postgresql://user:pass@aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true
+
+# Direct — for migrations (DDL)
+postgresql://user:pass@aws-0-region.supabase.com:5432/postgres
+```
+
+**Key indicators:** URL with `pooler.supabase.com` and port `6543` = pooled.
+URL without `pooler` and port `5432` = direct.
+
 ## Full Compiled Document
 
 For the complete guide with all rules expanded: `AGENTS.md`
