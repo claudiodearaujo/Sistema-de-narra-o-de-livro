@@ -14,9 +14,9 @@ CREATE INDEX IF NOT EXISTS idx_books_search ON books
 CREATE INDEX IF NOT EXISTS idx_posts_search ON posts 
   USING GIN (to_tsvector('portuguese', content));
 
--- Index for Chapter search (title, content) - for future use
-CREATE INDEX IF NOT EXISTS idx_chapters_search ON chapters 
-  USING GIN (to_tsvector('portuguese', coalesce(title, '') || ' ' || content));
+-- Index for Chapter search (title only - chapters don't have a content column)
+CREATE INDEX IF NOT EXISTS idx_chapters_search ON chapters
+  USING GIN (to_tsvector('portuguese', coalesce(title, '')));
 
 -- Additional supporting indexes for common queries
 -- These help with sorting and filtering in search results

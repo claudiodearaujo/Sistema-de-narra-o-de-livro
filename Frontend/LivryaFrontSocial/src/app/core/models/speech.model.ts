@@ -8,5 +8,16 @@ export interface Speech {
     ssmlText?: string;
     orderIndex: number;
     audioUrl?: string;
+    sceneImageUrl?: string;
+    ambientAudioUrl?: string;
+    audioDurationMs?: number;
+    startTimeMs?: number;
+    endTimeMs?: number;
     character?: Character;
+    // Computed fields from backend transform
+    order?: number;
+    hasAudio?: boolean;
+    hasImage?: boolean;
+    hasAmbientAudio?: boolean;
+    tags?: string[];
 }

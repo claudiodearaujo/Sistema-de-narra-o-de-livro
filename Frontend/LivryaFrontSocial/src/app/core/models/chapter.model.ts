@@ -10,6 +10,8 @@ export interface Chapter {
   title: string;
   orderIndex: number;
   status: ChapterStatus;
+  soundtrackUrl?: string;
+  soundtrackVolume?: number;
   createdAt: Date;
   updatedAt: Date;
   speeches?: any[]; // Will be typed properly in Speeches module
