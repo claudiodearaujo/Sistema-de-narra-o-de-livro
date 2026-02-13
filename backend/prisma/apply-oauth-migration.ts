@@ -1,6 +1,24 @@
 /**
  * Script to apply OAuth migration directly to Supabase
- * Run with: npx ts-node prisma/apply-oauth-migration.ts
+ * ============================================================
+ * INSTRUÇÃO: Este script usa DIRECT_URL (conexão direta, porta 5432)
+ * e NÃO a DATABASE_URL (pooled via PgBouncer, porta 6543).
+ *
+ * Isso é OBRIGATÓRIO porque:
+ * - PgBouncer (porta 6543) não suporta advisory locks nem DDL transacional
+ * - Migrations e scripts DDL sempre precisam da conexão direta
+ *
+ * Pré-requisitos:
+ *   1. Ter DIRECT_URL definida no .env (porta 5432, sem ?pgbouncer=true)
+ *   2. npm install pg dotenv (dependências necessárias)
+ *
+ * Execução:
+ *   npx ts-node prisma/apply-oauth-migration.ts
+ *
+ * NOTA: O prisma.config.ts do backend já foi corrigido para usar
+ * directUrl: env("DIRECT_URL") nas migrations do Prisma Migrate.
+ * Este script é uma alternativa manual que aplica SQL diretamente.
+ * ============================================================
  */
 import 'dotenv/config';
 import { Pool } from 'pg';
