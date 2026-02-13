@@ -16,12 +16,33 @@ export function useChapters(bookId: string | null) {
       console.log('[useChapters] Fetching chapters for bookId:', bookId);
       const endpoint = endpoints.chapters.list(bookId!);
       console.log('[useChapters] Endpoint:', endpoint);
+      console.log('[useChapters] Base URL:', http.defaults.baseURL);
       try {
         const response = await http.get(endpoint);
-        console.log('[useChapters] Response:', response);
-        return response.data;
-      } catch (error) {
-        console.error('[useChapters] Error fetching chapters:', error);
+        console.log('[useChapters] Response status:', response.status);
+
+        // Handle both direct array and wrapped { data: [...] } responses
+        const raw = response.data;
+        const chapters: Chapter[] = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+            ? raw.data
+            : [];
+
+        console.log('[useChapters] Chapters loaded:', chapters.length);
+
+        if (chapters.length === 0 && raw && !Array.isArray(raw)) {
+          console.warn('[useChapters] Unexpected response format:', typeof raw, JSON.stringify(raw).slice(0, 300));
+        }
+
+        return chapters;
+      } catch (error: unknown) {
+        const axiosErr = error as { response?: { status?: number; data?: unknown }; message?: string };
+        console.error(
+          '[useChapters] Error fetching chapters:',
+          axiosErr?.response?.status ?? 'no status',
+          axiosErr?.response?.data ?? axiosErr?.message ?? error,
+        );
         throw error;
       }
     },
