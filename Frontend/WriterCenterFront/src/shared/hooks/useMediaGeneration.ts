@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { http } from '../api/http';
 import { endpoints } from '../api/endpoints';
 import { toast } from 'sonner';
+import type { AxiosError } from 'axios';
 
 export interface SceneImageResponse {
   success: boolean;
@@ -12,12 +13,20 @@ export interface SceneImageResponse {
 export interface AmbientAudioResponse {
   success: boolean;
   ambientAudioUrl: string;
+  ambientType: string;
+  duration: number;
+  engine: 'curated_catalog';
 }
 
 export interface ChapterSoundtrack {
   chapterId: string;
   soundtrackUrl: string | null;
   soundtrackVolume: number;
+}
+
+function getApiErrorMessage(error: unknown): string {
+  const axiosError = error as AxiosError<{ error?: string; message?: string }>;
+  return axiosError.response?.data?.error || axiosError.response?.data?.message || axiosError.message || 'Erro desconhecido';
 }
 
 export function useMediaGeneration() {
@@ -40,8 +49,8 @@ export function useMediaGeneration() {
       queryClient.invalidateQueries({ queryKey: ['chapter-speeches'] });
       toast.success('Imagem da cena gerada com sucesso!');
     },
-    onError: (error: any) => {
-      toast.error('Erro ao gerar imagem: ' + (error.message || 'Erro desconhecido'));
+    onError: (error: unknown) => {
+      toast.error('Erro ao gerar imagem: ' + getApiErrorMessage(error));
     }
   });
 
@@ -62,8 +71,8 @@ export function useMediaGeneration() {
       queryClient.invalidateQueries({ queryKey: ['chapter-speeches'] });
       toast.success('Áudio ambiente gerado com sucesso!');
     },
-     onError: (error: any) => {
-      toast.error('Erro ao gerar áudio ambiente: ' + (error.message || 'Erro desconhecido'));
+    onError: (error: unknown) => {
+      toast.error('Erro ao gerar áudio ambiente: ' + getApiErrorMessage(error));
     }
   });
 
