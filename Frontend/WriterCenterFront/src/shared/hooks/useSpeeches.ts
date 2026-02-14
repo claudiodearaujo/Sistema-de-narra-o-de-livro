@@ -56,7 +56,7 @@ export function useUpdateSpeech() {
 
   return useMutation({
     mutationFn: async ({ id, dto }: { id: string; dto: UpdateSpeechDto }): Promise<Speech> => {
-      const { data } = await http.patch(endpoints.speeches.byId(id), dto);
+      const { data } = await http.put(endpoints.speeches.byId(id), dto);
       return data;
     },
     onSuccess: (speech) => {

@@ -58,4 +58,38 @@ describe('http auth integration', () => {
     expect(getAccessToken()).toBe('new-access-token');
     expect(adapter).toHaveBeenCalled();
   });
+
+  it('accepts 2xx responses for PUT update routes used by hooks', async () => {
+    const updatedPayload = { ok: true };
+    const adapter = vi.fn().mockImplementation((config) => {
+      if (config.method !== 'put') {
+        throw new Error(`Unexpected method: ${config.method}`);
+      }
+
+      return Promise.resolve({
+        data: updatedPayload,
+        status: 204,
+        statusText: 'No Content',
+        headers: {},
+        config,
+      });
+    });
+
+    http.defaults.adapter = adapter;
+
+    const responses = await Promise.all([
+      http.put(endpoints.books.byId('book-1'), { title: 'Livro atualizado' }),
+      http.put(endpoints.chapters.byId('chapter-1'), { title: 'Capítulo atualizado' }),
+      http.put(endpoints.characters.byId('character-1'), { name: 'Personagem atualizado' }),
+      http.put(endpoints.speeches.byId('speech-1'), { text: 'Fala atualizada' }),
+    ]);
+
+    for (const response of responses) {
+      expect(response.status).toBeGreaterThanOrEqual(200);
+      expect(response.status).toBeLessThan(300);
+    }
+
+    expect(adapter).toHaveBeenCalledTimes(4);
+  });
+
 });
