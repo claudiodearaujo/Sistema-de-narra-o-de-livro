@@ -98,7 +98,8 @@ export function Canvas() {
   };
 
   const handleSaveNewSpeech = async (dto: CreateSpeechDto) => {
-    await createSpeech.mutateAsync(dto);
+    if (!activeChapterId) return;
+    await createSpeech.mutateAsync({ chapterId: activeChapterId, dto });
   };
 
   if (!activeChapterId) {
@@ -186,7 +187,6 @@ export function Canvas() {
 
         {/* New speech input */}
         <NewSpeechInput
-          chapterId={activeChapterId}
           characters={characters}
           onSave={handleSaveNewSpeech}
           isSaving={createSpeech.isPending}
