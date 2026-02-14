@@ -109,6 +109,13 @@ The application uses Zustand for state management with three main stores:
 
 ### Authentication Flow
 
+### Refresh Token Contract (Official)
+
+- **Official pattern**: refresh token is stored in **HttpOnly cookie** by backend.
+- Frontend must call `POST /api/auth/refresh` with `withCredentials: true` and **empty body**.
+- Access token stays only in memory cache (`http.ts`) and is injected in `Authorization` header.
+- Legacy `refreshToken` in request body is supported temporarily by backend for backward compatibility.
+
 1. User accesses protected route
 2. AuthGuard checks authentication status
 3. If not authenticated, redirects to SSO with PKCE
