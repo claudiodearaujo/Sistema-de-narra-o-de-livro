@@ -19,11 +19,13 @@
     "test:books": "npx ts-node src/__tests__/services/books.service.test.ts",
     "test:posts": "npx ts-node src/__tests__/services/post.service.test.ts",
     "test:feed": "npx ts-node src/__tests__/services/feed.service.test.ts",
-    "test:ai": "npm run test:ai:token && npm run test:ai:api && npm run test:ai:routes",
+    "test:ai": "npm run test:ai:token && npm run test:ai:api && npm run test:ai:routes && npm run test:ai:tts-contract",
     "test:ai:token": "npx ts-node src/__tests__/services/ai-token.service.test.ts",
     "test:ai:api": "npx ts-node src/__tests__/services/ai-api.service.test.ts",
     "test:ai:routes": "npx ts-node src/__tests__/routes/ai-api.routes.test.ts",
-    "test:schema": "npx ts-node src/__tests__/schema/prisma-field-integrity.test.ts"
+    "test:schema": "npx ts-node src/__tests__/schema/prisma-field-integrity.test.ts",
+    "test:ai:bootstrap": "npx ts-node src/__tests__/ai/gemini-bootstrap.test.ts"
+    "test:ai:tts-contract": "npx ts-node src/__tests__/ai/tts-provider.contract.test.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

@@ -78,6 +78,7 @@ export class AIService {
     private constructor() {
         validateAIModelCompatibility();
 
+        AIFactory.validateDefaultProviders();
         this.textProvider = AIFactory.getDefaultTextProvider();
         this.imageProvider = AIFactory.getDefaultImageProvider();
         this.ttsProvider = AIFactory.getDefaultTTSProvider();
@@ -90,8 +91,9 @@ export class AIService {
             await this.textProvider.initialize();
             await this.imageProvider.initialize();
             await this.ttsProvider.initialize();
-        } catch (err) {
-            console.error('Failed to initialize AI providers:', err);
+        } catch (err: any) {
+            const message = err?.message || 'erro desconhecido';
+            throw new Error(`Falha ao inicializar providers de IA: ${message}`);
         }
     }
 

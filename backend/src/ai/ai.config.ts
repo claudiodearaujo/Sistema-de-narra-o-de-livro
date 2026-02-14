@@ -221,3 +221,13 @@ export const aiConfig: AIConfig = {
         }
     }
 };
+
+export function getGeminiApiKeyOrThrow(): string {
+    const apiKey = aiConfig.providers.gemini?.apiKey?.trim();
+
+    if (!apiKey) {
+        throw new Error('GEMINI_API_KEY não configurada. Defina a variável de ambiente para inicializar os providers Gemini.');
+    }
+
+    return apiKey;
+}

@@ -5,10 +5,17 @@ import { studioToast } from '../../../shared/lib/toast';
 import { speechKeys } from '../../../shared/hooks/useSpeeches';
 import { useUIStore } from '../../../shared/stores';
 import type { Speech } from '../../../shared/types/speech.types';
+import type { AxiosError } from 'axios';
 
 /**
  * Hook para ações rápidas nas falas (gerar áudio, imagem, ambiente, etc).
  */
+
+function getApiErrorMessage(error: unknown, fallback: string): string {
+  const axiosError = error as AxiosError<{ error?: string; message?: string }>;
+  return axiosError.response?.data?.error || axiosError.response?.data?.message || axiosError.message || fallback;
+}
+
 export function useSpeechActions() {
   const queryClient = useQueryClient();
   const openRightPanel = useUIStore((s) => s.openRightPanel);
@@ -64,15 +71,14 @@ export function useSpeechActions() {
       queryClient.invalidateQueries({ queryKey: speechKeys.byId(speechId) });
       queryClient.invalidateQueries({ queryKey: speechKeys.all });
     },
-    onError: () => {
-      studioToast.error('Erro ao gerar ambiente');
+    onError: (error) => {
+      studioToast.error('Erro ao gerar ambiente', getApiErrorMessage(error, 'Não foi possível gerar o áudio ambiente.'));
     },
   });
 
   const duplicateSpeech = useMutation({
     mutationFn: async (speech: Speech) => {
-      const { data } = await http.post(endpoints.speeches.create, {
-        chapterId: speech.chapterId,
+      const { data } = await http.post(endpoints.speeches.create(speech.chapterId), {
         characterId: speech.characterId,
         text: speech.text,
         order: speech.order + 1,

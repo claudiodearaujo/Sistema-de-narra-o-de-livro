@@ -3,7 +3,7 @@
  * Main wizard container for character creation/editing with API integration
  */
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useCharacterWizard } from './hooks/useCharacterWizard';
 import { useWizardAutoSave } from './hooks/useWizardAutoSave';
@@ -33,6 +33,9 @@ export function CharacterWizard({
   onClose,
   onSave,
 }: CharacterWizardContainerProps) {
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+  const previewObjectUrlRef = useRef<string | null>(null);
+
   const {
     currentStep,
     formData,
@@ -120,6 +123,11 @@ export function CharacterWizard({
   }, [apiError, setError]);
 
   const handleClose = useCallback(() => {
+    previewAudioRef.current?.pause();
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+      previewObjectUrlRef.current = null;
+    }
     resetWizard();
     onClose();
   }, [resetWizard, onClose]);
@@ -158,10 +166,42 @@ export function CharacterWizard({
 
   const handlePreviewVoice = useCallback(
     async (voiceId: string) => {
-      await previewVoice(voiceId);
+      const preview = await previewVoice(voiceId);
+
+      previewAudioRef.current?.pause();
+      previewAudioRef.current = null;
+
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+        previewObjectUrlRef.current = null;
+      }
+
+      const audio = new Audio(preview.audioUrl);
+      previewAudioRef.current = audio;
+
+      if (preview.revokeAfterPlay) {
+        previewObjectUrlRef.current = preview.audioUrl;
+        audio.addEventListener('ended', () => {
+          if (previewObjectUrlRef.current) {
+            URL.revokeObjectURL(previewObjectUrlRef.current);
+            previewObjectUrlRef.current = null;
+          }
+        }, { once: true });
+      }
+
+      await audio.play();
     },
     [previewVoice]
   );
+
+  useEffect(() => {
+    return () => {
+      previewAudioRef.current?.pause();
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+      }
+    };
+  }, []);
 
   if (!isOpen) return null;
 

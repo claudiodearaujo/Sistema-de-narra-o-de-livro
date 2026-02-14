@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { aiConfig } from '../ai.config';
+import { aiConfig, getGeminiApiKeyOrThrow } from '../ai.config';
 import {
     TextAIProvider,
     TextGenerationOptions,
@@ -24,11 +24,15 @@ export class GeminiTextProvider implements TextAIProvider {
     constructor() {
         this.ai = new GoogleGenAI({});
         this.model = aiConfig.providers.gemini!.textModel;
+        this.ai = new GoogleGenAI({
+            apiKey: getGeminiApiKeyOrThrow()
+        });
+        this.model = aiConfig.providers.gemini?.textModel || 'gemini-2.0-flash';
         this.rateLimiter = rateLimiterManager.get('gemini-text', aiConfig.rateLimit.gemini);
     }
 
     async initialize(): Promise<void> {
-        console.log(`✅ Gemini Text Provider inicializado`);
+        console.log(`✅ [Gemini Text] Provider inicializado`);
         console.log(`   Modelo: ${this.model}`);
         console.log(`   Rate Limit: ${aiConfig.rateLimit.gemini.maxRequests} req/min`);
     }

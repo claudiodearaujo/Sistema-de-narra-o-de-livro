@@ -107,10 +107,18 @@ Most endpoints require a valid JWT token.
 #### Login
 `POST /auth/login`
 - **Body**: `{ "email": "...", "password": "..." }`
+- **Refresh token oficial**: retornado em cookie **HttpOnly** (`refreshToken`).
 
 #### Register
 `POST /auth/register`
 - **Body**: `{ "name": "...", "email": "...", "password": "..." }`
+- **Refresh token oficial**: retornado em cookie **HttpOnly** (`refreshToken`).
+
+#### Refresh Token
+`POST /auth/refresh`
+- **Contrato oficial**: body vazio (`{}`) + `withCredentials: true`.
+- **Compatibilidade temporária**: aceita `{ "refreshToken": "..." }` no body.
+- **Leitura no backend**: cookie HttpOnly primeiro; body como fallback legado.
 
 ---
 

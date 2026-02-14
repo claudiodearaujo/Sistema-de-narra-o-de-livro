@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { aiConfig } from '../ai.config';
+import { aiConfig, getGeminiApiKeyOrThrow } from '../ai.config';
 import {
     ImageAIProvider,
     ImageGenerationOptions,
@@ -21,8 +21,7 @@ export class GeminiImageProvider implements ImageAIProvider {
 
     constructor() {
         this.ai = new GoogleGenAI({
-
-            apiKey: aiConfig.providers.gemini?.apiKey || ''
+            apiKey: getGeminiApiKeyOrThrow()
         });
         // Modelo para geração de imagens com Gemini 2.5
         this.model = aiConfig.providers.gemini!.imageModel;
@@ -31,7 +30,7 @@ export class GeminiImageProvider implements ImageAIProvider {
     }
 
     async initialize(): Promise<void> {
-        console.log(`✅ Gemini Image Provider inicializado`);
+        console.log(`✅ [Gemini Image] Provider inicializado`);
         console.log(`   Modelo: ${this.model}`);
         console.log(`   Rate Limit: ${aiConfig.rateLimit.gemini.maxRequests} req/min`);
     }

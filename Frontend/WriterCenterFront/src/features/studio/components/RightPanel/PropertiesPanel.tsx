@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { Loader2, Sparkles, Image as ImageIcon, Music, Volume2 } from 'lucide-react';
 import { useStudioStore } from '../../../../shared/stores';
@@ -9,6 +9,7 @@ import { useMediaGeneration } from '../../../../shared/hooks/useMediaGeneration'
 import type { Chapter } from '../../../../shared/types/chapter.types';
 import { cn } from '../../../../shared/lib/utils';
 import { toast } from 'sonner';
+import type { AxiosError } from 'axios';
 
 interface ChapterFormValues {
   title: string;
@@ -30,6 +31,21 @@ export function PropertiesPanel() {
   const updateChapter = useUpdateChapter();
   const { suggestProperties, applySuggestions } = useSSMLSuggestions();
   const { generateSceneImage, generateAmbientAudio } = useMediaGeneration();
+
+  const ambientProgress = useMemo(() => {
+    if (!generateAmbientAudio.isPending) {
+      return null;
+    }
+
+    const ambientType = generateAmbientAudio.variables?.ambientType || 'nature';
+    return `Gerando áudio ambiente do tipo "${ambientType}"...`;
+  }, [generateAmbientAudio.isPending, generateAmbientAudio.variables]);
+
+  const ambientAxiosError = generateAmbientAudio.error as AxiosError<{ error?: string; message?: string }> | null;
+  const ambientError = ambientAxiosError?.response?.data?.error
+    || ambientAxiosError?.response?.data?.message
+    || ambientAxiosError?.message
+    || null;
 
   // Chapter Form
   const { register, handleSubmit, reset, formState: { isDirty } } = useForm<ChapterFormValues>({
@@ -179,14 +195,30 @@ export function PropertiesPanel() {
                      </button>
                 </div>
                  {speech?.ambientAudioUrl ? (
-                    <div className="bg-zinc-900 p-2 rounded border border-zinc-800 flex items-center gap-2">
-                        <Music className="w-4 h-4 text-zinc-500" />
-                        <span className="text-xs text-zinc-400 truncate flex-1">audio_ambiente.mp3</span>
+                    <div className="bg-zinc-900 p-2 rounded border border-zinc-800 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Music className="w-4 h-4 text-zinc-500" />
+                          <a
+                            href={speech.ambientAudioUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs text-amber-400 hover:text-amber-300 truncate flex-1"
+                          >
+                            {speech.ambientAudioUrl.split('/').pop() || 'audio_ambiente.wav'}
+                          </a>
+                        </div>
+                        <audio controls src={speech.ambientAudioUrl} className="w-full h-8" />
                     </div>
                 ) : (
                     <div className="w-full p-2 bg-zinc-900 rounded border border-zinc-800 text-xs text-zinc-600 text-center">
                         Nenhum áudio ambiente
                     </div>
+                )}
+                {ambientProgress && (
+                  <p className="text-[10px] text-zinc-500">{ambientProgress}</p>
+                )}
+                {ambientError && !generateAmbientAudio.isPending && (
+                  <p className="text-[10px] text-red-400">{ambientError}</p>
                 )}
             </div>
         </div>
