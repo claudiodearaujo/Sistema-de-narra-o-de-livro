@@ -5,7 +5,6 @@
 
 import { useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
-import { cn } from '../../../../shared/lib/utils';
 import { useCharacterWizard } from './hooks/useCharacterWizard';
 import { useWizardAutoSave } from './hooks/useWizardAutoSave';
 import { useCharacterWizardApi } from '../../../../shared/api/characterApi';
@@ -37,7 +36,6 @@ export function CharacterWizard({
   const {
     currentStep,
     formData,
-    isDirty,
     isLoading,
     isSaving,
     error,
@@ -65,7 +63,7 @@ export function CharacterWizard({
     isLoading: apiIsLoading,
     error: apiError,
     isPreviewing,
-  } = useCharacterWizardApi(bookId, characterId);
+  } = useCharacterWizardApi(bookId, characterId || undefined);
 
   // Auto-save hook with API integration
   const { performSave } = useWizardAutoSave({
@@ -159,8 +157,8 @@ export function CharacterWizard({
   );
 
   const handlePreviewVoice = useCallback(
-    (voiceId: string) => {
-      return previewVoice(voiceId);
+    async (voiceId: string) => {
+      await previewVoice(voiceId);
     },
     [previewVoice]
   );
@@ -320,7 +318,6 @@ export function CharacterWizard({
 
         {/* Auto-save notification */}
         <DraftNotification
-          type={error ? 'error' : 'success'}
           message={characterId ? 'Alterações auto-salvas' : 'Rascunho auto-salvo'}
           lastSavedAt={lastSavedAt}
           error={error}

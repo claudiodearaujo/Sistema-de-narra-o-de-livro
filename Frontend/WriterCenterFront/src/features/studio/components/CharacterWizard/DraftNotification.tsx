@@ -8,7 +8,6 @@ import { CheckCircle, AlertCircle, X } from 'lucide-react';
 import { cn } from '../../../../shared/lib/utils';
 
 interface DraftNotificationProps {
-  type?: 'success' | 'error';
   message?: string;
   lastSavedAt?: Date | null;
   error?: string | null;
@@ -17,7 +16,6 @@ interface DraftNotificationProps {
 }
 
 export function DraftNotification({
-  type = 'success',
   message = 'Rascunho auto-salvo',
   lastSavedAt,
   error,

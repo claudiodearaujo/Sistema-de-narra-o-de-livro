@@ -198,7 +198,7 @@ export function usePreviewVoice() {
  * Combined hook for the wizard: handles both create and update
  */
 export function useCharacterWizardApi(bookId: string, characterId?: string) {
-  const queryClient = useQueryClient();
+  // queryClient is available through mutations for cache invalidation
   const createMutation = useCreateCharacter();
   const updateMutation = useUpdateCharacter(characterId || '');
   const previewVoiceMutation = usePreviewVoice();

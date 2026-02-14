@@ -66,7 +66,7 @@ export const useCharacterWizardStore = create<CharacterWizardStoreState>()(
           formData: {
             ...state.formData,
             [section]: {
-              ...state.formData[section as keyof CharacterFormData],
+              ...(state.formData[section as keyof CharacterFormData] as Record<string, any>),
               ...data,
             },
           },

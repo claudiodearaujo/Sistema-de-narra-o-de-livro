@@ -5,7 +5,7 @@
  */
 
 import { useEffect } from 'react';
-import { useStudioStore, useUIStore } from '../../../../shared/stores';
+import { useStudioStore } from '../../../../shared/stores';
 import { CharacterWizard } from './CharacterWizard';
 import { useCharacterWizardStore } from './stores/characterWizardStore';
 
@@ -26,7 +26,7 @@ interface CharacterWizardModalProps {
  */
 export function CharacterWizardModal({ characterId, onClose }: CharacterWizardModalProps) {
   const activeBookId = useStudioStore((s) => s.activeBookId);
-  const resetWizard = useCharacterWizardStore((s) => s.reset);
+  const resetWizard = useCharacterWizardStore((s) => s.resetWizard);
 
   // Reset wizard state when opening/closing or switching character
   useEffect(() => {
