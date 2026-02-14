@@ -17,7 +17,7 @@ interface ProviderModelMatrix {
 const MODEL_MATRIX: Record<string, ProviderModelMatrix> = {
     gemini: {
         text: ['gemini-2.5-flash', 'gemini-2.0-flash'],
-        image: ['imagen-3.0-generate-001'],
+        image: ['imagen-3.0-generate-001', 'gemini-2.5-flash-image'],
         tts: ['gemini-2.5-flash-preview-tts']
     },
     openai: {
