@@ -1,6 +1,6 @@
 /**
  * CharacterWizard Component
- * Main wizard container for character creation/editing
+ * Main wizard container for character creation/editing with API integration
  */
 
 import { useEffect, useCallback } from 'react';
@@ -8,6 +8,7 @@ import { X } from 'lucide-react';
 import { cn } from '../../../../shared/lib/utils';
 import { useCharacterWizard } from './hooks/useCharacterWizard';
 import { useWizardAutoSave } from './hooks/useWizardAutoSave';
+import { useCharacterWizardApi } from '../../../../shared/api/characterApi';
 import { StepIndicator } from './StepIndicator';
 import { WizardNavigation } from './WizardNavigation';
 import { DraftNotification } from './DraftNotification';
@@ -22,8 +23,6 @@ import type { CharacterWizardProps } from './types/character-wizard.types';
 
 interface CharacterWizardContainerProps extends CharacterWizardProps {
   books?: Array<{ id: string; title: string }>;
-  onPreviewVoice?: (voiceId: string) => Promise<void>;
-  isPreviewing?: boolean;
 }
 
 export function CharacterWizard({
@@ -34,8 +33,6 @@ export function CharacterWizard({
   books = [],
   onClose,
   onSave,
-  onPreviewVoice,
-  isPreviewing = false,
 }: CharacterWizardContainerProps) {
   const {
     currentStep,
@@ -61,19 +58,38 @@ export function CharacterWizard({
     totalSteps,
   } = useCharacterWizard();
 
-  // Auto-save hook
+  // API integration
+  const {
+    saveCharacter,
+    previewVoice,
+    isLoading: apiIsLoading,
+    error: apiError,
+    isPreviewing,
+  } = useCharacterWizardApi(bookId, characterId);
+
+  // Auto-save hook with API integration
   const { performSave } = useWizardAutoSave({
+    bookId,
+    characterId,
     onSave: async (data) => {
-      if (onSave) {
+      // Use API service if available, otherwise use custom onSave
+      if (saveCharacter) {
+        const result = await saveCharacter(data);
+        if (onSave) {
+          await onSave(data);
+        }
+        return result;
+      } else if (onSave) {
         await onSave(data);
       }
     },
     onError: (error) => {
       console.error('Auto-save error:', error);
+      setError(error.message);
     },
   });
 
-  // Load draft on mount
+  // Load character data on mount or when characterId changes
   useEffect(() => {
     if (character) {
       const fullData = {
@@ -88,10 +104,22 @@ export function CharacterWizard({
         hair: character.hair || {},
         wardrobe: character.wardrobe || {},
       };
-      // Use loadDraft or setFormData equivalent
       updateBasicFields(fullData);
+    } else {
+      // New character - set default bookId
+      updateBasicFields({
+        bookId,
+        voiceId: 'pt-BR-FranciscaNeural',
+      });
     }
-  }, [character, bookId, updateBasicFields]);
+  }, [character, bookId, characterId, updateBasicFields]);
+
+  // Sync API errors with wizard state
+  useEffect(() => {
+    if (apiError) {
+      setError(apiError.message);
+    }
+  }, [apiError, setError]);
 
   const handleClose = useCallback(() => {
     resetWizard();
@@ -117,7 +145,8 @@ export function CharacterWizard({
         handleClose();
       }, 1000);
     } catch (err) {
-      setError('Erro ao salvar personagem');
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao salvar personagem';
+      setError(errorMessage);
       console.error(err);
     }
   }, [performSave, handleClose, setError]);
@@ -129,7 +158,17 @@ export function CharacterWizard({
     [goToStep]
   );
 
+  const handlePreviewVoice = useCallback(
+    (voiceId: string) => {
+      return previewVoice(voiceId);
+    },
+    [previewVoice]
+  );
+
   if (!isOpen) return null;
+
+  // Combine loading states
+  const isAnyLoading = isLoading || apiIsLoading;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -138,7 +177,7 @@ export function CharacterWizard({
         <div className="flex items-center justify-between p-4 border-b border-zinc-800">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-zinc-100">
-              {character ? 'Editar Personagem' : 'Novo Personagem'}
+              {characterId ? 'Editar Personagem' : 'Novo Personagem'}
             </h2>
           </div>
           <button
@@ -168,9 +207,9 @@ export function CharacterWizard({
               data={formData}
               onChange={updateBasicFields}
               books={books}
-              onPreviewVoice={onPreviewVoice}
+              onPreviewVoice={handlePreviewVoice}
               isPreviewing={isPreviewing}
-              isLoading={isLoading}
+              isLoading={isAnyLoading}
             />
           )}
 
@@ -184,7 +223,7 @@ export function CharacterWizard({
                   updateBasicFields(data);
                 }
               }}
-              isLoading={isLoading}
+              isLoading={isAnyLoading}
             />
           )}
 
@@ -198,7 +237,7 @@ export function CharacterWizard({
                   updateBasicFields(data);
                 }
               }}
-              isLoading={isLoading}
+              isLoading={isAnyLoading}
             />
           )}
 
@@ -212,7 +251,7 @@ export function CharacterWizard({
                   updateBasicFields(data);
                 }
               }}
-              isLoading={isLoading}
+              isLoading={isAnyLoading}
             />
           )}
 
@@ -226,7 +265,7 @@ export function CharacterWizard({
                   updateBasicFields(data);
                 }
               }}
-              isLoading={isLoading}
+              isLoading={isAnyLoading}
             />
           )}
 
@@ -240,7 +279,7 @@ export function CharacterWizard({
                   updateBasicFields(data);
                 }
               }}
-              isLoading={isLoading}
+              isLoading={isAnyLoading}
             />
           )}
 
@@ -254,7 +293,7 @@ export function CharacterWizard({
                   updateBasicFields(data);
                 }
               }}
-              isLoading={isLoading}
+              isLoading={isAnyLoading}
             />
           )}
         </div>
@@ -262,7 +301,7 @@ export function CharacterWizard({
         {/* Error message */}
         {error && (
           <div className="p-4 bg-red-900/20 border-t border-red-800 text-red-200 text-sm">
-            {error}
+            ⚠️ {error}
           </div>
         )}
 
@@ -270,19 +309,19 @@ export function CharacterWizard({
         <WizardNavigation
           isFirstStep={isFirstStep}
           isLastStep={isLastStep}
-          isLoading={isLoading}
+          isLoading={isAnyLoading}
           isSaving={isSaving}
           isCurrentStepValid={isCurrentStepValid()}
           onBack={handlePrevious}
           onNext={handleNext}
           onConfirm={handleConfirm}
-          confirmLabel="Salvar Personagem"
+          confirmLabel={characterId ? 'Salvar Alterações' : 'Criar Personagem'}
         />
 
         {/* Auto-save notification */}
         <DraftNotification
           type={error ? 'error' : 'success'}
-          message="Rascunho auto-salvo"
+          message={characterId ? 'Alterações auto-salvas' : 'Rascunho auto-salvo'}
           lastSavedAt={lastSavedAt}
           error={error}
           isSaving={isSaving}
