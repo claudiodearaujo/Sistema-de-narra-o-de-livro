@@ -4,6 +4,7 @@ import { http } from '../api/http';
 import { endpoints } from '../api/endpoints';
 import {
   connectSocket,
+  emitSocketEvent,
   onSocketEvent,
   type NarrationProgressEvent,
   type NarrationStartedEvent,
@@ -145,6 +146,7 @@ export function useNarration(chapterId: string | null) {
     if (!chapterId) return;
 
     connectSocket();
+    emitSocketEvent('join:chapter', { chapterId });
 
     const unsubs = [
       onSocketEvent('narration:started', handleStarted),
@@ -155,6 +157,7 @@ export function useNarration(chapterId: string | null) {
     unsubscribersRef.current = unsubs;
 
     return () => {
+      emitSocketEvent('leave:chapter', { chapterId });
       unsubs.forEach((unsub) => unsub());
       unsubscribersRef.current = [];
     };
