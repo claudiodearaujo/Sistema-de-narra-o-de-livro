@@ -1,7 +1,7 @@
 import {
   BookOpen, Save, ChevronLeft, Maximize2, Minimize2, Settings,
   PanelLeftClose, PanelLeftOpen, Undo2, Redo2, Download, Bot,
-  Loader2, Check, Sparkles, Trash2, Wand2, Mic, Image, FileAudio, Printer
+  Loader2, Check, Sparkles, Trash2, Wand2, Mic, Image, FileAudio, Printer, Users
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useNavigate } from 'react-router-dom';
@@ -14,9 +14,11 @@ import { cn } from '../../../../shared/lib/utils';
 import { studioToast } from '../../../../shared/lib/toast';
 import { env } from '../../../../shared/lib';
 import { getAccessToken } from '../../../../shared/api/http';
+import { useCharacterWizardModal } from '../../context/CharacterWizardContext';
 
 export function TopBar() {
   const navigate = useNavigate();
+  const { openWizard } = useCharacterWizardModal();
 
   const toggleFocusMode = useUIStore((s) => s.toggleFocusMode);
   const focusMode = useUIStore((s) => s.focusMode);
@@ -228,6 +230,15 @@ export function TopBar() {
           title="Assistente IA"
         >
           <Bot className="w-4 h-4" />
+        </button>
+
+        <button
+          onClick={() => openWizard()}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-zinc-300 bg-amber-900/20 hover:bg-amber-900/40 hover:text-amber-300 border border-amber-700/30 hover:border-amber-600/50 rounded transition-all"
+          title="Criar novo personagem"
+        >
+          <Users className="w-4 h-4" />
+          <span className="hidden sm:inline">Novo Personagem</span>
         </button>
 
         <DropdownMenu.Root>
