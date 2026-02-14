@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AIService } from '../ai/ai.service';
 import prisma from '../lib/prisma';
+import { ambientAudioService } from '../services/ambient-audio.service';
 
 /**
  * Controller para geração de mídia avançada (imagens de cena, áudio ambiente)
@@ -79,14 +80,13 @@ export class MediaController {
 
   /**
    * POST /api/speeches/:id/ambient-audio
-   * Generate ambient audio for a speech (placeholder - would integrate with audio generation service)
+   * Generate ambient audio for a speech using curated local engine
    */
   async generateAmbientAudio(req: Request, res: Response) {
     try {
       const speechId = req.params.id as string;
       const { ambientType, duration } = req.body;
 
-      // Get speech
       const speech = await prisma.speech.findUnique({
         where: { id: speechId }
       });
@@ -95,27 +95,30 @@ export class MediaController {
         return res.status(404).json({ error: 'Speech not found' });
       }
 
-      // For now, return a placeholder response
-      // In production, this would integrate with an ambient audio generation service
-      // or use a library of pre-made ambient sounds
+      const result = await ambientAudioService.generateAndStore({
+        speechId,
+        ambientType,
+        durationSeconds: duration
+      });
 
-      const ambientAudioUrl = `/ambient/${ambientType || 'nature'}_${Date.now()}.mp3`;
-
-      // Update speech with ambient audio URL
       const updatedSpeech = await prisma.speech.update({
         where: { id: speechId },
-        data: { ambientAudioUrl }
+        data: { ambientAudioUrl: result.relativeUrl }
       });
+
+      const publicUrl = this.toPublicUrl(req, result.relativeUrl);
 
       res.json({
         success: true,
         speech: updatedSpeech,
-        ambientAudioUrl,
-        message: 'Ambient audio generation is a placeholder. In production, this would generate actual audio.'
+        engine: result.engine,
+        ambientType: result.ambientType,
+        duration: result.durationSeconds,
+        ambientAudioUrl: publicUrl,
       });
     } catch (error: any) {
       console.error('[Media] Error generating ambient audio:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message || 'Failed to generate ambient audio' });
     }
   }
 
@@ -266,6 +269,21 @@ Retorne um JSON com sugestões:
       res.status(status).json({ error: error.message });
     }
   }
+  private toPublicUrl(req: Request, relativeUrl: string): string {
+    if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
+      return relativeUrl;
+    }
+
+    const protocol = (req.headers['x-forwarded-proto'] as string) || req.protocol;
+    const host = req.get('host');
+
+    if (!host) {
+      return relativeUrl;
+    }
+
+    return `${protocol}://${host}${relativeUrl}`;
+  }
+
 }
 
 export const mediaController = new MediaController();

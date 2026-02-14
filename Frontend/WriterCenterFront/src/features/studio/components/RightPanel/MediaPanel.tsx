@@ -1,5 +1,6 @@
 import { Music, Mic, Image, Wind, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import type { AxiosError } from 'axios';
+import { useMemo, useState } from 'react';
 import { useStudioStore } from '../../../../shared/stores';
 import { useMediaGeneration } from '../../../../shared/hooks/useMediaGeneration';
 import { http } from '../../../../shared/api/http';
@@ -45,6 +46,22 @@ export function MediaPanel() {
   const selectedSpeechId = useStudioStore((s) => s.editingSpeechId); 
   const { generateSceneImage, generateAmbientAudio } = useMediaGeneration();
   const [isTTSLoading, setIsTTSLoading] = useState(false);
+
+  const ambientProgressLabel = useMemo(() => {
+    if (!generateAmbientAudio.isPending) {
+      return null;
+    }
+
+    const ambientType = generateAmbientAudio.variables?.ambientType || 'nature';
+    const duration = generateAmbientAudio.variables?.duration || 20;
+    return `Gerando ambiente (${ambientType}) com duração de ${duration}s...`;
+  }, [generateAmbientAudio.isPending, generateAmbientAudio.variables]);
+
+  const ambientAxiosError = generateAmbientAudio.error as AxiosError<{ error?: string; message?: string }> | null;
+  const ambientError = ambientAxiosError?.response?.data?.error
+    || ambientAxiosError?.response?.data?.message
+    || ambientAxiosError?.message
+    || null;
 
   const handleGenerateTTS = async () => {
     if (!selectedSpeechId) return;
@@ -114,10 +131,14 @@ export function MediaPanel() {
           <MediaActionButton
             icon={<Wind className="w-3.5 h-3.5 text-purple-400" />}
             label="Gerar áudio ambiente"
+            description={ambientProgressLabel || undefined}
             loading={generateAmbientAudio.isPending}
             disabled={!selectedSpeechId}
             onClick={handleGenerateAmbient}
           />
+          {ambientError && !generateAmbientAudio.isPending && (
+            <p className="text-[10px] text-red-400 px-1">{ambientError}</p>
+          )}
         </div>
       </div>
     </div>
