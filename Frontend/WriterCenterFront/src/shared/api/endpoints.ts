@@ -64,8 +64,6 @@ export const endpoints = {
 
   // Media Generation (Sprint 5)
   media: {
-    sceneImage: (speechId: string) => `/speeches/${speechId}/scene-image`,
-    ambientAudio: (speechId: string) => `/speeches/${speechId}/ambient-audio`,
     chapterSoundtrack: (chapterId: string) => `/chapters/${chapterId}/soundtrack`,
     generateSoundtrack: (chapterId: string) => `/chapters/${chapterId}/soundtrack/generate`,
   },

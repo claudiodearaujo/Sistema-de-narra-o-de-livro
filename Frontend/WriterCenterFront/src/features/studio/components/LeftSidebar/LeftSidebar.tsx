@@ -3,7 +3,7 @@ import { FileText, Users, BarChart3 } from 'lucide-react';
 import { useStudioStore } from '../../../../shared/stores';
 import { useChapters, useCreateChapter } from '../../../../shared/hooks/useChapters';
 import { useCharacters, useCreateCharacter, useUpdateCharacter } from '../../../../shared/hooks/useCharacters';
-import { useNarration } from '../../../../shared/hooks/useNarration';
+import { useNarrationContext } from '../../context/NarrationContext';
 import { http } from '../../../../shared/api/http';
 import { endpoints } from '../../../../shared/api/endpoints';
 import { ChapterTree } from './ChapterTree';
@@ -29,7 +29,7 @@ export function LeftSidebar() {
   const { data: chapters = [], isLoading: chaptersLoading } = useChapters(activeBookId);
   const { data: characters = [], isLoading: charactersLoading } = useCharacters(activeBookId);
 
-  const narration = useNarration(activeChapterId);
+  const narration = useNarrationContext();
   const createChapter = useCreateChapter();
   const createCharacter = useCreateCharacter();
   const updateCharacter = useUpdateCharacter();

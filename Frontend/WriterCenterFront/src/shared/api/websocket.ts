@@ -43,6 +43,7 @@ export type WebSocketEventMap = {
 };
 
 import { env } from '../lib/env';
+import { getAccessToken } from './http';
 
 // ─── Singleton Socket Manager ────────────────────────────────────────────────
 
@@ -71,12 +72,12 @@ export function getSocket(): Socket {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       timeout: 10000,
-      auth: () => {
-        // Dynamically grab token from localStorage
-        const token = localStorage.getItem('access_token');
-        return token ? { token } : {};
-      },
-    });
+        auth: () => {
+          // Dynamically grab token from http module (memory/storage)
+          const token = getAccessToken();
+          return token ? { token } : {};
+        },
+      });
 
     socket.on('connect', () => {
       connectionAttempts = 0;

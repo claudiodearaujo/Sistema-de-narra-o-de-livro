@@ -10,6 +10,7 @@ import { Canvas } from './components/Canvas/Canvas';
 import { RightPanel } from './components/RightPanel/RightPanel';
 import { CharacterWizardProvider, useCharacterWizardModal } from './context/CharacterWizardContext';
 import { CharacterWizardModal } from './components/CharacterWizard/CharacterWizardModal';
+import { NarrationProvider } from './context/NarrationContext';
 
 /**
  * Inner content component that uses CharacterWizardModal context
@@ -116,7 +117,9 @@ function StudioPageContent() {
 export function StudioPage() {
   return (
     <CharacterWizardProvider>
-      <StudioPageContent />
+      <NarrationProvider>
+        <StudioPageContent />
+      </NarrationProvider>
     </CharacterWizardProvider>
   );
 }

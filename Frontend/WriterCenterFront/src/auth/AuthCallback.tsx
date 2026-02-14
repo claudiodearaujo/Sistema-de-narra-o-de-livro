@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../shared/stores';
 import { http, endpoints } from '../shared/api';
+import { env } from '../shared/lib/env';
 
 /**
  * OAuth callback page
@@ -42,8 +43,8 @@ export function AuthCallback() {
       const response = await http.post(endpoints.auth.token, {
         grant_type: 'authorization_code',
         code,
-        redirect_uri: import.meta.env.VITE_SSO_REDIRECT_URI,
-        client_id: import.meta.env.VITE_SSO_CLIENT_ID,
+        redirect_uri: env.ssoRedirectUri,
+        client_id: env.ssoClientId,
         code_verifier: verifier,
       });
 
@@ -76,6 +77,9 @@ export function AuthCallback() {
     } catch (err) {
       console.error('Auth callback error:', err);
       setError(err instanceof Error ? err.message : 'Authentication failed');
+      // Clean up session storage on error to prevent invalid state
+      sessionStorage.removeItem('pkce_verifier');
+      sessionStorage.removeItem('oauth_state');
     }
   }
 

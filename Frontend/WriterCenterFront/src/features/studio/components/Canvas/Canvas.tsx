@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BookOpen, Loader2 } from 'lucide-react';
 import {
   DndContext,
@@ -18,7 +18,7 @@ import {
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useSpeeches, useCreateSpeech, useReorderSpeeches } from '../../../../shared/hooks/useSpeeches';
 import { useCharacters } from '../../../../shared/hooks/useCharacters';
-import { useNarration } from '../../../../shared/hooks/useNarration';
+import { useNarrationContext } from '../../context/NarrationContext';
 import { useSpeechEditor } from '../../hooks/useSpeechEditor';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { SortableSpeechBlock } from './SortableSpeechBlock';
@@ -35,8 +35,8 @@ export function Canvas() {
   const { data: speeches, isLoading, isError } = useSpeeches(activeChapterId);
   const { data: characters = [] } = useCharacters(activeBookId);
 
-  // Real-time Narration Hook
-  const narration = useNarration(activeChapterId);
+  // Real-time Narration Hook (shared via context)
+  const narration = useNarrationContext();
 
   const editor = useSpeechEditor();
   
@@ -49,10 +49,12 @@ export function Canvas() {
   // Local state for optimistic UI updates during drag
   const [localSpeeches, setLocalSpeeches] = useState(speeches ?? []);
 
-  // Update local state when speeches data changes
-  if (speeches && speeches !== localSpeeches) {
-    setLocalSpeeches(speeches);
-  }
+  // Sync local state with server state when it changes
+  useEffect(() => {
+    if (speeches) {
+      setLocalSpeeches(speeches);
+    }
+  }, [speeches]);
 
   // Drag & Drop sensors
   const sensors = useSensors(

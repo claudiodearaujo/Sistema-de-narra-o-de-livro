@@ -299,7 +299,33 @@ export function TopBar() {
                 </DropdownMenu.Item>
 
                 <DropdownMenu.Item 
-                  onSelect={() => activeChapterId && window.open(`${env.apiUrl}/chapters/${activeChapterId}/export/print?token=${getAccessToken()}`, '_blank')}
+                  onSelect={async () => {
+                    if (!activeChapterId) return;
+                    try {
+                      studioToast.info('Gerando PDF...', 'Aguarde um momento.');
+                      const response = await fetch(`${env.apiUrl}/chapters/${activeChapterId}/export/print`, {
+                        headers: {
+                          'Authorization': `Bearer ${getAccessToken()}`
+                        }
+                      });
+                      
+                      if (!response.ok) throw new Error('Falha ao gerar PDF');
+                      
+                      const blob = await response.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = `capitulo-${activeChapterId}.pdf`; // Name could be better if we had title here easily accessible without prop drilling
+                      link.target = '_blank';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      window.URL.revokeObjectURL(url);
+                    } catch (e) {
+                      studioToast.error('Erro na exportação', 'Não foi possível baixar o PDF.');
+                      console.error(e);
+                    }
+                  }}
                   className="cursor-pointer rounded px-2 py-2 text-xs text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 outline-none flex items-center gap-2"
                 >
                   <Printer className="w-3.5 h-3.5 text-orange-500" />

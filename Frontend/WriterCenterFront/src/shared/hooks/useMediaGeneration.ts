@@ -30,7 +30,7 @@ export function useMediaGeneration() {
       negativePrompt?: string;
     }) => {
       const { data } = await http.post<SceneImageResponse>(
-        endpoints.media.sceneImage(params.speechId),
+        endpoints.speeches.sceneImage(params.speechId),
         params
       );
       return data;
@@ -52,7 +52,7 @@ export function useMediaGeneration() {
       duration?: number;
     }) => {
       const { data } = await http.post<AmbientAudioResponse>(
-        endpoints.media.ambientAudio(params.speechId),
+        endpoints.speeches.ambientAudio(params.speechId),
         params
       );
       return data;
