@@ -7,6 +7,7 @@ import type { Character } from '../../../../shared/types/character.types';
 import { TagToolbar } from './TagToolbar';
 import { AudioPlayer } from './AudioPlayer';
 import { SceneImage } from './SceneImage';
+import { RichTextDisplay } from './RichTextDisplay';
 import { cn } from '../../../../shared/lib/utils';
 import type { SpeechNarrationProgress } from '../../../../shared/hooks/useNarration';
 
@@ -207,7 +208,11 @@ export function SpeechBlock({
           onClick={handleTextClick}
           title="Clique para editar"
         >
-          {speech.text || <span className="text-zinc-600 italic">Fala vazia — clique para editar</span>}
+          {speech.text ? (
+            <RichTextDisplay text={speech.text} />
+          ) : (
+            <span className="text-zinc-600 italic">Fala vazia — clique para editar</span>
+          )}
         </div>
       )}
 
