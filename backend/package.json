@@ -24,7 +24,7 @@
     "test:ai:api": "npx ts-node src/__tests__/services/ai-api.service.test.ts",
     "test:ai:routes": "npx ts-node src/__tests__/routes/ai-api.routes.test.ts",
     "test:schema": "npx ts-node src/__tests__/schema/prisma-field-integrity.test.ts",
-    "test:ai:bootstrap": "npx ts-node src/__tests__/ai/gemini-bootstrap.test.ts"
+    "test:ai:bootstrap": "npx ts-node src/__tests__/ai/gemini-bootstrap.test.ts",
     "test:ai:tts-contract": "npx ts-node src/__tests__/ai/tts-provider.contract.test.ts"
   },
   "prisma": {

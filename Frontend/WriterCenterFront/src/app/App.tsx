@@ -1,10 +1,20 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { router } from './router';
 import { DebugLogPanel } from '../features/studio/components/DebugLogPanel';
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error: any) => {
+      // If we get a 401, clear all queries to stop loops
+      if (error?.response?.status === 401) {
+        console.log('[QueryClient] Auth error detected, clearing all queries');
+        queryClient.cancelQueries();
+        queryClient.clear();
+      }
+    },
+  }),
   defaultOptions: {
     queries: {
       retry: (failureCount, error: any) => {
@@ -17,19 +27,10 @@ const queryClient = new QueryClient({
       },
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000, // 5 minutes
-      // Stop all queries when unmounting to prevent loops
       gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-      onError: (error: any) => {
-        // If we get a 401, clear all queries to stop loops
-        if (error?.response?.status === 401) {
-          console.log('[QueryClient] Auth error detected, clearing all queries');
-          queryClient.cancelQueries();
-          queryClient.clear();
-        }
-      },
     },
     mutations: {
-      retry: (failureCount, error: any) => {
+      retry: (_failureCount, error: any) => {
         // Don't retry on auth errors (401)
         if (error?.response?.status === 401) {
           return false;
