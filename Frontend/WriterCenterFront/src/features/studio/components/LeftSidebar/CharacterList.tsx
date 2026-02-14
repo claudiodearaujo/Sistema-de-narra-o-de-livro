@@ -17,6 +17,7 @@ interface CharacterListProps {
   onNewCharacter: (dto: CreateCharacterDto) => Promise<void>;
   onUpdateCharacter: (id: string, dto: UpdateCharacterDto) => Promise<void>;
   onPreviewAudio: (characterId: string) => Promise<void>;
+  onOpenWizard: () => void;
   isSaving?: boolean;
   isPreviewing?: boolean;
 }
@@ -28,16 +29,12 @@ export function CharacterList({
   onNewCharacter,
   onUpdateCharacter,
   onPreviewAudio,
+  onOpenWizard,
   isSaving = false,
   isPreviewing = false,
 }: CharacterListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
-
-  const handleOpenCreate = () => {
-    setEditingCharacter(null);
-    setIsModalOpen(true);
-  };
 
   const handleOpenEdit = (character: Character) => {
     setEditingCharacter(character);
@@ -123,7 +120,7 @@ export function CharacterList({
         ))}
 
         <button
-          onClick={handleOpenCreate}
+          onClick={onOpenWizard}
           className="w-full mt-1 p-2 rounded-lg border border-dashed border-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-400 flex items-center justify-center gap-2 text-xs transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />

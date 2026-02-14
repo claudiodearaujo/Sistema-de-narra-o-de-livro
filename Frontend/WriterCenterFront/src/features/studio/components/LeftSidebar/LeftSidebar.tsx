@@ -4,6 +4,7 @@ import { useStudioStore } from '../../../../shared/stores';
 import { useChapters, useCreateChapter } from '../../../../shared/hooks/useChapters';
 import { useCharacters, useCreateCharacter, useUpdateCharacter } from '../../../../shared/hooks/useCharacters';
 import { useNarrationContext } from '../../context/NarrationContext';
+import { useCharacterWizardModal } from '../../context/CharacterWizardContext';
 import { http } from '../../../../shared/api/http';
 import { endpoints } from '../../../../shared/api/endpoints';
 import { ChapterTree } from './ChapterTree';
@@ -30,6 +31,7 @@ export function LeftSidebar() {
   const { data: characters = [], isLoading: charactersLoading } = useCharacters(activeBookId);
 
   const narration = useNarrationContext();
+  const { openWizard } = useCharacterWizardModal();
   const createChapter = useCreateChapter();
   const createCharacter = useCreateCharacter();
   const updateCharacter = useUpdateCharacter();
@@ -118,6 +120,7 @@ export function LeftSidebar() {
               await updateCharacter.mutateAsync({ id, dto });
             }}
             onPreviewAudio={handlePreviewAudio}
+            onOpenWizard={() => openWizard()}
             isSaving={createCharacter.isPending || updateCharacter.isPending}
           />
         )}
