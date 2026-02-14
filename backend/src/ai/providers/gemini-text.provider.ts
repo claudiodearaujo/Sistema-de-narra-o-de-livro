@@ -23,7 +23,7 @@ export class GeminiTextProvider implements TextAIProvider {
 
     constructor() {
         this.ai = new GoogleGenAI({});
-        this.model = aiConfig.providers.gemini?.textModel || 'gemini-2.0-flash';
+        this.model = aiConfig.providers.gemini!.textModel;
         this.rateLimiter = rateLimiterManager.get('gemini-text', aiConfig.rateLimit.gemini);
     }
 
