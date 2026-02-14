@@ -13,13 +13,12 @@ const NARRATOR_OPTION = {
 } as const;
 
 interface NewSpeechInputProps {
-  chapterId: string;
   characters: Character[];
   onSave: (dto: CreateSpeechDto) => Promise<void>;
   isSaving?: boolean;
 }
 
-export function NewSpeechInput({ chapterId, characters, onSave, isSaving }: NewSpeechInputProps) {
+export function NewSpeechInput({ characters, onSave, isSaving }: NewSpeechInputProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(NARRATOR_OPTION.id);
   const [text, setText] = useState('');
@@ -43,13 +42,12 @@ export function NewSpeechInput({ chapterId, characters, onSave, isSaving }: NewS
     if (!text.trim()) return;
 
     await onSave({
-      chapterId,
       characterId: selectedCharacterId,
       text: text.trim(),
     });
 
     close();
-  }, [chapterId, selectedCharacterId, text, onSave, close]);
+  }, [selectedCharacterId, text, onSave, close]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {

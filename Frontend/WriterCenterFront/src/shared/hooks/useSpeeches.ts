@@ -41,8 +41,8 @@ export function useCreateSpeech() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (dto: CreateSpeechDto): Promise<Speech> => {
-      const { data } = await http.post(endpoints.speeches.create, dto);
+    mutationFn: async ({ chapterId, dto }: { chapterId: string; dto: CreateSpeechDto }): Promise<Speech> => {
+      const { data } = await http.post(endpoints.speeches.create(chapterId), dto);
       return data;
     },
     onSuccess: (speech) => {
@@ -56,7 +56,7 @@ export function useUpdateSpeech() {
 
   return useMutation({
     mutationFn: async ({ id, dto }: { id: string; dto: UpdateSpeechDto }): Promise<Speech> => {
-      const { data } = await http.patch(endpoints.speeches.byId(id), dto);
+      const { data } = await http.put(endpoints.speeches.byId(id), dto);
       return data;
     },
     onSuccess: (speech) => {

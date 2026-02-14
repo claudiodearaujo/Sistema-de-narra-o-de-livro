@@ -1,6 +1,46 @@
 import { Request, Response } from 'express';
 import * as authService from '../services/auth.service';
 
+const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
+const REFRESH_TOKEN_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+function getRefreshTokenFromCookie(req: Request): string | undefined {
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) {
+    return undefined;
+  }
+
+  const tokenCookie = cookieHeader
+    .split(';')
+    .map((cookie) => cookie.trim())
+    .find((cookie) => cookie.startsWith(`${REFRESH_TOKEN_COOKIE_NAME}=`));
+
+  if (!tokenCookie) {
+    return undefined;
+  }
+
+  return decodeURIComponent(tokenCookie.split('=')[1] ?? '');
+}
+
+function setRefreshTokenCookie(res: Response, refreshToken: string): void {
+  res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/api/auth',
+    maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
+  });
+}
+
+function clearRefreshTokenCookie(res: Response): void {
+  res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/api/auth',
+  });
+}
+
 /**
  * POST /api/auth/signup
  */
@@ -30,6 +70,7 @@ export async function signup(req: Request, res: Response): Promise<void> {
     }
 
     const result = await authService.signup({ name, email, password, username });
+    setRefreshTokenCookie(res, result.refreshToken);
     res.status(201).json(result);
   } catch (error: any) {
     console.error('[AUTH] Signup error:', error.message);
@@ -55,6 +96,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     }
 
     const result = await authService.login({ email, password });
+    setRefreshTokenCookie(res, result.refreshToken);
     res.json(result);
   } catch (error: any) {
     console.error('[AUTH] Login error:', error.message);
@@ -67,11 +109,13 @@ export async function login(req: Request, res: Response): Promise<void> {
  */
 export async function logout(req: Request, res: Response): Promise<void> {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = getRefreshTokenFromCookie(req) ?? req.body?.refreshToken;
     
     if (refreshToken) {
       await authService.logout(refreshToken);
     }
+
+    clearRefreshTokenCookie(res);
     
     res.json({ message: 'Logout realizado com sucesso' });
   } catch (error: any) {
@@ -85,7 +129,9 @@ export async function logout(req: Request, res: Response): Promise<void> {
  */
 export async function refresh(req: Request, res: Response): Promise<void> {
   try {
-    const { refreshToken } = req.body;
+    // Official contract: refresh token comes from HttpOnly cookie.
+    // Keep body fallback temporarily for backward compatibility.
+    const refreshToken = getRefreshTokenFromCookie(req) ?? req.body?.refreshToken;
 
     if (!refreshToken) {
       res.status(400).json({ error: 'Token de atualização não fornecido' });
@@ -93,6 +139,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
     }
 
     const result = await authService.refreshAccessToken(refreshToken);
+    setRefreshTokenCookie(res, result.refreshToken);
     res.json(result);
   } catch (error: any) {
     console.error('[AUTH] Refresh error:', error.message);

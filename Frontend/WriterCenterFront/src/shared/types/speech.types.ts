@@ -34,7 +34,6 @@ export interface Speech {
 }
 
 export interface CreateSpeechDto {
-  chapterId: string;
   characterId: string;
   text: string;
   order?: number;

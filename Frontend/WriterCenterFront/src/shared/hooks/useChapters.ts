@@ -71,7 +71,7 @@ export function useUpdateChapter() {
 
   return useMutation({
     mutationFn: async ({ id, dto }: { id: string; dto: UpdateChapterDto }): Promise<Chapter> => {
-      const { data } = await http.patch(endpoints.chapters.byId(id), dto);
+      const { data } = await http.put(endpoints.chapters.byId(id), dto);
       return data;
     },
     onSuccess: (chapter) => {

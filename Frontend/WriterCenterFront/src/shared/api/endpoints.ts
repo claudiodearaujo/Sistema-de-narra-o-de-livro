@@ -37,7 +37,7 @@ export const endpoints = {
   // Speeches
   speeches: {
     list: (chapterId: string) => `/chapters/${chapterId}/speeches`,
-    create: '/speeches',
+    create: (chapterId: string) => `/chapters/${chapterId}/speeches`,
     byId: (id: string) => `/speeches/${id}`,
     reorder: (chapterId: string) => `/chapters/${chapterId}/speeches/reorder`,
     bulk: (chapterId: string) => `/chapters/${chapterId}/speeches/bulk`,

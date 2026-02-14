@@ -71,8 +71,7 @@ export function useSpeechActions() {
 
   const duplicateSpeech = useMutation({
     mutationFn: async (speech: Speech) => {
-      const { data } = await http.post(endpoints.speeches.create, {
-        chapterId: speech.chapterId,
+      const { data } = await http.post(endpoints.speeches.create(speech.chapterId), {
         characterId: speech.characterId,
         text: speech.text,
         order: speech.order + 1,
