@@ -12,7 +12,7 @@ export const http = axios.create({
     'Content-Type': 'application/json',
     'X-Client-Id': env.ssoClientId,
   },
-  withCredentials: true, // For cookies (refresh token)
+  withCredentials: true, // Required for HttpOnly refresh token cookie
 });
 
 /**
@@ -44,6 +44,7 @@ http.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
+        // Official contract: refresh token is sent automatically via HttpOnly cookie.
         const response = await axios.post(
           `${env.apiUrl}${endpoints.auth.tokenRefresh}`,
           {},
