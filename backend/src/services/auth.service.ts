@@ -5,6 +5,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
   getRefreshTokenExpiresAt,
+  getAccessTokenExpiresIn,
   TokenPayload
 } from '../utils/jwt.utils';
 import prisma from '../lib/prisma';
@@ -119,7 +120,7 @@ export async function signup(input: SignupInput): Promise<AuthResponse> {
     user: sanitizeUser(user),
     accessToken,
     refreshToken,
-    expiresIn: 3600 // 1 hour in seconds
+    expiresIn: getAccessTokenExpiresIn()
   };
 }
 
@@ -202,7 +203,7 @@ export async function login(input: LoginInput): Promise<AuthResponse> {
       user: sanitizeUser(user),
       accessToken,
       refreshToken,
-      expiresIn: 3600
+      expiresIn: getAccessTokenExpiresIn()
     };
   } catch (error) {
     // Re-throw the error after logging
@@ -257,7 +258,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<AuthResp
     user: sanitizeUser(user),
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
-    expiresIn: 3600
+    expiresIn: getAccessTokenExpiresIn()
   };
 }
 
