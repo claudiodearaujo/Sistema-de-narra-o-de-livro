@@ -3,67 +3,11 @@ import IORedis from 'ioredis';
 import dotenv from 'dotenv';
 import { aiService } from '../ai';
 import { io } from '../websocket/websocket.server';
-import * as fs from 'fs';
-import * as path from 'path';
 import prisma from '../lib/prisma';
 import { getRedisConfig, isRedisEnabled } from '../config/redis.config';
+import { saveSpeechAudioFile } from '../utils/audio-storage';
 
 dotenv.config();
-
-// Diretório para salvar os arquivos de áudio
-const AUDIO_DIR = path.join(__dirname, '../../uploads/audio');
-
-// Garantir que o diretório existe
-if (!fs.existsSync(AUDIO_DIR)) {
-    fs.mkdirSync(AUDIO_DIR, { recursive: true });
-}
-
-/**
- * Salva o buffer de áudio em um arquivo WAV
- */
-function saveAudioFile(buffer: Buffer, speechId: string): string {
-    const filename = `speech_${speechId}_${Date.now()}.wav`;
-    const filepath = path.join(AUDIO_DIR, filename);
-    
-    // O Gemini TTS retorna PCM raw, precisamos adicionar header WAV
-    const wavBuffer = createWavBuffer(buffer);
-    fs.writeFileSync(filepath, wavBuffer);
-    
-    return `/uploads/audio/${filename}`;
-}
-
-/**
- * Cria um buffer WAV a partir de dados PCM
- */
-function createWavBuffer(pcmData: Buffer, sampleRate: number = 24000, channels: number = 1, bitsPerSample: number = 16): Buffer {
-    const dataSize = pcmData.length;
-    const headerSize = 44;
-    const fileSize = headerSize + dataSize;
-    
-    const buffer = Buffer.alloc(fileSize);
-    
-    // RIFF header
-    buffer.write('RIFF', 0);
-    buffer.writeUInt32LE(fileSize - 8, 4);
-    buffer.write('WAVE', 8);
-    
-    // fmt chunk
-    buffer.write('fmt ', 12);
-    buffer.writeUInt32LE(16, 16); // Subchunk1Size
-    buffer.writeUInt16LE(1, 20);  // AudioFormat (PCM)
-    buffer.writeUInt16LE(channels, 22);
-    buffer.writeUInt32LE(sampleRate, 24);
-    buffer.writeUInt32LE(sampleRate * channels * bitsPerSample / 8, 28); // ByteRate
-    buffer.writeUInt16LE(channels * bitsPerSample / 8, 32); // BlockAlign
-    buffer.writeUInt16LE(bitsPerSample, 34);
-    
-    // data chunk
-    buffer.write('data', 36);
-    buffer.writeUInt32LE(dataSize, 40);
-    pcmData.copy(buffer, 44);
-    
-    return buffer;
-}
 
 let narrationWorker: Worker | null = null;
 
@@ -147,7 +91,7 @@ if (isRedisEnabled()) {
                 });
 
                 // Salvar arquivo de áudio
-                const audioUrl = saveAudioFile(audioResult.buffer, speech.id);
+                const audioUrl = saveSpeechAudioFile(audioResult.buffer, speech.id, audioResult.format);
 
                 // Atualizar fala no banco
                 await prisma.speech.update({
