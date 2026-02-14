@@ -9,7 +9,7 @@ Esta matriz define os **modelos homologados por provider e endpoint** para o bac
 | Endpoint | Modelos homologados | Default |
 |---|---|---|
 | text | `gemini-2.5-flash`, `gemini-2.0-flash` | `gemini-2.5-flash` |
-| image | `imagen-3.0-generate-001` | `imagen-3.0-generate-001` |
+| image | `imagen-3.0-generate-001`, `gemini-2.5-flash-image` | `imagen-3.0-generate-001` |
 | tts | `gemini-2.5-flash-preview-tts` | `gemini-2.5-flash-preview-tts` |
 
 ## OpenAI
