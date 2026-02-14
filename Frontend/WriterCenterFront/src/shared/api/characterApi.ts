@@ -9,6 +9,37 @@ import { endpoints } from './endpoints';
 import type { Character, CreateCharacterDto, UpdateCharacterDto } from '../types/character.types';
 import type { CharacterFormData } from '../../features/studio/components/CharacterWizard/types/character-wizard.types';
 
+interface VoicePreviewResponse {
+  audioBase64?: string;
+  audioUrl?: string;
+  format?: string;
+}
+
+function normalizeAudioUrl(audioUrl: string): string {
+  if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://') || audioUrl.startsWith('blob:')) {
+    return audioUrl;
+  }
+
+  if (audioUrl.startsWith('/')) {
+    return `${http.defaults.baseURL ?? ''}${audioUrl}`;
+  }
+
+  return `${http.defaults.baseURL ?? ''}/uploads/${audioUrl}`;
+}
+
+function base64ToObjectUrl(base64Audio: string, format?: string): string {
+  const mimeType = format === 'wav' ? 'audio/wav' : 'audio/mpeg';
+  const binary = window.atob(base64Audio);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  const blob = new Blob([bytes], { type: mimeType });
+  return URL.createObjectURL(blob);
+}
+
 /**
  * Query keys for TanStack Query
  */
@@ -179,11 +210,26 @@ export function useDeleteCharacter(bookId: string) {
 export function usePreviewVoice() {
   return useMutation({
     mutationFn: async (voiceId: string) => {
-      const { data } = await http.post<{ audioUrl: string }>(
+      const { data } = await http.post<VoicePreviewResponse>(
         endpoints.voices.preview,
         { voiceId }
       );
-      return data.audioUrl;
+
+      if (data.audioUrl) {
+        return {
+          audioUrl: normalizeAudioUrl(data.audioUrl),
+          revokeAfterPlay: false,
+        };
+      }
+
+      if (data.audioBase64) {
+        return {
+          audioUrl: base64ToObjectUrl(data.audioBase64, data.format),
+          revokeAfterPlay: true,
+        };
+      }
+
+      throw new Error('Resposta de preview sem áudio.');
     },
     onError: (error: any) => {
       console.error('Error previewing voice:', error);
