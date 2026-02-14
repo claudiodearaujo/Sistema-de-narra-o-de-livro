@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import type { DecodedToken } from '../utils/jwt.utils';
 
 declare global {
   namespace Express {
@@ -12,11 +12,7 @@ declare global {
         startTime: number;
         duration?: number;
       };
-      user?: {
-        id: string;
-        email: string;
-        role: string;
-      };
+      user?: DecodedToken;
     }
   }
 }

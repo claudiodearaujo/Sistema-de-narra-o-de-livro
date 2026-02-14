@@ -46,7 +46,7 @@ export function requireRole(...allowedRoles: UserRole[]) {
       // Audit log - permission denied
       import('../services/audit.service').then(({ auditService }) => {
         auditService.logPermissionDenied(
-          req.user!.id,
+          req.user!.userId,
           req.user!.email,
           req.originalUrl,
           `Required roles: ${allowedRoles.join(', ')}, User role: ${userRole}`
@@ -95,7 +95,7 @@ export function requireMinimumRole(minimumRole: UserRole) {
       // Audit log - permission denied
       import('../services/audit.service').then(({ auditService }) => {
         auditService.logPermissionDenied(
-          req.user!.id,
+          req.user!.userId,
           req.user!.email,
           req.originalUrl,
           `Required minimum role: ${minimumRole}, User role: ${userRole}`

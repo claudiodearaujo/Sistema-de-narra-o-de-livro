@@ -150,7 +150,7 @@ export function requireFeature(feature: keyof PlanLimits) {
           // Audit log - plan limit reached
           import('../services/audit.service').then(({ auditService }) => {
             auditService.logPlanLimitReached(
-              req.user!.id,
+              req.user!.userId,
               req.user!.email,
               `feature:${feature}`
             ).catch(err => console.error('[AUDIT]', err));
@@ -221,7 +221,7 @@ export function checkLimit(
           // Audit log - plan limit reached
           import('../services/audit.service').then(({ auditService }) => {
             auditService.logPlanLimitReached(
-              req.user!.id,
+              req.user!.userId,
               req.user!.email,
               `${limitKey}:${currentCount}/${limit}`
             ).catch(err => console.error('[AUDIT]', err));

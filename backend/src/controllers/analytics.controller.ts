@@ -8,7 +8,7 @@ export class AnalyticsController {
      */
     async getAuthorStats(req: Request, res: Response) {
         try {
-            const userId = (req as any).user?.id;
+            const userId = req.user?.userId;
             if (!userId) {
                 return res.status(401).json({ error: 'Unauthorized' });
             }
