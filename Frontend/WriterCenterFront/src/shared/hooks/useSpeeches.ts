@@ -41,8 +41,8 @@ export function useCreateSpeech() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (dto: CreateSpeechDto): Promise<Speech> => {
-      const { data } = await http.post(endpoints.speeches.create, dto);
+    mutationFn: async ({ chapterId, dto }: { chapterId: string; dto: CreateSpeechDto }): Promise<Speech> => {
+      const { data } = await http.post(endpoints.speeches.create(chapterId), dto);
       return data;
     },
     onSuccess: (speech) => {
