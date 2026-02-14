@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { AudioResult, GenerateAudioOptions, TTSProvider, Voice } from '../interfaces/tts-provider.interface';
-import { aiConfig } from '../ai.config';
+import { aiConfig, getGeminiApiKeyOrThrow } from '../ai.config';
 import { convertWavToMp3 } from '../../utils/audio-converter';
 import { RateLimiter, rateLimiterManager } from '../../utils/rate-limiter';
 
@@ -48,12 +48,16 @@ export class GeminiTTSProvider implements TTSProvider {
     private rateLimiter: RateLimiter;
 
     constructor() {
-        this.ai = new GoogleGenAI({});
+        getGeminiApiKeyOrThrow();
+
+        this.ai = new GoogleGenAI({
+            apiKey: aiConfig.providers.gemini?.apiKey || ''
+        });
         this.rateLimiter = rateLimiterManager.get('gemini-tts', aiConfig.rateLimit.gemini);
     }
 
     async initialize(): Promise<void> {
-        console.log('✅ Gemini TTS Provider inicializado');
+        console.log('✅ [Gemini TTS] Provider inicializado');
         console.log(`   Modelo: ${aiConfig.providers.gemini?.ttsModel}`);
         console.log(`   Vozes disponíveis: ${GEMINI_VOICES.length}`);
         console.log(`   Rate Limit: ${aiConfig.rateLimit.gemini.maxRequests} req/min`);
