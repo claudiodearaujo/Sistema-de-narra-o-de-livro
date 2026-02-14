@@ -7,9 +7,42 @@ import { DebugLogPanel } from '../features/studio/components/DebugLogPanel';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: (failureCount, error: any) => {
+        // Don't retry on auth errors (401)
+        if (error?.response?.status === 401) {
+          return false;
+        }
+        // Retry other errors up to 1 time
+        return failureCount < 1;
+      },
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000, // 5 minutes
+      // Stop all queries when unmounting to prevent loops
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    },
+    mutations: {
+      retry: (failureCount, error: any) => {
+        // Don't retry on auth errors (401)
+        if (error?.response?.status === 401) {
+          return false;
+        }
+        // Don't retry mutations by default
+        return false;
+      },
+    },
+  },
+});
+
+// Add global error handler for queries
+queryClient.setDefaultOptions({
+  queries: {
+    onError: (error: any) => {
+      // If we get a 401, clear all queries to stop loops
+      if (error?.response?.status === 401) {
+        console.log('[QueryClient] Auth error detected, clearing all queries');
+        queryClient.cancelQueries();
+        queryClient.clear();
+      }
     },
   },
 });

@@ -11,27 +11,70 @@ import { setAccessToken } from '../shared/api/http';
  */
 export function AuthGuard() {
   const user = useAuthStore((state) => state.user);
+  const tokens = useAuthStore((state) => state.tokens);
   const setUser = useAuthStore((state) => state.setUser);
+  const setTokens = useAuthStore((state) => state.setTokens);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isSessionValid = useAuthStore((state) => state.isSessionValid);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
-    if (isAuthenticated) return;
-
     let isCancelled = false;
 
     const bootstrapSession = async () => {
+      // If already authenticated, check session validity
+      if (isAuthenticated && user && tokens) {
+        // Check if session is still valid
+        if (isSessionValid()) {
+          // Restore token to http client
+          setAccessToken(tokens.accessToken);
+          console.log('[AuthGuard] Session restored from storage');
+          return;
+        } else {
+          console.log('[AuthGuard] Session expired, attempting refresh');
+          // Session expired, try to refresh
+          try {
+            const response = await http.post(endpoints.auth.tokenRefresh);
+            if (!isCancelled) {
+              const accessToken = response.data?.accessToken ?? response.data?.access_token;
+              const expiresIn = response.data?.expiresIn ?? response.data?.expires_in ?? 172800;
+              
+              if (accessToken) {
+                setAccessToken(accessToken);
+                setTokens({ accessToken, expiresIn });
+                console.log('[AuthGuard] Session refreshed successfully');
+                return;
+              }
+            }
+          } catch (error) {
+            console.error('[AuthGuard] Failed to refresh session:', error);
+            logout();
+            if (!isCancelled) {
+              initiateSSO();
+            }
+            return;
+          }
+        }
+      }
+
+      // Not authenticated, try to get user info (SSO session)
       try {
         const response = await http.get(endpoints.auth.userInfo);
         if (isCancelled) return;
 
         const accessToken = response.headers['x-access-token'];
+        const expiresIn = response.data?.expiresIn ?? 172800; // Default: 2 days
+        
         if (typeof accessToken === 'string') {
           setAccessToken(accessToken);
+          setTokens({ accessToken, expiresIn });
         }
 
         setUser(response.data);
+        console.log('[AuthGuard] User authenticated via SSO session');
       } catch {
         if (!isCancelled) {
+          logout();
           initiateSSO();
         }
       }
@@ -42,7 +85,7 @@ export function AuthGuard() {
     return () => {
       isCancelled = true;
     };
-  }, [isAuthenticated, setUser]);
+  }, [isAuthenticated, user, tokens, setUser, setTokens, isSessionValid, logout]);
 
   if (!isAuthenticated || !user) {
     return (
