@@ -14,8 +14,8 @@ export class BatchController {
         try {
             const chapterId = req.params.id as string;
             const { forceRegenerate } = req.body;
-            const userId = (req as any).user?.id;
-            const userEmail = (req as any).user?.email;
+            const userId = req.user?.userId;
+            const userEmail = req.user?.email;
 
             // Check if chapter exists
             const chapter = await prisma.chapter.findUnique({ where: { id: chapterId } });
@@ -68,8 +68,8 @@ export class BatchController {
     async generateImageBatch(req: Request, res: Response) {
         try {
             const chapterId = req.params.id as string;
-            const userId = (req as any).user?.id;
-            const userEmail = (req as any).user?.email;
+            const userId = req.user?.userId;
+            const userEmail = req.user?.email;
 
             // Check if chapter exists
             const chapter = await prisma.chapter.findUnique({ where: { id: chapterId } });
@@ -96,8 +96,8 @@ export class BatchController {
     async exportChapter(req: Request, res: Response) {
         try {
             const chapterId = req.params.id as string;
-            const userId = (req as any).user?.id;
-            const userEmail = (req as any).user?.email;
+            const userId = req.user?.userId;
+            const userEmail = req.user?.email;
 
             // Check if chapter exists and get speeches
             const chapter = await prisma.chapter.findUnique({ 

@@ -1,15 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyAccessToken, DecodedToken } from '../utils/jwt.utils';
+import { verifyAccessToken } from '../utils/jwt.utils';
 import { UserRole } from '@prisma/client';
-
-// Extend Express Request to include user information
-declare global {
-  namespace Express {
-    interface Request {
-      user?: DecodedToken;
-    }
-  }
-}
 
 /**
  * Authentication middleware - verifies JWT token
@@ -123,7 +114,7 @@ export function authorize(...allowedRoles: UserRole[]) {
       // Audit log - unauthorized access attempt
       import('../services/audit.service').then(({ auditService }) => {
         auditService.logPermissionDenied(
-          req.user!.id,
+          req.user!.userId,
           req.user!.email,
           req.originalUrl,
           `Required roles: ${allowedRoles.join(', ')}, User role: ${req.user!.role}`
