@@ -8,13 +8,13 @@ import { StatusBar } from './components/StatusBar/StatusBar';
 import { LeftSidebar } from './components/LeftSidebar/LeftSidebar';
 import { Canvas } from './components/Canvas/Canvas';
 import { RightPanel } from './components/RightPanel/RightPanel';
+import { CharacterWizardProvider, useCharacterWizardModal } from './context/CharacterWizardContext';
+import { CharacterWizardModal } from './components/CharacterWizard/CharacterWizardModal';
 
 /**
- * Main Writer Studio page with 3-zone layout.
- * The useStudio hook handles keyboard shortcuts, beforeunload guard,
- * and data orchestration for the entire page.
+ * Inner content component that uses CharacterWizardModal context
  */
-export function StudioPage() {
+function StudioPageContent() {
   const { bookId, chapterId } = useParams<{ bookId: string; chapterId?: string }>();
   const setActiveBook = useStudioStore((state) => state.setActiveBook);
   const setActiveChapter = useStudioStore((state) => state.setActiveChapter);
@@ -54,6 +54,8 @@ export function StudioPage() {
     setFocusMode(false);
     setLeftSidebarOpen(true);
   };
+
+  const { isOpen: wizardOpen, characterId, closeWizard } = useCharacterWizardModal();
 
   return (
     <div className="flex flex-col h-screen bg-zinc-950">
@@ -96,6 +98,25 @@ export function StudioPage() {
           <span>Sair do modo foco</span>
         </button>
       )}
+
+      {/* Character Wizard Modal */}
+      {wizardOpen && (
+        <CharacterWizardModal characterId={characterId} onClose={closeWizard} />
+      )}
     </div>
+  );
+}
+
+/**
+ * Main Writer Studio page with 3-zone layout and Character Wizard integration.
+ * The useStudio hook handles keyboard shortcuts, beforeunload guard,
+ * and data orchestration for the entire page.
+ * The CharacterWizardProvider enables the wizard modal functionality.
+ */
+export function StudioPage() {
+  return (
+    <CharacterWizardProvider>
+      <StudioPageContent />
+    </CharacterWizardProvider>
   );
 }

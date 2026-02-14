@@ -75,7 +75,10 @@ export const endpoints = {
     list: (bookId: string) => `/books/${bookId}/characters`,
     byId: (id: string) => `/characters/${id}`,
     create: '/characters',
+    update: (id: string) => `/characters/${id}`,
+    delete: (id: string) => `/characters/${id}`,
     previewAudio: (characterId: string) => `/characters/${characterId}/preview-audio`,
+    generatePreviewAudio: (characterId: string) => `/characters/${characterId}/preview-audio`,
   },
   
   // Voices (AI)
