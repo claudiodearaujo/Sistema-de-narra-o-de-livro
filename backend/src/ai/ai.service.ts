@@ -4,6 +4,7 @@ import { TextAIProvider, SpellCheckResult, SuggestionResult, EnrichmentResult } 
 import { ImageAIProvider, EmotionImageResult, ImageGenerationResult } from './interfaces/image-provider.interface';
 import { TTSProvider, Voice, AudioResult, VoiceConfig } from './interfaces/tts-provider.interface';
 import prisma from '../lib/prisma';
+import { validateAIModelCompatibility } from './ai.config';
 
 // Tipos com relações
 type CharacterWithProfile = Character & {
@@ -75,6 +76,8 @@ export class AIService {
     private ttsProvider: TTSProvider;
 
     private constructor() {
+        validateAIModelCompatibility();
+
         AIFactory.validateDefaultProviders();
         this.textProvider = AIFactory.getDefaultTextProvider();
         this.imageProvider = AIFactory.getDefaultImageProvider();

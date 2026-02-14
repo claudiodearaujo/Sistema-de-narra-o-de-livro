@@ -22,6 +22,8 @@ export class GeminiTextProvider implements TextAIProvider {
     private rateLimiter: RateLimiter;
 
     constructor() {
+        this.ai = new GoogleGenAI({});
+        this.model = aiConfig.providers.gemini!.textModel;
         this.ai = new GoogleGenAI({
             apiKey: getGeminiApiKeyOrThrow()
         });

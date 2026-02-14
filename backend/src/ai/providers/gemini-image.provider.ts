@@ -24,8 +24,8 @@ export class GeminiImageProvider implements ImageAIProvider {
             apiKey: getGeminiApiKeyOrThrow()
         });
         // Modelo para geração de imagens com Gemini 2.5
-        this.model = aiConfig.providers.gemini?.imageModel || 'gemini-2.0-flash-exp';
-        this.textModel = aiConfig.providers.gemini?.textModel || 'gemini-2.0-flash';
+        this.model = aiConfig.providers.gemini!.imageModel;
+        this.textModel = aiConfig.providers.gemini!.textModel;
         this.rateLimiter = rateLimiterManager.get('gemini-image', aiConfig.rateLimit.gemini);
     }
 
