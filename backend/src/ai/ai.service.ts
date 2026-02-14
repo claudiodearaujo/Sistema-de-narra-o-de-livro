@@ -238,11 +238,12 @@ export class AIService {
         }
 
         let characterSummary: string | undefined;
-        if (request.characterId) {
-            const character = await this.getCharacter(request.characterId);
-            if (character) {
-                characterSummary = this.composeCharacterSummary(character);
-            }
+        const character = request.characterId
+            ? await this.getCharacter(request.characterId)
+            : null;
+
+        if (character) {
+            characterSummary = this.composeCharacterSummary(character);
         }
 
         return this.imageProvider.generateEmotionImage({
