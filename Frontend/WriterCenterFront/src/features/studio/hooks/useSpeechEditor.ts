@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useStudioStore } from '../../../shared/stores';
 import { useUpdateSpeech } from '../../../shared/hooks/useSpeeches';
 import { studioToast } from '../../../shared/lib/toast';
+import { visualToSSML, ssmlToVisual } from '../../../shared/lib/ssml';
 
 export function useSpeechEditor() {
   const editingSpeechId = useStudioStore((s) => s.editingSpeechId);
@@ -15,7 +16,8 @@ export function useSpeechEditor() {
 
   const startEdit = useCallback(
     (speechId: string, currentText: string) => {
-      startEditingSpeech(speechId, currentText);
+      // Convert any SSML from backend to visual markers for the editor
+      startEditingSpeech(speechId, ssmlToVisual(currentText));
     },
     [startEditingSpeech]
   );
@@ -23,9 +25,12 @@ export function useSpeechEditor() {
   const saveEdit = useCallback(async () => {
     if (!editingSpeechId || !editingText.trim()) return;
 
+    // Convert visual markers back to SSML before sending to backend
+    const ssmlText = visualToSSML(editingText);
+
     await updateSpeech.mutateAsync({
       id: editingSpeechId,
-      dto: { text: editingText },
+      dto: { text: ssmlText },
     });
 
     updateLastSavedAt();

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useStudioStore } from '../../../shared/stores';
 import { useUpdateSpeech } from '../../../shared/hooks/useSpeeches';
+import { visualToSSML } from '../../../shared/lib/ssml';
 
 const AUTOSAVE_DELAY = 3000; // 3 seconds
 
@@ -9,7 +10,7 @@ export function useAutoSave() {
   const editingSpeechId = useStudioStore((s) => s.editingSpeechId);
   const editingText = useStudioStore((s) => s.editingText);
   const updateLastSavedAt = useStudioStore((s) => s.updateLastSavedAt);
-  
+
   const updateSpeech = useUpdateSpeech();
 
   useEffect(() => {
@@ -21,11 +22,14 @@ export function useAutoSave() {
       if (!editingText.trim()) return;
 
       try {
+        // Convert visual markers to SSML before saving to backend
+        const ssmlText = visualToSSML(editingText);
+
         await updateSpeech.mutateAsync({
           id: editingSpeechId,
-          dto: { text: editingText }
+          dto: { text: ssmlText }
         });
-        
+
         // Update store state (sets isDirty = false, lastSavedAt = now)
         updateLastSavedAt();
       } catch (error) {

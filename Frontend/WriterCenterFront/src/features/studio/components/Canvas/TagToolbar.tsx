@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PauseCircle, Zap, TrendingUp, TrendingDown, Wind, Bold, Italic, Sparkles, Loader2, X } from 'lucide-react';
 import { useSSMLSuggestions } from '../../../../shared/hooks/useSSMLSuggestions';
+import { VISUAL_MARKERS, getInsertText, ssmlToVisual } from '../../../../shared/lib/ssml';
 import { cn } from '../../../../shared/lib/utils';
 import * as Dialog from '@radix-ui/react-dialog';
 
@@ -9,57 +10,15 @@ interface TagToolbarProps {
   selectedText?: string;
 }
 
-interface TagButton {
-  icon: React.ReactNode;
-  label: string;
-  tag: string;
-  title: string;
-}
-
-const TAG_BUTTONS: TagButton[] = [
-  {
-    icon: <PauseCircle className="w-3.5 h-3.5" />,
-    label: 'Pausa',
-    tag: '<break time="500ms"/>',
-    title: 'Inserir pausa de 500ms',
-  },
-  {
-    icon: <Zap className="w-3.5 h-3.5" />,
-    label: 'Ênfase',
-    tag: '<emphasis level="moderate"> </emphasis>',
-    title: 'Inserir ênfase',
-  },
-  {
-    icon: <TrendingUp className="w-3.5 h-3.5" />,
-    label: 'Tom+',
-    tag: '<prosody pitch="+2st"> </prosody>',
-    title: 'Tom mais alto',
-  },
-  {
-    icon: <TrendingDown className="w-3.5 h-3.5" />,
-    label: 'Tom-',
-    tag: '<prosody pitch="-2st"> </prosody>',
-    title: 'Tom mais baixo',
-  },
-  {
-    icon: <Wind className="w-3.5 h-3.5" />,
-    label: 'Sussurro',
-    tag: '<amazon:effect name="whispered"> </amazon:effect>',
-    title: 'Voz sussurrada',
-  },
-  {
-    icon: <Bold className="w-3.5 h-3.5" />,
-    label: 'Forte',
-    tag: '<prosody volume="loud"> </prosody>',
-    title: 'Volume alto',
-  },
-  {
-    icon: <Italic className="w-3.5 h-3.5" />,
-    label: 'Suave',
-    tag: '<prosody volume="soft"> </prosody>',
-    title: 'Volume suave',
-  },
-];
+const MARKER_ICONS: Record<string, React.ReactNode> = {
+  pause: <PauseCircle className="w-3.5 h-3.5" />,
+  emphasis: <Zap className="w-3.5 h-3.5" />,
+  'pitch-up': <TrendingUp className="w-3.5 h-3.5" />,
+  'pitch-down': <TrendingDown className="w-3.5 h-3.5" />,
+  whisper: <Wind className="w-3.5 h-3.5" />,
+  'volume-loud': <Bold className="w-3.5 h-3.5" />,
+  'volume-soft': <Italic className="w-3.5 h-3.5" />,
+};
 
 export function TagToolbar({ onInsertTag, selectedText = '' }: TagToolbarProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -69,7 +28,7 @@ export function TagToolbar({ onInsertTag, selectedText = '' }: TagToolbarProps) 
 
   const handleFetchSuggestions = async () => {
      await suggestTags.mutateAsync({
-      text: selectedText || 'Texto de exemplo para sugestão', // Fallback
+      text: selectedText || 'Texto de exemplo para sugestão',
       context,
       emotion
     });
@@ -78,16 +37,16 @@ export function TagToolbar({ onInsertTag, selectedText = '' }: TagToolbarProps) 
   return (
     <>
       <div className="flex items-center gap-1 px-1 py-1 bg-zinc-900 border border-zinc-700 rounded-md overflow-x-auto">
-        {TAG_BUTTONS.map((btn) => (
+        {VISUAL_MARKERS.map((marker) => (
           <button
-            key={btn.label}
+            key={marker.id}
             type="button"
-            onClick={() => onInsertTag(btn.tag)}
+            onClick={() => onInsertTag(getInsertText(marker.id, selectedText))}
             className="flex items-center gap-1 px-2 py-1 text-[10px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors whitespace-nowrap"
-            title={btn.title}
+            title={marker.description}
           >
-            {btn.icon}
-            <span className="hidden sm:inline">{btn.label}</span>
+            {MARKER_ICONS[marker.id]}
+            <span className="hidden sm:inline">{marker.label}</span>
           </button>
         ))}
 
@@ -110,7 +69,7 @@ export function TagToolbar({ onInsertTag, selectedText = '' }: TagToolbarProps) 
           <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-lg border border-zinc-700 bg-zinc-900 p-6 shadow-xl focus:outline-none">
             <div className="flex items-center justify-between mb-4">
               <Dialog.Title className="text-lg font-semibold text-zinc-100">
-                Sugestões SSML com IA
+                Sugestões de Entonação com IA
               </Dialog.Title>
               <Dialog.Close asChild>
                 <button className="text-zinc-400 hover:text-white">
@@ -130,7 +89,7 @@ export function TagToolbar({ onInsertTag, selectedText = '' }: TagToolbarProps) 
                <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-zinc-400 block mb-1">Emoção</label>
-                  <select 
+                  <select
                     className="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-sm text-zinc-200"
                     value={emotion}
                     onChange={(e) => setEmotion(e.target.value)}
@@ -146,8 +105,8 @@ export function TagToolbar({ onInsertTag, selectedText = '' }: TagToolbarProps) 
                 </div>
                 <div>
                   <label className="text-xs text-zinc-400 block mb-1">Contexto (Opcional)</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     className="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-sm text-zinc-200"
                     placeholder="Ex: Cena de batalha"
                     value={context}
@@ -171,30 +130,35 @@ export function TagToolbar({ onInsertTag, selectedText = '' }: TagToolbarProps) 
               {suggestTags.data && (
                 <div className="space-y-2 mt-4 max-h-[200px] overflow-y-auto">
                   <label className="text-xs text-zinc-500 uppercase font-bold">Sugestões</label>
-                  {suggestTags.data.suggestions.map((suggestion, idx) => (
-                    <div key={idx} className="group flex items-start justify-between p-2 rounded bg-zinc-800/50 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 transition-all">
-                      <div className="flex-1 mr-2">
-                        <div className="flex items-center gap-2 mb-1">
-                          <code className="text-xs bg-black/30 px-1 py-0.5 rounded text-amber-400 font-mono">
-                            {suggestion.tag}
-                          </code>
-                          <span className="text-[10px] uppercase tracking-wider text-zinc-500 border border-zinc-700 px-1 rounded">
-                            {suggestion.category}
-                          </span>
+                  {suggestTags.data.suggestions.map((suggestion, idx) => {
+                    // Convert AI suggestion (SSML) to visual marker for display
+                    const visualPreview = ssmlToVisual(suggestion.tag);
+                    return (
+                      <div key={idx} className="group flex items-start justify-between p-2 rounded bg-zinc-800/50 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 transition-all">
+                        <div className="flex-1 mr-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <code className="text-xs bg-black/30 px-1.5 py-0.5 rounded text-amber-400">
+                              {visualPreview}
+                            </code>
+                            <span className="text-[10px] uppercase tracking-wider text-zinc-500 border border-zinc-700 px-1 rounded">
+                              {suggestion.category}
+                            </span>
+                          </div>
+                          <p className="text-xs text-zinc-400">{suggestion.description}</p>
                         </div>
-                        <p className="text-xs text-zinc-400">{suggestion.description}</p>
+                        <button
+                          onClick={() => {
+                            // Convert SSML suggestion to visual marker before inserting
+                            onInsertTag(ssmlToVisual(suggestion.tag));
+                            setIsDialogOpen(false);
+                          }}
+                          className="text-xs bg-zinc-700 hover:bg-zinc-600 text-white px-2 py-1 rounded"
+                        >
+                          Aplicar
+                        </button>
                       </div>
-                      <button
-                        onClick={() => {
-                          onInsertTag(suggestion.tag);
-                          setIsDialogOpen(false);
-                        }}
-                        className="text-xs bg-zinc-700 hover:bg-zinc-600 text-white px-2 py-1 rounded"
-                      >
-                        Aplicar
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {suggestTags.data.suggestions.length === 0 && (
                     <p className="text-sm text-zinc-500 text-center py-2">Nenhuma sugestão encontrada.</p>
                   )}
