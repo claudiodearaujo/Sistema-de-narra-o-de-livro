@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { speechesService } from '../services/speeches.service';
 import { aiService } from '../ai';
 import prisma from '../lib/prisma';
+import { saveSpeechAudioFile } from '../utils/audio-storage';
 
 /**
  * Transform speech data from database format to API format
@@ -229,17 +230,20 @@ export class SpeechesController {
                 outputFormat: 'mp3'
             });
 
-            // Update speech with audio URL and duration
+            // Persist generated audio and save public URL
+            const audioUrl = saveSpeechAudioFile(audioResult.buffer, speechId, audioResult.format);
+
+            // Update speech with stored audio URL and duration
             const updatedSpeech = await speechesService.update(speechId, {
-                audioUrl: audioResult.audioUrl,
-                audioDurationMs: audioResult.durationMs
+                audioUrl,
+                audioDurationMs: audioResult.durationMs ?? audioResult.duration
             });
 
             res.json({
                 success: true,
                 speech: updatedSpeech,
-                audioUrl: audioResult.audioUrl,
-                durationMs: audioResult.durationMs
+                audioUrl: updatedSpeech.audioUrl,
+                durationMs: updatedSpeech.audioDurationMs
             });
         } catch (error: any) {
             const errorMessage = error.message || '';
