@@ -7,7 +7,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useCharacterWizardStore } from '../stores/characterWizardStore';
 import type { CharacterFormData } from '../types/character-wizard.types';
 
-const AUTO_SAVE_DELAY = 3000; // 3 seconds
+const AUTO_SAVE_DELAY = 60000; // 1 minute
 
 interface UseWizardAutoSaveProps {
   bookId: string;
@@ -32,7 +32,7 @@ export function useWizardAutoSave({
   const setIsDirty = useCharacterWizardStore((s) => s.setIsDirty);
   const setCharacterId = useCharacterWizardStore((s) => s.setCharacterId);
 
-  const timeoutRef = useRef<NodeJS.Timeout>();
+
   const isSavingRef = useRef(false);
   const savedCharacterIdRef = useRef(characterId);
 
@@ -44,7 +44,8 @@ export function useWizardAutoSave({
   const performSave = useCallback(async () => {
     // Validate basic required fields
     if (!formData.name?.trim() || !bookId || !formData.voiceId) {
-      setError('Preencha os campos obrigatórios (Dados Básicos) antes de salvar');
+      // Don't error on auto-save if basic fields aren't there yet, just skip
+      // setError('Preencha os campos obrigatórios (Dados Básicos) antes de salvar');
       return;
     }
 
@@ -72,7 +73,9 @@ export function useWizardAutoSave({
       onSuccess?.(result);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro ao salvar';
-      setError(`Erro ao auto-salvar: ${errorMessage}`);
+      // Silent error for auto-save, just log
+      console.error('Auto-save failed:', errorMessage);
+      // setError(`Erro ao auto-salvar: ${errorMessage}`);
       onError?.(error instanceof Error ? error : new Error(errorMessage));
     } finally {
       isSavingRef.current = false;
@@ -80,35 +83,28 @@ export function useWizardAutoSave({
     }
   }, [formData, bookId, onSave, onError, onSuccess, setIsSaving, setError, setLastSavedAt, setIsDirty, setCharacterId]);
 
+  // Keep latest performSave in a ref to avoid resetting the timer on every render/keystroke
+  const performSaveRef = useRef(performSave);
+  useEffect(() => {
+    performSaveRef.current = performSave;
+  }, [performSave]);
+
   useEffect(() => {
     if (!isDirty) return;
 
-    // Clear existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    // Set new timeout
-    timeoutRef.current = setTimeout(() => {
-      performSave();
+    // Use setInterval to ensure it runs every minute if changes persist (e.g. error)
+    // or if the user keeps typing (since we rely on isDirty and the stable ref)
+    const timer = setInterval(() => {
+      performSaveRef.current();
     }, AUTO_SAVE_DELAY);
 
     // Cleanup
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      clearInterval(timer);
     };
-  }, [isDirty, formData, performSave]);
+  }, [isDirty]); // Only restart timer if dirty status changes (e.g. saves successfully)
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+
 
   return {
     isSaving: useCharacterWizardStore((s) => s.isSaving),
