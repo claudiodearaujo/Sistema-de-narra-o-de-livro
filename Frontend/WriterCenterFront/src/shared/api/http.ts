@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { env } from '../lib/env';
 import { endpoints } from './endpoints';
+import { useAuthStore } from '../stores/auth.store';
 
 /**
  * Axios instance configured for the Livrya API
@@ -89,7 +90,6 @@ http.interceptors.response.use(
         setAccessToken(accessToken);
         
         // Update auth store with new token
-        const { useAuthStore } = await import('../stores/auth.store');
         useAuthStore.getState().setTokens({ accessToken, expiresIn });
 
         // Reset failure counter on success
@@ -131,9 +131,7 @@ function handleSessionExpired() {
   clearTokens();
   
   // Clear auth store
-  import('../stores/auth.store').then(({ useAuthStore }) => {
-    useAuthStore.getState().logout();
-  });
+  useAuthStore.getState().logout();
   
   // Reset refresh tracking
   failedRefreshAttempts = 0;
