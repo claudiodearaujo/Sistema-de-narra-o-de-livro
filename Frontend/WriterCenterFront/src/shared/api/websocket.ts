@@ -7,25 +7,44 @@ export interface NarrationProgressEvent {
   speechId: string;
   status: 'processing' | 'completed' | 'failed';
   progress: number; // 0-100
+  current: number;
+  total: number;
+  processedSpeeches: number;
+  completedSpeeches: number;
+  failedSpeeches: number;
   audioUrl?: string;
   error?: string;
 }
 
 export interface NarrationStartedEvent {
   chapterId: string;
+  status: 'started';
+  progress: number;
   totalSpeeches: number;
+  processedSpeeches: number;
+  completedSpeeches: number;
+  failedSpeeches: number;
 }
 
 export interface NarrationCompletedEvent {
   chapterId: string;
-  totalAudios: number;
-  duration: number; // ms
+  status: 'completed';
+  progress: number;
+  totalSpeeches: number;
+  processedSpeeches: number;
+  completedSpeeches: number;
+  failedSpeeches: number;
 }
 
 export interface NarrationFailedEvent {
   chapterId: string;
+  status: 'failed';
+  progress: number;
+  totalSpeeches: number;
+  processedSpeeches: number;
+  completedSpeeches: number;
+  failedSpeeches: number;
   error: string;
-  failedSpeechIds: string[];
 }
 
 export interface AiStreamEvent {
@@ -39,6 +58,8 @@ export type WebSocketEventMap = {
   'narration:progress': NarrationProgressEvent;
   'narration:completed': NarrationCompletedEvent;
   'narration:failed': NarrationFailedEvent;
+  'narration:speech-completed': NarrationProgressEvent;
+  'narration:speech-failed': NarrationProgressEvent;
   'ai:stream': AiStreamEvent;
 };
 

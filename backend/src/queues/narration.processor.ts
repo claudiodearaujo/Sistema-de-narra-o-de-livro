@@ -78,6 +78,14 @@ if (isRedisEnabled()) {
     const { chapterId } = job.data;
     console.log(`🎙️ Processando narração para capítulo ${chapterId}`);
 
+    let totalSpeeches = 0;
+    let completedSpeeches = 0;
+    let failedSpeeches = 0;
+
+    const getProgress = () => (totalSpeeches > 0
+        ? Math.round(((completedSpeeches + failedSpeeches) / totalSpeeches) * 100)
+        : 0);
+
     try {
         // 1. Buscar todas as falas do capítulo
         const speeches = await prisma.speech.findMany({
@@ -91,31 +99,44 @@ if (isRedisEnabled()) {
             return;
         }
 
+        totalSpeeches = speeches.length;
+
         // Notificar início
         io.to(`chapter:${chapterId}`).emit('narration:started', {
             chapterId,
-            totalSpeeches: speeches.length
+            status: 'started',
+            progress: 0,
+            totalSpeeches,
+            processedSpeeches: 0,
+            completedSpeeches,
+            failedSpeeches,
         });
 
-        console.log(`📝 ${speeches.length} falas para processar`);
+        console.log(`📝 ${totalSpeeches} falas para processar`);
 
         // 2. Processar cada fala
         for (let i = 0; i < speeches.length; i++) {
             const speech = speeches[i];
+            const current = i + 1;
 
             // Notificar progresso
             io.to(`chapter:${chapterId}`).emit('narration:progress', {
                 chapterId,
-                current: i + 1,
-                total: speeches.length,
-                speechId: speech.id
+                speechId: speech.id,
+                status: 'processing',
+                progress: getProgress(),
+                current,
+                total: totalSpeeches,
+                processedSpeeches: completedSpeeches + failedSpeeches,
+                completedSpeeches,
+                failedSpeeches,
             });
 
             try {
                 // Determinar a voz (usa Schedar como padrão)
                 const voiceId = speech.character?.voiceId || 'Schedar';
                 
-                console.log(`🎤 Gerando áudio para fala ${i + 1}/${speeches.length} com voz ${voiceId}`);
+                console.log(`🎤 Gerando áudio para fala ${current}/${totalSpeeches} com voz ${voiceId}`);
 
                 // Gerar áudio com o AI Service
                 const textToSpeak = speech.ssmlText || speech.text;
@@ -136,27 +157,59 @@ if (isRedisEnabled()) {
 
                 console.log(`✅ Áudio gerado: ${audioUrl}`);
 
-                // Notificar conclusão da fala
-                io.to(`chapter:${chapterId}`).emit('narration:speech-completed', {
+                completedSpeeches += 1;
+
+                const completedPayload = {
                     chapterId,
                     speechId: speech.id,
-                    audioUrl
-                });
+                    status: 'completed',
+                    progress: getProgress(),
+                    current,
+                    total: totalSpeeches,
+                    processedSpeeches: completedSpeeches + failedSpeeches,
+                    completedSpeeches,
+                    failedSpeeches,
+                    audioUrl,
+                };
+
+                io.to(`chapter:${chapterId}`).emit('narration:progress', completedPayload);
+
+                // Notificar conclusão da fala
+                io.to(`chapter:${chapterId}`).emit('narration:speech-completed', completedPayload);
 
             } catch (err: any) {
                 console.error(`❌ Erro ao processar fala ${speech.id}:`, err.message);
-                io.to(`chapter:${chapterId}`).emit('narration:speech-failed', {
+
+                failedSpeeches += 1;
+
+                const failedPayload = {
                     chapterId,
                     speechId: speech.id,
-                    error: err.message
-                });
+                    status: 'failed',
+                    progress: getProgress(),
+                    current,
+                    total: totalSpeeches,
+                    processedSpeeches: completedSpeeches + failedSpeeches,
+                    completedSpeeches,
+                    failedSpeeches,
+                    error: err.message,
+                };
+
+                io.to(`chapter:${chapterId}`).emit('narration:progress', failedPayload);
+                io.to(`chapter:${chapterId}`).emit('narration:speech-failed', failedPayload);
                 // Continua para próxima fala
             }
         }
 
         // Notificar conclusão
         io.to(`chapter:${chapterId}`).emit('narration:completed', {
-            chapterId
+            chapterId,
+            status: 'completed',
+            progress: 100,
+            totalSpeeches,
+            processedSpeeches: completedSpeeches + failedSpeeches,
+            completedSpeeches,
+            failedSpeeches,
         });
 
         console.log(`🎉 Narração concluída para capítulo ${chapterId}`);
@@ -165,7 +218,13 @@ if (isRedisEnabled()) {
         console.error(`❌ Job falhou para capítulo ${chapterId}:`, error);
         io.to(`chapter:${chapterId}`).emit('narration:failed', {
             chapterId,
-            error: error.message
+            status: 'failed',
+            progress: getProgress(),
+            totalSpeeches,
+            processedSpeeches: completedSpeeches + failedSpeeches,
+            completedSpeeches,
+            failedSpeeches,
+            error: error.message,
         });
         throw error;
     }

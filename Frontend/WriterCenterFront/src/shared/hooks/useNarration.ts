@@ -62,7 +62,7 @@ export function useNarration(chapterId: string | null) {
         status: 'narrating',
         chapterId: event.chapterId,
         totalSpeeches: event.totalSpeeches,
-        completedSpeeches: 0,
+        completedSpeeches: event.completedSpeeches,
         speechProgress: new Map(),
         error: null,
       }));
@@ -86,13 +86,10 @@ export function useNarration(chapterId: string | null) {
           error: event.error,
         });
 
-        const completedCount = Array.from(newProgress.values()).filter(
-          (p) => p.status === 'completed'
-        ).length;
-
         return {
           ...prev,
-          completedSpeeches: completedCount,
+          completedSpeeches: event.completedSpeeches,
+          totalSpeeches: event.total,
           speechProgress: newProgress,
         };
       });
@@ -112,7 +109,8 @@ export function useNarration(chapterId: string | null) {
       setState((prev) => ({
         ...prev,
         status: 'completed',
-        completedSpeeches: event.totalAudios,
+        completedSpeeches: event.completedSpeeches,
+        totalSpeeches: event.totalSpeeches,
       }));
 
       studioToast.narrationCompleted();
@@ -132,7 +130,8 @@ export function useNarration(chapterId: string | null) {
         ...prev,
         status: 'failed',
         error: event.error,
-        // Keep progress map to show which specific ones failed if we track that later
+        totalSpeeches: event.totalSpeeches ?? prev.totalSpeeches,
+        completedSpeeches: event.completedSpeeches ?? prev.completedSpeeches,
       }));
 
       studioToast.narrationFailed(event.error);
@@ -151,6 +150,8 @@ export function useNarration(chapterId: string | null) {
     const unsubs = [
       onSocketEvent('narration:started', handleStarted),
       onSocketEvent('narration:progress', handleProgress),
+      onSocketEvent('narration:speech-completed', handleProgress),
+      onSocketEvent('narration:speech-failed', handleProgress),
       onSocketEvent('narration:completed', handleCompleted),
       onSocketEvent('narration:failed', handleFailed),
     ];
