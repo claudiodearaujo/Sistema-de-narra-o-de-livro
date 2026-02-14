@@ -61,7 +61,11 @@ export class GeminiTTSProvider implements TTSProvider {
 
     async generateAudio(options: GenerateAudioOptions): Promise<AudioResult> {
         const voiceName = options.voice.voiceId || aiConfig.tts.defaultVoice;
-        const modelName = aiConfig.providers.gemini!.ttsModel;
+        const geminiConfig = aiConfig.providers?.gemini;
+        if (!geminiConfig || !geminiConfig.ttsModel) {
+            throw new Error('Gemini TTS configuration is missing: aiConfig.providers.gemini.ttsModel must be set to use Gemini TTS.');
+        }
+        const modelName = geminiConfig.ttsModel;
 
         console.log(`🎤 Gerando áudio com Gemini TTS`);
         console.log(`   Voz: ${voiceName}`);
