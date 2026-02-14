@@ -43,7 +43,7 @@ export function useUpdateCharacter() {
 
   return useMutation({
     mutationFn: async ({ id, dto }: { id: string; dto: UpdateCharacterDto }): Promise<Character> => {
-      const { data } = await http.patch(endpoints.characters.byId(id), dto);
+      const { data } = await http.put(endpoints.characters.byId(id), dto);
       return data;
     },
     onSuccess: (character) => {

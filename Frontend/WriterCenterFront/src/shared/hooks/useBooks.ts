@@ -50,7 +50,7 @@ export function useUpdateBook() {
 
   return useMutation({
     mutationFn: async ({ id, dto }: { id: string; dto: UpdateBookDto }): Promise<Book> => {
-      const { data } = await http.patch(endpoints.books.byId(id), dto);
+      const { data } = await http.put(endpoints.books.byId(id), dto);
       return data;
     },
     onSuccess: (book) => {
