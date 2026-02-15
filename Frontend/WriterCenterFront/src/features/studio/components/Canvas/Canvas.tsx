@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useStudioStore, useUIStore } from '../../../../shared/stores';
 import { useSpeeches, useCreateSpeech, useReorderSpeeches } from '../../../../shared/hooks/useSpeeches';
-import { useCharacters } from '../../../../shared/hooks/useCharacters';
+import { NARRATOR_ID, useCharacters } from '../../../../shared/hooks/useCharacters';
 import { useNarrationContext } from '../../context/NarrationContext';
 import { useSpeechEditor } from '../../hooks/useSpeechEditor';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -99,7 +99,28 @@ export function Canvas() {
 
   const handleSaveNewSpeech = async (dto: CreateSpeechDto) => {
     if (!activeChapterId) return;
-    await createSpeech.mutateAsync({ chapterId: activeChapterId, dto });
+
+    const resolvedCharacterId =
+      dto.characterId === NARRATOR_ID
+        ? (characters.find((character) => character.role === 'narrator')?.id ?? characters[0]?.id)
+        : dto.characterId;
+
+    if (!resolvedCharacterId) {
+      studioToast.error('Personagem obrigatório', 'Crie ao menos um personagem para adicionar uma fala.');
+      return;
+    }
+
+    try {
+      await createSpeech.mutateAsync({
+        chapterId: activeChapterId,
+        dto: {
+          ...dto,
+          characterId: resolvedCharacterId,
+        },
+      });
+    } catch {
+      studioToast.error('Erro ao adicionar fala', 'Não foi possível salvar a nova fala.');
+    }
   };
 
   if (!activeChapterId) {
@@ -195,4 +216,3 @@ export function Canvas() {
     </div>
   );
 }
-
