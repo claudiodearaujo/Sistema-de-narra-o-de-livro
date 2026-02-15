@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { aiService } from '../ai';
+import { aiServiceClient } from '../services/ai-service.client';
 import fs from 'fs';
 import path from 'path';
 
@@ -9,7 +9,13 @@ export class VoicesController {
      */
     async listVoices(req: Request, res: Response) {
         try {
-            const voices = await aiService.getAvailableVoices();
+            aiServiceClient.setUserContext(req.user?.userId);
+
+            const provider = req.query.provider as string | undefined;
+            const result = await aiServiceClient.listVoices(provider);
+
+            // Preserve legacy API contract that returns only the voice array
+            const voices = result.voices;
             res.json(voices);
         } catch (error: any) {
             console.error('Erro ao listar vozes:', error);
@@ -29,10 +35,13 @@ export class VoicesController {
             }
 
             const sampleText = text || `Olá! Esta é uma prévia da voz ${voiceId}. Como você está hoje?`;
+            aiServiceClient.setUserContext(req.user?.userId);
             
             console.log(`🎤 Gerando preview para voz: ${voiceId}`);
             
-            const result = await aiService.previewVoice({ voiceName: voiceId, sampleText });
+            const result = await aiServiceClient.previewVoice({ voiceId, sampleText });
+
+            const audioBuffer = Buffer.from(result.audioBase64, 'base64');
 
             const previewsDir = path.join(__dirname, '../../uploads/previews');
             if (!fs.existsSync(previewsDir)) {
@@ -41,14 +50,11 @@ export class VoicesController {
 
             const fileName = `voice_preview_${voiceId}_${Date.now()}.${result.format}`;
             const filePath = path.join(previewsDir, fileName);
-            fs.writeFileSync(filePath, result.buffer);
+            fs.writeFileSync(filePath, audioBuffer);
             const audioUrl = `/uploads/previews/${fileName}`;
             
-            // Converter buffer para base64 para o frontend
-            const audioBase64 = result.buffer.toString('base64');
-            
             res.json({ 
-                audioBase64,
+                audioBase64: result.audioBase64,
                 audioUrl,
                 format: result.format,
                 voiceId
