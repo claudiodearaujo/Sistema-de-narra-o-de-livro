@@ -98,7 +98,7 @@ function StudioPageContent() {
         {/* Mobile overlay backdrop when sidebar is open */}
         {!focusMode && (leftSidebarOpen || rightPanelOpen) && (
           <div
-            className="sm:hidden fixed inset-0 bg-black/50 z-30"
+            className="sm:hidden fixed inset-0 top-12 bg-black/50 z-30"
             onClick={handleCanvasClick}
             aria-hidden="true"
           />
@@ -107,7 +107,7 @@ function StudioPageContent() {
         {/* Left Sidebar — overlay on mobile, inline on desktop */}
         {!focusMode && leftSidebarOpen && (
           <aside className="
-            w-[85vw] sm:w-72
+            w-[72vw] sm:w-72
             fixed sm:relative inset-y-0 left-0 z-40 sm:z-auto
             top-12 sm:top-0
             border-r border-zinc-800 flex flex-col
@@ -126,7 +126,7 @@ function StudioPageContent() {
         {/* Right Panel — overlay on mobile, inline on desktop */}
         {!focusMode && rightPanelOpen && (
           <aside className="
-            w-[90vw] sm:w-96
+            w-[80vw] sm:w-96
             fixed sm:relative inset-y-0 right-0 z-40 sm:z-auto
             top-12 sm:top-0
             border-l border-zinc-800 flex flex-col
