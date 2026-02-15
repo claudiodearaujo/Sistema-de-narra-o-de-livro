@@ -20,16 +20,13 @@ import { HairStep } from './steps/HairStep';
 import { WardrobeStep } from './steps/WardrobeStep';
 import type { CharacterWizardProps } from './types/character-wizard.types';
 
-interface CharacterWizardContainerProps extends CharacterWizardProps {
-  books?: Array<{ id: string; title: string }>;
-}
+type CharacterWizardContainerProps = CharacterWizardProps;
 
 export function CharacterWizard({
   isOpen,
   character,
   characterId,
   bookId,
-  books = [],
   onClose,
   onSave,
 }: CharacterWizardContainerProps) {
@@ -68,7 +65,7 @@ export function CharacterWizard({
     isPreviewing,
   } = useCharacterWizardApi(bookId, characterId || undefined);
 
-  // Auto-save hook with API integration
+  // Step-save hook with API integration
   const { performSave } = useWizardAutoSave({
     bookId,
     characterId,
@@ -85,7 +82,7 @@ export function CharacterWizard({
       }
     },
     onError: (error) => {
-      console.error('Auto-save error:', error);
+      console.error('Step save error:', error);
       setError(error.message);
     },
   });
@@ -134,7 +131,7 @@ export function CharacterWizard({
 
   const handleNext = useCallback(() => {
     if (goToNextStep()) {
-      // Auto-save when moving to next step
+      // Save when moving to next step
       performSave();
     }
   }, [goToNextStep, performSave]);
@@ -209,26 +206,26 @@ export function CharacterWizard({
   const isAnyLoading = isLoading || apiIsLoading;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-zinc-100">
-              {characterId ? 'Editar Personagem' : 'Novo Personagem'}
-            </h2>
-          </div>
-          <button
-            onClick={handleClose}
-            className="p-1 hover:bg-zinc-800 rounded transition-colors"
-            aria-label="Fechar"
-            disabled={isSaving}
-          >
-            <X className="w-5 h-5 text-zinc-400" />
-          </button>
+    <div className="bg-zinc-900 w-full h-full min-h-0 flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-zinc-800 shrink-0">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-zinc-100">
+            {characterId ? 'Editar Personagem' : 'Novo Personagem'}
+          </h2>
         </div>
+        <button
+          onClick={handleClose}
+          className="p-1 hover:bg-zinc-800 rounded transition-colors"
+          aria-label="Fechar"
+          disabled={isSaving}
+        >
+          <X className="w-5 h-5 text-zinc-400" />
+        </button>
+      </div>
 
-        {/* Step Indicator */}
+      {/* Step Indicator */}
+      <div className="shrink-0">
         <StepIndicator
           currentStep={currentStep}
           totalSteps={totalSteps}
@@ -237,113 +234,114 @@ export function CharacterWizard({
           onStepClick={handleStepClick}
           isBasicStepValid={isBasicStepValid()}
         />
+      </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          {currentStep === 1 && (
-            <BasicStep
-              data={formData}
-              onChange={updateBasicFields}
-              books={books}
-              onPreviewVoice={handlePreviewVoice}
-              isPreviewing={isPreviewing}
-              isLoading={isAnyLoading}
-            />
-          )}
-
-          {currentStep === 2 && (
-            <IdentityStep
-              data={formData}
-              onChange={(data) => {
-                if (data.identity) {
-                  updateSection('identity', data.identity);
-                } else {
-                  updateBasicFields(data);
-                }
-              }}
-              isLoading={isAnyLoading}
-            />
-          )}
-
-          {currentStep === 3 && (
-            <PhysiqueStep
-              data={formData}
-              onChange={(data) => {
-                if (data.physique) {
-                  updateSection('physique', data.physique);
-                } else {
-                  updateBasicFields(data);
-                }
-              }}
-              isLoading={isAnyLoading}
-            />
-          )}
-
-          {currentStep === 4 && (
-            <FaceStep
-              data={formData}
-              onChange={(data) => {
-                if (data.face) {
-                  updateSection('face', data.face);
-                } else {
-                  updateBasicFields(data);
-                }
-              }}
-              isLoading={isAnyLoading}
-            />
-          )}
-
-          {currentStep === 5 && (
-            <EyesStep
-              data={formData}
-              onChange={(data) => {
-                if (data.eyes) {
-                  updateSection('eyes', data.eyes);
-                } else {
-                  updateBasicFields(data);
-                }
-              }}
-              isLoading={isAnyLoading}
-            />
-          )}
-
-          {currentStep === 6 && (
-            <HairStep
-              data={formData}
-              onChange={(data) => {
-                if (data.hair) {
-                  updateSection('hair', data.hair);
-                } else {
-                  updateBasicFields(data);
-                }
-              }}
-              isLoading={isAnyLoading}
-            />
-          )}
-
-          {currentStep === 7 && (
-            <WardrobeStep
-              data={formData}
-              onChange={(data) => {
-                if (data.wardrobe) {
-                  updateSection('wardrobe', data.wardrobe);
-                } else {
-                  updateBasicFields(data);
-                }
-              }}
-              isLoading={isAnyLoading}
-            />
-          )}
-        </div>
-
-        {/* Error message */}
-        {error && (
-          <div className="p-4 bg-red-900/20 border-t border-red-800 text-red-200 text-sm">
-            ⚠️ {error}
-          </div>
+      {/* Content */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        {currentStep === 1 && (
+          <BasicStep
+            data={formData}
+            onChange={updateBasicFields}
+            onPreviewVoice={handlePreviewVoice}
+            isPreviewing={isPreviewing}
+            isLoading={isAnyLoading}
+          />
         )}
 
-        {/* Navigation */}
+        {currentStep === 2 && (
+          <IdentityStep
+            data={formData}
+            onChange={(data) => {
+              if (data.identity) {
+                updateSection('identity', data.identity);
+              } else {
+                updateBasicFields(data);
+              }
+            }}
+            isLoading={isAnyLoading}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <PhysiqueStep
+            data={formData}
+            onChange={(data) => {
+              if (data.physique) {
+                updateSection('physique', data.physique);
+              } else {
+                updateBasicFields(data);
+              }
+            }}
+            isLoading={isAnyLoading}
+          />
+        )}
+
+        {currentStep === 4 && (
+          <FaceStep
+            data={formData}
+            onChange={(data) => {
+              if (data.face) {
+                updateSection('face', data.face);
+              } else {
+                updateBasicFields(data);
+              }
+            }}
+            isLoading={isAnyLoading}
+          />
+        )}
+
+        {currentStep === 5 && (
+          <EyesStep
+            data={formData}
+            onChange={(data) => {
+              if (data.eyes) {
+                updateSection('eyes', data.eyes);
+              } else {
+                updateBasicFields(data);
+              }
+            }}
+            isLoading={isAnyLoading}
+          />
+        )}
+
+        {currentStep === 6 && (
+          <HairStep
+            data={formData}
+            onChange={(data) => {
+              if (data.hair) {
+                updateSection('hair', data.hair);
+              } else {
+                updateBasicFields(data);
+              }
+            }}
+            isLoading={isAnyLoading}
+          />
+        )}
+
+        {currentStep === 7 && (
+          <WardrobeStep
+            data={formData}
+            onChange={(data) => {
+              if (data.wardrobe) {
+                updateSection('wardrobe', data.wardrobe);
+              } else {
+                updateBasicFields(data);
+              }
+            }}
+            isLoading={isAnyLoading}
+          />
+        )}
+      </div>
+
+      {/* Error message */}
+      {error && (
+        <div className="p-4 bg-red-900/20 border-t border-red-800 text-red-200 text-sm shrink-0">
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* Navigation */}
+      <div className="shrink-0">
         <WizardNavigation
           isFirstStep={isFirstStep}
           isLastStep={isLastStep}
@@ -355,10 +353,12 @@ export function CharacterWizard({
           onConfirm={handleConfirm}
           confirmLabel={characterId ? 'Salvar Alterações' : 'Criar Personagem'}
         />
+      </div>
 
-        {/* Auto-save notification */}
+      {/* Save notification */}
+      <div className="shrink-0">
         <DraftNotification
-          message={characterId ? 'Alterações auto-salvas' : 'Rascunho auto-salvo'}
+          message={characterId ? 'Alterações salvas na etapa' : 'Etapa salva'}
           lastSavedAt={lastSavedAt}
           error={error}
           isSaving={isSaving}

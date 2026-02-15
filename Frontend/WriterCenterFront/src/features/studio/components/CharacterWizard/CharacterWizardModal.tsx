@@ -37,9 +37,9 @@ export function CharacterWizardModal({ characterId, onClose }: CharacterWizardMo
   }, [characterId, resetWizard]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       {/* Modal container */}
-      <div className="w-full max-w-2xl h-screen sm:h-auto sm:max-h-[90vh] bg-zinc-950 border border-zinc-800 rounded-lg shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="w-full max-w-2xl h-[96vh] sm:h-auto sm:max-h-[90vh] bg-zinc-950 border border-zinc-800 rounded-lg shadow-2xl flex flex-col min-h-0 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
         <CharacterWizard
           isOpen={true}
           bookId={activeBookId || ''}
