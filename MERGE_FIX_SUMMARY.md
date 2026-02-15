@@ -28,6 +28,29 @@ The conflict in `CharacterWizard.tsx` was resolved by combining:
 - Verified with test merge: SUCCESS
 - All functionality preserved
 
-## Next Steps
-The PR branch `codex/remove-book-select-in-character-wizard` has been updated with the merge.
-PR #68 is now ready to be merged into main.
+## Next Steps - Manual Action Required
+
+**IMPORTANT**: The merge fix has been performed locally but requires manual intervention to apply to PR #68:
+
+### Option 1: Update PR Branch Directly
+The repository owner needs to merge main into the PR branch:
+```bash
+git checkout codex/remove-book-select-in-character-wizard
+git merge main
+# Resolve conflicts as documented above
+git push origin codex/remove-book-select-in-character-wizard
+```
+
+### Option 2: Apply Local Fix
+The merge resolution is available in local branch `codex/remove-book-select-in-character-wizard` at commit `70ed33d`.
+Push this branch to origin to update PR #68:
+```bash
+git push origin 70ed33d:codex/remove-book-select-in-character-wizard
+```
+
+### Conflict Resolution Details
+For `CharacterWizard.tsx`, the correct resolution is:
+- Use `<div className="flex-1 min-h-0 overflow-hidden">` for the content container
+- Keep all step components (BasicStep through WardrobeStep) inside this div
+- Use `shrink-0` class on header, step indicator, error, navigation, and notification divs
+- Preserve all functionality from both branches
