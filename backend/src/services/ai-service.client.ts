@@ -107,8 +107,13 @@ class AIServiceClient {
     /**
      * Set user context for requests
      */
-    setUserContext(userId: string): void {
-        this.client.defaults.headers['X-User-Id'] = userId;
+    setUserContext(userId?: string): void {
+        if (userId?.trim()) {
+            this.client.defaults.headers['X-User-Id'] = userId;
+            return;
+        }
+
+        delete this.client.defaults.headers['X-User-Id'];
     }
 
     // ========== TTS Endpoints ==========

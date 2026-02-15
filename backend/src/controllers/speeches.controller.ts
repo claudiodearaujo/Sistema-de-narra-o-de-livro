@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { speechesService } from '../services/speeches.service';
 import { aiService } from '../ai';
 import prisma from '../lib/prisma';
+import { aiServiceClient } from '../services/ai-service.client';
 import { saveSpeechAudioFile } from '../utils/audio-storage';
 
 /**
@@ -222,21 +223,24 @@ export class SpeechesController {
             // Use SSML text if available, otherwise plain text
             const textToNarrate = speech.ssmlText || speech.text;
 
-            // Generate audio using AI service
-            const audioResult = await aiService.generateAudio({
+            aiServiceClient.setUserContext(req.user?.userId);
+
+            // Generate audio using AI Service proxy
+            const audioResult = await aiServiceClient.generateAudio({
                 text: textToNarrate,
-                voiceName: character.voiceId,
-                useSSML: !!speech.ssmlText,
+                voiceId: character.voiceId,
                 outputFormat: 'mp3'
             });
 
+            const audioBuffer = Buffer.from(audioResult.audioBase64, 'base64');
+
             // Persist generated audio and save public URL
-            const audioUrl = saveSpeechAudioFile(audioResult.buffer, speechId, audioResult.format);
+            const audioUrl = saveSpeechAudioFile(audioBuffer, speechId, audioResult.format);
 
             // Update speech with stored audio URL and duration
             const updatedSpeech = await speechesService.update(speechId, {
                 audioUrl,
-                audioDurationMs: audioResult.durationMs ?? audioResult.duration
+                audioDurationMs: audioResult.durationMs
             });
 
             res.json({
