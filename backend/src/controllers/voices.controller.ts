@@ -3,6 +3,16 @@ import { aiServiceClient } from '../services/ai-service.client';
 import fs from 'fs';
 import path from 'path';
 
+interface LegacyVoiceResponse {
+    id: string;
+    name: string;
+    gender: string;
+    languageCode: string;
+    provider: string;
+    description?: string;
+    previewUrl?: string;
+}
+
 export class VoicesController {
     /**
      * Lista todas as 30 vozes fixas do Gemini TTS
@@ -14,8 +24,17 @@ export class VoicesController {
             const provider = req.query.provider as string | undefined;
             const result = await aiServiceClient.listVoices(provider);
 
-            // Preserve legacy API contract that returns only the voice array
-            const voices = result.voices;
+            // Preserve legacy /api/voices contract expected by frontend consumers
+            const voices: LegacyVoiceResponse[] = result.voices.map((voice) => ({
+                id: voice.voiceId,
+                name: voice.name,
+                gender: voice.gender,
+                languageCode: voice.language,
+                provider: provider || result.provider,
+                description: voice.description,
+                previewUrl: voice.previewUrl,
+            }));
+
             res.json(voices);
         } catch (error: any) {
             console.error('Erro ao listar vozes:', error);
