@@ -50,6 +50,14 @@ function StudioPageContent() {
   // Composite hook — activates keyboard shortcuts & beforeunload guard
   useStudio();
 
+  // On mobile, start with sidebar closed so the canvas is fully visible
+  useEffect(() => {
+    if (isMobileRef.current) {
+      setLeftSidebarOpen(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (bookId) {
       setActiveBook(bookId);
@@ -64,12 +72,15 @@ function StudioPageContent() {
 
   // When navigating to the page without a selected chapter, reset UI:
   // exit focus mode and ensure sidebar is visible so the user can pick a chapter.
+  // On mobile the sidebar starts closed (it's an overlay menu), so skip forcing it open.
   // Only reacts to chapterId changes — NOT to sidebar/focusMode state changes,
   // otherwise user interactions (toggle sidebar, toggle focus) get instantly reverted.
   useEffect(() => {
     if (!chapterId) {
       setFocusMode(false);
-      setLeftSidebarOpen(true);
+      if (!isMobileRef.current) {
+        setLeftSidebarOpen(true);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterId]);
