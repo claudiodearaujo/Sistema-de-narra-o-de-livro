@@ -3,6 +3,33 @@ import { env } from '../lib/env';
 import { endpoints } from './endpoints';
 import { useAuthStore } from '../stores/auth.store';
 
+interface RequestMeta {
+  requestId: string;
+  startedAt: number;
+}
+
+type RequestConfigWithMeta = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+  _meta?: RequestMeta;
+};
+
+function createRequestId(): string {
+  return `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+}
+
+function getDurationMs(startedAt?: number): number {
+  return startedAt ? Date.now() - startedAt : 0;
+}
+
+function getRequestUrl(config: InternalAxiosRequestConfig): string {
+  const baseURL = config.baseURL ?? http.defaults.baseURL ?? '';
+  return `${baseURL}${config.url ?? ''}`;
+}
+
+function getRequestMethod(config: InternalAxiosRequestConfig): string {
+  return (config.method ?? 'get').toUpperCase();
+}
+
 /**
  * Axios instance configured for the Livrya API
  */
@@ -28,13 +55,29 @@ let lastRefreshAttempt = 0;
  */
 http.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const configWithMeta = config as RequestConfigWithMeta;
+    configWithMeta._meta = {
+      requestId: createRequestId(),
+      startedAt: Date.now(),
+    };
+
     const token = getAccessToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    console.info('[HTTP] Request started', {
+      requestId: configWithMeta._meta.requestId,
+      method: getRequestMethod(config),
+      url: getRequestUrl(config),
+      hasBody: config.data !== undefined,
+      hasAuthToken: Boolean(token),
+    });
+
     return config;
   },
   (error) => {
+    console.error('[HTTP] Request setup failed', error);
     return Promise.reject(error);
   }
 );
@@ -43,12 +86,37 @@ http.interceptors.request.use(
  * Response interceptor to handle token refresh
  */
 http.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response: AxiosResponse) => {
+    const config = response.config as RequestConfigWithMeta;
+    console.info('[HTTP] Request completed', {
+      requestId: config._meta?.requestId,
+      method: getRequestMethod(config),
+      url: getRequestUrl(config),
+      status: response.status,
+      durationMs: getDurationMs(config._meta?.startedAt),
+    });
+
+    return response;
+  },
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as RequestConfigWithMeta;
+
+    if (originalRequest) {
+      const status = error.response?.status ?? 'NETWORK_ERROR';
+      console.error('[HTTP] Request failed', {
+        requestId: originalRequest._meta?.requestId,
+        method: getRequestMethod(originalRequest),
+        url: getRequestUrl(originalRequest),
+        status,
+        durationMs: getDurationMs(originalRequest._meta?.startedAt),
+        message: error.message,
+      });
+    } else {
+      console.error('[HTTP] Request failed before config was created', error);
+    }
 
     // If error is 401 and we haven't retried yet, try to refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       // Check if we're already refreshing or hit the max attempts
       if (isRefreshing) {
         return Promise.reject(error);

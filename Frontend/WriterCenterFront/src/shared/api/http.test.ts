@@ -92,4 +92,42 @@ describe('http auth integration', () => {
     expect(adapter).toHaveBeenCalledTimes(4);
   });
 
+  it('logs request lifecycle for success and failure responses', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const adapter = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: { ok: true },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      })
+      .mockRejectedValueOnce({
+        config: { url: '/broken', method: 'get', headers: {} },
+        response: { status: 500 },
+        message: 'Internal error',
+      } as AxiosError);
+
+    http.defaults.adapter = adapter;
+
+    await http.get('/health');
+    await expect(http.get('/broken')).rejects.toBeTruthy();
+
+    expect(infoSpy).toHaveBeenCalledWith(
+      '[HTTP] Request started',
+      expect.objectContaining({ method: 'GET', url: expect.stringContaining('/health') })
+    );
+    expect(infoSpy).toHaveBeenCalledWith(
+      '[HTTP] Request completed',
+      expect.objectContaining({ status: 200 })
+    );
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[HTTP] Request failed',
+      expect.objectContaining({ status: 500, method: 'GET' })
+    );
+  });
+
 });
