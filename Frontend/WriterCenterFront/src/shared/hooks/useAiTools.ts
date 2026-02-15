@@ -7,6 +7,13 @@ import { endpoints } from '../api/endpoints';
 export interface AiChatRequest {
   message: string;
   history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  bookId?: string;
+  chapterId?: string;
+  speechIds?: string[];
+  stream?: boolean;
+}
+
+interface LegacyAiChatRequestContext {
   context?: {
     bookId?: string;
     chapterId?: string;
@@ -17,6 +24,11 @@ export interface AiChatRequest {
 export interface AiChatResponse {
   message: string;
   suggestions?: string[];
+  usage?: {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+  };
 }
 
 export interface SpellCheckRequest {
@@ -52,12 +64,24 @@ export interface EmotionImageRequest {
   emotion?: string;
 }
 
+function normalizeAiChatRequest(request: AiChatRequest & LegacyAiChatRequestContext): AiChatRequest {
+  const { context, ...topLevelRequest } = request;
+
+  return {
+    ...topLevelRequest,
+    bookId: topLevelRequest.bookId ?? context?.bookId,
+    chapterId: topLevelRequest.chapterId ?? context?.chapterId,
+    speechIds: topLevelRequest.speechIds ?? context?.speechIds,
+  };
+}
+
 // ─── Hooks ───────────────────────────────────────────────────────────────────
 
 export function useAiChat() {
   return useMutation({
-    mutationFn: async (request: AiChatRequest): Promise<AiChatResponse> => {
-      const { data } = await http.post(endpoints.ai.chat, request);
+    mutationFn: async (request: AiChatRequest & LegacyAiChatRequestContext): Promise<AiChatResponse> => {
+      const payload = normalizeAiChatRequest(request);
+      const { data } = await http.post(endpoints.ai.chat, payload);
       return data;
     },
   });
