@@ -85,8 +85,14 @@ export function TopBar() {
 
         <button
           onClick={toggleLeftSidebar}
-          className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
-          title={leftSidebarOpen ? 'Ocultar painel lateral' : 'Mostrar painel lateral'}
+          className={cn(
+            'p-1.5 rounded-md transition-colors shrink-0',
+            leftSidebarOpen
+              ? 'text-zinc-300 bg-zinc-800/80 hover:bg-zinc-700 hover:text-zinc-100'
+              : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/80'
+          )}
+          aria-pressed={leftSidebarOpen}
+          title={leftSidebarOpen ? 'Recolher barra lateral' : 'Expandir barra lateral'}
         >
           {leftSidebarOpen ? (
             <PanelLeftClose className="w-4 h-4" />
@@ -328,8 +334,13 @@ export function TopBar() {
 
         <button
           onClick={toggleFocusMode}
-          className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
-          title={focusMode ? 'Sair do modo foco' : 'Entrar no modo foco'}
+          className={cn(
+            'p-2 rounded transition-colors',
+            focusMode
+              ? 'text-zinc-200 bg-zinc-700 hover:bg-zinc-600'
+              : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+          )}
+          title={focusMode ? 'Sair do modo maximizado' : 'Maximizar área de escrita'}
         >
           {focusMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
         </button>
