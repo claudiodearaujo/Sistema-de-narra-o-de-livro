@@ -71,16 +71,16 @@ export function TopBar() {
   };
 
   return (
-    <header className="h-14 border-b border-zinc-800 flex items-center justify-between px-4 gap-3">
+    <header className="h-12 sm:h-14 border-b border-zinc-800 flex items-center justify-between px-2 sm:px-4 gap-1.5 sm:gap-3">
       {/* Left: Back + Sidebar toggle + Book/Chapter info */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 transition-colors shrink-0"
+          className="flex items-center gap-1 sm:gap-1.5 text-zinc-400 hover:text-zinc-200 transition-colors shrink-0"
           title="Voltar para seleção de livros"
         >
           <ChevronLeft className="w-5 h-5" />
-          <BookOpen className="w-4 h-4" />
+          <BookOpen className="w-4 h-4 hidden sm:block" />
         </button>
 
         <button
@@ -101,24 +101,25 @@ export function TopBar() {
           )}
         </button>
 
-        <div className="h-5 w-px bg-zinc-700 shrink-0" />
+        <div className="h-5 w-px bg-zinc-700 shrink-0 hidden sm:block" />
 
-        <div className="min-w-0">
-          <h1 className="text-sm font-semibold text-zinc-200 truncate">
+        <div className="min-w-0 max-w-[100px] sm:max-w-none">
+          <h1 className="text-xs sm:text-sm font-semibold text-zinc-200 truncate">
             {book?.title ?? 'Carregando...'}
           </h1>
           {chapter && (
-            <p className="text-xs text-zinc-500 truncate">{chapter.title}</p>
+            <p className="text-[10px] sm:text-xs text-zinc-500 truncate">{chapter.title}</p>
           )}
         </div>
       </div>
 
       {/* Center: Selection toolbar OR Undo/Redo */}
-      <div className="flex-1 flex justify-center">
+      <div className="flex-1 flex justify-center min-w-0">
         {hasSelection ? (
-          <div className="flex items-center gap-2 bg-zinc-800 rounded-full px-4 py-1.5 border border-zinc-700 animate-in fade-in slide-in-from-top-2 duration-200">
-            <span className="text-xs font-medium text-zinc-300 mr-2">
-              {selectedSpeechIds.length} selecionada{selectedSpeechIds.length > 1 ? 's' : ''}
+          <div className="flex items-center gap-1 sm:gap-2 bg-zinc-800 rounded-full px-2 sm:px-4 py-1 sm:py-1.5 border border-zinc-700 animate-in fade-in slide-in-from-top-2 duration-200">
+            <span className="text-[10px] sm:text-xs font-medium text-zinc-300 mr-1 sm:mr-2 whitespace-nowrap">
+              {selectedSpeechIds.length} sel.
+              <span className="hidden sm:inline">ecionada{selectedSpeechIds.length > 1 ? 's' : ''}</span>
             </span>
             
             <div className="h-4 w-px bg-zinc-600" />
@@ -210,10 +211,10 @@ export function TopBar() {
       </div>
 
       {/* Right: Save indicator + actions */}
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
         <div
           className={cn(
-            'px-2.5 py-1 text-xs flex items-center gap-1.5 rounded',
+            'px-1.5 sm:px-2.5 py-1 text-xs flex items-center gap-1 sm:gap-1.5 rounded',
             isDirty ? 'text-amber-400' : 'text-zinc-500'
           )}
           title={lastSavedAt ? `Último salvamento: ${lastSavedAt.toLocaleTimeString('pt-BR')}` : ''}
@@ -226,22 +227,20 @@ export function TopBar() {
           <span className="hidden sm:inline">{isDirty ? 'Salvando...' : 'Salvo'}</span>
         </div>
 
-        <div className="h-5 w-px bg-zinc-700" />
+        <div className="h-5 w-px bg-zinc-700 hidden sm:block" />
 
         <button
           onClick={() => openRightPanel('ai')}
-          className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
+          className="p-1.5 sm:p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
           title="Assistente IA"
         >
           <Bot className="w-4 h-4" />
         </button>
 
-
-
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button
-                className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
+                className="p-1.5 sm:p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
                 title="Ferramentas de IA e Batch"
               >
                 <Wand2 className="w-4 h-4" />
@@ -335,7 +334,7 @@ export function TopBar() {
         <button
           onClick={toggleFocusMode}
           className={cn(
-            'p-2 rounded transition-colors',
+            'p-1.5 sm:p-2 rounded transition-colors hidden sm:flex items-center justify-center',
             focusMode
               ? 'text-zinc-200 bg-zinc-700 hover:bg-zinc-600'
               : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
@@ -347,7 +346,7 @@ export function TopBar() {
 
         <button
           onClick={() => handleNotImplemented('Configurações')}
-          className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
+          className="p-1.5 sm:p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors hidden sm:flex items-center justify-center"
           title="Configurações"
         >
           <Settings className="w-4 h-4" />
