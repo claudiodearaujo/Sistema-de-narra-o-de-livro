@@ -62,16 +62,17 @@ function StudioPageContent() {
     }
   }, [chapterId, setActiveChapter]);
 
-  // When entering the page without a selected chapter, exit focus mode
-  // and ensure sidebar is visible so the user can pick a chapter.
+  // When navigating to the page without a selected chapter, reset UI:
+  // exit focus mode and ensure sidebar is visible so the user can pick a chapter.
+  // Only reacts to chapterId changes — NOT to sidebar/focusMode state changes,
+  // otherwise user interactions (toggle sidebar, toggle focus) get instantly reverted.
   useEffect(() => {
-    if (!chapterId && focusMode) {
+    if (!chapterId) {
       setFocusMode(false);
-    }
-    if (!chapterId && !leftSidebarOpen) {
       setLeftSidebarOpen(true);
     }
-  }, [chapterId, focusMode, leftSidebarOpen, setFocusMode, setLeftSidebarOpen]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapterId]);
 
   useEffect(() => {
     if (!focusMode) {
@@ -107,7 +108,7 @@ function StudioPageContent() {
         {/* Left Sidebar — overlay on mobile, inline on desktop */}
         {!focusMode && leftSidebarOpen && (
           <aside className="
-            w-[72vw] sm:w-72
+            w-[80vw] sm:w-72
             fixed sm:relative inset-y-0 left-0 z-40 sm:z-auto
             top-12 sm:top-0
             border-r border-zinc-800 flex flex-col
