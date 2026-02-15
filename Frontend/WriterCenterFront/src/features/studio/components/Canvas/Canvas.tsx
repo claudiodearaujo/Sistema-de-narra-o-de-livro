@@ -154,7 +154,7 @@ export function Canvas() {
 
   return (
     <div className="flex-1 overflow-y-auto scrollbar-thin">
-      <div className="max-w-4xl mx-auto p-6 space-y-2 pb-24">
+      <div className="max-w-4xl mx-auto px-3 py-4 sm:p-6 space-y-2 pb-24">
         {localSpeeches.length === 0 && (
           <div className="text-center py-12">
             <p className="text-zinc-600 text-sm">Nenhuma fala ainda. Adicione a primeira fala abaixo.</p>

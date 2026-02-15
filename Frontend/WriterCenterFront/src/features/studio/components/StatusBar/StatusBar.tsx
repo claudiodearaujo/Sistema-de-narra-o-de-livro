@@ -26,21 +26,21 @@ export function StatusBar() {
   const narratedCount = speeches.filter((s) => s.hasAudio).length;
 
   return (
-    <footer className="h-8 border-t border-zinc-800 flex items-center justify-between px-4 text-xs text-zinc-500">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1.5">
+    <footer className="h-7 sm:h-8 border-t border-zinc-800 flex items-center justify-between px-2 sm:px-4 text-[10px] sm:text-xs text-zinc-500 overflow-hidden">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           <FileText className="w-3 h-3" />
           <span>{wordCount.toLocaleString('pt-BR')} palavras</span>
         </div>
-        <div className="h-3 w-px bg-zinc-700" />
-        <div className="flex items-center gap-1.5">
+        <div className="h-3 w-px bg-zinc-700 hidden sm:block" />
+        <div className="flex items-center gap-1.5 hidden sm:flex">
           <Clock className="w-3 h-3" />
           <span>{estimateNarrationTime(wordCount)} de narração</span>
         </div>
         {speeches.length > 0 && (
           <>
-            <div className="h-3 w-px bg-zinc-700" />
-            <div className="flex items-center gap-1.5">
+            <div className="h-3 w-px bg-zinc-700 hidden sm:block" />
+            <div className="flex items-center gap-1.5 hidden sm:flex">
               <Mic className="w-3 h-3" />
               <span>{narratedCount}/{speeches.length} narradas</span>
             </div>
@@ -48,11 +48,11 @@ export function StatusBar() {
         )}
       </div>
 
-      <div className="flex items-center gap-4">
-        <span>{speeches.length} fala{speeches.length !== 1 ? 's' : ''}</span>
-        <div className="h-3 w-px bg-zinc-700" />
-        <span>{characters.length} personagen{characters.length !== 1 ? 's' : ''}</span>
-        <div className="h-3 w-px bg-zinc-700" />
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        <span className="hidden sm:inline">{speeches.length} fala{speeches.length !== 1 ? 's' : ''}</span>
+        <div className="h-3 w-px bg-zinc-700 hidden sm:block" />
+        <span className="hidden sm:inline">{characters.length} personagen{characters.length !== 1 ? 's' : ''}</span>
+        <div className="h-3 w-px bg-zinc-700 hidden sm:block" />
         <SaveStatus isDirty={isDirty} lastSavedAt={lastSavedAt} />
       </div>
     </footer>

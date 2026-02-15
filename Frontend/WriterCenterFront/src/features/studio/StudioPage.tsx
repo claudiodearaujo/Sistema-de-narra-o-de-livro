@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { Minimize2 } from 'lucide-react';
 import { useStudioStore, useUIStore } from '../../shared/stores';
 import { useStudio } from './hooks/useStudio';
@@ -11,6 +11,18 @@ import { RightPanel } from './components/RightPanel/RightPanel';
 import { CharacterWizardProvider, useCharacterWizardModal } from './context/CharacterWizardContext';
 import { CharacterWizardModal } from './components/CharacterWizard/CharacterWizardModal';
 import { NarrationProvider } from './context/NarrationContext';
+
+/** Check if viewport is mobile-sized (< 640px, matching Tailwind's sm breakpoint) */
+function useIsMobile() {
+  const ref = useRef(typeof window !== 'undefined' && window.innerWidth < 640);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const handler = (e: MediaQueryListEvent) => { ref.current = e.matches; };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return ref;
+}
 
 /**
  * Inner content component that uses CharacterWizardModal context
@@ -24,7 +36,16 @@ function StudioPageContent() {
   const focusMode = useUIStore((state) => state.focusMode);
   const setFocusMode = useUIStore((state) => state.setFocusMode);
   const setLeftSidebarOpen = useUIStore((state) => state.setLeftSidebarOpen);
+  const closeRightPanel = useUIStore((state) => state.closeRightPanel);
   const sidebarStateBeforeFocus = useRef(leftSidebarOpen);
+  const isMobileRef = useIsMobile();
+
+  /** On mobile, close sidebars when tapping the canvas area */
+  const handleCanvasClick = useCallback(() => {
+    if (!isMobileRef.current) return;
+    if (leftSidebarOpen) setLeftSidebarOpen(false);
+    if (rightPanelOpen) closeRightPanel();
+  }, [leftSidebarOpen, rightPanelOpen, setLeftSidebarOpen, closeRightPanel, isMobileRef]);
 
   // Composite hook — activates keyboard shortcuts & beforeunload guard
   useStudio();
@@ -73,10 +94,26 @@ function StudioPageContent() {
       {!focusMode && <TopBar />}
 
       {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile overlay backdrop when sidebar is open */}
+        {!focusMode && (leftSidebarOpen || rightPanelOpen) && (
+          <div
+            className="sm:hidden fixed inset-0 bg-black/50 z-30"
+            onClick={handleCanvasClick}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Left Sidebar — overlay on mobile, inline on desktop */}
         {!focusMode && leftSidebarOpen && (
-          <aside className="w-72 border-r border-zinc-800 flex flex-col">
+          <aside className="
+            w-[85vw] sm:w-72
+            fixed sm:relative inset-y-0 left-0 z-40 sm:z-auto
+            top-12 sm:top-0
+            border-r border-zinc-800 flex flex-col
+            bg-zinc-950 sm:bg-transparent
+            shadow-2xl sm:shadow-none
+          ">
             <LeftSidebar />
           </aside>
         )}
@@ -86,9 +123,16 @@ function StudioPageContent() {
           <Canvas />
         </main>
 
-        {/* Right Panel */}
+        {/* Right Panel — overlay on mobile, inline on desktop */}
         {!focusMode && rightPanelOpen && (
-          <aside className="w-96 border-l border-zinc-800 flex flex-col">
+          <aside className="
+            w-[90vw] sm:w-96
+            fixed sm:relative inset-y-0 right-0 z-40 sm:z-auto
+            top-12 sm:top-0
+            border-l border-zinc-800 flex flex-col
+            bg-zinc-950 sm:bg-transparent
+            shadow-2xl sm:shadow-none
+          ">
             <RightPanel />
           </aside>
         )}

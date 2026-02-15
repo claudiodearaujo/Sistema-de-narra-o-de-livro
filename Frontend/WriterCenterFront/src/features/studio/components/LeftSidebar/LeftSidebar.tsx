@@ -69,13 +69,13 @@ export function LeftSidebar() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'flex-1 px-3 py-2 text-xs font-medium transition-colors',
+                'flex-1 px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-medium transition-colors',
                 activeTab === tab.id
                   ? 'text-amber-400 border-b-2 border-amber-500'
                   : 'text-zinc-500 hover:text-zinc-300'
               )}
             >
-              <Icon className="w-3.5 h-3.5 mx-auto mb-1" />
+              <Icon className="w-3.5 h-3.5 mx-auto mb-0.5 sm:mb-1" />
               {tab.label}
             </button>
           );

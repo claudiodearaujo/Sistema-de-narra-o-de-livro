@@ -95,7 +95,7 @@ export function NewSpeechInput({ characters, onSave, isSaving }: NewSpeechInputP
   }
 
   return (
-    <div className="border border-zinc-700 rounded-lg p-4 space-y-3 bg-zinc-900/30">
+    <div className="border border-zinc-700 rounded-lg p-3 sm:p-4 space-y-3 bg-zinc-900/30">
       {/* Character selector */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs text-zinc-500">Personagem:</span>
@@ -146,8 +146,8 @@ export function NewSpeechInput({ characters, onSave, isSaving }: NewSpeechInputP
       />
 
       {/* Actions */}
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] text-zinc-600">Ctrl+Enter para adicionar · Esc para cancelar</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[10px] sm:text-[11px] text-zinc-600 hidden sm:block">Ctrl+Enter para adicionar · Esc para cancelar</span>
         <div className="flex items-center gap-2">
           <button
             type="button"

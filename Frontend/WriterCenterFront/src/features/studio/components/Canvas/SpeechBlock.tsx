@@ -98,7 +98,7 @@ export function SpeechBlock({
     <div
       className={cn(
         'group relative rounded-lg transition-colors',
-        isNarrator ? 'px-4 py-3' : 'border-l-2 px-4 py-3 pl-5',
+        isNarrator ? 'px-3 sm:px-4 py-3' : 'border-l-2 px-3 sm:px-4 py-3 pl-4 sm:pl-5',
         isSelected && 'bg-amber-500/5 ring-1 ring-amber-500/20',
         !isSelected && !isEditing && 'hover:bg-zinc-900/50'
       )}
@@ -107,7 +107,7 @@ export function SpeechBlock({
       {/* Checkbox on hover */}
       <div
         className={cn(
-          'absolute -left-6 top-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer',
+          'absolute -left-1 sm:-left-6 top-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer',
           isSelected && 'opacity-100'
         )}
         onClick={(e) => {
@@ -179,8 +179,8 @@ export function SpeechBlock({
               isNarrator && 'italic'
             )}
           />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-zinc-600">Ctrl+Enter para salvar · Esc para cancelar</span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-[11px] text-zinc-600 hidden sm:block">Ctrl+Enter para salvar · Esc para cancelar</span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -249,7 +249,7 @@ export function SpeechBlock({
 
       {/* Quick actions on hover (non-editing) */}
       {!isEditing && (
-        <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 z-10">
+        <div className="absolute right-1 sm:right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 sm:gap-1 z-10">
           <SpeechActionButton
             icon={Mic}
             label={isGeneratingAudio ? "Gerando..." : "Gerar narração"}
