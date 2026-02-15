@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FileText, Users, BarChart3 } from 'lucide-react';
 import { useStudioStore } from '../../../../shared/stores';
 import { useChapters, useCreateChapter } from '../../../../shared/hooks/useChapters';
-import { useCharacters, useCreateCharacter, useUpdateCharacter } from '../../../../shared/hooks/useCharacters';
+import { useCharacters } from '../../../../shared/hooks/useCharacters';
 import { useNarrationContext } from '../../context/NarrationContext';
 import { useCharacterWizardModal } from '../../context/CharacterWizardContext';
 import { http } from '../../../../shared/api/http';
@@ -33,8 +33,6 @@ export function LeftSidebar() {
   const narration = useNarrationContext();
   const { openWizard } = useCharacterWizardModal();
   const createChapter = useCreateChapter();
-  const createCharacter = useCreateCharacter();
-  const updateCharacter = useUpdateCharacter();
 
   const handleNewChapter = async () => {
     if (!activeBookId) return;
@@ -112,16 +110,8 @@ export function LeftSidebar() {
           <CharacterList
             characters={characters}
             isLoading={charactersLoading}
-            bookId={activeBookId ?? ''}
-            onNewCharacter={async (dto) => {
-              await createCharacter.mutateAsync(dto);
-            }}
-            onUpdateCharacter={async (id, dto) => {
-              await updateCharacter.mutateAsync({ id, dto });
-            }}
             onPreviewAudio={handlePreviewAudio}
-            onOpenWizard={() => openWizard()}
-            isSaving={createCharacter.isPending || updateCharacter.isPending}
+            onOpenWizard={openWizard}
           />
         )}
 

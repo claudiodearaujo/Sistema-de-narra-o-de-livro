@@ -1,6 +1,6 @@
 /**
  * BasicStep Component (Step 1)
- * Required fields: name, bookId, voiceId, voiceDescription
+ * Required fields: name, voiceId, voiceDescription
  */
 
 import { useState, useEffect } from 'react';
@@ -31,7 +31,6 @@ const VOICE_OPTIONS: VoiceOption[] = [
 interface BasicStepProps {
   data: CharacterFormData;
   onChange: (data: Partial<CharacterFormData>) => void;
-  books?: Array<{ id: string; title: string }>;
   onPreviewVoice?: (voiceId: string) => Promise<void>;
   isPreviewing?: boolean;
   isLoading?: boolean;
@@ -40,7 +39,6 @@ interface BasicStepProps {
 export function BasicStep({
   data,
   onChange,
-  books = [],
   onPreviewVoice,
   isPreviewing = false,
   isLoading = false,
@@ -57,16 +55,12 @@ export function BasicStep({
       newErrors.name = 'Nome deve ter pelo menos 2 caracteres';
     }
 
-    if (!data.bookId?.trim()) {
-      newErrors.bookId = 'Livro é obrigatório';
-    }
-
     if (!data.voiceId?.trim()) {
       newErrors.voiceId = 'Voz é obrigatória';
     }
 
     setErrors(newErrors);
-  }, [data.name, data.bookId, data.voiceId]);
+  }, [data.name, data.voiceId]);
 
   const handlePreviewVoice = () => {
     if (onPreviewVoice && data.voiceId) {
@@ -91,21 +85,6 @@ export function BasicStep({
         required
         error={errors.name}
         maxLength={100}
-      />
-
-      {/* Book Selection */}
-      <FormField
-        label="Livro"
-        name="bookId"
-        type="select"
-        value={data.bookId || ''}
-        onChange={(value) => onChange({ bookId: value as string })}
-        required
-        error={errors.bookId}
-        options={books.map((book) => ({
-          value: book.id,
-          label: book.title,
-        }))}
       />
 
       {/* Voice Selection */}
