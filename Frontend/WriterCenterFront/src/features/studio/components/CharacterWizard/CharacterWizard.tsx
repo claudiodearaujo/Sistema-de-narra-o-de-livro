@@ -20,16 +20,13 @@ import { HairStep } from './steps/HairStep';
 import { WardrobeStep } from './steps/WardrobeStep';
 import type { CharacterWizardProps } from './types/character-wizard.types';
 
-interface CharacterWizardContainerProps extends CharacterWizardProps {
-  books?: Array<{ id: string; title: string }>;
-}
+type CharacterWizardContainerProps = CharacterWizardProps;
 
 export function CharacterWizard({
   isOpen,
   character,
   characterId,
   bookId,
-  books = [],
   onClose,
   onSave,
 }: CharacterWizardContainerProps) {
@@ -244,7 +241,6 @@ export function CharacterWizard({
             <BasicStep
               data={formData}
               onChange={updateBasicFields}
-              books={books}
               onPreviewVoice={handlePreviewVoice}
               isPreviewing={isPreviewing}
               isLoading={isAnyLoading}
