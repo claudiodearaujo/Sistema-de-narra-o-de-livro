@@ -71,7 +71,7 @@ export function TopBar() {
   };
 
   return (
-    <header className="h-12 sm:h-14 border-b border-zinc-800 flex items-center justify-between px-2 sm:px-4 gap-1.5 sm:gap-3">
+    <header className="h-12 sm:h-14 border-b border-zinc-800 flex items-center justify-between px-2 sm:px-4 gap-1.5 sm:gap-3 relative z-50">
       {/* Left: Back + Sidebar toggle + Book/Chapter info */}
       <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
         <button
@@ -334,7 +334,7 @@ export function TopBar() {
         <button
           onClick={toggleFocusMode}
           className={cn(
-            'p-1.5 sm:p-2 rounded transition-colors hidden sm:flex items-center justify-center',
+            'p-1.5 sm:p-2 rounded transition-colors',
             focusMode
               ? 'text-zinc-200 bg-zinc-700 hover:bg-zinc-600'
               : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
