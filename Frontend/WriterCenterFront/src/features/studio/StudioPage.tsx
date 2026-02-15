@@ -92,11 +92,11 @@ function StudioPageContent() {
       {focusMode && (
         <button
           onClick={handleExitFocusMode}
-          className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-200 text-xs backdrop-blur-sm transition-all opacity-60 hover:opacity-100"
-          title="Sair do modo foco (Esc)"
+          className="fixed top-3 right-3 z-50 p-2.5 bg-zinc-900/35 hover:bg-zinc-800/70 border border-zinc-500/30 rounded-full text-zinc-100/75 hover:text-zinc-100 backdrop-blur-sm transition-all"
+          title="Sair do modo maximizado (Esc)"
+          aria-label="Sair do modo maximizado"
         >
-          <Minimize2 className="w-3.5 h-3.5" />
-          <span>Sair do modo foco</span>
+          <Minimize2 className="w-4 h-4" />
         </button>
       )}
 
